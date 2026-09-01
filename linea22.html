@@ -15,33 +15,35 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <!-- Header Compacto -->
-    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <a href="index.html" class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 p-2 rounded-lg text-white transition text-xs font-bold" title="Volver a Líneas">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-                <div>
-                    <h1 class="text-lg md:text-xl font-extrabold leading-tight">Línea 22 - Parque Móvil</h1>
-                    <p class="text-blue-200 dark:text-gray-400 text-xs hidden sm:block">Línea 22 S.A.T.A. | Flota Oficial</p>
-                </div>
+    <!-- Header Centrado con Botón de Volver Agrandado -->
+    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <!-- Botón Volver (Agrandado) -->
+            <a href="index.html" class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm" title="Volver a Líneas">
+                <i class="fa-solid fa-arrow-left text-base"></i>
+                <span class="hidden sm:inline">Volver</span>
+            </a>
+
+            <!-- Título Centrado y en Mayúsculas -->
+            <div class="text-center flex-grow mx-2">
+                <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight">LÍNEA 22</h1>
+                <p class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block">Parque Móvil Oficial</p>
             </div>
             
-            <div class="flex items-center space-x-2">
-                <!-- Botón Modo Oscuro / Claro -->
-                <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
-                    <i id="themeIcon" class="fa-solid fa-moon"></i>
-                    <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
-                </button>
-            </div>
+            <!-- Botón Modo Oscuro / Claro -->
+            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1" title="Cambiar tema">
+                <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
+            </button>
+
         </div>
     </header>
 
     <!-- Contenido Principal -->
     <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full">
 
-        <!-- Tarjetas de Filtro Rápido (Controlados / Pendientes / Todos) -->
+        <!-- Tarjetas de Filtro Rápido -->
         <div class="grid grid-cols-3 gap-2 mb-3">
             <button onclick="setFilter('ALL')" id="btnFilterAll" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-blue-600 dark:border-blue-500 text-center transition">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Total</p>
@@ -67,22 +69,20 @@
                     class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs">
             </div>
 
-            <button onclick="copyMissing()" class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
+            <button onclick="copyMissing()" class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
                 <i class="fa-regular fa-copy"></i>
                 <span>Copiar Faltantes</span>
             </button>
         </div>
 
-        <!-- Tabla de Parque Móvil (Ordenada de menor a mayor por Interno) -->
+        <!-- Tabla de Parque Móvil (Limpia) -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="fleetTable">
                     <thead>
                         <tr class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700">
-                            <!-- Columnas Prioritarias -->
-                            <th class="py-2.5 px-2 font-semibold bg-blue-950 text-yellow-400 text-center">DOMINIO</th>
-                            <th class="py-2.5 px-2 font-semibold bg-blue-950 text-yellow-400 text-center">INTERNO</th>
-                            <!-- Columnas Complementarias -->
+                            <th class="py-2.5 px-2 font-semibold">DOMINIO</th>
+                            <th class="py-2.5 px-2 font-semibold">INTERNO</th>
                             <th class="py-2.5 px-2 font-semibold">MODELO (AÑO)</th>
                             <th class="py-2.5 px-2 font-semibold">HABILITADO HASTA</th>
                             <th class="py-2.5 px-2 font-semibold">TÉCNICA VIGENTE HASTA</th>
@@ -93,12 +93,10 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium" id="fleetTbody">
                         
-                        <!-- FILAS GENERADAS (ORDENADAS DE MENOR A MAYOR POR INTERNO) -->
-                        
                         <!-- Interno 303 -->
                         <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black bg-blue-50/80 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 font-mono text-sm">NWD146</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-blue-50/80 dark:bg-blue-950/40 text-gray-900 dark:text-gray-100 text-sm">303</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">NWD146</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">303</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">Agrale MT 15.0 (2014)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">15/11/2026</span></td>
@@ -109,8 +107,8 @@
 
                         <!-- Interno 306 -->
                         <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black bg-blue-50/80 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 font-mono text-sm">OIN012</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-blue-50/80 dark:bg-blue-950/40 text-gray-900 dark:text-gray-100 text-sm">306</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">OIN012</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">306</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1621 (2015)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">20/10/2026</span></td>
@@ -121,8 +119,8 @@
 
                         <!-- Interno 307 -->
                         <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black bg-blue-50/80 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 font-mono text-sm">PLJ321</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-blue-50/80 dark:bg-blue-950/40 text-gray-900 dark:text-gray-100 text-sm">307</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">PLJ321</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">307</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1621 (2016)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">05/12/2026</span></td>
@@ -133,8 +131,8 @@
 
                         <!-- Interno 348 -->
                         <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black bg-blue-50/80 dark:bg-blue-950/40 text-blue-900 dark:text-blue-300 font-mono text-sm">AA556VB</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-blue-50/80 dark:bg-blue-950/40 text-gray-900 dark:text-gray-100 text-sm">348</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AA556VB</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">348</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2017)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">18/01/2027</span></td>
@@ -143,10 +141,10 @@
                             <td class="py-2.5 px-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">CONTROLADO</span></td>
                         </tr>
 
-                        <!-- Interno 350 (PENDIENTE - Fondo Celeste/Gris Suave) -->
+                        <!-- Interno 350 (PENDIENTE - Fondo Suave) -->
                         <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black bg-sky-50 dark:bg-gray-800 text-blue-900 dark:text-blue-300 font-mono text-sm">AA890CD</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-sky-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm">350</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AA890CD</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">350</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2018)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">12/02/2027</span></td>
@@ -157,8 +155,8 @@
 
                         <!-- Interno 352 (PENDIENTE - Técnica Vencida) -->
                         <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black bg-sky-50 dark:bg-gray-800 text-blue-900 dark:text-blue-300 font-mono text-sm">AB123EF</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-sky-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm">352</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AB123EF</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">352</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2018)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300 px-2 py-0.5 rounded font-bold text-[10px]">01/08/2026</span></td>
@@ -169,8 +167,8 @@
 
                         <!-- Interno 355 (PENDIENTE) -->
                         <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black bg-sky-50 dark:bg-gray-800 text-blue-900 dark:text-blue-300 font-mono text-sm">AC456GH</td>
-                            <td class="py-2.5 px-2 font-extrabold bg-sky-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-sm">355</td>
+                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AC456GH</td>
+                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">355</td>
                             <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">Agrale MT 17.0 (2019)</td>
                             <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
                             <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">10/03/2027</span></td>
@@ -264,12 +262,12 @@
             
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                themeIcon.className = 'fa-solid fa-moon';
+                themeIcon.className = 'fa-solid fa-moon text-sm';
                 themeText.textContent = 'Oscuro';
                 localStorage.setItem('theme', 'light');
             } else {
                 html.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-sun';
+                themeIcon.className = 'fa-solid fa-sun text-sm';
                 themeText.textContent = 'Claro';
                 localStorage.setItem('theme', 'dark');
             }
@@ -277,11 +275,10 @@
 
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
-            document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            document.getElementById('themeIcon').className = 'fa-solid fa-sun text-sm';
             document.getElementById('themeText').textContent = 'Claro';
         }
     </script>
 
 </body>
 </html>
-

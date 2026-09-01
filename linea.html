@@ -53,15 +53,15 @@
 
         <!-- Tarjetas de Filtro Rápido -->
         <div class="grid grid-cols-3 gap-2 mb-3">
-            <button onclick="setFilter('ALL')" id="btnFilterAll" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-blue-600 dark:border-blue-500 text-center transition">
+            <button onclick="setFilter('ALL')" id="btnFilterAll" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-sky-500 ring-2 ring-sky-200 dark:ring-sky-900 text-center transition cursor-pointer">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Total</p>
                 <p class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300" id="countTotal">0</p>
             </button>
-            <button onclick="setFilter('CONTROLADO')" id="btnFilterControlado" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition">
+            <button onclick="setFilter('CONTROLADO')" id="btnFilterControlado" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Controlados</p>
                 <p class="text-base sm:text-lg font-black text-green-600 dark:text-green-400" id="countControlados">0</p>
             </button>
-            <button onclick="setFilter('PENDIENTE')" id="btnFilterPendiente" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition">
+            <button onclick="setFilter('PENDIENTE')" id="btnFilterPendiente" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Pendientes</p>
                 <p class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300" id="countPendientes">0</p>
             </button>
@@ -196,7 +196,6 @@
                 let dominioCSV = getProp(item, ['dominio', 'patente', 'dominio_vehiculo']).toUpperCase();
                 let internoVal = getProp(item, ['interno', 'int', 'unidad']);
                 
-                // Si la fila no tiene ni dominio ni interno, se descarta
                 if (!dominioCSV && !internoVal) return;
                 total++;
 
@@ -268,14 +267,22 @@
             const btnCtrl = document.getElementById('btnFilterControlado');
             const btnPend = document.getElementById('btnFilterPendiente');
 
+            const activeClasses = ['border-2', 'border-sky-500', 'ring-2', 'ring-sky-200', 'dark:ring-sky-900'];
+            const inactiveClasses = ['border', 'border-gray-200', 'dark:border-gray-700'];
+
+            // Limpiar todas las tarjetas
             [btnAll, btnCtrl, btnPend].forEach(btn => {
-                btn.classList.remove('border-2', 'border-blue-600', 'dark:border-blue-500');
-                btn.classList.add('border-gray-200', 'dark:border-gray-700');
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
             });
 
-            if (status === 'ALL') btnAll.classList.add('border-2', 'border-blue-600', 'dark:border-blue-500');
-            if (status === 'CONTROLADO') btnCtrl.classList.add('border-2', 'border-blue-600', 'dark:border-blue-500');
-            if (status === 'PENDIENTE') btnPend.classList.add('border-2', 'border-blue-600', 'dark:border-blue-500');
+            // Resaltar la tarjeta activa
+            let activeBtn = btnAll;
+            if (status === 'CONTROLADO') activeBtn = btnCtrl;
+            if (status === 'PENDIENTE') activeBtn = btnPend;
+
+            activeBtn.classList.remove(...inactiveClasses);
+            activeBtn.classList.add(...activeClasses);
 
             applyFilters();
         }

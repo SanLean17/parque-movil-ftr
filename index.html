@@ -26,20 +26,20 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
     <!-- Header Compacto Mobile -->
-    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-2.5 px-3 border-b dark:border-gray-700">
+    <header class="bg-blue-900 dark:bg-slate-900 text-white shadow-md py-2.5 px-3 border-b border-blue-800 dark:border-slate-800">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-bus-simple text-lg text-blue-300"></i>
                 <div>
                     <h1 class="text-base sm:text-xl font-black uppercase tracking-wider text-white leading-tight">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 dark:text-gray-400 text-[9px] sm:text-xs">Sistema de Fiscalización de Transporte</p>
+                    <p class="text-blue-200 dark:text-slate-400 text-[9px] sm:text-xs">Sistema de Fiscalización de Transporte</p>
                 </div>
             </div>
             
-            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-1.5 sm:px-2.5 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
+            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-slate-800 text-yellow-300 dark:text-yellow-400 p-1.5 sm:px-2.5 rounded-lg border border-blue-700 dark:border-slate-700 hover:bg-blue-700 dark:hover:bg-slate-700 transition text-xs font-bold flex items-center space-x-1">
                 <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
                 <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
             </button>
@@ -52,47 +52,47 @@
         <!-- Buscador y Título -->
         <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-                <h2 class="text-sm sm:text-lg font-black text-gray-800 dark:text-gray-200 uppercase tracking-wide">Estado General de Líneas</h2>
+                <h2 class="text-sm sm:text-lg font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Estado General de Líneas</h2>
             </div>
 
             <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="lineSearch" onkeyup="filterTable()" placeholder="Buscar por línea o empresa..." 
-                    class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
+                    class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
             </div>
         </div>
 
-        <!-- ESTRUCTURA DE TABLA EN COLUMNAS -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <!-- ESTRUCTURA DE TABLA EN COLUMNAS CON DIVISIONES Y RENGLONES ALTERNADOS -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-300 dark:border-slate-800 overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[750px]">
                 <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-[10px] sm:text-xs font-black uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
-                        <th class="py-2.5 px-3 text-center">N° Emp.</th>
-                        <th class="py-2.5 px-3">LÍNEA</th>
-                        <th class="py-2.5 px-3">RAZÓN SOCIAL</th>
-                        <th class="py-2.5 px-3 text-center">Unidades<br>Totales</th>
-                        <th class="py-2.5 px-3 text-center">Unidades<br>Controladas</th>
-                        <th class="py-2.5 px-3 text-center">% Fiscaliz.</th>
-                        <th class="py-2.5 px-3 text-center">Última<br>Visita</th>
-                        <th class="py-2.5 px-3 text-center">Acción</th>
+                    <tr class="bg-blue-900 dark:bg-slate-800 text-white text-[10px] sm:text-xs font-black uppercase tracking-wider divide-x divide-blue-800 dark:divide-slate-700 border-b-2 border-blue-950 dark:border-slate-700">
+                        <th class="py-3 px-3 text-center">N° Emp.</th>
+                        <th class="py-3 px-3 text-center">LÍNEA</th>
+                        <th class="py-3 px-3 text-center">RAZÓN SOCIAL</th>
+                        <th class="py-3 px-3 text-center">Unidades<br>Totales</th>
+                        <th class="py-3 px-3 text-center">Unidades<br>Controladas</th>
+                        <th class="py-3 px-3 text-center">% Fiscaliz.</th>
+                        <th class="py-3 px-3 text-center">Última<br>Visita</th>
+                        <th class="py-3 px-3 text-center">Acción</th>
                     </tr>
                 </thead>
-                <tbody id="linesTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/50 text-xs font-medium">
+                <tbody id="linesTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs font-medium">
                     <!-- Filas generadas dinámicamente -->
                 </tbody>
             </table>
         </div>
 
-        <div id="noResults" class="hidden text-center py-10 text-gray-400">
+        <div id="noResults" class="hidden text-center py-10 text-slate-400">
             <i class="fa-solid fa-bus text-3xl mb-1 opacity-40"></i>
             <p class="text-xs font-semibold">No se encontraron líneas coincidentes</p>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2 text-center text-[10px] mt-auto border-t border-gray-700">
+    <footer class="bg-slate-800 dark:bg-slate-950 text-slate-400 py-2.5 text-center text-[10px] mt-auto border-t border-slate-700">
         Parque Móvil FTR &copy; 2026
     </footer>
 
@@ -105,7 +105,6 @@
 
         const tbody = document.getElementById("linesTableBody");
 
-        // Helper para obtener valor de propiedad flexibilizando nombres
         function getProp(obj, names) {
             if (!obj) return '';
             const keys = Object.keys(obj);
@@ -119,11 +118,8 @@
             return '';
         }
 
-        // Extractor específico para N° de Empresa desde el objeto fila del parque
         function extraerNroEmpresa(row) {
             if (!row) return '';
-            
-            // Lista de variaciones comunes para la columna de número de empresa
             const nombresPosibles = [
                 'nro_emp', 'num_emp', 'nroemp', 'numemp', 'empresa_id', 'id_empresa', 
                 'cod_empresa', 'codigo_empresa', 'nro_empresa', 'num_empresa', 'cod_emp', 
@@ -133,20 +129,16 @@
             let res = getProp(row, nombresPosibles);
             if (res) return res;
 
-            // Búsqueda heurística si no coincide exactamente el nombre de la columna
             for (let key in row) {
                 const cleanKey = key.trim().toLowerCase();
                 if (cleanKey.includes('emp') || cleanKey.includes('cod') || cleanKey.includes('id')) {
                     const val = String(row[key]).trim();
-                    if (/^\d+$/.test(val)) { // Si es un valor puramente numérico
-                        return val;
-                    }
+                    if (/^\d+$/.test(val)) return val;
                 }
             }
             return '';
         }
 
-        // Parsear fechas a Objeto Date
         function parseFecha(fechaStr) {
             if (!fechaStr || fechaStr === '-' || fechaStr.toLowerCase().includes('sin')) return null;
             
@@ -170,7 +162,6 @@
             return isNaN(d.getTime()) ? null : d;
         }
 
-        // Formatear Date a DD/MM/YYYY
         function formatFecha(date) {
             if (!date) return 'Sin registros';
             const dia = String(date.getDate()).padStart(2, '0');
@@ -179,36 +170,50 @@
             return `${dia}/${mes}/${anio}`;
         }
 
-        // Armar estructura base de la tabla
-        lineas.forEach((id) => {
+        // Generar filas intercalando colores y bordes verticales de división
+        lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
-            tr.className = "line-row hover:bg-blue-50/50 dark:hover:bg-gray-700/40 transition";
+            
+            // Alternancia de colores por renglón (Modo Claro / Modo Oscuro)
+            const bgClass = (index % 2 === 0) 
+                ? "bg-white dark:bg-slate-900/90" 
+                : "bg-blue-50/40 dark:bg-slate-800/60";
+
+            tr.className = `line-row ${bgClass} hover:bg-blue-100/50 dark:hover:bg-slate-700/60 transition divide-x divide-slate-200 dark:divide-slate-800`;
             tr.setAttribute("data-linea", id);
 
             tr.innerHTML = `
-                <td class="py-2.5 px-3 text-center font-code text-gray-500 dark:text-gray-400 text-[11px] font-bold" id="emp-num-${id}">
+                <!-- N° EMP -->
+                <td class="py-2.5 px-3 text-center font-code text-slate-600 dark:text-slate-400 text-[11px] font-bold" id="emp-num-${id}">
                     -
                 </td>
-                <td class="py-2.5 px-3 font-black text-gray-900 dark:text-gray-100 font-code whitespace-nowrap">
-                    <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
+                <!-- LÍNEA -->
+                <td class="py-2.5 px-3 text-center font-black text-slate-900 dark:text-slate-100 font-code whitespace-nowrap">
+                    <span class="bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded shadow-sm">
                         LÍNEA ${id}
                     </span>
                 </td>
-                <td class="py-2.5 px-3 font-bold text-gray-700 dark:text-gray-200 uppercase truncate max-w-[200px]" id="empresa-${id}">
+                <!-- RAZÓN SOCIAL -->
+                <td class="py-2.5 px-3 font-bold text-slate-700 dark:text-slate-200 uppercase truncate max-w-[200px]" id="empresa-${id}">
                     Cargando...
                 </td>
-                <td class="py-2.5 px-3 text-center font-code font-bold text-gray-800 dark:text-gray-100" id="total-${id}">
+                <!-- TOTALES -->
+                <td class="py-2.5 px-3 text-center font-code font-bold text-slate-800 dark:text-slate-100" id="total-${id}">
                     -
                 </td>
+                <!-- CONTROLADAS -->
                 <td class="py-2.5 px-3 text-center font-code font-bold text-green-600 dark:text-green-400" id="controladas-${id}">
                     -
                 </td>
+                <!-- % FISCALIZADO -->
                 <td class="py-2.5 px-3 text-center font-code font-bold text-blue-600 dark:text-blue-400" id="porcentaje-${id}">
                     -
                 </td>
-                <td class="py-2.5 px-3 text-center font-code text-[11px] text-gray-600 dark:text-gray-300 whitespace-nowrap" id="visita-${id}">
+                <!-- ÚLTIMA VISITA -->
+                <td class="py-2.5 px-3 text-center font-code text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap" id="visita-${id}">
                     -
                 </td>
+                <!-- ACCIÓN -->
                 <td class="py-2.5 px-3 text-center whitespace-nowrap">
                     <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition inline-flex items-center space-x-1 shadow-sm">
                         <span>Parque Móvil</span>
@@ -221,7 +226,6 @@
             cargarDatosLinea(id);
         });
 
-        // Lectura de los CSV
         function cargarDatosLinea(id) {
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
@@ -235,11 +239,9 @@
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
                         if (totalParque > 0) {
-                            // Razón Social
                             let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
                             document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
 
-                            // N° de Empresa extraído del CSV de Parque
                             let nroEmp = extraerNroEmpresa(parqueData[0]);
                             document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
                         } else {
@@ -247,7 +249,6 @@
                             document.getElementById(`emp-num-${id}`).textContent = '-';
                         }
 
-                        // Inspecciones desde "controlados/lineaX.csv"
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
@@ -259,7 +260,6 @@
                                     let maxFechaObj = null;
 
                                     controlData.forEach(row => {
-                                        // Dominio / Patente
                                         let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
                                         if (!dom) {
                                             for (let key in row) {
@@ -273,7 +273,6 @@
 
                                         if (dom) dominiosControlados.add(dom.toUpperCase());
 
-                                        // Fecha
                                         let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
                                         if (!fechaStr) {
                                             for (let key in row) {

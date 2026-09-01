@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil FTR - Menú Principal</title>
+    <title>Parque Móvil FTR - Panel General</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse para CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <!-- Fuente JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,12 +30,12 @@
 
     <!-- Header Centrado -->
     <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-4 px-4 border-b dark:border-gray-700">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <i class="fa-solid fa-bus-simple text-2xl text-blue-300"></i>
                 <div>
                     <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 dark:text-gray-400 text-xs">Sistema de Fiscalización de Transporte</p>
+                    <p class="text-blue-200 dark:text-gray-400 text-xs">Panel General de Fiscalización</p>
                 </div>
             </div>
             
@@ -45,31 +47,31 @@
     </header>
 
     <!-- Contenido Principal -->
-    <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
-        <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-1">Seleccionar Línea</h2>
-                <p class="text-xs text-gray-500 dark:text-gray-400">Elegí una línea del 0 al 200 para ingresar a su parque y fiscalizaciones.</p>
+                <h2 class="text-xl font-black text-gray-800 dark:text-gray-200">Líneas de Colectivos</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Seleccioná una línea para ver la información detallada del parque.</p>
             </div>
 
-            <!-- Buscador de Líneas -->
-            <div class="relative w-full sm:w-64">
+            <!-- Buscador Rápido -->
+            <div class="relative w-full sm:w-72">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="lineSearch" onkeyup="filterLines()" placeholder="Buscar línea (ej: 159)..." 
+                <input type="text" id="lineSearch" onkeyup="filterLines()" placeholder="Buscar por línea o empresa..." 
                     class="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
             </div>
         </div>
 
-        <!-- GRILLA AUTOMÁTICA DE LÍNEAS (0 a 200) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="linesGrid">
-            <!-- Se generan dinámicamente con JS -->
+        <!-- GRILLA DE TARJETAS COMPLETAS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="linesGrid">
+            <!-- Se generan dinámicamente en orden ascendente -->
         </div>
 
         <div id="noResults" class="hidden text-center py-12 text-gray-400">
             <i class="fa-solid fa-bus text-4xl mb-2 opacity-40"></i>
-            <p class="text-sm font-semibold">No se encontró la línea buscada</p>
+            <p class="text-sm font-semibold">No se encontraron líneas asociadas</p>
         </div>
     </main>
 
@@ -79,31 +81,88 @@
     </footer>
 
     <script>
-        // Generar dinámicamente las tarjetas desde la línea 0 hasta la 200
+        // Lista de líneas ordenada numéricamente (de menor a mayor)
+        const lineas = [
+            2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 75, 
+            79, 80, 85, 91, 92, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
+            158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
+        ].sort((a, b) => a - b);
+
         const grid = document.getElementById("linesGrid");
 
-        for (let i = 0; i <= 200; i++) {
-            const a = document.createElement("a");
-            a.href = `linea.html?id=${i}`;
-            a.className = "line-card bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:border-blue-600 dark:hover:border-blue-500 transition flex items-center justify-between group cursor-pointer";
-            a.setAttribute("data-linea", i);
-
-            a.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-100 dark:bg-gray-700 text-blue-900 dark:text-blue-300 w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm font-code group-hover:bg-blue-800 group-hover:text-white transition">
-                        ${i}
-                    </div>
-                    <div>
-                        <h2 class="text-sm font-extrabold text-gray-900 dark:text-gray-100 font-code tracking-wide">LÍNEA ${i}</h2>
-                        <p class="text-[10px] text-gray-500 dark:text-gray-400">Ver parque y fiscalización</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all text-xs"></i>
-            `;
-            grid.appendChild(a);
+        // Helper para obtener datos del CSV independientemente del nombre de la columna
+        function getProp(obj, names) {
+            const keys = Object.keys(obj);
+            for (let name of names) {
+                const found = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
+                if (found && obj[found] !== null && obj[found] !== undefined) return String(obj[found]).trim();
+            }
+            return '';
         }
 
-        // Función para buscar en tiempo real entre las 201 líneas
+        // Crear la estructura visual de cada tarjeta
+        lineas.forEach(id => {
+            const card = document.createElement("div");
+            card.className = "line-card bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition overflow-hidden flex flex-col justify-between";
+            card.setAttribute("data-linea", id);
+
+            card.innerHTML = `
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="bg-blue-100 text-blue-900 dark:bg-blue-900/40 dark:text-blue-300 font-extrabold text-sm px-2.5 py-1 rounded-md font-code inline-block">
+                                LÍNEA ${id}
+                            </span>
+                        </div>
+                        <i class="fa-solid fa-bus text-gray-300 dark:text-gray-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xs font-bold text-gray-700 dark:text-gray-300 truncate tracking-tight uppercase" id="empresa-${id}">
+                        Cargando empresa...
+                    </h3>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-gray-800/60 px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center mt-auto">
+                    <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400">Estado del Parque</span>
+                    <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-1.5 rounded-lg font-bold transition flex items-center space-x-1">
+                        <span>Ingresar</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            `;
+
+            grid.appendChild(card);
+            fetchEmpresaName(id);
+        });
+
+        // Cargar el nombre/código de la empresa desde el CSV correspondiente
+        function fetchEmpresaName(id) {
+            Papa.parse(`parques/linea${id}.csv`, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                preview: 5, // Lee solo las primeras filas para ser súper rápido
+                complete: function(results) {
+                    const el = document.getElementById(`empresa-${id}`);
+                    if (results && results.data && results.data.length > 0) {
+                        let emp = getProp(results.data[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre']);
+                        if (emp) {
+                            el.textContent = emp;
+                            el.setAttribute("data-search", emp.toLowerCase());
+                        } else {
+                            el.textContent = `EMPRESA LÍNEA ${id}`;
+                        }
+                    } else {
+                        el.textContent = `EMPRESA LÍNEA ${id}`;
+                    }
+                },
+                error: function() {
+                    const el = document.getElementById(`empresa-${id}`);
+                    if(el) el.textContent = `EMPRESA LÍNEA ${id}`;
+                }
+            });
+        }
+
+        // Filtro de búsqueda en tiempo real
         function filterLines() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
             const cards = document.querySelectorAll(".line-card");
@@ -111,7 +170,10 @@
 
             cards.forEach(card => {
                 const num = card.getAttribute("data-linea");
-                if (num.includes(query) || `linea ${num}`.includes(query)) {
+                const empEl = card.querySelector("h3");
+                const empText = empEl ? empEl.textContent.toLowerCase() : "";
+
+                if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query)) {
                     card.style.display = "";
                     visibleCount++;
                 } else {
@@ -127,7 +189,7 @@
             }
         }
 
-        // Modo oscuro
+        // Modo Oscuro
         function toggleDarkMode() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');

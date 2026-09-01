@@ -105,38 +105,63 @@
 
         const tbody = document.getElementById("linesTableBody");
 
-        // Helper para obtener valor de propiedad ignorando mayúsculas/minúsculas y espacios
+        // Helper para obtener valor de propiedad flexibilizando nombres
         function getProp(obj, names) {
             if (!obj) return '';
             const keys = Object.keys(obj);
             for (let name of names) {
-                const found = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
-                if (found && obj[found] !== null && obj[found] !== undefined) return String(obj[found]).trim();
+                const found = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                if (found && obj[found] !== null && obj[found] !== undefined) {
+                    const val = String(obj[found]).trim();
+                    if (val !== '') return val;
+                }
             }
             return '';
         }
 
-        // Función para parsear fechas variadas (DD/MM/YYYY, YYYY-MM-DD, etc.) a Objeto Date
+        // Extractor específico para N° de Empresa desde el objeto fila del parque
+        function extraerNroEmpresa(row) {
+            if (!row) return '';
+            
+            // Lista de variaciones comunes para la columna de número de empresa
+            const nombresPosibles = [
+                'nro_emp', 'num_emp', 'nroemp', 'numemp', 'empresa_id', 'id_empresa', 
+                'cod_empresa', 'codigo_empresa', 'nro_empresa', 'num_empresa', 'cod_emp', 
+                'codigo_emp', 'empresa_num', 'idempresa', 'nroempresa', 'codigo'
+            ];
+
+            let res = getProp(row, nombresPosibles);
+            if (res) return res;
+
+            // Búsqueda heurística si no coincide exactamente el nombre de la columna
+            for (let key in row) {
+                const cleanKey = key.trim().toLowerCase();
+                if (cleanKey.includes('emp') || cleanKey.includes('cod') || cleanKey.includes('id')) {
+                    const val = String(row[key]).trim();
+                    if (/^\d+$/.test(val)) { // Si es un valor puramente numérico
+                        return val;
+                    }
+                }
+            }
+            return '';
+        }
+
+        // Parsear fechas a Objeto Date
         function parseFecha(fechaStr) {
             if (!fechaStr || fechaStr === '-' || fechaStr.toLowerCase().includes('sin')) return null;
             
-            // Si es estilo DD/MM/YYYY
             if (fechaStr.includes('/')) {
                 const p = fechaStr.split('/');
                 if (p.length === 3) {
-                    const dia = parseInt(p[0], 10);
-                    const mes = parseInt(p[1], 10) - 1;
-                    const anio = parseInt(p[2], 10);
-                    return new Date(anio, mes, dia);
+                    return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
                 }
             }
-            // Si es estilo YYYY-MM-DD
             if (fechaStr.includes('-')) {
                 const p = fechaStr.split('-');
                 if (p.length === 3) {
-                    if (p[0].length === 4) { // YYYY-MM-DD
+                    if (p[0].length === 4) {
                         return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
-                    } else { // DD-MM-YYYY
+                    } else {
                         return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
                     }
                 }
@@ -154,15 +179,15 @@
             return `${dia}/${mes}/${anio}`;
         }
 
-        // Crear la tabla
-        lineas.forEach((id, index) => {
+        // Armar estructura base de la tabla
+        lineas.forEach((id) => {
             const tr = document.createElement("tr");
             tr.className = "line-row hover:bg-blue-50/50 dark:hover:bg-gray-700/40 transition";
             tr.setAttribute("data-linea", id);
 
             tr.innerHTML = `
                 <td class="py-2.5 px-3 text-center font-code text-gray-500 dark:text-gray-400 text-[11px] font-bold" id="emp-num-${id}">
-                    ${index + 1}
+                    -
                 </td>
                 <td class="py-2.5 px-3 font-black text-gray-900 dark:text-gray-100 font-code whitespace-nowrap">
                     <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
@@ -196,7 +221,7 @@
             cargarDatosLinea(id);
         });
 
-        // Carga y cruzamiento de datos
+        // Lectura de los CSV
         function cargarDatosLinea(id) {
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
@@ -210,18 +235,19 @@
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
                         if (totalParque > 0) {
+                            // Razón Social
                             let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
                             document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
 
-                            let nroEmp = getProp(parqueData[0], ['nro_emp', 'num_emp', 'empresa_id', 'id_empresa', 'nro_empresa', 'num_empresa', 'cod_empresa']);
-                            if (nroEmp) {
-                                document.getElementById(`emp-num-${id}`).textContent = nroEmp;
-                            }
+                            // N° de Empresa extraído del CSV de Parque
+                            let nroEmp = extraerNroEmpresa(parqueData[0]);
+                            document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
                         } else {
                             document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
+                            document.getElementById(`emp-num-${id}`).textContent = '-';
                         }
 
-                        // Cargar Inspecciones Controladas
+                        // Inspecciones desde "controlados/lineaX.csv"
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
@@ -233,10 +259,8 @@
                                     let maxFechaObj = null;
 
                                     controlData.forEach(row => {
-                                        // Buscar dominio/patente en cualquier columna posible
+                                        // Dominio / Patente
                                         let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
-                                        
-                                        // Fallback: buscar cualquier valor con formato de patente en los campos de la fila
                                         if (!dom) {
                                             for (let key in row) {
                                                 const val = String(row[key]).trim();
@@ -247,14 +271,10 @@
                                             }
                                         }
 
-                                        if (dom) {
-                                            dominiosControlados.add(dom.toUpperCase());
-                                        }
+                                        if (dom) dominiosControlados.add(dom.toUpperCase());
 
-                                        // Extraer fecha
+                                        // Fecha
                                         let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
-                                        
-                                        // Fallback: buscar en los valores cualquier patrón de fecha
                                         if (!fechaStr) {
                                             for (let key in row) {
                                                 const val = String(row[key]).trim();
@@ -300,6 +320,7 @@
 
                     } else {
                         document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
+                        document.getElementById(`emp-num-${id}`).textContent = '-';
                         document.getElementById(`total-${id}`).textContent = 0;
                         document.getElementById(`controladas-${id}`).textContent = 0;
                         document.getElementById(`porcentaje-${id}`).textContent = '0%';
@@ -308,6 +329,7 @@
                 },
                 error: function() {
                     document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
+                    document.getElementById(`emp-num-${id}`).textContent = '-';
                     document.getElementById(`total-${id}`).textContent = 0;
                     document.getElementById(`controladas-${id}`).textContent = 0;
                     document.getElementById(`porcentaje-${id}`).textContent = '0%';
@@ -316,7 +338,7 @@
             });
         }
 
-        // Búsqueda en tiempo real
+        // Buscador
         function filterTable() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
             const rows = document.querySelectorAll(".line-row");
@@ -325,9 +347,11 @@
             rows.forEach(row => {
                 const num = row.getAttribute("data-linea");
                 const empEl = row.querySelector(`#empresa-${num}`);
+                const empNumEl = row.querySelector(`#emp-num-${num}`);
                 const empText = empEl ? empEl.textContent.toLowerCase() : "";
+                const empNumText = empNumEl ? empNumEl.textContent.toLowerCase() : "";
 
-                if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query)) {
+                if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query) || empNumText.includes(query)) {
                     row.style.display = "";
                     visibleCount++;
                 } else {

@@ -8,9 +8,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- Fuente Google JetBrains Mono para alta legibilidad de números y patentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            darkMode: 'class'
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        code: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -63,7 +74,7 @@
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Buscar por Interno o Patente..." 
-                    class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs">
+                    class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code">
             </div>
 
             <button onclick="copyMissing()" class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
@@ -72,7 +83,7 @@
             </button>
         </div>
 
-        <!-- Tabla de Parque Móvil -->
+        <!-- Tabla -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="fleetTable">
@@ -105,9 +116,6 @@
 
     <!-- Scripts -->
     <script>
-        // =========================================================================
-        // PEGÁ ACÁ TUS DATOS DE GOOGLE SHEETS (SELECCIONÁ LAS 3 COLUMNAS Y PEGÁ)
-        // =========================================================================
         const rawControlados = `
 03/02/2026	AA556VC	301
 01/04/2026	OWG796	302
@@ -153,11 +161,9 @@
 18/05/2026	PNN729	362
 18/05/2026	AA537ZZ	366
         `;
-        // =========================================================================
 
         let currentStatusFilter = 'ALL';
 
-        // Parsear el bloque de texto en un mapa/diccionario { DOMINIO: FECHA }
         function parseControladosMap(rawText) {
             const map = {};
             const lines = rawText.trim().split("\n");
@@ -167,7 +173,6 @@
                 if (parts.length >= 2) {
                     const fecha = parts[0];
                     const dominio = parts[1].toUpperCase();
-                    // Guarda la última fecha de fiscalización para cada dominio
                     map[dominio] = fecha;
                 }
             });
@@ -176,7 +181,6 @@
 
         const mapControlados = parseControladosMap(rawControlados);
 
-        // Cargar y procesar el CSV automáticamente
         Papa.parse("linea22.csv", {
             download: true,
             header: true,
@@ -186,7 +190,7 @@
                 renderFleet(results.data);
             },
             error: function(err) {
-                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'. Verificá que el archivo esté subido al repositorio.</td></tr>`;
+                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'.</td></tr>`;
             }
         });
 
@@ -216,7 +220,6 @@
                 let modeloText = `${item.chasisMarca || ''} ${item.chasisModelo || ''} (${item.anioModelo || ''})`.trim();
                 let habHasta = item.vigenciaHasta ? item.vigenciaHasta.replace("UC:", "") : "-";
 
-                // Validar Técnica Vencida
                 let tecFecha = item.vigenciaHastaInspeccionTecnica || "-";
                 let tecBadgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
 
@@ -237,13 +240,13 @@
                 tr.setAttribute("data-status", statusText);
 
                 tr.innerHTML = `
-                    <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">${dominioCSV || '-'}</td>
-                    <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">${item.interno || '-'}</td>
+                    <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 font-code text-sm tracking-wider">${dominioCSV || '-'}</td>
+                    <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">${item.interno || '-'}</td>
                     <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">${modeloText}</td>
-                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">${habHasta}</td>
-                    <td class="py-2.5 px-2"><span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px]">${tecFecha}</span></td>
-                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">${item.tecnicaNro || '-'}</td>
-                    <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200">${fechaFiscalizacion ? fechaFiscalizacion : '<span class="text-gray-400 font-normal italic">-</span>'}</td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">${habHasta}</td>
+                    <td class="py-2.5 px-2"><span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code">${tecFecha}</span></td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">${item.tecnicaNro || '-'}</td>
+                    <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200 font-code">${fechaFiscalizacion ? fechaFiscalizacion : '<span class="text-gray-400 font-normal italic font-sans">-</span>'}</td>
                     <td class="py-2.5 px-2">
                         <span class="${isControlado ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} px-2 py-0.5 rounded-full font-bold text-[10px]">
                             ${statusText}
@@ -348,6 +351,5 @@
             document.getElementById('themeText').textContent = 'Claro';
         }
     </script>
-
 </body>
 </html>

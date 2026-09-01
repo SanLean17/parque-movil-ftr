@@ -6,7 +6,7 @@
     <title>Línea 22 - Parque Móvil FTR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse para leer archivos CSV -->
+    <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
         tailwind.config = {
@@ -72,7 +72,7 @@
             </button>
         </div>
 
-        <!-- Tabla -->
+        <!-- Tabla de Parque Móvil -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="fleetTable">
@@ -84,12 +84,13 @@
                             <th class="py-2.5 px-2 font-semibold">HABILITADO HASTA</th>
                             <th class="py-2.5 px-2 font-semibold">TÉCNICA VIGENTE HASTA</th>
                             <th class="py-2.5 px-2 font-semibold">N° TÉCNICA</th>
+                            <th class="py-2.5 px-2 font-semibold">ÚLTIMA FISCALIZACIÓN</th>
                             <th class="py-2.5 px-2 font-semibold">ESTADO</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium" id="fleetTbody">
                         <tr>
-                            <td colspan="7" class="py-6 text-center text-gray-500">Cargando parque móvil...</td>
+                            <td colspan="8" class="py-6 text-center text-gray-500">Cargando datos...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -104,10 +105,76 @@
 
     <!-- Scripts -->
     <script>
-        // === LISTA DE INTERNOS CONTROLADOS (EDITAR AQUÍ) ===
-        const controlados = [303, 306, 307, 324, 329]; 
+        // =========================================================================
+        // PEGÁ ACÁ TUS DATOS DE GOOGLE SHEETS (SELECCIONÁ LAS 3 COLUMNAS Y PEGÁ)
+        // =========================================================================
+        const rawControlados = `
+03/02/2026	AA556VC	301
+01/04/2026	OWG796	302
+03/02/2026	NWD145	303
+01/09/2026	NWD146	303
+01/09/2026	OJH809	304
+03/02/2026	NWM384	305
+17/07/2026	OIN012	306
+17/07/2026	PLJ321	307
+18/05/2026	NWM383	309
+03/02/2026	NWM386	310
+17/07/2026	OTO687	311
+01/09/2026	PMX286	312
+03/02/2026	PAX143	313
+18/05/2026	OIS834	314
+18/05/2026	PMX285	315
+01/09/2026	PMX284	315
+03/02/2026	OVS434	316
+01/04/2026	AA383LA	317
+01/04/2026	OHJ292	319
+18/05/2026	OHJ289	321
+01/04/2026	OHJ290	322
+03/02/2026	OHJ291	323
+17/07/2026	AA040AW	324
+01/04/2026	AA383MV	325
+01/04/2026	OKJ777	326
+01/09/2026	OKJ777	326
+01/09/2026	ONV915	327
+17/07/2026	OQZ445	330
+17/07/2026	ONV913	332
+17/07/2026	NWD144	333
+18/05/2026	NDW145	336
+01/09/2026	NWD145	336
+03/02/2026	OMX979	337
+01/04/2026	AA356KZ	340
+01/04/2026	ONV914	344
+17/07/2026	PLJ320	345
+01/09/2026	OGI355	346
+18/05/2026	AA556VB	348
+03/02/2026	PMX285	352
+01/04/2026	NWD147	354
+18/05/2026	PLJ318	360
+18/05/2026	PNN729	362
+18/05/2026	AA537ZZ	366
+        `;
+        // =========================================================================
 
         let currentStatusFilter = 'ALL';
+
+        // Parsear el bloque de texto en un mapa/diccionario { DOMINIO: FECHA }
+        function parseControladosMap(rawText) {
+            const map = {};
+            const lines = rawText.trim().split("\n");
+            
+            lines.forEach(line => {
+                const parts = line.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                    const fecha = parts[0];
+                    const dominio = parts[1].toUpperCase();
+                    // Guarda la última fecha de fiscalización para cada dominio
+                    map[dominio] = fecha;
+                }
+            });
+            return map;
+        }
+
+        const mapControlados = parseControladosMap(rawControlados);
 
         // Cargar y procesar el CSV automáticamente
         Papa.parse("linea22.csv", {
@@ -119,12 +186,11 @@
                 renderFleet(results.data);
             },
             error: function(err) {
-                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="7" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'. Asegurate de haber subido el archivo al repositorio.</td></tr>`;
+                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'. Verificá que el archivo esté subido al repositorio.</td></tr>`;
             }
         });
 
         function renderFleet(data) {
-            // Ordenar de menor a mayor por número de interno
             data.sort((a, b) => parseInt(a.interno || 0) - parseInt(b.interno || 0));
 
             let tbody = document.getElementById("fleetTbody");
@@ -137,8 +203,9 @@
             const hoy = new Date().toISOString().split('T')[0];
 
             data.forEach(item => {
-                let internoNum = parseInt(item.interno);
-                let isControlado = controlados.includes(internoNum);
+                let dominioCSV = (item.dominio || '').trim().toUpperCase();
+                let fechaFiscalizacion = mapControlados[dominioCSV] || null;
+                let isControlado = !!fechaFiscalizacion;
 
                 if (isControlado) countControlados++;
                 else countPendientes++;
@@ -146,13 +213,10 @@
                 let statusText = isControlado ? "CONTROLADO" : "PENDIENTE";
                 let rowBg = isControlado ? "" : "bg-slate-50 dark:bg-gray-800/60";
 
-                // Formatear Modelo y Marca
                 let modeloText = `${item.chasisMarca || ''} ${item.chasisModelo || ''} (${item.anioModelo || ''})`.trim();
-
-                // Formatear Habilitación
                 let habHasta = item.vigenciaHasta ? item.vigenciaHasta.replace("UC:", "") : "-";
 
-                // Validar Fecha de Inspección Técnica
+                // Validar Técnica Vencida
                 let tecFecha = item.vigenciaHastaInspeccionTecnica || "-";
                 let tecBadgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
 
@@ -173,12 +237,13 @@
                 tr.setAttribute("data-status", statusText);
 
                 tr.innerHTML = `
-                    <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">${item.dominio || '-'}</td>
+                    <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">${dominioCSV || '-'}</td>
                     <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">${item.interno || '-'}</td>
                     <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">${modeloText}</td>
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">${habHasta}</td>
                     <td class="py-2.5 px-2"><span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px]">${tecFecha}</span></td>
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">${item.tecnicaNro || '-'}</td>
+                    <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200">${fechaFiscalizacion ? fechaFiscalizacion : '<span class="text-gray-400 font-normal italic">-</span>'}</td>
                     <td class="py-2.5 px-2">
                         <span class="${isControlado ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} px-2 py-0.5 rounded-full font-bold text-[10px]">
                             ${statusText}
@@ -189,7 +254,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Actualizar contadores
             document.getElementById("countTotal").textContent = total;
             document.getElementById("countControlados").textContent = countControlados;
             document.getElementById("countPendientes").textContent = countPendientes;

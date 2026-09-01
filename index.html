@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil FTR - Panel General</title>
+    <title>Parque Móvil FTR - Resumen General</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PapaParse para CSV -->
@@ -28,14 +28,14 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <!-- Header ultra compacto para Mobile -->
+    <!-- Header Compacto Mobile -->
     <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-2.5 px-3 border-b dark:border-gray-700">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-bus-simple text-lg text-blue-300"></i>
                 <div>
                     <h1 class="text-base sm:text-xl font-black uppercase tracking-wider text-white leading-tight">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 dark:text-gray-400 text-[9px] sm:text-xs">Fiscalización de Transporte</p>
+                    <p class="text-blue-200 dark:text-gray-400 text-[9px] sm:text-xs">Sistema de Fiscalización de Transporte</p>
                 </div>
             </div>
             
@@ -47,26 +47,42 @@
     </header>
 
     <!-- Contenido Principal -->
-    <main class="max-w-6xl mx-auto px-2.5 sm:px-4 py-3 sm:py-5 flex-grow w-full">
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-5 flex-grow w-full">
         
-        <!-- Buscador Rápido -->
+        <!-- Buscador y Título -->
         <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-                <h2 class="text-sm sm:text-lg font-black text-gray-800 dark:text-gray-200 uppercase tracking-wide">Líneas Fiscalizadas</h2>
+                <h2 class="text-sm sm:text-lg font-black text-gray-800 dark:text-gray-200 uppercase tracking-wide">Estado General de Líneas</h2>
             </div>
 
             <div class="relative w-full sm:w-72">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
-                <input type="text" id="lineSearch" onkeyup="filterLines()" placeholder="Buscar línea o empresa..." 
+                <input type="text" id="lineSearch" onkeyup="filterTable()" placeholder="Buscar por línea o empresa..." 
                     class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
             </div>
         </div>
 
-        <!-- GRILLA CON ESTADÍSTICAS COMPACTAS EN COLUMNAS MULTILÍNEA -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="linesGrid">
-            <!-- Se generan dinámicamente con JS -->
+        <!-- ESTRUCTURA DE TABLA EN COLUMNAS OPTIMIZADA -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[700px]">
+                <thead>
+                    <tr class="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-[10px] sm:text-xs font-black uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
+                        <th class="py-2.5 px-3 text-center">N° Emp.</th>
+                        <th class="py-2.5 px-3">LÍNEA</th>
+                        <th class="py-2.5 px-3">RAZÓN SOCIAL</th>
+                        <th class="py-2.5 px-3 text-center">Unidades<br>Totales</th>
+                        <th class="py-2.5 px-3 text-center">Unidades<br>Controladas</th>
+                        <th class="py-2.5 px-3 text-center">% Fiscaliz.</th>
+                        <th class="py-2.5 px-3 text-center">Última<br>Visita</th>
+                        <th class="py-2.5 px-3 text-center">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="linesTableBody" class="divide-y divide-gray-100 dark:divide-gray-700/50 text-xs font-medium">
+                    <!-- Filas generadas dinámicamente -->
+                </tbody>
+            </table>
         </div>
 
         <div id="noResults" class="hidden text-center py-10 text-gray-400">
@@ -81,15 +97,16 @@
     </footer>
 
     <script>
-        // Lista ordenada numéricamente
+        // Tu listado completo de líneas ordenado de menor a mayor
         const lineas = [
             2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 75, 
             79, 80, 85, 91, 92, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
             158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
         ].sort((a, b) => a - b);
 
-        const grid = document.getElementById("linesGrid");
+        const tbody = document.getElementById("linesTableBody");
 
+        // Helper para leer propiedades del CSV
         function getProp(obj, names) {
             const keys = Object.keys(obj);
             for (let name of names) {
@@ -99,78 +116,76 @@
             return '';
         }
 
-        // Construir cada tarjeta con métricas en columnas compactas (títulos en 2 líneas)
-        lineas.forEach(id => {
-            const card = document.createElement("div");
-            card.className = "line-card bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:border-blue-500 transition overflow-hidden flex flex-col justify-between";
-            card.setAttribute("data-linea", id);
+        // Generar filas de la tabla
+        lineas.forEach((id, index) => {
+            const tr = document.createElement("tr");
+            tr.className = "line-row hover:bg-blue-50/50 dark:hover:bg-gray-700/40 transition";
+            tr.setAttribute("data-linea", id);
 
-            card.innerHTML = `
-                <div class="p-3">
-                    <div class="flex items-center justify-between mb-1.5">
-                        <span class="bg-blue-900 text-white dark:bg-blue-800 text-xs font-black px-2 py-0.5 rounded font-code tracking-wide">
-                            LÍNEA ${id}
-                        </span>
-                        <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition flex items-center space-x-1 shadow-sm">
-                            <span>Ingresar</span>
-                            <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                        </a>
-                    </div>
+            tr.innerHTML = `
+                <!-- N° EMP. -->
+                <td class="py-2.5 px-3 text-center font-code text-gray-400 dark:text-gray-500 text-[11px]">
+                    ${index + 1}
+                </td>
 
-                    <h3 class="text-xs font-bold text-gray-800 dark:text-gray-200 truncate uppercase mb-2" id="empresa-${id}">
-                        Cargando empresa...
-                    </h3>
+                <!-- LÍNEA -->
+                <td class="py-2.5 px-3 font-black text-gray-900 dark:text-gray-100 font-code whitespace-nowrap">
+                    <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
+                        LÍNEA ${id}
+                    </span>
+                </td>
 
-                    <!-- BARRA DE TITULOS Y MÉTRICAS COMPACTAS -->
-                    <div class="grid grid-cols-3 gap-1 bg-gray-50 dark:bg-gray-700/50 p-2 rounded-lg border border-gray-100 dark:border-gray-700 text-center">
-                        <!-- Columna 1: Total Unidades -->
-                        <div class="flex flex-col justify-center border-r border-gray-200 dark:border-gray-600 pr-1">
-                            <span class="text-[9px] leading-tight font-bold text-gray-500 dark:text-gray-400 uppercase">
-                                Total<br>Parque
-                            </span>
-                            <span class="text-xs font-black font-code text-gray-800 dark:text-gray-100 mt-1" id="total-${id}">-</span>
-                        </div>
+                <!-- RAZÓN SOCIAL -->
+                <td class="py-2.5 px-3 font-bold text-gray-700 dark:text-gray-200 uppercase truncate max-w-[180px]" id="empresa-${id}">
+                    Cargando...
+                </td>
 
-                        <!-- Columna 2: Unidades Controladas -->
-                        <div class="flex flex-col justify-center border-r border-gray-200 dark:border-gray-600 px-1">
-                            <span class="text-[9px] leading-tight font-bold text-green-600 dark:text-green-400 uppercase">
-                                Unidades<br>Controladas
-                            </span>
-                            <span class="text-xs font-black font-code text-green-700 dark:text-green-300 mt-1" id="controladas-${id}">-</span>
-                        </div>
+                <!-- UNIDADES TOTALES -->
+                <td class="py-2.5 px-3 text-center font-code font-bold text-gray-800 dark:text-gray-100" id="total-${id}">
+                    -
+                </td>
 
-                        <!-- Columna 3: Pendientes / Sin Control -->
-                        <div class="flex flex-col justify-center pl-1">
-                            <span class="text-[9px] leading-tight font-bold text-amber-600 dark:text-amber-400 uppercase">
-                                Sin<br>Controlar
-                            </span>
-                            <span class="text-xs font-black font-code text-amber-700 dark:text-amber-300 mt-1" id="pendientes-${id}">-</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- UNIDADES CONTROLADAS -->
+                <td class="py-2.5 px-3 text-center font-code font-bold text-green-600 dark:text-green-400" id="controladas-${id}">
+                    -
+                </td>
+
+                <!-- % FISCALIZADO -->
+                <td class="py-2.5 px-3 text-center font-code font-bold text-blue-600 dark:text-blue-400" id="porcentaje-${id}">
+                    -
+                </td>
+
+                <!-- ÚLTIMA VISITA -->
+                <td class="py-2.5 px-3 text-center font-code text-[11px] text-gray-500 dark:text-gray-400 whitespace-nowrap" id="visita-${id}">
+                    -
+                </td>
+
+                <!-- ACCIÓN -->
+                <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                    <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition inline-flex items-center space-x-1 shadow-sm">
+                        <span>Ver</span>
+                        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                    </a>
+                </td>
             `;
 
-            grid.appendChild(card);
+            tbody.appendChild(tr);
             cargarDatosLinea(id);
         });
 
-        // Carga y cruce de datos CSV (Parque vs Controlados)
+        // Lectura e integración de CSV (Parques + Controlados)
         function cargarDatosLinea(id) {
-            let totalParque = 0;
-            let controladasCount = 0;
-
-            // 1. Cargar el parque móvil
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(resParque) {
+                    let totalParque = 0;
                     if (resParque && resParque.data) {
                         const parqueData = resParque.data;
                         totalParque = parqueData.length;
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
-                        // Extraer empresa
                         if (totalParque > 0) {
                             let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
                             document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
@@ -178,35 +193,49 @@
                             document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
                         }
 
-                        // 2. Cargar inspecciones controladas
-                        Papa.parse(`controlados/linea${id}_control.csv`, {
+                        // Cargar Inspecciones Controladas
+                        Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
                             skipEmptyLines: true,
                             complete: function(resControl) {
                                 if (resControl && resControl.data) {
                                     const controlData = resControl.data;
-                                    
-                                    // Obtener dominios únicos de fiscalización
                                     const dominiosControlados = new Set();
+                                    let ultimaFecha = '';
+
                                     controlData.forEach(row => {
                                         let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos']);
                                         if (dom) dominiosControlados.add(dom.toUpperCase());
+
+                                        let fecha = getProp(row, ['fecha', 'fechas', 'fecha_control']);
+                                        if (fecha && fecha > ultimaFecha) ultimaFecha = fecha;
                                     });
 
-                                    controladasCount = dominiosControlados.size;
+                                    const controladasCount = dominiosControlados.size;
                                     document.getElementById(`controladas-${id}`).textContent = controladasCount;
 
-                                    const pendientes = Math.max(0, totalParque - controladasCount);
-                                    document.getElementById(`pendientes-${id}`).textContent = pendientes;
+                                    // Cálculo de % Fiscalizado
+                                    if (totalParque > 0) {
+                                        const pct = Math.round((controladasCount / totalParque) * 100);
+                                        document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
+                                    } else {
+                                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                                    }
+
+                                    // Última visita
+                                    document.getElementById(`visita-${id}`).textContent = ultimaFecha || 'Sin registros';
+
                                 } else {
                                     document.getElementById(`controladas-${id}`).textContent = 0;
-                                    document.getElementById(`pendientes-${id}`).textContent = totalParque;
+                                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
                                 }
                             },
                             error: function() {
                                 document.getElementById(`controladas-${id}`).textContent = 0;
-                                document.getElementById(`pendientes-${id}`).textContent = totalParque;
+                                document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                                document.getElementById(`visita-${id}`).textContent = 'Sin registros';
                             }
                         });
 
@@ -214,34 +243,36 @@
                         document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
                         document.getElementById(`total-${id}`).textContent = 0;
                         document.getElementById(`controladas-${id}`).textContent = 0;
-                        document.getElementById(`pendientes-${id}`).textContent = 0;
+                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                        document.getElementById(`visita-${id}`).textContent = 'Sin registros';
                     }
                 },
                 error: function() {
                     document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
                     document.getElementById(`total-${id}`).textContent = 0;
                     document.getElementById(`controladas-${id}`).textContent = 0;
-                    document.getElementById(`pendientes-${id}`).textContent = 0;
+                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
                 }
             });
         }
 
-        // Búsqueda en tiempo real
-        function filterLines() {
+        // Búsqueda en tiempo real sobre las filas de la tabla
+        function filterTable() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
-            const cards = document.querySelectorAll(".line-card");
+            const rows = document.querySelectorAll(".line-row");
             let visibleCount = 0;
 
-            cards.forEach(card => {
-                const num = card.getAttribute("data-linea");
-                const empEl = card.querySelector("h3");
+            rows.forEach(row => {
+                const num = row.getAttribute("data-linea");
+                const empEl = row.querySelector(`#empresa-${num}`);
                 const empText = empEl ? empEl.textContent.toLowerCase() : "";
 
                 if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query)) {
-                    card.style.display = "";
+                    row.style.display = "";
                     visibleCount++;
                 } else {
-                    card.style.display = "none";
+                    row.style.display = "none";
                 }
             });
 

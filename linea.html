@@ -116,7 +116,6 @@
 
     <!-- Script de cruce automático -->
     <script>
-        // Obtener ID de la línea desde la URL (ej: linea.html?id=22)
         const urlParams = new URLSearchParams(window.location.search);
         const lineaId = urlParams.get('id') || '22';
         document.getElementById("lineaTitle").textContent = `LÍNEA ${lineaId}`;
@@ -124,61 +123,83 @@
         let mapControlados = {};
         let currentStatusFilter = 'ALL';
 
-        // 1. Cargar el CSV de controlados de la carpeta /controlados/
+        // 1. Cargar archivo de controlados con detección automática de separador
         Papa.parse(`controlados/linea${lineaId}.csv`, {
             download: true,
             header: false,
             skipEmptyLines: true,
             complete: function(results) {
-                results.data.forEach(row => {
-                    if (row.length >= 2) {
-                        // Detecta delimitador tabulación, coma o punto y coma
-                        let lineStr = row.join(" ");
+                if (results && results.data) {
+                    results.data.forEach(row => {
+                        let lineStr = Array.isArray(row) ? row.join(" ") : String(row);
                         let parts = lineStr.trim().split(/\s+/);
                         if (parts.length >= 2) {
                             let fecha = parts[0];
                             let dominio = parts[1].toUpperCase();
                             mapControlados[dominio] = fecha;
                         }
-                    }
-                });
+                    });
+                }
                 cargarParqueOficial();
             },
             error: function() {
-                // Si aún no hay archivo de controlados para la línea, carga parque igual
                 cargarParqueOficial();
             }
         });
 
-        // 2. Cargar el CSV de parque oficial de la carpeta /parques/
+        // 2. Cargar parque oficial sin forzar un delimitador único (Auto-detecta ; o ,)
         function cargarParqueOficial() {
             Papa.parse(`parques/linea${lineaId}.csv`, {
                 download: true,
                 header: true,
-                delimiter: ";",
+                dynamicTyping: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    renderFleet(results.data);
+                    if (results && results.data && results.data.length > 0) {
+                        renderFleet(results.data);
+                    } else {
+                        document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">El archivo 'parques/linea${lineaId}.csv' está vacío.</td></tr>`;
+                    }
                 },
                 error: function(err) {
-                    document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">No se encontró 'parques/linea${lineaId}.csv'.</td></tr>`;
+                    document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">No se pudo cargar 'parques/linea${lineaId}.csv'. Verifica que el archivo exista en la carpeta.</td></tr>`;
                 }
             });
         }
 
+        // Helper para buscar nombres de propiedades sin importar si están en mayúsculas o minúsculas
+        function getProp(obj, names) {
+            const keys = Object.keys(obj);
+            for (let name of names) {
+                const found = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
+                if (found && obj[found] !== null && obj[found] !== undefined) return String(obj[found]).trim();
+            }
+            return '';
+        }
+
         function renderFleet(data) {
-            data.sort((a, b) => parseInt(a.interno || 0) - parseInt(b.interno || 0));
+            data.sort((a, b) => {
+                let intA = parseInt(getProp(a, ['interno', 'int', 'unidad'])) || 0;
+                let intB = parseInt(getProp(b, ['interno', 'int', 'unidad'])) || 0;
+                return intA - intB;
+            });
 
             let tbody = document.getElementById("fleetTbody");
             tbody.innerHTML = "";
 
-            let total = data.length;
+            let total = 0;
             let countControlados = 0;
             let countPendientes = 0;
             const hoy = new Date().toISOString().split('T')[0];
 
             data.forEach(item => {
-                let dominioCSV = (item.dominio || '').trim().toUpperCase();
+                let dominioCSV = getProp(item, ['dominio', 'patente', 'dominio_vehiculo']).toUpperCase();
+                let internoVal = getProp(item, ['interno', 'int', 'unidad']);
+                
+                // Si la fila no tiene ni dominio ni interno, se descarta
+                if (!dominioCSV && !internoVal) return;
+                total++;
+
                 let fechaFiscalizacion = mapControlados[dominioCSV] || null;
                 let isControlado = !!fechaFiscalizacion;
 
@@ -188,16 +209,22 @@
                 let statusText = isControlado ? "CONTROLADO" : "PENDIENTE";
                 let rowBg = isControlado ? "" : "bg-slate-50 dark:bg-gray-800/60";
 
-                let modeloText = `${item.chasisMarca || ''} ${item.chasisModelo || ''} (${item.anioModelo || ''})`.trim();
-                let habHasta = item.vigenciaHasta ? item.vigenciaHasta.replace("UC:", "") : "-";
+                let marca = getProp(item, ['chasismarca', 'marca']);
+                let modelo = getProp(item, ['chasismodelo', 'modelo']);
+                let anio = getProp(item, ['aniomodelo', 'anio', 'año']);
+                let modeloText = `${marca} ${modelo} (${anio})`.trim();
+                if (modeloText === "()") modeloText = "-";
 
-                let tecFecha = item.vigenciaHastaInspeccionTecnica || "-";
+                let habHasta = getProp(item, ['vigenciahasta', 'habilitacion']);
+                habHasta = habHasta ? habHasta.replace("UC:", "") : "-";
+
+                let tecFecha = getProp(item, ['vigenciahastainspecciontecnica', 'tecnica', 'vvt']) || "-";
                 let tecBadgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
 
                 if (tecFecha !== "-") {
                     let parts = tecFecha.split("/");
                     if (parts.length === 3) {
-                        let formattedFecha = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        let formattedFecha = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
                         if (formattedFecha < hoy) {
                             tecBadgeClass = "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300";
                         } else {
@@ -206,17 +233,19 @@
                     }
                 }
 
+                let tecNro = getProp(item, ['tecnicanro', 'nrotecnica', 'nro_tecnica']) || "-";
+
                 let tr = document.createElement("tr");
                 tr.className = `hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center ${rowBg}`;
                 tr.setAttribute("data-status", statusText);
 
                 tr.innerHTML = `
                     <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 font-code text-sm tracking-wider">${dominioCSV || '-'}</td>
-                    <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">${item.interno || '-'}</td>
+                    <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">${internoVal || '-'}</td>
                     <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">${modeloText}</td>
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">${habHasta}</td>
                     <td class="py-2.5 px-2"><span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code">${tecFecha}</span></td>
-                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">${item.tecnicaNro || '-'}</td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">${tecNro}</td>
                     <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200 font-code">${fechaFiscalizacion ? fechaFiscalizacion : '<span class="text-gray-400 font-normal italic font-sans">-</span>'}</td>
                     <td class="py-2.5 px-2">
                         <span class="${isControlado ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} px-2 py-0.5 rounded-full font-bold text-[10px]">

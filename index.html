@@ -1,28 +1,42 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parque Móvil FTR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col font-sans text-gray-800">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
     <!-- Header Compacto -->
-    <header class="bg-blue-900 text-white shadow-md py-3 px-4">
+    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-bus text-yellow-400 text-xl"></i>
                 <div>
                     <h1 class="text-lg md:text-xl font-extrabold leading-tight">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 text-xs hidden sm:block">Control y Fiscalización de Transporte</p>
+                    <p class="text-blue-200 dark:text-gray-400 text-xs hidden sm:block">Control y Fiscalización de Transporte</p>
                 </div>
             </div>
-            <span class="bg-blue-800 text-blue-200 text-[10px] sm:text-xs px-2.5 py-1 rounded-full border border-blue-700 font-semibold">
-                <i class="fa-solid fa-shield-halved mr-1"></i> Flotas
-            </span>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Botón Modo Oscuro / Claro -->
+                <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1" title="Cambiar tema">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                    <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
+                </button>
+
+                <span class="bg-blue-800 dark:bg-gray-700 text-blue-200 dark:text-gray-300 text-[10px] sm:text-xs px-2.5 py-1.5 rounded-lg border border-blue-700 dark:border-gray-600 font-semibold hidden sm:inline-block">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Flotas
+                </span>
+            </div>
         </div>
     </header>
 
@@ -30,22 +44,22 @@
     <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full">
 
         <!-- Buscador -->
-        <div class="mb-3 bg-white p-2.5 rounded-lg shadow-sm border border-gray-200">
+        <div class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div class="relative w-full">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por Línea o Razón Social..." 
-                    class="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm">
+                    class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm">
             </div>
         </div>
 
-        <!-- Tabla Principal Compacta -->
-        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+        <!-- Tabla Principal con bordes verticales -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="companiesTable">
                     <thead>
-                        <tr class="bg-gray-800 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center">
+                        <tr class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700">
                             <th class="py-2 px-2 font-semibold text-left">N° Emp.</th>
                             <th class="py-2 px-2 font-semibold text-center">LÍNEA</th>
                             <th class="py-2 px-2 font-semibold text-left">RAZÓN SOCIAL</th>
@@ -56,21 +70,21 @@
                             <th class="py-2 px-2 font-semibold">Acción</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 text-xs sm:text-sm font-medium">
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-xs sm:text-sm font-medium">
                         
                         <!-- FILA DEMO: LÍNEA 22 -->
-                        <tr class="hover:bg-blue-50 transition">
-                            <td class="py-2.5 px-2 font-bold text-gray-900">102</td>
+                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700">
+                            <td class="py-2.5 px-2 font-bold text-gray-900 dark:text-gray-100">102</td>
                             <td class="py-2.5 px-2 text-center">
-                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold text-xs">22</span>
+                                <span class="bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded font-bold text-xs border border-blue-200 dark:border-blue-700">22</span>
                             </td>
-                            <td class="py-2.5 px-2 font-semibold text-gray-800 whitespace-nowrap">Línea 22 S.A.T.A.</td>
+                            <td class="py-2.5 px-2 font-semibold text-gray-800 dark:text-gray-200 whitespace-nowrap">Línea 22 S.A.T.A.</td>
                             <td class="py-2.5 px-1 text-center font-bold">18</td>
-                            <td class="py-2.5 px-1 text-center text-green-600 font-bold">15</td>
+                            <td class="py-2.5 px-1 text-center text-green-600 dark:text-green-400 font-bold">15</td>
                             <td class="py-2.5 px-1 text-center">
-                                <span class="font-bold text-blue-900 text-xs">83.3%</span>
+                                <span class="font-bold text-blue-900 dark:text-blue-300 text-xs">83.3%</span>
                             </td>
-                            <td class="py-2.5 px-1 text-center text-gray-600 text-xs whitespace-nowrap">01/09/2026</td>
+                            <td class="py-2.5 px-1 text-center text-gray-600 dark:text-gray-300 text-xs whitespace-nowrap">01/09/2026</td>
                             <td class="py-2.5 px-2 text-center">
                                 <a href="linea22.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-[11px] px-2.5 py-1 rounded transition font-semibold shadow-sm whitespace-nowrap">
                                     Ver Flota <i class="fa-solid fa-chevron-right text-[9px] ml-0.5"></i>
@@ -85,12 +99,39 @@
     </main>
 
     <!-- Footer Compacto -->
-    <footer class="bg-gray-800 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700">
+    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700">
         Parque Móvil FTR &copy; 2026
     </footer>
 
-    <!-- Script de búsqueda -->
+    <!-- Scripts -->
     <script>
+        // Lógica de Modo Oscuro con persistencia
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon';
+                themeText.textContent = 'Oscuro';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun';
+                themeText.textContent = 'Claro';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Cargar preferencia guardada
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            document.getElementById('themeText').textContent = 'Claro';
+        }
+
+        // Filtro del buscador
         function filterTable() {
             let input = document.getElementById("searchInput");
             let filter = input.value.toUpperCase();

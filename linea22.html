@@ -6,6 +6,8 @@
     <title>Línea 22 - Parque Móvil FTR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PapaParse para leer archivos CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class'
@@ -15,28 +17,23 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <!-- Header Centrado con Botón de Volver Agrandado -->
+    <!-- Header Centrado -->
     <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            
-            <!-- Botón Volver (Agrandado) -->
             <a href="index.html" class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm" title="Volver a Líneas">
                 <i class="fa-solid fa-arrow-left text-base"></i>
                 <span class="hidden sm:inline">Volver</span>
             </a>
 
-            <!-- Título Centrado y en Mayúsculas -->
             <div class="text-center flex-grow mx-2">
                 <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight">LÍNEA 22</h1>
                 <p class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block">Parque Móvil Oficial</p>
             </div>
             
-            <!-- Botón Modo Oscuro / Claro -->
             <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1" title="Cambiar tema">
                 <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
                 <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
             </button>
-
         </div>
     </header>
 
@@ -47,15 +44,15 @@
         <div class="grid grid-cols-3 gap-2 mb-3">
             <button onclick="setFilter('ALL')" id="btnFilterAll" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-blue-600 dark:border-blue-500 text-center transition">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Total</p>
-                <p class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300" id="countTotal">18</p>
+                <p class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300" id="countTotal">0</p>
             </button>
             <button onclick="setFilter('CONTROLADO')" id="btnFilterControlado" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Controlados</p>
-                <p class="text-base sm:text-lg font-black text-green-600 dark:text-green-400" id="countControlados">15</p>
+                <p class="text-base sm:text-lg font-black text-green-600 dark:text-green-400" id="countControlados">0</p>
             </button>
             <button onclick="setFilter('PENDIENTE')" id="btnFilterPendiente" class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition">
                 <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">Pendientes</p>
-                <p class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300" id="countPendientes">3</p>
+                <p class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300" id="countPendientes">0</p>
             </button>
         </div>
 
@@ -75,7 +72,7 @@
             </button>
         </div>
 
-        <!-- Tabla de Parque Móvil (Limpia) -->
+        <!-- Tabla -->
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="fleetTable">
@@ -87,96 +84,13 @@
                             <th class="py-2.5 px-2 font-semibold">HABILITADO HASTA</th>
                             <th class="py-2.5 px-2 font-semibold">TÉCNICA VIGENTE HASTA</th>
                             <th class="py-2.5 px-2 font-semibold">N° TÉCNICA</th>
-                            <th class="py-2.5 px-2 font-semibold">ÚLTIMA FISCALIZACIÓN</th>
                             <th class="py-2.5 px-2 font-semibold">ESTADO</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium" id="fleetTbody">
-                        
-                        <!-- Interno 303 -->
-                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">NWD146</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">303</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">Agrale MT 15.0 (2014)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">15/11/2026</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-88421</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300 font-bold">01/09/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">CONTROLADO</span></td>
+                        <tr>
+                            <td colspan="7" class="py-6 text-center text-gray-500">Cargando parque móvil...</td>
                         </tr>
-
-                        <!-- Interno 306 -->
-                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">OIN012</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">306</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1621 (2015)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">20/10/2026</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-90112</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300 font-bold">17/07/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">CONTROLADO</span></td>
-                        </tr>
-
-                        <!-- Interno 307 -->
-                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">PLJ321</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">307</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1621 (2016)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">05/12/2026</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-94301</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300 font-bold">17/07/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">CONTROLADO</span></td>
-                        </tr>
-
-                        <!-- Interno 348 -->
-                        <tr class="hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center" data-status="CONTROLADO">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AA556VB</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">348</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2017)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">18/01/2027</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-10023</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300 font-bold">18/05/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-600 text-white px-2 py-0.5 rounded-full font-bold text-[10px]">CONTROLADO</span></td>
-                        </tr>
-
-                        <!-- Interno 350 (PENDIENTE - Fondo Suave) -->
-                        <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AA890CD</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">350</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2018)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">12/02/2027</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-10550</td>
-                            <td class="py-2.5 px-2 text-gray-400 italic">-</td>
-                            <td class="py-2.5 px-2"><span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full font-bold text-[10px]">PENDIENTE</span></td>
-                        </tr>
-
-                        <!-- Interno 352 (PENDIENTE - Técnica Vencida) -->
-                        <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AB123EF</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">352</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">MB OH 1721 (2018)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300 px-2 py-0.5 rounded font-bold text-[10px]">01/08/2026</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-10889</td>
-                            <td class="py-2.5 px-2 text-gray-400 italic">-</td>
-                            <td class="py-2.5 px-2"><span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full font-bold text-[10px]">PENDIENTE</span></td>
-                        </tr>
-
-                        <!-- Interno 355 (PENDIENTE) -->
-                        <tr class="hover:bg-blue-100/50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center bg-slate-50 dark:bg-gray-800/60" data-status="PENDIENTE">
-                            <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">AC456GH</td>
-                            <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">355</td>
-                            <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">Agrale MT 17.0 (2019)</td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">31/12/2026</td>
-                            <td class="py-2.5 px-2"><span class="bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300 px-2 py-0.5 rounded font-bold text-[10px]">10/03/2027</span></td>
-                            <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">RT-11200</td>
-                            <td class="py-2.5 px-2 text-gray-400 italic">-</td>
-                            <td class="py-2.5 px-2"><span class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-full font-bold text-[10px]">PENDIENTE</span></td>
-                        </tr>
-
                     </tbody>
                 </table>
             </div>
@@ -190,7 +104,96 @@
 
     <!-- Scripts -->
     <script>
+        // === LISTA DE INTERNOS CONTROLADOS (EDITAR AQUÍ) ===
+        const controlados = [303, 306, 307, 324, 329]; 
+
         let currentStatusFilter = 'ALL';
+
+        // Cargar y procesar el CSV automáticamente
+        Papa.parse("linea22.csv", {
+            download: true,
+            header: true,
+            delimiter: ";",
+            skipEmptyLines: true,
+            complete: function(results) {
+                renderFleet(results.data);
+            },
+            error: function(err) {
+                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="7" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'. Asegurate de haber subido el archivo al repositorio.</td></tr>`;
+            }
+        });
+
+        function renderFleet(data) {
+            // Ordenar de menor a mayor por número de interno
+            data.sort((a, b) => parseInt(a.interno || 0) - parseInt(b.interno || 0));
+
+            let tbody = document.getElementById("fleetTbody");
+            tbody.innerHTML = "";
+
+            let total = data.length;
+            let countControlados = 0;
+            let countPendientes = 0;
+
+            const hoy = new Date().toISOString().split('T')[0];
+
+            data.forEach(item => {
+                let internoNum = parseInt(item.interno);
+                let isControlado = controlados.includes(internoNum);
+
+                if (isControlado) countControlados++;
+                else countPendientes++;
+
+                let statusText = isControlado ? "CONTROLADO" : "PENDIENTE";
+                let rowBg = isControlado ? "" : "bg-slate-50 dark:bg-gray-800/60";
+
+                // Formatear Modelo y Marca
+                let modeloText = `${item.chasisMarca || ''} ${item.chasisModelo || ''} (${item.anioModelo || ''})`.trim();
+
+                // Formatear Habilitación
+                let habHasta = item.vigenciaHasta ? item.vigenciaHasta.replace("UC:", "") : "-";
+
+                // Validar Fecha de Inspección Técnica
+                let tecFecha = item.vigenciaHastaInspeccionTecnica || "-";
+                let tecBadgeClass = "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+
+                if (tecFecha !== "-") {
+                    let parts = tecFecha.split("/");
+                    if (parts.length === 3) {
+                        let formattedFecha = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                        if (formattedFecha < hoy) {
+                            tecBadgeClass = "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300";
+                        } else {
+                            tecBadgeClass = "bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300";
+                        }
+                    }
+                }
+
+                let tr = document.createElement("tr");
+                tr.className = `hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center ${rowBg}`;
+                tr.setAttribute("data-status", statusText);
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-2 font-black text-gray-900 dark:text-gray-100 font-mono text-sm">${item.dominio || '-'}</td>
+                    <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 text-sm">${item.interno || '-'}</td>
+                    <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">${modeloText}</td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400">${habHasta}</td>
+                    <td class="py-2.5 px-2"><span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px]">${tecFecha}</span></td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-mono">${item.tecnicaNro || '-'}</td>
+                    <td class="py-2.5 px-2">
+                        <span class="${isControlado ? 'bg-green-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'} px-2 py-0.5 rounded-full font-bold text-[10px]">
+                            ${statusText}
+                        </span>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+
+            // Actualizar contadores
+            document.getElementById("countTotal").textContent = total;
+            document.getElementById("countControlados").textContent = countControlados;
+            document.getElementById("countPendientes").textContent = countPendientes;
+        }
 
         function setFilter(status) {
             currentStatusFilter = status;
@@ -217,6 +220,8 @@
 
             tr.forEach(row => {
                 let status = row.getAttribute('data-status');
+                if (!status) return;
+
                 let dominio = row.getElementsByTagName("td")[0].textContent.toUpperCase();
                 let interno = row.getElementsByTagName("td")[1].textContent.toUpperCase();
 

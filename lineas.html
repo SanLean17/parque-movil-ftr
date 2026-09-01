@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Línea 22 - Parque Móvil FTR</title>
+    <title>Parque Móvil FTR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <!-- Fuente Google JetBrains Mono para alta legibilidad de números y patentes -->
+    <!-- Fuente JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
@@ -31,17 +31,17 @@
     <!-- Header Centrado -->
     <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <a href="index.html" class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm" title="Volver a Líneas">
+            <a href="index.html" class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm">
                 <i class="fa-solid fa-arrow-left text-base"></i>
                 <span class="hidden sm:inline">Volver</span>
             </a>
 
             <div class="text-center flex-grow mx-2">
-                <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight">LÍNEA 22</h1>
+                <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight" id="lineaTitle">LÍNEA --</h1>
                 <p class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block">Parque Móvil Oficial</p>
             </div>
             
-            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1" title="Cambiar tema">
+            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
                 <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
                 <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
             </button>
@@ -67,7 +67,7 @@
             </button>
         </div>
 
-        <!-- Buscador + Botón Copiar Faltantes -->
+        <!-- Buscador + Copiar -->
         <div class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-2 justify-between items-center">
             <div class="relative w-full sm:w-80">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
@@ -114,85 +114,57 @@
         Parque Móvil FTR &copy; 2026
     </footer>
 
-    <!-- Scripts -->
+    <!-- Script de cruce automático -->
     <script>
-        const rawControlados = `
-03/02/2026	AA556VC	301
-01/04/2026	OWG796	302
-03/02/2026	NWD145	303
-01/09/2026	NWD146	303
-01/09/2026	OJH809	304
-03/02/2026	NWM384	305
-17/07/2026	OIN012	306
-17/07/2026	PLJ321	307
-18/05/2026	NWM383	309
-03/02/2026	NWM386	310
-17/07/2026	OTO687	311
-01/09/2026	PMX286	312
-03/02/2026	PAX143	313
-18/05/2026	OIS834	314
-18/05/2026	PMX285	315
-01/09/2026	PMX284	315
-03/02/2026	OVS434	316
-01/04/2026	AA383LA	317
-01/04/2026	OHJ292	319
-18/05/2026	OHJ289	321
-01/04/2026	OHJ290	322
-03/02/2026	OHJ291	323
-17/07/2026	AA040AW	324
-01/04/2026	AA383MV	325
-01/04/2026	OKJ777	326
-01/09/2026	OKJ777	326
-01/09/2026	ONV915	327
-17/07/2026	OQZ445	330
-17/07/2026	ONV913	332
-17/07/2026	NWD144	333
-18/05/2026	NDW145	336
-01/09/2026	NWD145	336
-03/02/2026	OMX979	337
-01/04/2026	AA356KZ	340
-01/04/2026	ONV914	344
-17/07/2026	PLJ320	345
-01/09/2026	OGI355	346
-18/05/2026	AA556VB	348
-03/02/2026	PMX285	352
-01/04/2026	NWD147	354
-18/05/2026	PLJ318	360
-18/05/2026	PNN729	362
-18/05/2026	AA537ZZ	366
-        `;
+        // Obtener ID de la línea desde la URL (ej: linea.html?id=22)
+        const urlParams = new URLSearchParams(window.location.search);
+        const lineaId = urlParams.get('id') || '22';
+        document.getElementById("lineaTitle").textContent = `LÍNEA ${lineaId}`;
 
+        let mapControlados = {};
         let currentStatusFilter = 'ALL';
 
-        function parseControladosMap(rawText) {
-            const map = {};
-            const lines = rawText.trim().split("\n");
-            
-            lines.forEach(line => {
-                const parts = line.trim().split(/\s+/);
-                if (parts.length >= 2) {
-                    const fecha = parts[0];
-                    const dominio = parts[1].toUpperCase();
-                    map[dominio] = fecha;
-                }
-            });
-            return map;
-        }
-
-        const mapControlados = parseControladosMap(rawControlados);
-
-        Papa.parse("linea22.csv", {
+        // 1. Cargar el CSV de controlados de la carpeta /controlados/
+        Papa.parse(`controlados/linea${lineaId}.csv`, {
             download: true,
-            header: true,
-            delimiter: ";",
+            header: false,
             skipEmptyLines: true,
             complete: function(results) {
-                renderFleet(results.data);
+                results.data.forEach(row => {
+                    if (row.length >= 2) {
+                        // Detecta delimitador tabulación, coma o punto y coma
+                        let lineStr = row.join(" ");
+                        let parts = lineStr.trim().split(/\s+/);
+                        if (parts.length >= 2) {
+                            let fecha = parts[0];
+                            let dominio = parts[1].toUpperCase();
+                            mapControlados[dominio] = fecha;
+                        }
+                    }
+                });
+                cargarParqueOficial();
             },
-            error: function(err) {
-                document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">Error al cargar 'linea22.csv'.</td></tr>`;
+            error: function() {
+                // Si aún no hay archivo de controlados para la línea, carga parque igual
+                cargarParqueOficial();
             }
         });
+
+        // 2. Cargar el CSV de parque oficial de la carpeta /parques/
+        function cargarParqueOficial() {
+            Papa.parse(`parques/linea${lineaId}.csv`, {
+                download: true,
+                header: true,
+                delimiter: ";",
+                skipEmptyLines: true,
+                complete: function(results) {
+                    renderFleet(results.data);
+                },
+                error: function(err) {
+                    document.getElementById("fleetTbody").innerHTML = `<tr><td colspan="8" class="py-6 text-center text-red-500 font-bold">No se encontró 'parques/linea${lineaId}.csv'.</td></tr>`;
+                }
+            });
+        }
 
         function renderFleet(data) {
             data.sort((a, b) => parseInt(a.interno || 0) - parseInt(b.interno || 0));
@@ -203,7 +175,6 @@
             let total = data.length;
             let countControlados = 0;
             let countPendientes = 0;
-
             const hoy = new Date().toISOString().split('T')[0];
 
             data.forEach(item => {
@@ -264,7 +235,6 @@
 
         function setFilter(status) {
             currentStatusFilter = status;
-            
             const btnAll = document.getElementById('btnFilterAll');
             const btnCtrl = document.getElementById('btnFilterControlado');
             const btnPend = document.getElementById('btnFilterPendiente');
@@ -295,11 +265,8 @@
                 let matchesSearch = (dominio.indexOf(searchInput) > -1 || interno.indexOf(searchInput) > -1);
                 let matchesStatus = (currentStatusFilter === 'ALL' || status === currentStatusFilter);
 
-                if (matchesSearch && matchesStatus) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+                if (matchesSearch && matchesStatus) row.style.display = "";
+                else row.style.display = "none";
             });
         }
 
@@ -318,7 +285,7 @@
                 return;
             }
 
-            let textToCopy = `*LÍNEA 22 - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n` + missingInternos.join("\n");
+            let textToCopy = `*LÍNEA ${lineaId} - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n` + missingInternos.join("\n");
 
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert("¡Copiado al portapapeles!\n\n" + textToCopy);

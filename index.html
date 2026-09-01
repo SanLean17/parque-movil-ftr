@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <!-- ESTRUCTURA DE TABLA EN COLUMNAS OPTIMIZADA -->
+        <!-- ESTRUCTURA DE TABLA EN COLUMNAS -->
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[750px]">
                 <thead>
@@ -97,7 +97,6 @@
     </footer>
 
     <script>
-        // Listado completo de líneas ordenado numéricamente
         const lineas = [
             2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 75, 
             79, 80, 85, 91, 92, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
@@ -106,8 +105,9 @@
 
         const tbody = document.getElementById("linesTableBody");
 
-        // Función auxiliar para detectar nombres de columnas en los CSV sin importar mayúsculas o minúsculas
+        // Helper para obtener valor de propiedad ignorando mayúsculas/minúsculas y espacios
         function getProp(obj, names) {
+            if (!obj) return '';
             const keys = Object.keys(obj);
             for (let name of names) {
                 const found = keys.find(k => k.trim().toLowerCase() === name.toLowerCase());
@@ -116,63 +116,74 @@
             return '';
         }
 
-        // Formatear fechas a DD/MM/AAAA si vienen en YYYY-MM-DD
-        function formatearFecha(fechaStr) {
-            if (!fechaStr) return 'Sin registros';
-            if (fechaStr.includes('-')) {
-                const partes = fechaStr.split('-');
-                if (partes.length === 3 && partes[0].length === 4) {
-                    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+        // Función para parsear fechas variadas (DD/MM/YYYY, YYYY-MM-DD, etc.) a Objeto Date
+        function parseFecha(fechaStr) {
+            if (!fechaStr || fechaStr === '-' || fechaStr.toLowerCase().includes('sin')) return null;
+            
+            // Si es estilo DD/MM/YYYY
+            if (fechaStr.includes('/')) {
+                const p = fechaStr.split('/');
+                if (p.length === 3) {
+                    const dia = parseInt(p[0], 10);
+                    const mes = parseInt(p[1], 10) - 1;
+                    const anio = parseInt(p[2], 10);
+                    return new Date(anio, mes, dia);
                 }
             }
-            return fechaStr;
+            // Si es estilo YYYY-MM-DD
+            if (fechaStr.includes('-')) {
+                const p = fechaStr.split('-');
+                if (p.length === 3) {
+                    if (p[0].length === 4) { // YYYY-MM-DD
+                        return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+                    } else { // DD-MM-YYYY
+                        return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+                    }
+                }
+            }
+            const d = new Date(fechaStr);
+            return isNaN(d.getTime()) ? null : d;
         }
 
-        // Generar las filas de la tabla
+        // Formatear Date a DD/MM/YYYY
+        function formatFecha(date) {
+            if (!date) return 'Sin registros';
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            const anio = date.getFullYear();
+            return `${dia}/${mes}/${anio}`;
+        }
+
+        // Crear la tabla
         lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
             tr.className = "line-row hover:bg-blue-50/50 dark:hover:bg-gray-700/40 transition";
             tr.setAttribute("data-linea", id);
 
             tr.innerHTML = `
-                <!-- N° EMP. (Obtenido desde CSV o fallback al orden) -->
                 <td class="py-2.5 px-3 text-center font-code text-gray-500 dark:text-gray-400 text-[11px] font-bold" id="emp-num-${id}">
                     ${index + 1}
                 </td>
-
-                <!-- LÍNEA -->
                 <td class="py-2.5 px-3 font-black text-gray-900 dark:text-gray-100 font-code whitespace-nowrap">
                     <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded">
                         LÍNEA ${id}
                     </span>
                 </td>
-
-                <!-- RAZÓN SOCIAL -->
                 <td class="py-2.5 px-3 font-bold text-gray-700 dark:text-gray-200 uppercase truncate max-w-[200px]" id="empresa-${id}">
                     Cargando...
                 </td>
-
-                <!-- UNIDADES TOTALES (Desde parques/lineaX.csv) -->
                 <td class="py-2.5 px-3 text-center font-code font-bold text-gray-800 dark:text-gray-100" id="total-${id}">
                     -
                 </td>
-
-                <!-- UNIDADES CONTROLADAS (Desde controlados/lineaX.csv) -->
                 <td class="py-2.5 px-3 text-center font-code font-bold text-green-600 dark:text-green-400" id="controladas-${id}">
                     -
                 </td>
-
-                <!-- % FISCALIZADO -->
                 <td class="py-2.5 px-3 text-center font-code font-bold text-blue-600 dark:text-blue-400" id="porcentaje-${id}">
                     -
                 </td>
-
-                <!-- ÚLTIMA VISITA (Fecha más reciente en controlados/lineaX.csv) -->
                 <td class="py-2.5 px-3 text-center font-code text-[11px] text-gray-600 dark:text-gray-300 whitespace-nowrap" id="visita-${id}">
                     -
                 </td>
-
-                <!-- ACCIÓN -->
                 <td class="py-2.5 px-3 text-center whitespace-nowrap">
                     <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition inline-flex items-center space-x-1 shadow-sm">
                         <span>Parque Móvil</span>
@@ -182,11 +193,11 @@
             `;
 
             tbody.appendChild(tr);
-            cargarDatosLinea(id, index + 1);
+            cargarDatosLinea(id);
         });
 
-        // Cargar datos de parques y controlados desde GitHub
-        function cargarDatosLinea(id, defaultEmpNum) {
+        // Carga y cruzamiento de datos
+        function cargarDatosLinea(id) {
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
                 header: true,
@@ -199,11 +210,9 @@
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
                         if (totalParque > 0) {
-                            // Extraer Razón Social
                             let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
                             document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
 
-                            // Extraer N° de Empresa desde el CSV de Parque si está disponible
                             let nroEmp = getProp(parqueData[0], ['nro_emp', 'num_emp', 'empresa_id', 'id_empresa', 'nro_empresa', 'num_empresa', 'cod_empresa']);
                             if (nroEmp) {
                                 document.getElementById(`emp-num-${id}`).textContent = nroEmp;
@@ -212,7 +221,7 @@
                             document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
                         }
 
-                        // Cargar Inspecciones y Visitas desde "controlados/lineaX.csv"
+                        // Cargar Inspecciones Controladas
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
@@ -221,24 +230,52 @@
                                 if (resControl && resControl.data) {
                                     const controlData = resControl.data;
                                     const dominiosControlados = new Set();
-                                    let ultimaFecha = '';
+                                    let maxFechaObj = null;
 
                                     controlData.forEach(row => {
-                                        // Obtener dominios únicos
-                                        let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno']);
-                                        if (dom) dominiosControlados.add(dom.toUpperCase());
+                                        // Buscar dominio/patente en cualquier columna posible
+                                        let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
+                                        
+                                        // Fallback: buscar cualquier valor con formato de patente en los campos de la fila
+                                        if (!dom) {
+                                            for (let key in row) {
+                                                const val = String(row[key]).trim();
+                                                if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
+                                                    dom = val;
+                                                    break;
+                                                }
+                                            }
+                                        }
 
-                                        // Obtener la fecha más reciente de visita
-                                        let fecha = getProp(row, ['fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
-                                        if (fecha && fecha > ultimaFecha) {
-                                            ultimaFecha = fecha;
+                                        if (dom) {
+                                            dominiosControlados.add(dom.toUpperCase());
+                                        }
+
+                                        // Extraer fecha
+                                        let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
+                                        
+                                        // Fallback: buscar en los valores cualquier patrón de fecha
+                                        if (!fechaStr) {
+                                            for (let key in row) {
+                                                const val = String(row[key]).trim();
+                                                if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
+                                                    fechaStr = val;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (fechaStr) {
+                                            const dObj = parseFecha(fechaStr);
+                                            if (dObj && (!maxFechaObj || dObj > maxFechaObj)) {
+                                                maxFechaObj = dObj;
+                                            }
                                         }
                                     });
 
                                     const controladasCount = dominiosControlados.size;
                                     document.getElementById(`controladas-${id}`).textContent = controladasCount;
 
-                                    // Calcular porcentaje de fiscalización
                                     if (totalParque > 0) {
                                         const pct = Math.round((controladasCount / totalParque) * 100);
                                         document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
@@ -246,8 +283,7 @@
                                         document.getElementById(`porcentaje-${id}`).textContent = '0%';
                                     }
 
-                                    // Mostrar la fecha formateada
-                                    document.getElementById(`visita-${id}`).textContent = formatearFecha(ultimaFecha);
+                                    document.getElementById(`visita-${id}`).textContent = formatFecha(maxFechaObj);
 
                                 } else {
                                     document.getElementById(`controladas-${id}`).textContent = 0;
@@ -280,7 +316,7 @@
             });
         }
 
-        // Búsqueda en tiempo real sobre la tabla
+        // Búsqueda en tiempo real
         function filterTable() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
             const rows = document.querySelectorAll(".line-row");
@@ -307,7 +343,7 @@
             }
         }
 
-        // Control de Modo Oscuro
+        // Modo Oscuro
         function toggleDarkMode() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');

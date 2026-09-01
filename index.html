@@ -3,26 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil FTR - Panel Principal</title>
+    <title>Parque Móvil FTR - Menú Principal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse para CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- Fuente JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            darkMode: 'class'
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        code: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
         }
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <!-- Header -->
-    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-4 px-4 border-b dark:border-gray-700 relative">
+    <!-- Header Centrado -->
+    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-4 px-4 border-b dark:border-gray-700">
         <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-wider uppercase">Parque Móvil FTR</h1>
-                <p class="text-blue-200 dark:text-gray-400 text-xs">Control de Flota y Fiscalización</p>
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-bus-simple text-2xl text-blue-300"></i>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight">Parque Móvil FTR</h1>
+                    <p class="text-blue-200 dark:text-gray-400 text-xs">Sistema de Fiscalización de Transporte</p>
+                </div>
             </div>
             
             <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
@@ -34,108 +46,88 @@
 
     <!-- Contenido Principal -->
     <main class="max-w-5xl mx-auto px-4 py-6 flex-grow w-full">
-        <h2 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Selección de Línea</h2>
+        <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-gray-700 dark:text-gray-300 mb-1">Seleccionar Línea</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Elegí una línea del 0 al 200 para ingresar a su parque y fiscalizaciones.</p>
+            </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="linesGrid">
-            <!-- Las tarjetas de las líneas se generan automáticamente aquí -->
+            <!-- Buscador de Líneas -->
+            <div class="relative w-full sm:w-64">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="lineSearch" onkeyup="filterLines()" placeholder="Buscar línea (ej: 159)..." 
+                    class="w-full pl-9 pr-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
+            </div>
+        </div>
+
+        <!-- GRILLA AUTOMÁTICA DE LÍNEAS (0 a 200) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="linesGrid">
+            <!-- Se generan dinámicamente con JS -->
+        </div>
+
+        <div id="noResults" class="hidden text-center py-12 text-gray-400">
+            <i class="fa-solid fa-bus text-4xl mb-2 opacity-40"></i>
+            <p class="text-sm font-semibold">No se encontró la línea buscada</p>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-3 text-center text-xs mt-auto border-t border-gray-700">
+    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-3 text-center text-[10px] mt-auto border-t border-gray-700">
         Parque Móvil FTR &copy; 2026
     </footer>
 
-    <!-- Script de Autogeneración -->
     <script>
-        // === LISTADO DE LÍNEAS (Agregá los números acá a medida que sumes líneas) ===
-        const lineas = [22];
+        // Generar dinámicamente las tarjetas desde la línea 0 hasta la 200
+        const grid = document.getElementById("linesGrid");
 
-        const container = document.getElementById("linesGrid");
+        for (let i = 0; i <= 200; i++) {
+            const a = document.createElement("a");
+            a.href = `linea.html?id=${i}`;
+            a.className = "line-card bg-white dark:bg-gray-800 p-3 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:border-blue-600 dark:hover:border-blue-500 transition flex items-center justify-between group cursor-pointer";
+            a.setAttribute("data-linea", i);
 
-        lineas.forEach(num => {
-            // Crear elemento HTML para la tarjeta
-            const card = document.createElement("a");
-            card.href = `linea.html?id=${num}`;
-            card.className = "block bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 p-5 transition group";
-            
-            card.innerHTML = `
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-blue-900 text-white font-black rounded-lg flex items-center justify-center text-xl shadow-sm group-hover:scale-105 transition">
-                            ${num}
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-lg text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">Línea ${num}</h3>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Parque Móvil</p>
-                        </div>
+            a.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 dark:bg-gray-700 text-blue-900 dark:text-blue-300 w-9 h-9 rounded-lg flex items-center justify-center font-black text-sm font-code group-hover:bg-blue-800 group-hover:text-white transition">
+                        ${i}
                     </div>
-                    <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition"></i>
-                </div>
-
-                <div class="space-y-1.5 pt-2 border-t border-gray-100 dark:border-gray-700">
-                    <div class="flex justify-between text-xs font-bold">
-                        <span class="text-gray-600 dark:text-gray-400">Progreso de Control</span>
-                        <span class="text-blue-600 dark:text-blue-400" id="l${num}-percent">0%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
-                        <div id="l${num}-bar" class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-                    </div>
-                    <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400 font-semibold pt-1">
-                        <span>Total: <strong id="l${num}-total" class="text-gray-800 dark:text-gray-200">0</strong></span>
-                        <span class="text-green-600 dark:text-green-400">Controlados: <strong id="l${num}-ctrl">0</strong></span>
-                        <span class="text-gray-500 dark:text-gray-400">Pendientes: <strong id="l${num}-pend">0</strong></span>
+                    <div>
+                        <h2 class="text-sm font-extrabold text-gray-900 dark:text-gray-100 font-code tracking-wide">LÍNEA ${i}</h2>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400">Ver parque y fiscalización</p>
                     </div>
                 </div>
+                <i class="fa-solid fa-chevron-right text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:translate-x-1 transition-all text-xs"></i>
             `;
-            container.appendChild(card);
+            grid.appendChild(a);
+        }
 
-            // Cargar datos en tiempo real para esta tarjeta
-            let setControlados = new Set();
+        // Función para buscar en tiempo real entre las 201 líneas
+        function filterLines() {
+            const query = document.getElementById("lineSearch").value.trim().toLowerCase();
+            const cards = document.querySelectorAll(".line-card");
+            let visibleCount = 0;
 
-            Papa.parse(`controlados/linea${num}.csv`, {
-                download: true,
-                header: false,
-                skipEmptyLines: true,
-                complete: function(resCtrl) {
-                    resCtrl.data.forEach(row => {
-                        let lineStr = row.join(" ");
-                        let parts = lineStr.trim().split(/\s+/);
-                        if (parts.length >= 2) setControlados.add(parts[1].toUpperCase());
-                    });
-                    procesarParque();
-                },
-                error: function() { procesarParque(); }
+            cards.forEach(card => {
+                const num = card.getAttribute("data-linea");
+                if (num.includes(query) || `linea ${num}`.includes(query)) {
+                    card.style.display = "";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
             });
 
-            function procesarParque() {
-                Papa.parse(`parques/linea${num}.csv`, {
-                    download: true,
-                    header: true,
-                    delimiter: ";",
-                    skipEmptyLines: true,
-                    complete: function(resParque) {
-                        const total = resParque.data.length;
-                        let ctrlCount = 0;
-
-                        resParque.data.forEach(item => {
-                            let dom = (item.dominio || '').trim().toUpperCase();
-                            if (setControlados.has(dom)) ctrlCount++;
-                        });
-
-                        const pendCount = total - ctrlCount;
-                        const percent = total > 0 ? Math.round((ctrlCount / total) * 100) : 0;
-
-                        document.getElementById(`l${num}-total`).textContent = total;
-                        document.getElementById(`l${num}-ctrl`).textContent = ctrlCount;
-                        document.getElementById(`l${num}-pend`).textContent = pendCount;
-                        document.getElementById(`l${num}-percent`).textContent = `${percent}%`;
-                        document.getElementById(`l${num}-bar`).style.width = `${percent}%`;
-                    }
-                });
+            const noResults = document.getElementById("noResults");
+            if (visibleCount === 0) {
+                noResults.classList.remove("hidden");
+            } else {
+                noResults.classList.add("hidden");
             }
-        });
+        }
 
+        // Modo oscuro
         function toggleDarkMode() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');

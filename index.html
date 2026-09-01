@@ -4,137 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parque Móvil FTR</title>
-    <!-- Tailwind CSS para diseño moderno y responsive -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans text-gray-800">
 
-    <!-- Encabezado / Header -->
-    <header class="bg-blue-900 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid font-bold text-3xl fa-bus text-yellow-400"></i>
+    <!-- Header Compacto -->
+    <header class="bg-blue-900 text-white shadow-md py-3 px-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-bus text-yellow-400 text-xl"></i>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 text-xs md:text-sm">Sistema de Control y Fiscalización de Transporte</p>
+                    <h1 class="text-lg md:text-xl font-extrabold leading-tight">Parque Móvil FTR</h1>
+                    <p class="text-blue-200 text-xs hidden sm:block">Control y Fiscalización de Transporte</p>
                 </div>
             </div>
-            <div class="text-right hidden sm:block">
-                <span class="bg-blue-800 text-blue-200 text-xs px-3 py-1 rounded-full border border-blue-700">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Control de Flotas
-                </span>
-            </div>
+            <span class="bg-blue-800 text-blue-200 text-[10px] sm:text-xs px-2.5 py-1 rounded-full border border-blue-700 font-semibold">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Flotas
+            </span>
         </div>
     </header>
 
     <!-- Contenido Principal -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full">
 
-        <!-- Buscador y Filtros -->
-        <div class="mb-6 bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="relative w-full md:w-96">
+        <!-- Buscador -->
+        <div class="mb-3 bg-white p-2.5 rounded-lg shadow-sm border border-gray-200">
+            <div class="relative w-full">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </span>
                 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Buscar por Línea o Razón Social..." 
-                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent text-sm">
-            </div>
-            <div class="text-xs text-gray-500 font-medium">
-                Resumen de líneas fiscalizadas
+                    class="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs sm:text-sm">
             </div>
         </div>
 
-        <!-- Tabla Principal -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+        <!-- Tabla Principal Compacta -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="companiesTable">
                     <thead>
-                        <tr class="bg-gray-800 text-white text-xs uppercase tracking-wider">
-                            <th class="py-3 px-4 font-semibold">N° Empresa</th>
-                            <th class="py-3 px-4 font-semibold">LÍNEA</th>
-                            <th class="py-3 px-4 font-semibold">RAZÓN SOCIAL</th>
-                            <th class="py-3 px-4 font-semibold text-center">CANT. UNIDADES TOTALES</th>
-                            <th class="py-3 px-4 font-semibold text-center">UNIDADES CONTROLADAS</th>
-                            <th class="py-3 px-4 font-semibold text-center">% DE FISCALIZACIÓN</th>
-                            <th class="py-3 px-4 font-semibold text-center">FECHA ÚLTIMA VISITA</th>
-                            <th class="py-3 px-4 font-semibold text-center">ACCIÓN</th>
+                        <tr class="bg-gray-800 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center">
+                            <th class="py-2 px-2 font-semibold text-left">N° Emp.</th>
+                            <th class="py-2 px-2 font-semibold text-center">LÍNEA</th>
+                            <th class="py-2 px-2 font-semibold text-left">RAZÓN SOCIAL</th>
+                            <th class="py-2 px-1 font-semibold leading-tight">Unidades<br>Totales</th>
+                            <th class="py-2 px-1 font-semibold leading-tight">Unidades<br>Controladas</th>
+                            <th class="py-2 px-1 font-semibold leading-tight">%<br>Fiscaliz.</th>
+                            <th class="py-2 px-1 font-semibold leading-tight">Última<br>Visita</th>
+                            <th class="py-2 px-2 font-semibold">Acción</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 text-sm font-medium text-gray-700">
+                    <tbody class="divide-y divide-gray-200 text-xs sm:text-sm font-medium">
                         
-                        <!-- FILA DEMO 1: LÍNEA 22 -->
+                        <!-- FILA DEMO: LÍNEA 22 -->
                         <tr class="hover:bg-blue-50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">102</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-md font-bold">22</span>
+                            <td class="py-2.5 px-2 font-bold text-gray-900">102</td>
+                            <td class="py-2.5 px-2 text-center">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold text-xs">22</span>
                             </td>
-                            <td class="py-4 px-4 font-semibold">Línea 22 S.A.T.A.</td>
-                            <td class="py-4 px-4 text-center font-bold">18</td>
-                            <td class="py-4 px-4 text-center text-green-600 font-bold">15</td>
-                            <td class="py-4 px-4 text-center">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <span class="font-bold text-blue-900">83.3%</span>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: 83.3%"></div>
-                                    </div>
-                                </div>
+                            <td class="py-2.5 px-2 font-semibold text-gray-800 whitespace-nowrap">Línea 22 S.A.T.A.</td>
+                            <td class="py-2.5 px-1 text-center font-bold">18</td>
+                            <td class="py-2.5 px-1 text-center text-green-600 font-bold">15</td>
+                            <td class="py-2.5 px-1 text-center">
+                                <span class="font-bold text-blue-900 text-xs">83.3%</span>
                             </td>
-                            <td class="py-4 px-4 text-center text-gray-600">01/09/2026</td>
-                            <td class="py-4 px-4 text-center">
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition font-semibold shadow-sm">
-                                    Ver Flota <i class="fa-solid fa-chevron-right ml-1"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- FILA DEMO 2: LÍNEA 10 -->
-                        <tr class="hover:bg-blue-50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">105</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-md font-bold">10</span>
-                            </td>
-                            <td class="py-4 px-4 font-semibold">Línea 10 S.A.</td>
-                            <td class="py-4 px-4 text-center font-bold">35</td>
-                            <td class="py-4 px-4 text-center text-green-600 font-bold">10</td>
-                            <td class="py-4 px-4 text-center">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <span class="font-bold text-blue-900">28.5%</span>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-yellow-500 h-2 rounded-full" style="width: 28.5%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4 text-center text-gray-600">17/07/2026</td>
-                            <td class="py-4 px-4 text-center">
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition font-semibold shadow-sm">
-                                    Ver Flota <i class="fa-solid fa-chevron-right ml-1"></i>
-                                </button>
-                            </td>
-                        </tr>
-
-                        <!-- FILA DEMO 3: LÍNEA 15 -->
-                        <tr class="hover:bg-blue-50 transition">
-                            <td class="py-4 px-4 font-bold text-gray-900">112</td>
-                            <td class="py-4 px-4">
-                                <span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-md font-bold">15</span>
-                            </td>
-                            <td class="py-4 px-4 font-semibold">Transportes Sur-Nor C.I.S.A.</td>
-                            <td class="py-4 px-4 text-center font-bold">50</td>
-                            <td class="py-4 px-4 text-center text-red-600 font-bold">0</td>
-                            <td class="py-4 px-4 text-center">
-                                <div class="flex items-center justify-center space-x-2">
-                                    <span class="font-bold text-blue-900">0.0%</span>
-                                    <div class="w-16 bg-gray-200 rounded-full h-2">
-                                        <div class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-4 px-4 text-center text-gray-400">-</td>
-                            <td class="py-4 px-4 text-center">
-                                <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg transition font-semibold shadow-sm">
-                                    Ver Flota <i class="fa-solid fa-chevron-right ml-1"></i>
-                                </button>
+                            <td class="py-2.5 px-1 text-center text-gray-600 text-xs whitespace-nowrap">01/09/2026</td>
+                            <td class="py-2.5 px-2 text-center">
+                                <a href="linea22.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white text-[11px] px-2.5 py-1 rounded transition font-semibold shadow-sm whitespace-nowrap">
+                                    Ver Flota <i class="fa-solid fa-chevron-right text-[9px] ml-0.5"></i>
+                                </a>
                             </td>
                         </tr>
 
@@ -144,12 +84,12 @@
         </div>
     </main>
 
-    <!-- Pie de página / Footer -->
-    <footer class="bg-gray-800 text-gray-400 py-4 text-center text-xs mt-auto border-t border-gray-700">
-        Parque Móvil FTR &copy; 2026 - Todos los derechos reservados
+    <!-- Footer Compacto -->
+    <footer class="bg-gray-800 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700">
+        Parque Móvil FTR &copy; 2026
     </footer>
 
-    <!-- Script sencillo para el filtro del buscador -->
+    <!-- Script de búsqueda -->
     <script>
         function filterTable() {
             let input = document.getElementById("searchInput");

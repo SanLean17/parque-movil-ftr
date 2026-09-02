@@ -22,7 +22,7 @@ jobs:
 
       - name: Instalar librerías
         run: |
-          pip install requests
+          pip install requests beautifulsoup4 lxml
 
       - name: Ejecutar descargador de parques
         run: |

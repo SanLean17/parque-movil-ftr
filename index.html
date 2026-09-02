@@ -1,352 +1,209 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESTADO GENERAL DE LÍNEAS</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTADO GENERAL DE LÍNEAS - Parque Móvil FTR</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Courier New', 'monospace']
+          }
         }
-
-        body {
-            background-color: #0b101d;
-            color: #ffffff;
-            padding: 15px;
-        }
-
-        .header-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            color: #ffffff;
-        }
-
-        .search-container {
-            position: relative;
-            margin-bottom: 15px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px 12px 10px 35px;
-            background-color: #121929;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        .search-input::placeholder {
-            color: #64748b;
-        }
-
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid #1e293b;
-            background-color: #121929;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 750px;
-            font-size: 0.82rem;
-        }
-
-        th {
-            background-color: #162032;
-            color: #8b9bb4;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            letter-spacing: 0.5px;
-            padding: 12px 10px;
-            text-align: center;
-            border-bottom: 1px solid #1e293b;
-            border-right: 1px solid #1e293b;
-        }
-
-        th:last-child {
-            border-right: none;
-        }
-
-        td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #1a2436;
-            border-right: 1px solid #1a2436;
-            text-align: center;
-            vertical-align: middle;
-            color: #e2e8f0;
-        }
-
-        td:last-child {
-            border-right: none;
-        }
-
-        tr:hover td {
-            background-color: #172236;
-        }
-
-        .badge-linea {
-            background-color: #1d3557;
-            color: #60a5fa;
-            border: 1px solid #2563eb40;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-weight: 700;
-            font-size: 0.78rem;
-            display: inline-block;
-            white-space: nowrap;
-        }
-
-        .razon-social {
-            text-align: left;
-            padding-left: 12px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: #cbd5e1;
-            text-transform: uppercase;
-        }
-
-        .text-green {
-            color: #4ade80;
-            font-weight: 600;
-        }
-
-        .btn-action {
-            background-color: #1d4ed8;
-            color: #ffffff;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-
-        .btn-action:hover {
-            background-color: #2563eb;
-        }
-
-        .loading-text {
-            text-align: center;
-            padding: 30px;
-            color: #64748b;
-            font-size: 0.9rem;
-        }
-    </style>
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+  </style>
 </head>
-<body>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-3 md:p-6 transition-colors duration-200">
 
-    <div class="header-title">ESTADO GENERAL DE LÍNEAS</div>
+  <div class="max-w-6xl mx-auto">
+    <!-- Encabezado -->
+    <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 border-b border-gray-800 pb-4">
+      <div>
+        <h1 class="text-2xl font-bold text-white tracking-wide flex items-center gap-2">
+          <span>🚍</span> ESTADO GENERAL DE LÍNEAS
+        </h1>
+        <p class="text-xs text-gray-400 mt-1">Parque Móvil FTR — Control y Fiscalización</p>
+      </div>
 
-    <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por línea o empresa..." onkeyup="filtrarTabla()">
+      <div class="flex items-center gap-3 w-full md:w-auto">
+        <!-- Buscador -->
+        <div class="relative flex-1 md:w-64">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Buscar línea, empresa..." 
+            class="w-full bg-gray-800 border border-gray-700 text-sm rounded-lg px-3 py-2 pl-9 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+          >
+          <span class="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
+        </div>
+
+        <!-- Toggle Modo Oscuro / Claro -->
+        <button 
+          id="themeToggle" 
+          class="bg-gray-800 hover:bg-gray-700 text-gray-200 p-2 rounded-lg border border-gray-700 transition-colors"
+          title="Cambiar tema"
+        >
+          🌙
+        </button>
+      </div>
+    </header>
+
+    <!-- Tarjetas de Resumen General -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+        <span class="text-xs text-gray-400 block">Total Líneas</span>
+        <span id="statLines" class="text-xl font-bold font-mono text-blue-400">0</span>
+      </div>
+      <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+        <span class="text-xs text-gray-400 block">Parque Total</span>
+        <span id="statTotalUnits" class="text-xl font-bold font-mono text-gray-200">0</span>
+      </div>
+      <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+        <span class="text-xs text-gray-400 block">Fiscalizados</span>
+        <span id="statControlled" class="text-xl font-bold font-mono text-green-400">0</span>
+      </div>
+      <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+        <span class="text-xs text-gray-400 block">Avance General</span>
+        <span id="statProgress" class="text-xl font-bold font-mono text-yellow-400">0%</span>
+      </div>
     </div>
 
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nº EMP.</th>
-                    <th>LÍNEA</th>
-                    <th>RAZÓN SOCIAL</th>
-                    <th>UNIDADES TOTALES</th>
-                    <th>UNIDADES CONTROLADAS</th>
-                    <th>% FISCALIZ.</th>
-                    <th>ÚLTIMA VISITA</th>
-                    <th>ACCIÓN</th>
-                </tr>
-            </thead>
-            <tbody id="tablaBody">
-                <tr>
-                    <td colspan="8" class="loading-text">Cargando parque móvil actualizado...</td>
-                </tr>
-            </tbody>
+    <!-- Tabla de Líneas -->
+    <div class="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden shadow-lg">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-900/80 text-gray-400 uppercase text-xs border-b border-gray-700">
+            <tr>
+              <th scope="col" class="px-4 py-3">Línea</th>
+              <th scope="col" class="px-4 py-3">Razón Social / Empresa</th>
+              <th scope="col" class="px-4 py-3 text-center">Total</th>
+              <th scope="col" class="px-4 py-3 text-center">Controlados</th>
+              <th scope="col" class="px-4 py-3 text-center">% Avance</th>
+              <th scope="col" class="px-4 py-3 text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="linesTableBody" class="divide-y divide-gray-700/50">
+            <!-- Cargando... -->
+            <tr id="loadingRow">
+              <td colspan="6" class="text-center py-8 text-gray-400">
+                Procesando información de las líneas...
+              </td>
+            </tr>
+          </tbody>
         </table>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const EMPRESAS_CNRT = {
-            2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
-            29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
-            56: "2013", 60: "2075", 63: "2037", 70: "2080", 74: "2079", 79: "2079", 80: "2015",
-            85: "359", 91: "2013", 92: "2023", 95: "2003", 98: "2021", 100: "2042", 113: "2037",
-            119: "2068", 126: "2119", 128: "2048", 129: "2033", 133: "2010", 134: "2042",
-            135: "2013", 148: "2033", 154: "2068", 158: "2048", 159: "2100", 160: "2101",
-            164: "2062", 168: "2105", 177: "2079", 178: "2111", 179: "9085", 180: "2099",
-            195: "2077", 197: "2033"
-        };
+  <script>
+    // Configuración de Líneas a procesar
+    const LINES_CONFIG = [
+      { line: "148", companyCode: "100", name: "EL NUEVO HALCON S.A." },
+      // Agregá acá tus líneas adicionales o conectá dinámicamente
+    ];
 
-        const RAZONES_SOCIALES = {
-            2: "TRANSPORTES LOPE DE VEGA S.A.C.I.F.",
-            9: "GENERAL TOMAS GUIDO S.A.C.I.F.",
-            10: "LINEA 10 S.A.",
-            15: "TRANSPORTES SUR NORTE S.A.C.I.F.",
-            17: "LINEA 17 S.A.C.I.F.I.",
-            22: "LINEA 22 S.A.",
-            24: "LINEA 24 S.A.C.I.F.I.",
-            29: "EMPRESA DE TRANSPORTES PEDRO DE MENDOZA S.A.",
-            32: "EL PUENTE S.A.T.A.",
-            33: "TRANSPORTES ALMIRANTE BROWN S.A.",
-            37: "FOURNIER S.A.",
-            45: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
-            51: "EMPRESA SAN VICENTE S.A.T.",
-            53: "LÍNEA 216 S.A.T.",
-            56: "TRANSPORTES MOCBA S.A.",
-            60: "MONSA - MICRO OMNIBUS NORTE S.A.",
-            63: "DOTA S.A.",
-            70: "TRANSPORTES 27 DE MAYO S.A.",
-            74: "EMPRESA SAN VICENTE S.A.T.",
-            79: "EMPRESA SAN VICENTE S.A.T.",
-            80: "TRANSPORTES LOPE DE VEGA S.A.C.I.F.",
-            85: "SOCIEDAD DE TRANSPORTES SUR NORTE S.A.",
-            91: "TRANSPORTES MOCBA S.A.",
-            92: "MICRO OMNIBUS SAAVEDRA S.A.",
-            95: "EMPRESA DE TRANSPORTES ANTARTIDA ARGENTINA S.A.",
-            98: "EXPRESO QUILMES S.A.",
-            100: "TRANSPORTES TARIJA S.A.",
-            113: "LOS CONSTITUYENTES S.A.T.",
-            119: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
-            126: "CARDENAS S.A.M.C.I.F.I.",
-            128: "EL PUENTE S.A.T.A.",
-            129: "MICRO OMNIBUS PLAZA S.A.",
-            133: "TRANSPORTES MOCBA S.A.",
-            134: "TRANSPORTES TARIJA S.A.",
-            135: "TRANSPORTES MOCBA S.A.",
-            148: "EL NUEVO HALCON S.A.",
-            154: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
-            158: "EL PUENTE S.A.T.A.",
-            159: "MICRO OMNIBUS QUILMES S.A. (MOQSA)",
-            160: "MICRO OMNIBUS SUR S.A.C.",
-            164: "GENERAL TOMAS GUIDO S.A.C.I.F.",
-            168: "EXPRESO SAN ISIDRO S.A.T.C.I.F.I.",
-            177: "EMPRESA SAN VICENTE S.A.T.",
-            178: "LA COLORADA S.A.C.I.I.",
-            179: "EL TRUNFO S.A.",
-            180: "DUO S.A.",
-            195: "EXPRESO COSTERA CRIOLLA S.A.",
-            197: "MICRO OMNIBUS PLAZA S.A."
-        };
+    async function fetchCSV(path) {
+      try {
+        const res = await fetch(path);
+        if (!res.ok) return null;
+        return await res.text();
+      } catch (e) {
+        return null;
+      }
+    }
 
-        // Datos complementarios de fiscalizaciones fijas o precalculadas
-        const DATOS_FISCALIZACION = {
-            2:   { controladas: 40, porcentaje: "27%", fecha: "10/08/2026" },
-            9:   { controladas: 38, porcentaje: "26%", fecha: "21/08/2026" },
-            10:  { controladas: 45, porcentaje: "30%", fecha: "29/07/2026" },
-            15:  { controladas: 49, porcentaje: "33%", fecha: "24/08/2026" },
-            17:  { controladas: 46, porcentaje: "31%", fecha: "30/07/2026" },
-            22:  { controladas: 39, porcentaje: "26%", fecha: "01/09/2026" },
-            24:  { controladas: 43, porcentaje: "29%", fecha: "14/08/2026" },
-            29:  { controladas: 34, porcentaje: "23%", fecha: "07/08/2026" },
-            32:  { controladas: 20, porcentaje: "14%", fecha: "31/07/2026" },
-            33:  { controladas: 40, porcentaje: "27%", fecha: "21/07/2026" },
-            37:  { controladas: 34, porcentaje: "23%", fecha: "13/07/2026" },
-            45:  { controladas: 21, porcentaje: "14%", fecha: "26/08/2026" },
-            51:  { controladas: 11, porcentaje: "7%",  fecha: "29/05/2026" },
-            53:  { controladas: 51, porcentaje: "34%", fecha: "28/08/2026" },
-            56:  { controladas: 30, porcentaje: "20%", fecha: "15/08/2026" },
-            60:  { controladas: 65, porcentaje: "40%", fecha: "02/09/2026" }
-        };
+    function parseCSVCount(csvText) {
+      if (!csvText) return 0;
+      const lines = csvText.trim().split('\n').filter(l => l.trim() !== '');
+      return Math.max(0, lines.length - 1); // Descuenta encabezado
+    }
 
-        async function cargarParques() {
-            const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = '';
+    async function loadDashboard() {
+      const tableBody = document.getElementById('linesTableBody');
+      tableBody.innerHTML = '';
 
-            for (const [linea, codEmpresa] of Object.entries(EMPRESAS_CNRT)) {
-                try {
-                    const response = await fetch(`parques/linea${linea}.csv`);
-                    if (!response.ok) continue;
+      let totalParqueGeneral = 0;
+      let totalControladosGeneral = 0;
+      let linesProcessed = 0;
 
-                    const rawText = await response.text();
+      for (const item of LINES_CONFIG) {
+        const parqueCsv = await fetchCSV(`./parques/linea_${item.line}.csv`);
+        const controlCsv = await fetchCSV(`./controlados/linea_${item.line}.csv`);
 
-                    // 1. Extraer Número de Empresa
-                    let nroEmp = codEmpresa;
-                    const matchMeta = rawText.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
-                    if (matchMeta) {
-                        nroEmp = matchMeta[1];
-                    }
+        const totalUnits = parseCSVCount(parqueCsv);
+        const controlledUnits = parseCSVCount(controlCsv);
+        const pct = totalUnits > 0 ? ((controlledUnits / totalUnits) * 100).toFixed(1) : '0.0';
 
-                    // 2. Extraer Razón Social
-                    const razonSocial = RAZONES_SOCIALES[linea] || `EMPRESA LÍNEA ${linea}`;
+        totalParqueGeneral += totalUnits;
+        totalControladosGeneral += controlledUnits;
+        linesProcessed++;
 
-                    // 3. Contar unidades reales del parque
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(rawText, 'text/html');
-                    const filas = doc.querySelectorAll('table tr');
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-700/40 transition-colors line-row';
+        row.innerHTML = `
+          <td class="px-4 py-3 font-bold font-mono text-white text-base">Línea ${item.line}</td>
+          <td class="px-4 py-3 text-gray-300">
+            <span class="text-xs text-gray-400 block font-mono">Cód: ${item.companyCode}</span>
+            ${item.name}
+          </td>
+          <td class="px-4 py-3 text-center font-mono text-gray-200">${totalUnits}</td>
+          <td class="px-4 py-3 text-center font-mono text-green-400 font-semibold">${controlledUnits}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="inline-block px-2 py-1 text-xs rounded-full font-mono ${
+              pct >= 80 ? 'bg-green-900/60 text-green-300' :
+              pct >= 40 ? 'bg-yellow-900/60 text-yellow-300' :
+              'bg-red-900/60 text-red-300'
+            }">
+              ${pct}%
+            </span>
+          </td>
+          <td class="px-4 py-3 text-center">
+            <a href="./linea_${item.line}.html" class="inline-block bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded transition-colors">
+              Ver Detalle
+            </a>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      }
 
-                    let unidadesTotales = 0;
-                    if (filas.length > 0) {
-                        unidadesTotales = Array.from(filas).filter(tr => tr.querySelectorAll('td').length > 0).length;
-                    } else {
-                        const dominios = rawText.match(/\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b/gi);
-                        if (dominios) {
-                            unidadesTotales = new Set(dominios.map(d => d.toUpperCase())).size;
-                        }
-                    }
+      // Actualizar Métricas Superiores
+      document.getElementById('statLines').textContent = linesProcessed;
+      document.getElementById('statTotalUnits').textContent = totalParqueGeneral;
+      document.getElementById('statControlled').textContent = totalControladosGeneral;
+      const totalPct = totalParqueGeneral > 0 ? ((totalControladosGeneral / totalParqueGeneral) * 100).toFixed(1) : '0.0';
+      document.getElementById('statProgress').textContent = `${totalPct}%`;
+    }
 
-                    // 4. Datos complementarios de fiscalización
-                    const fisc = DATOS_FISCALIZACION[linea] || { controladas: Math.floor(unidadesTotales * 0.25), porcentaje: "25%", fecha: "15/08/2026" };
+    // Buscador en tiempo real
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('.line-row');
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    });
 
-                    // 5. Renderizar fila con el diseño exacto
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${nroEmp}</td>
-                        <td><span class="badge-linea">LÍNEA ${linea}</span></td>
-                        <td class="razon-social">${razonSocial}</td>
-                        <td>${unidadesTotales}</td>
-                        <td class="text-green">${fisc.controladas}</td>
-                        <td>${fisc.porcentaje}</td>
-                        <td>${fisc.fecha}</td>
-                        <td>
-                            <a href="parques/linea${linea}.csv" target="_blank" class="btn-action">
-                                Parque Móvil &gt;
-                            </a>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+    // Toggle de Modo Oscuro / Claro
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      themeToggle.textContent = document.documentElement.classList.contains('dark') ? '🌙' : '☀️';
+    });
 
-                } catch (err) {
-                    console.error(`Error procesando línea ${linea}:`, err);
-                }
-            }
-        }
-
-        function filtrarTabla() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const filas = document.querySelectorAll('#tablaBody tr');
-
-            filas.forEach(fila => {
-                const texto = fila.textContent.toLowerCase();
-                fila.style.display = texto.includes(input) ? '' : 'none';
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', cargarParques);
-    </script>
+    // Iniciar
+    loadDashboard();
+  </script>
 </body>
 </html>

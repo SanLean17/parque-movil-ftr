@@ -21,18 +21,15 @@ def procesar():
         print(f"❌ No existe {ORIGEN_CSV}")
         return
 
-    # Indexar vehículos del CSV base
     vehiculos_por_linea = {str(k): [] for k in EMPRESAS_CNRT.keys()}
     
     with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:
         reader = csv.DictReader(f, delimiter=";")
         for row in reader:
-            # Obtener línea ignorando mayúsculas/minúsculas en el nombre de columna
             lin = str(row.get("linea") or row.get("Linea") or "").strip()
             if lin in vehiculos_por_linea:
                 vehiculos_por_linea[lin].append(row)
 
-    # Generar archivos por línea
     for num_linea, cod_emp in EMPRESAS_CNRT.items():
         str_linea = str(num_linea)
         file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
@@ -43,6 +40,7 @@ def procesar():
             razon_social = unidades[0].get("razonSocial") or unidades[0].get("RazonSocial") or razon_social
 
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
+            # FORZAMOS DELIMITADOR PUNTO Y COMA
             writer = csv.writer(out, delimiter=";")
             writer.writerow(["dominio", "empresaNro", "razonSocial", "linea", "interno", "chasisMarca", "carroceriaMarca"])
             
@@ -55,8 +53,6 @@ def procesar():
                     cha = u.get("chasisMarca") or u.get("ChasisMarca") or ""
                     car = u.get("carroceriaMarca") or u.get("CarroceriaMarca") or ""
                     writer.writerow([dom, emp, raz, str_linea, inte, cha, car])
-            else:
-                writer.writerow(["", cod_emp, razon_social, str_linea, "", "", ""])
 
         print(f"✅ Línea {str_linea}: {len(unidades)} unidades ({razon_social})")
 

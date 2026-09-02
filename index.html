@@ -58,14 +58,14 @@
             <table class="w-full text-left border-collapse min-w-[750px]">
                 <thead>
                     <tr class="bg-blue-900 dark:bg-slate-800 text-white text-[10px] sm:text-xs font-black uppercase tracking-wider divide-x divide-blue-800 dark:divide-slate-700 border-b-2 border-blue-950 dark:border-slate-700">
-                        <th class="py-3 px-3 text-center">N° Emp.</th>
+                        <th class="py-3 px-3 text-center">N° EMP.</th>
                         <th class="py-3 px-3 text-center">LÍNEA</th>
                         <th class="py-3 px-3 text-center">RAZÓN SOCIAL</th>
-                        <th class="py-3 px-3 text-center">Unidades<br>Totales</th>
-                        <th class="py-3 px-3 text-center">Unidades<br>Controladas</th>
-                        <th class="py-3 px-3 text-center">% Fiscaliz.</th>
-                        <th class="py-3 px-3 text-center">Última<br>Visita</th>
-                        <th class="py-3 px-3 text-center">Acción</th>
+                        <th class="py-3 px-3 text-center">UNIDADES<br>TOTALES</th>
+                        <th class="py-3 px-3 text-center">UNIDADES<br>CONTROLADAS</th>
+                        <th class="py-3 px-3 text-center">% FISCALIZ.</th>
+                        <th class="py-3 px-3 text-center">ÚLTIMA<br>VISITA</th>
+                        <th class="py-3 px-3 text-center">ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody id="linesTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs font-medium">
@@ -99,52 +99,6 @@
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                 .toLowerCase()
                 .replace(/[^a-z0-9]/g, '');
-        }
-
-        function extraerRazonSocial(row) {
-            if (!row) return '';
-            const targetKeywords = ['razonsocial', 'razon', 'empresa', 'nombreempresa', 'operador', 'denominacion', 'titular'];
-
-            for (let k in row) {
-                const keyNorm = cleanKey(k);
-                if (targetKeywords.some(kw => keyNorm.includes(kw))) {
-                    const val = String(row[k] || '').trim();
-                    if (val && !val.toLowerCase().includes('doctype') && !val.toLowerCase().includes('html') && isNaN(val)) {
-                        return val;
-                    }
-                }
-            }
-
-            for (let k in row) {
-                const val = String(row[k] || '').trim();
-                if (val && isNaN(val) && val.length > 3 && !val.includes('/') && !val.includes('-') && !val.toLowerCase().includes('doctype')) {
-                    return val;
-                }
-            }
-            return '';
-        }
-
-        function extraerNroEmpresa(row) {
-            if (!row) return '';
-            const targetKeywords = ['nroemp', 'numemp', 'codemp', 'codigoemp', 'idemp', 'empresa', 'nro', 'num', 'cod', 'codigo', 'id'];
-
-            for (let k in row) {
-                const keyNorm = cleanKey(k);
-                if (targetKeywords.some(kw => keyNorm.includes(kw))) {
-                    const val = String(row[k] || '').trim();
-                    if (/^\d+$/.test(val)) {
-                        return val;
-                    }
-                }
-            }
-
-            for (let k in row) {
-                const val = String(row[k] || '').trim();
-                if (/^\d{1,5}$/.test(val) && k.toLowerCase() !== 'linea' && k.toLowerCase() !== 'interno') {
-                    return val;
-                }
-            }
-            return '';
         }
 
         function getProp(obj, targetKeys) {
@@ -211,121 +165,117 @@
             cargarDatosLinea(id);
         });
 
-        function cargarDatosLinea(id) {
-            // Intentar cargar la ruta del parque
-            const rutaParque = `parques/linea${id}.csv`;
+        async function cargarDatosLinea(id) {
+            try {
+                // 1. Obtener el archivo HTML/CSV generado por el bot
+                const res = await fetch(`parques/linea${id}.csv`);
+                if (!res.ok) throw new Error("No se encontró el archivo");
+                
+                const htmlText = await res.text();
 
-            Papa.parse(rutaParque, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(resParque) {
-                    // Validar si la respuesta es HTML (Error 404 de GitHub)
-                    const primerColumna = resParque.meta.fields ? resParque.meta.fields[0] : '';
-                    if (primerColumna.toLowerCase().includes('doctype') || primerColumna.toLowerCase().includes('html')) {
-                        console.error(`Error 404 al cargar ${rutaParque}: No se encontró el archivo.`);
-                        setFallbackData(id);
-                        return;
+                // 2. Extraer N° Empresa desde el comentario <!-- nro_emp: XXXX -->
+                const empMatch = htmlText.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
+                const nroEmpresa = empMatch ? empMatch[1] : '-';
+                document.getElementById(`emp-num-${id}`).textContent = nroEmpresa;
+
+                // 3. Parsear el HTML interno
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                // Extraer Razón Social
+                let razonSocial = '';
+                const empLabel = Array.from(doc.querySelectorAll('td, th, label, div, b, strong, p'))
+                    .find(el => el.textContent.includes('EMPRESA:') || el.textContent.includes('Empresa:'));
+                
+                if (empLabel) {
+                    razonSocial = empLabel.textContent.replace(/EMPRESA:/i, '').trim();
+                } else {
+                    const firstTd = doc.querySelector('table tr td');
+                    if (firstTd && isNaN(firstTd.textContent.trim())) {
+                        razonSocial = firstTd.textContent.trim();
                     }
-
-                    if (resParque && resParque.data && resParque.data.length > 0) {
-                        const parqueData = resParque.data;
-                        const totalParque = parqueData.length;
-                        document.getElementById(`total-${id}`).textContent = totalParque;
-
-                        let emp = '';
-                        let nroEmp = '';
-
-                        for (let row of parqueData) {
-                            if (!emp) emp = extraerRazonSocial(row);
-                            if (!nroEmp) nroEmp = extraerNroEmpresa(row);
-                            if (emp && nroEmp) break;
-                        }
-
-                        document.getElementById(`empresa-${id}`).textContent = emp || `LÍNEA ${id}`;
-                        document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
-
-                        // Cargar fiscalizados
-                        Papa.parse(`controlados/linea${id}.csv`, {
-                            download: true,
-                            header: true,
-                            skipEmptyLines: true,
-                            complete: function(resControl) {
-                                if (resControl && resControl.data && resControl.meta.fields && !resControl.meta.fields[0].toLowerCase().includes('html')) {
-                                    const controlData = resControl.data;
-                                    const dominiosControlados = new Set();
-                                    let maxFechaObj = null;
-
-                                    controlData.forEach(row => {
-                                        let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
-                                        if (!dom) {
-                                            for (let key in row) {
-                                                const val = String(row[key] || '').trim();
-                                                if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
-                                                    dom = val;
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (dom) dominiosControlados.add(dom.toUpperCase());
-
-                                        let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
-                                        if (!fechaStr) {
-                                            for (let key in row) {
-                                                const val = String(row[key] || '').trim();
-                                                if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
-                                                    fechaStr = val;
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (fechaStr) {
-                                            const dObj = parseFecha(fechaStr);
-                                            if (dObj && (!maxFechaObj || dObj > maxFechaObj)) maxFechaObj = dObj;
-                                        }
-                                    });
-
-                                    const controladasCount = dominiosControlados.size;
-                                    document.getElementById(`controladas-${id}`).textContent = controladasCount;
-
-                                    if (totalParque > 0) {
-                                        const pct = Math.round((controladasCount / totalParque) * 100);
-                                        document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
-                                    } else {
-                                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                    }
-
-                                    document.getElementById(`visita-${id}`).textContent = formatFecha(maxFechaObj);
-
-                                } else {
-                                    document.getElementById(`controladas-${id}`).textContent = 0;
-                                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                                }
-                            },
-                            error: function() {
-                                document.getElementById(`controladas-${id}`).textContent = 0;
-                                document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                            }
-                        });
-
-                    } else {
-                        setFallbackData(id);
-                    }
-                },
-                error: function() {
-                    setFallbackData(id);
                 }
-            });
+
+                document.getElementById(`empresa-${id}`).textContent = razonSocial || `LÍNEA ${id}`;
+
+                // Contar filas reales de colectivos en la tabla del HTML
+                const filasColectivos = doc.querySelectorAll('table tr');
+                // Descontamos 1 por el encabezado si existe tabla
+                let totalUnidades = filasColectivos.length > 1 ? filasColectivos.length - 1 : 0;
+                document.getElementById(`total-${id}`).textContent = totalUnidades;
+
+                // 4. Cargar Unidades Controladas desde la carpeta controlados (CSV real)
+                Papa.parse(`controlados/linea${id}.csv`, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(resControl) {
+                        if (resControl && resControl.data && resControl.data.length > 0) {
+                            const controlData = resControl.data;
+                            const dominiosControlados = new Set();
+                            let maxFechaObj = null;
+
+                            controlData.forEach(row => {
+                                let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
+                                if (!dom) {
+                                    for (let key in row) {
+                                        const val = String(row[key] || '').trim();
+                                        if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
+                                            dom = val;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (dom) dominiosControlados.add(dom.toUpperCase());
+
+                                let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
+                                if (!fechaStr) {
+                                    for (let key in row) {
+                                        const val = String(row[key] || '').trim();
+                                        if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
+                                            fechaStr = val;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (fechaStr) {
+                                    const dObj = parseFecha(fechaStr);
+                                    if (dObj && (!maxFechaObj || dObj > maxFechaObj)) maxFechaObj = dObj;
+                                }
+                            });
+
+                            const controladasCount = dominiosControlados.size;
+                            document.getElementById(`controladas-${id}`).textContent = controladasCount;
+
+                            if (totalUnidades > 0) {
+                                const pct = Math.round((controladasCount / totalUnidades) * 100);
+                                document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
+                            } else {
+                                document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                            }
+
+                            document.getElementById(`visita-${id}`).textContent = formatFecha(maxFechaObj);
+                        } else {
+                            setFallbackControlados(id);
+                        }
+                    },
+                    error: function() {
+                        setFallbackControlados(id);
+                    }
+                });
+
+            } catch (err) {
+                console.error(`Error procesando linea ${id}:`, err);
+                document.getElementById(`empresa-${id}`).textContent = `LÍNEA ${id}`;
+                document.getElementById(`emp-num-${id}`).textContent = '-';
+                document.getElementById(`total-${id}`).textContent = 0;
+                setFallbackControlados(id);
+            }
         }
 
-        function setFallbackData(id) {
-            document.getElementById(`empresa-${id}`).textContent = `LÍNEA ${id}`;
-            document.getElementById(`emp-num-${id}`).textContent = '-';
-            document.getElementById(`total-${id}`).textContent = 0;
+        function setFallbackControlados(id) {
             document.getElementById(`controladas-${id}`).textContent = 0;
             document.getElementById(`porcentaje-${id}`).textContent = '0%';
             document.getElementById(`visita-${id}`).textContent = 'Sin registros';

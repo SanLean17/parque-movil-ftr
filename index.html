@@ -3,72 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil CNRT</title>
+    <title>Consulta de Parque Móvil CNRT</title>
     <style>
+        :root {
+            --primary-color: #1a252f;
+            --secondary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e2e8f0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
-            color: #333;
         }
-        h1 {
-            text-align: center;
-            color: #1a252f;
-        }
+
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
         }
+
+        header {
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            width: 250px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
+            font-size: 0.95rem;
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+
         th {
-            background-color: #2c3e50;
+            background-color: var(--secondary-color);
             color: white;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
         }
+
+        th:first-child { border-top-left-radius: 6px; }
+        th:last-child { border-top-right-radius: 6px; }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
         tr:hover {
-            background-color: #f1f1f1;
+            background-color: #f8fafc;
         }
-        .loading {
-            text-align: center;
-            font-size: 1.2em;
-            color: #666;
-            padding: 20px;
-        }
+
         .badge {
             background-color: #27ae60;
             color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
             font-weight: bold;
+            display: inline-block;
+        }
+
+        .badge-empresa {
+            background-color: #e2e8f0;
+            color: #475569;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .status {
+            padding: 20px;
+            text-align: center;
+            color: #666;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Estado del Parque Móvil - CNRT</h1>
-    <div id="status" class="loading">Cargando datos de las líneas...</div>
-    
+    <header>
+        <h1>Estado del Parque Móvil - CNRT</h1>
+        <p class="subtitle">Monitoreo y consulta de unidades habilitadas por línea de transporte</p>
+    </header>
+
+    <div class="controls">
+        <input type="text" id="buscador" placeholder="Buscar por línea o empresa..." onkeyup="filtrarTabla()">
+    </div>
+
+    <div id="loading" class="status">Cargando parque móvil...</div>
+
     <table id="tabla-parques" style="display: none;">
         <thead>
             <tr>
                 <th>Línea</th>
-                <th>N° Empresa / Cód.</th>
-                <th>Razón Social / Empresa</th>
-                <th>Cantidad de Unidades</th>
+                <th>Código Habilitación</th>
+                <th>Razón Social</th>
+                <th>Unidades Habilitadas</th>
             </tr>
         </thead>
         <tbody id="contenido-tabla"></tbody>
@@ -76,6 +152,7 @@
 </div>
 
 <script>
+// Diccionario de códigos de habilitación CNRT
 const EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -87,87 +164,131 @@ const EMPRESAS_CNRT = {
     195: "2077", 197: "2033"
 };
 
+// Diccionario de Razones Sociales
+const RAZONES_SOCIALES = {
+    2: "TRANSPORTES LOPE DE VEGA S.A.C.I.F.",
+    9: "GENERAL TOMAS GUIDO S.A.C.I.F.",
+    10: "LINEA 10 S.A.",
+    15: "TRANSPORTES SUR NORTE S.A.C.I.F.",
+    17: "LINEA 17 S.A.C.I.F.I.",
+    22: "LINEA 22 S.A.",
+    24: "LINEA 24 S.A.C.I.F.I.",
+    29: "EMPRESA DE TRANSPORTES PEDRO DE MENDOZA S.A.",
+    32: "EL PUENTE S.A.T.A.",
+    33: "TRANSPORTES ALMIRANTE BROWN S.A.",
+    37: "FOURNIER S.A.",
+    45: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
+    51: "EMPRESA SAN VICENTE S.A.T.",
+    53: "LÍNEA 216 S.A.T.",
+    56: "TRANSPORTES MOCBA S.A.",
+    60: "MONSA - MICRO OMNIBUS NORTE S.A.",
+    63: "DOTA S.A.",
+    70: "TRANSPORTES 27 DE MAYO S.A.",
+    74: "EMPRESA SAN VICENTE S.A.T.",
+    79: "EMPRESA SAN VICENTE S.A.T.",
+    80: "TRANSPORTES LOPE DE VEGA S.A.C.I.F.",
+    85: "SOCIEDAD DE TRANSPORTES SUR NORTE S.A.",
+    91: "TRANSPORTES MOCBA S.A.",
+    92: "MICRO OMNIBUS SAAVEDRA S.A.",
+    95: "EMPRESA DE TRANSPORTES ANTARTIDA ARGENTINA S.A.",
+    98: "EXPRESO QUILMES S.A.",
+    100: "TRANSPORTES TARIJA S.A.",
+    113: "LOS CONSTITUYENTES S.A.T.",
+    119: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
+    126: "CARDENAS S.A.M.C.I.F.I.",
+    128: "EL PUENTE S.A.T.A.",
+    129: "MICRO OMNIBUS PLAZA S.A.",
+    133: "TRANSPORTES MOCBA S.A.",
+    134: "TRANSPORTES TARIJA S.A.",
+    135: "TRANSPORTES MOCBA S.A.",
+    148: "EL NUEVO HALCON S.A.",
+    154: "EMPRESA DE TRANSPORTES CUATRO DE JUNIO S.A.C.I.F.",
+    158: "EL PUENTE S.A.T.A.",
+    159: "MICRO OMNIBUS QUILMES S.A. (MOQSA)",
+    160: "MICRO OMNIBUS SUR S.A.C.",
+    164: "GENERAL TOMAS GUIDO S.A.C.I.F.",
+    168: "EXPRESO SAN ISIDRO S.A.T.C.I.F.I.",
+    177: "EMPRESA SAN VICENTE S.A.T.",
+    178: "LA COLORADA S.A.C.I.I.",
+    179: "EL TRUNFO S.A.",
+    180: "DUO S.A.",
+    195: "EXPRESO COSTERA CRIOLLA S.A.",
+    197: "MICRO OMNIBUS PLAZA S.A."
+};
+
 async function cargarParques() {
     const tbody = document.getElementById('contenido-tabla');
-    const status = document.getElementById('status');
+    const loading = document.getElementById('loading');
     const tabla = document.getElementById('tabla-parques');
     
-    let lineasProcesadas = 0;
+    let cargadas = 0;
 
     for (const [linea, codEmpresa] of Object.entries(EMPRESAS_CNRT)) {
         try {
             const response = await fetch(`parques/linea${linea}.csv`);
             if (!response.ok) continue;
 
-            const text = await response.text();
+            const htmlContent = await response.text();
             
-            // 1. Extraer N° de empresa desde el metadato inyectado o usar el mapeo local
-            let nroEmpresa = codEmpresa;
-            const matchMeta = text.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
+            // 1. Extraer N° Empresa (del comentario inyectado o del objeto)
+            let nroEmp = codEmpresa;
+            const matchMeta = htmlContent.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
             if (matchMeta) {
-                nroEmpresa = matchMeta[1];
+                nroEmp = matchMeta[1];
             }
 
-            // 2. Crear un documento parser para extraer datos del HTML
+            // 2. Extraer o asignar Razón Social
+            const razonSocial = RAZONES_SOCIALES[linea] || `EMPRESA LÍNEA ${linea}`;
+
+            // 3. Contar la cantidad de vehículos en el HTML
             const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-
-            // 3. Extraer la Razón Social / Nombre de Empresa
-            let razonSocial = "";
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const filas = doc.querySelectorAll('table tr');
             
-            // Buscar en selectores o etiquetas del HTML
-            const optionSelected = doc.querySelector('select[name="empresa"] option[selected]');
-            if (optionSelected && optionSelected.textContent.trim()) {
-                razonSocial = optionSelected.textContent.trim();
-            } else {
-                // Intentar leer la tercera columna de la primera fila de datos si existe tabla
-                const primeraFilaTDs = doc.querySelectorAll('table tr td');
-                if (primeraFilaTDs.length >= 3) {
-                    razonSocial = primeraFilaTDs[2].textContent.trim();
-                }
-            }
-
-            if (!razonSocial || razonSocial === "") {
-                razonSocial = `EMPRESA LÍNEA ${linea}`;
-            }
-
-            // 4. Contar la cantidad de unidades/vehículos
-            const filasTabla = doc.querySelectorAll('table tr');
             let cantidadCoches = 0;
-
-            if (filasTabla.length > 0) {
-                // Descontar la fila de encabezados si existe
-                cantidadCoches = Array.from(filasTabla).filter(tr => tr.querySelectorAll('td').length > 0).length;
+            if (filas.length > 0) {
+                // Filtra solo filas con celdas (descartando encabezados)
+                cantidadCoches = Array.from(filas).filter(tr => tr.querySelectorAll('td').length > 0).length;
             } else {
-                // Fallback por si la respuesta no tiene estructura tr/td clásica
-                const matchesDominios = text.match(/\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b/gi);
-                if (matchesDominios) {
-                    cantidadCoches = new Set(matchesDominios.map(d => d.toUpperCase())).size;
+                // Respaldo por expresión regular si no hay nodos de tabla claros
+                const matches = htmlContent.match(/\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b/gi);
+                if (matches) {
+                    cantidadCoches = new Set(matches.map(m => m.toUpperCase())).size;
                 }
             }
 
-            // 5. Agregar la fila a la tabla
+            // 4. Agregar fila a la tabla principal
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td><strong>Línea ${linea}</strong></td>
-                <td>${nroEmpresa}</td>
+                <td><span class="badge-empresa">${nroEmp}</span></td>
                 <td>${razonSocial}</td>
                 <td><span class="badge">${cantidadCoches} coches</span></td>
             `;
             tbody.appendChild(tr);
-            lineasProcesadas++;
+            cargadas++;
 
-        } catch (e) {
-            console.error(`Error cargando línea ${linea}:`, e);
+        } catch (err) {
+            console.error(`Error procesando Línea ${linea}:`, err);
         }
     }
 
-    if (lineasProcesadas > 0) {
-        status.style.display = 'none';
+    if (cargadas > 0) {
+        loading.style.display = 'none';
         tabla.style.display = 'table';
     } else {
-        status.textContent = 'No se encontraron datos cargados en la carpeta /parques.';
+        loading.textContent = 'No se encontraron datos disponibles en el servidor.';
     }
+}
+
+function filtrarTabla() {
+    const input = document.getElementById('buscador').value.toLowerCase();
+    const filas = document.querySelectorAll('#contenido-tabla tr');
+
+    filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(input) ? '' : 'none';
+    });
 }
 
 document.addEventListener('DOMContentLoaded', cargarParques);

@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,1035 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=9085&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=9085&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA203BE</td>
+                        <td>626</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/01/2027
+                                                    </td>
+                        <td>321464</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/213177" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA608OC</td>
+                        <td>616</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>335795</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/218911" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA608OE</td>
+                        <td>631</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>337366</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/218913" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE335FQ</td>
+                        <td>606</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>96474</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/293753" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE952GU</td>
+                        <td>636</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/11/2026
+                                                    </td>
+                        <td>106881</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/319077" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE992PD</td>
+                        <td>637</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>112046</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/320898" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF257SQ</td>
+                        <td>613</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>337364</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/331126" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF341GV</td>
+                        <td>628</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/10/2026
+                                                    </td>
+                        <td>106738</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/339919" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF341GX</td>
+                        <td>618</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/11/2026
+                                                    </td>
+                        <td>106808</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/340179" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF341GY</td>
+                        <td>620</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/11/2026
+                                                    </td>
+                        <td>106839</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/340318" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF383ZA</td>
+                        <td>632</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/10/2026
+                                                    </td>
+                        <td>106766</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/340014" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF383ZC</td>
+                        <td>608</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>112121</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/340587" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF533MX</td>
+                        <td>635</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>59185</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/355107" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF533MY</td>
+                        <td>615</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/09/2026
+                                                    </td>
+                        <td>59135</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/354990" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF590HC</td>
+                        <td>641</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>59254</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/355115" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF802AT</td>
+                        <td>619</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/02/2027
+                                                    </td>
+                        <td>326722</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/365883" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF802AY</td>
+                        <td>625</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>331752</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/366026" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF839YA</td>
+                        <td>617</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>335794</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/366664" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF839YF</td>
+                        <td>603</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>331757</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/366284" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF839YM</td>
+                        <td>623</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>337327</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/366898" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF839YN</td>
+                        <td>601</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>337326</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/367225" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NNY585</td>
+                        <td>611</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/10/2026
+                                                    </td>
+                        <td>247104</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26663" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NNY586</td>
+                        <td>639</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>245586</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26665" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OMQ005</td>
+                        <td>622</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-11
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>247120</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/27944" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OMQ010</td>
+                        <td>621</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-11
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>112142</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/27943" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OMQ055</td>
+                        <td>604</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-11
+                                                                                    </td>
+                        <td>
+                                                            02/10/2026
+                                                    </td>
+                        <td>245634</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/28261" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OPZ508</td>
+                        <td>627</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-11
+                                                                                    </td>
+                        <td>
+                                                            18/10/2026
+                                                    </td>
+                        <td>249759</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/28307" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OTE505</td>
+                        <td>605</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-11
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>247117</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/28815" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI869</td>
+                        <td>630</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/12/2026
+                                                    </td>
+                        <td>247226</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134973" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI870</td>
+                        <td>612</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>247294</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134972" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI871</td>
+                        <td>633</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/12/2026
+                                                    </td>
+                        <td>245650</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134974" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI872</td>
+                        <td>607</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/12/2026
+                                                    </td>
+                        <td>247278</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134971" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI878</td>
+                        <td>640</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/10/2026
+                                                    </td>
+                        <td>102670</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134976" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMI879</td>
+                        <td>602</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>249807</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134975" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PPM023</td>
+                        <td>614</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>23</td>
+                        <td>9085</td>
+                        <td>30-70228513-1</td>
+                        <td>GRUPO LINEA 179 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/12/2026
+                                                    </td>
+                        <td>249782</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210120" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +1123,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

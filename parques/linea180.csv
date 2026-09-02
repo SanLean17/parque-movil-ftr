@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,3415 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2099&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2099&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AG547MH</td>
+                        <td>95</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>97142</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/395268" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG547NU</td>
+                        <td>65</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>99986</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/395942" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JH</td>
+                        <td>101</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/10/2026
+                                                    </td>
+                        <td>103185</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396109" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JI</td>
+                        <td>100</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/10/2026
+                                                    </td>
+                        <td>103120</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396105" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JJ</td>
+                        <td>98</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/10/2026
+                                                    </td>
+                        <td>100204</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396104" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JK</td>
+                        <td>97</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>100049</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/395946" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JL</td>
+                        <td>96</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>100129</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/395945" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JQ</td>
+                        <td>102</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/10/2026
+                                                    </td>
+                        <td>106145</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396106" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JR</td>
+                        <td>103</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/11/2026
+                                                    </td>
+                        <td>111610</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396803" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601JS</td>
+                        <td>104</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>111749</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396804" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601KQ</td>
+                        <td>106</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/12/2026
+                                                    </td>
+                        <td>250475</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/400709" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601KR</td>
+                        <td>107</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/12/2026
+                                                    </td>
+                        <td>250421</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/399468" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG601LD</td>
+                        <td>105</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>111832</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/396806" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GS</td>
+                        <td>7</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/10/2026
+                                                    </td>
+                        <td>102997</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416861" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GT</td>
+                        <td>6</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/10/2026
+                                                    </td>
+                        <td>102918</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416863" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GU</td>
+                        <td>2</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/10/2026
+                                                    </td>
+                        <td>100380</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416858" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GX</td>
+                        <td>4</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/10/2026
+                                                    </td>
+                        <td>102763</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416857" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GY</td>
+                        <td>5</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/10/2026
+                                                    </td>
+                        <td>102817</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416862" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH259GZ</td>
+                        <td>8</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/10/2026
+                                                    </td>
+                        <td>103054</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416864" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CB</td>
+                        <td>1</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/10/2026
+                                                    </td>
+                        <td>100310</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416856" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CC</td>
+                        <td>3</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/10/2026
+                                                    </td>
+                        <td>102710</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416860" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CI</td>
+                        <td>10</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/10/2026
+                                                    </td>
+                        <td>106355</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417167" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CJ</td>
+                        <td>11</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/11/2026
+                                                    </td>
+                        <td>106464</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417169" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CK</td>
+                        <td>14</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/11/2026
+                                                    </td>
+                        <td>111550</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417172" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CM</td>
+                        <td>9</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/10/2026
+                                                    </td>
+                        <td>106281</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417166" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CN</td>
+                        <td>12</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/11/2026
+                                                    </td>
+                        <td>106540</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417170" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380CO</td>
+                        <td>13</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/11/2026
+                                                    </td>
+                        <td>106627</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/417171" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH380DZ</td>
+                        <td>18</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/11/2026
+                                                    </td>
+                        <td>243675</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/418980" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DA</td>
+                        <td>17</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/11/2026
+                                                    </td>
+                        <td>243553</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/418978" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DB</td>
+                        <td>19</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/11/2026
+                                                    </td>
+                        <td>243752</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419301" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DC</td>
+                        <td>16</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/11/2026
+                                                    </td>
+                        <td>111973</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/418979" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DD</td>
+                        <td>23</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/11/2026
+                                                    </td>
+                        <td>246079</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419305" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DE</td>
+                        <td>21</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/11/2026
+                                                    </td>
+                        <td>243819</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419303" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DG</td>
+                        <td>20</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/11/2026
+                                                    </td>
+                        <td>245750</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419302" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DH</td>
+                        <td>22</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/11/2026
+                                                    </td>
+                        <td>243898</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419304" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460DI</td>
+                        <td>15</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>111915</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/418977" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460ET</td>
+                        <td>24</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/11/2026
+                                                    </td>
+                        <td>246022</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420650" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EU</td>
+                        <td>27</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>247304</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420653" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EV</td>
+                        <td>28</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>247376</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420654" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EW</td>
+                        <td>26</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/12/2026
+                                                    </td>
+                        <td>246216</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420652" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EX</td>
+                        <td>25</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/12/2026
+                                                    </td>
+                        <td>246132</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420651" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EY</td>
+                        <td>29</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/12/2026
+                                                    </td>
+                        <td>250231</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420655" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH460EZ</td>
+                        <td>30</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>250345</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/420656" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH540KD</td>
+                        <td>126</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/01/2027
+                                                    </td>
+                        <td>301443</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421402" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH540KE</td>
+                        <td>31</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/01/2027
+                                                    </td>
+                        <td>299419</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421399" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH540KF</td>
+                        <td>32</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/01/2027
+                                                    </td>
+                        <td>301205</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421400" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH540KG</td>
+                        <td>125</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/12/2026
+                                                    </td>
+                        <td>250545</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421401" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH540KH</td>
+                        <td>124</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/01/2027
+                                                    </td>
+                        <td>301358</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421816" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH612DX</td>
+                        <td>123</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>30</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/01/2027
+                                                    </td>
+                        <td>301296</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/421817" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650WV</td>
+                        <td>130</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/02/2027
+                                                    </td>
+                        <td>330436</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/422622" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650WW</td>
+                        <td>127</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/02/2027
+                                                    </td>
+                        <td>329041</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/422615" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650WX</td>
+                        <td>140</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/02/2027
+                                                    </td>
+                        <td>331917</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/422789" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650WY</td>
+                        <td>129</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/02/2027
+                                                    </td>
+                        <td>329212</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/422616" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650WZ</td>
+                        <td>128</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/02/2027
+                                                    </td>
+                        <td>329132</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/422617" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH650XD</td>
+                        <td>131</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>331990</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/423813" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GT</td>
+                        <td>35</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            31/01/2027
+                                                    </td>
+                        <td>328748</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435983" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GU</td>
+                        <td>38</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/01/2027
+                                                    </td>
+                        <td>301641</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435988" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GV</td>
+                        <td>40</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/01/2027
+                                                    </td>
+                        <td>325648</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435991" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GW</td>
+                        <td>33</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/01/2027
+                                                    </td>
+                        <td>328671</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435981" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GX</td>
+                        <td>44</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/02/2027
+                                                    </td>
+                        <td>328867</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435987" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GY</td>
+                        <td>41</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/01/2027
+                                                    </td>
+                        <td>325723</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435993" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000GZ</td>
+                        <td>39</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>323048</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435989" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HA</td>
+                        <td>45</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/02/2027
+                                                    </td>
+                        <td>328956</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435990" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HB</td>
+                        <td>46</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/02/2027
+                                                    </td>
+                        <td>328962</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435992" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HC</td>
+                        <td>43</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/01/2027
+                                                    </td>
+                        <td>325952</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435986" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HE</td>
+                        <td>37</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/01/2027
+                                                    </td>
+                        <td>301556</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435985" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HG</td>
+                        <td>36</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/02/2027
+                                                    </td>
+                        <td>328864</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435984" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HH</td>
+                        <td>68</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/01/2027
+                                                    </td>
+                        <td>326033</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435996" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HI</td>
+                        <td>42</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/01/2027
+                                                    </td>
+                        <td>325851</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435995" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000HJ</td>
+                        <td>34</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            31/01/2027
+                                                    </td>
+                        <td>328741</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/435982" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JJ</td>
+                        <td>62</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>93070</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438397" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JK</td>
+                        <td>52</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334971</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438336" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JL</td>
+                        <td>60</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>93020</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438396" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JM</td>
+                        <td>47</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/02/2027
+                                                    </td>
+                        <td>334594</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438343" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JN</td>
+                        <td>58</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>93019</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438394" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JO</td>
+                        <td>53</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>62946</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438338" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JP</td>
+                        <td>59</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>93018</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438395" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JQ</td>
+                        <td>56</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>338144</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438335" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JR</td>
+                        <td>55</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>338065</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438330" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JV</td>
+                        <td>63</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>93071</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438398" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JW</td>
+                        <td>57</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>338153</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438399" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JX</td>
+                        <td>54</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>338058</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438332" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI000JY</td>
+                        <td>49</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/02/2027
+                                                    </td>
+                        <td>334754</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438341" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BA</td>
+                        <td>50</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334841</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438340" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BB</td>
+                        <td>51</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334844</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438337" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BC</td>
+                        <td>48</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/02/2027
+                                                    </td>
+                        <td>334675</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438342" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BH</td>
+                        <td>61</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>93022</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438393" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BJ</td>
+                        <td>69</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97038</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438907" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BK</td>
+                        <td>71</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97045</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438913" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BL</td>
+                        <td>70</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97041</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438910" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BM</td>
+                        <td>73</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97042</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438903" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BN</td>
+                        <td>72</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97040</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438912" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BP</td>
+                        <td>74</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97049</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438899" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BQ</td>
+                        <td>66</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97037</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438905" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BR</td>
+                        <td>67</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97039</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438914" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024BS</td>
+                        <td>64</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>97044</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438901" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DH</td>
+                        <td>75</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/10/2026
+                                                    </td>
+                        <td>106220</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/441097" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DI</td>
+                        <td>77</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/10/2026
+                                                    </td>
+                        <td>106222</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/441099" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DJ</td>
+                        <td>78</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/10/2026
+                                                    </td>
+                        <td>106234</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/441100" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DM</td>
+                        <td>76</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/10/2026
+                                                    </td>
+                        <td>106221</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/441098" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DV</td>
+                        <td>79</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>111854</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442123" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DW</td>
+                        <td>81</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>111853</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442126" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DX</td>
+                        <td>80</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>111855</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442125" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DY</td>
+                        <td>83</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>111929</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442134" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024DZ</td>
+                        <td>82</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>111856</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442124" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EA</td>
+                        <td>84</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>111927</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442135" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EH</td>
+                        <td>89</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245965</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443254" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EI</td>
+                        <td>87</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245960</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443256" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EJ</td>
+                        <td>91</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245968</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443252" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EK</td>
+                        <td>90</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245967</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443253" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EL</td>
+                        <td>85</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245957</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443258" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EM</td>
+                        <td>86</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245958</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443257" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EN</td>
+                        <td>88</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245964</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443255" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI024EZ</td>
+                        <td>132</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247584</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443996" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SB</td>
+                        <td>121</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247582</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443998" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SD</td>
+                        <td>122</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247585</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443997" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SF</td>
+                        <td>92</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247580</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444002" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SG</td>
+                        <td>99</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247583</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443999" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SH</td>
+                        <td>94</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247586</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444000" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI234SI</td>
+                        <td>93</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>25</td>
+                        <td>2099</td>
+                        <td>30-54625352-6</td>
+                        <td>LA VECINAL DE MATANZA SACI DE MICROOM.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>247593</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444001" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +3503,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,3079 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2054&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2054&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AE096UY</td>
+                        <td>69</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/11/2026
+                                                    </td>
+                        <td>117949</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286488" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE096UZ</td>
+                        <td>70</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>117865</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286486" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE106RA</td>
+                        <td>98</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/12/2026
+                                                    </td>
+                        <td>122771</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286599" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE106RB</td>
+                        <td>89</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/11/2026
+                                                    </td>
+                        <td>122627</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286490" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE132CB</td>
+                        <td>100</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>122737</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286887" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE132CC</td>
+                        <td>107</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/11/2026
+                                                    </td>
+                        <td>117997</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286890" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE132CD</td>
+                        <td>60</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/11/2026
+                                                    </td>
+                        <td>117908</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286892" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE132CE</td>
+                        <td>101</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>122694</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286897" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE374KM</td>
+                        <td>106</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>66612</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294364" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE374KN</td>
+                        <td>55</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/10/2026
+                                                    </td>
+                        <td>113553</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294740" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE374KO</td>
+                        <td>61</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/02/2027
+                                                    </td>
+                        <td>260020</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/293707" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE374KP</td>
+                        <td>78</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/02/2027
+                                                    </td>
+                        <td>419690</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/293724" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TP</td>
+                        <td>7</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/12/2026
+                                                    </td>
+                        <td>122831</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303170" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TQ</td>
+                        <td>28</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/01/2027
+                                                    </td>
+                        <td>257704</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303378" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TR</td>
+                        <td>32</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/01/2027
+                                                    </td>
+                        <td>257797</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303665" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TS</td>
+                        <td>18</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>122815</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303171" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TU</td>
+                        <td>3</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/12/2026
+                                                    </td>
+                        <td>253772</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303177" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TV</td>
+                        <td>24</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/12/2026
+                                                    </td>
+                        <td>253791</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303196" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TW</td>
+                        <td>81</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/01/2027
+                                                    </td>
+                        <td>253878</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303163" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TX</td>
+                        <td>42</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/01/2027
+                                                    </td>
+                        <td>257884</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303734" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TY</td>
+                        <td>40</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/01/2027
+                                                    </td>
+                        <td>257845</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303556" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618TZ</td>
+                        <td>76</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/01/2027
+                                                    </td>
+                        <td>257815</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303735" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UA</td>
+                        <td>67</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>253679</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303187" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UD</td>
+                        <td>97</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/12/2026
+                                                    </td>
+                        <td>122791</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303164" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UE</td>
+                        <td>75</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/12/2026
+                                                    </td>
+                        <td>253816</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303161" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UF</td>
+                        <td>84</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>257928</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/304025" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UG</td>
+                        <td>90</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>23</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>257897</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303677" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UH</td>
+                        <td>80</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/01/2027
+                                                    </td>
+                        <td>257935</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303921" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UT</td>
+                        <td>96</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/01/2027
+                                                    </td>
+                        <td>259913</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/304669" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UU</td>
+                        <td>77</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/02/2027
+                                                    </td>
+                        <td>260055</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/304674" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE618UV</td>
+                        <td>85</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/02/2027
+                                                    </td>
+                        <td>259985</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/304671" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE721DM</td>
+                        <td>6</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/09/2026
+                                                    </td>
+                        <td>66592</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/309199" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE721DN</td>
+                        <td>5</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/09/2026
+                                                    </td>
+                        <td>66529</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/309185" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE721DS</td>
+                        <td>4</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>113385</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/309186" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XD</td>
+                        <td>33</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            31/01/2027
+                                                    </td>
+                        <td>259926</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329944" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XE</td>
+                        <td>39</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/02/2027
+                                                    </td>
+                        <td>260070</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330062" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XF</td>
+                        <td>49</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/02/2027
+                                                    </td>
+                        <td>259989</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329940" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XG</td>
+                        <td>36</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/02/2027
+                                                    </td>
+                        <td>260035</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329947" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XI</td>
+                        <td>45</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/02/2027
+                                                    </td>
+                        <td>260059</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330064" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XJ</td>
+                        <td>38</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/02/2027
+                                                    </td>
+                        <td>260085</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329946" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XN</td>
+                        <td>41</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>419504</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330001" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XO</td>
+                        <td>46</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>260093</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330171" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XP</td>
+                        <td>37</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>419525</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330186" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF158XQ</td>
+                        <td>47</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/02/2027
+                                                    </td>
+                        <td>419549</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330180" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF444LD</td>
+                        <td>88</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>257913</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/350029" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF444LE</td>
+                        <td>83</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/01/2027
+                                                    </td>
+                        <td>259899</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/349904" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QI</td>
+                        <td>54</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/02/2027
+                                                    </td>
+                        <td>419628</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/352884" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QJ</td>
+                        <td>91</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>421805</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/353867" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QK</td>
+                        <td>92</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>421826</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/353892" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QL</td>
+                        <td>59</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>421821</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/353397" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QM</td>
+                        <td>82</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/02/2027
+                                                    </td>
+                        <td>419543</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/353390" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QO</td>
+                        <td>108</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/09/2026
+                                                    </td>
+                        <td>63549</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/354179" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QP</td>
+                        <td>94</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/09/2026
+                                                    </td>
+                        <td>63506</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/354215" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF454QQ</td>
+                        <td>105</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/09/2026
+                                                    </td>
+                        <td>63534</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/354169" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG137XW</td>
+                        <td>57</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/02/2027
+                                                    </td>
+                        <td>419698</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379700" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG137XX</td>
+                        <td>99</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/09/2026
+                                                    </td>
+                        <td>63499</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380197" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BB</td>
+                        <td>56</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419638</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379692" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BC</td>
+                        <td>64</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>419518</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379832" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BD</td>
+                        <td>63</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419640</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379974" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BI</td>
+                        <td>65</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>421803</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380123" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BK</td>
+                        <td>93</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/02/2027
+                                                    </td>
+                        <td>419623</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379833" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185BM</td>
+                        <td>95</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419646</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380114" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SM</td>
+                        <td>104</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/09/2026
+                                                    </td>
+                        <td>63628</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381245" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SP</td>
+                        <td>16</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>113401</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381990" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SR</td>
+                        <td>20</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>66639</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381655" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SS</td>
+                        <td>11</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>113383</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381654" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SV</td>
+                        <td>53</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/11/2026
+                                                    </td>
+                        <td>117244</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381424" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SW</td>
+                        <td>2</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/09/2026
+                                                    </td>
+                        <td>63596</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381238" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG209SY</td>
+                        <td>23</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>113388</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381812" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG271ZS</td>
+                        <td>34</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/10/2026
+                                                    </td>
+                        <td>113595</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382822" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG271ZT</td>
+                        <td>25</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/10/2026
+                                                    </td>
+                        <td>113512</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382554" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG271ZV</td>
+                        <td>29</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>113424</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382569" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG271ZW</td>
+                        <td>35</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>66472</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382824" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG271ZY</td>
+                        <td>30</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/10/2026
+                                                    </td>
+                        <td>113574</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382823" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG638JS</td>
+                        <td>62</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/01/2027
+                                                    </td>
+                        <td>257853</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/397567" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG638JT</td>
+                        <td>102</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/12/2026
+                                                    </td>
+                        <td>253779</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/397572" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG638JW</td>
+                        <td>86</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>253841</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/397566" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG638JZ</td>
+                        <td>68</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/12/2026
+                                                    </td>
+                        <td>253770</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/397561" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG683AY</td>
+                        <td>73</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/01/2027
+                                                    </td>
+                        <td>259853</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/399268" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG683AZ</td>
+                        <td>66</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/01/2027
+                                                    </td>
+                        <td>259870</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/399242" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG717DA</td>
+                        <td>87</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/01/2027
+                                                    </td>
+                        <td>259876</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/399258" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG717DB</td>
+                        <td>74</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/01/2027
+                                                    </td>
+                        <td>259888</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/399251" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH027YC</td>
+                        <td>52</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/01/2027
+                                                    </td>
+                        <td>257831</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/409060" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH027YD</td>
+                        <td>9</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/01/2027
+                                                    </td>
+                        <td>257838</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/408994" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH027YF</td>
+                        <td>51</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/01/2027
+                                                    </td>
+                        <td>257865</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/409010" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH027YH</td>
+                        <td>10</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/01/2027
+                                                    </td>
+                        <td>257821</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/409007" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH734JV</td>
+                        <td>14</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/10/2026
+                                                    </td>
+                        <td>113466</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/426819" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH734JW</td>
+                        <td>26</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/10/2026
+                                                    </td>
+                        <td>113498</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/426811" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH734KA</td>
+                        <td>21</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/10/2026
+                                                    </td>
+                        <td>113527</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/427012" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH734MY</td>
+                        <td>44</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/12/2026
+                                                    </td>
+                        <td>122664</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/430898" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH764QA</td>
+                        <td>31</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/12/2026
+                                                    </td>
+                        <td>122752</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/430900" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH764QB</td>
+                        <td>27</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/11/2026
+                                                    </td>
+                        <td>117144</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/428231" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH764QZ</td>
+                        <td>19</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/11/2026
+                                                    </td>
+                        <td>117174</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/428345" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH764RA</td>
+                        <td>43</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/12/2026
+                                                    </td>
+                        <td>122653</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/430882" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH764RE</td>
+                        <td>13</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/11/2026
+                                                    </td>
+                        <td>117185</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/428232" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH873SP</td>
+                        <td>8</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>66635</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/425933" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH873SS</td>
+                        <td>1</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>66601</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/425921" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI064OL</td>
+                        <td>72</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/02/2027
+                                                    </td>
+                        <td>419711</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/437043" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI064OS</td>
+                        <td>48</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/02/2027
+                                                    </td>
+                        <td>419664</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/436968" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI064OT</td>
+                        <td>12</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/02/2027
+                                                    </td>
+                        <td>419682</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/437047" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI064PG</td>
+                        <td>79</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/09/2026
+                                                    </td>
+                        <td>63548</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/437855" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI064PH</td>
+                        <td>58</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/09/2026
+                                                    </td>
+                        <td>63520</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/437797" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085NE</td>
+                        <td>71</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/09/2026
+                                                    </td>
+                        <td>63530</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/437811" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085QL</td>
+                        <td>17</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/09/2026
+                                                    </td>
+                        <td>66521</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438583" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085QM</td>
+                        <td>15</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/09/2026
+                                                    </td>
+                        <td>66512</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438586" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085QN</td>
+                        <td>50</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/09/2026
+                                                    </td>
+                        <td>66517</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438587" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085QY</td>
+                        <td>103</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>66580</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/438967" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI085QZ</td>
+                        <td>22</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2054</td>
+                        <td>30-54633333-3</td>
+                        <td>LINEA 213 S.A. DE TRANSPORTE</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/10/2026
+                                                    </td>
+                        <td>113376</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/439460" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +3167,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

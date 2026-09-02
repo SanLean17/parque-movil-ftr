@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,1203 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2080&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2080&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA033UU</td>
+                        <td>105</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>335793</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210242" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA033UV</td>
+                        <td>115</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/09/2026
+                                                    </td>
+                        <td>58991</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210244" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA033UX</td>
+                        <td>129</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-09
+                                                                                    </td>
+                        <td>
+                                                            07/01/2027
+                                                    </td>
+                        <td>252109</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210109" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA125ZK</td>
+                        <td>141</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/09/2026
+                                                    </td>
+                        <td>96255</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211418" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA125ZO</td>
+                        <td>127</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-09
+                                                                                    </td>
+                        <td>
+                                                            03/01/2027
+                                                    </td>
+                        <td>252042</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211541" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA841QP</td>
+                        <td>103</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/10/2026
+                                                    </td>
+                        <td>106765</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224502" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA841QQ</td>
+                        <td>124</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>112016</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224501" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA841QR</td>
+                        <td>119</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>108779</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224503" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC817WA</td>
+                        <td>108</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>331895</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/256631" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE918ZE</td>
+                        <td>137</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/02/2027
+                                                    </td>
+                        <td>326642</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/318308" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE918ZG</td>
+                        <td>135</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/01/2027
+                                                    </td>
+                        <td>325002</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/318212" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE918ZH</td>
+                        <td>136</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>324934</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/318135" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE918ZI</td>
+                        <td>111</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            31/01/2027
+                                                    </td>
+                        <td>326546</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/318563" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE918ZJ</td>
+                        <td>133</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/02/2027
+                                                    </td>
+                        <td>326727</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/318785" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF235WZ</td>
+                        <td>139</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/01/2027
+                                                    </td>
+                        <td>325053</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329731" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF239HA</td>
+                        <td>128</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/02/2027
+                                                    </td>
+                        <td>326581</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329734" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF239HE</td>
+                        <td>117</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/02/2027
+                                                    </td>
+                        <td>326590</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329738" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF239HF</td>
+                        <td>112</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>324894</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329649" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF239HG</td>
+                        <td>106</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/01/2027
+                                                    </td>
+                        <td>324983</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329654" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF324QD</td>
+                        <td>113</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>96405</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/336734" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF324QE</td>
+                        <td>114</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>96331</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/336476" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF324QF</td>
+                        <td>109</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>96365</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/336660" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF445AD</td>
+                        <td>122</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/12/2026
+                                                    </td>
+                        <td>249836</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/345504" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF445AE</td>
+                        <td>123</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/12/2026
+                                                    </td>
+                        <td>249869</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/345545" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF445AF</td>
+                        <td>125</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/12/2026
+                                                    </td>
+                        <td>249941</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/345699" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EI</td>
+                        <td>138</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>59184</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380675" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EK</td>
+                        <td>101</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>337365</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380493" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EL</td>
+                        <td>134</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/09/2026
+                                                    </td>
+                        <td>59171</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380605" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EM</td>
+                        <td>140</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>59222</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380770" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EN</td>
+                        <td>132</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/09/2026
+                                                    </td>
+                        <td>59133</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380519" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI198AH</td>
+                        <td>118</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>252022</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/445643" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI198AI</td>
+                        <td>120</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>245674</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443789" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI198AJ</td>
+                        <td>102</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/12/2026
+                                                    </td>
+                        <td>247092</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/443904" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI198AK</td>
+                        <td>116</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/12/2026
+                                                    </td>
+                        <td>249738</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444614" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PLS346</td>
+                        <td>131</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-09
+                                                                                    </td>
+                        <td>
+                                                            11/01/2027
+                                                    </td>
+                        <td>321495</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/133726" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW800</td>
+                        <td>121</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>26</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-08-09
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>245667</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/133727" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW813</td>
+                        <td>126</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/11/2026
+                                                    </td>
+                        <td>112078</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/133980" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW814</td>
+                        <td>110</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/12/2026
+                                                    </td>
+                        <td>245600</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134154" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW815</td>
+                        <td>130</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/11/2026
+                                                    </td>
+                        <td>112138</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/133981" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW816</td>
+                        <td>104</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/11/2026
+                                                    </td>
+                        <td>112163</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134151" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PMW817</td>
+                        <td>107</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>29</td>
+                        <td>2080</td>
+                        <td>30-54634671-0</td>
+                        <td>TRANSPORTES 270 S.A.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>247059</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134220" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +1291,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

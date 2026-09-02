@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,2295 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2067&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2067&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA114TB</td>
+                        <td>37</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>335782</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210833" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC339CR</td>
+                        <td>45</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/02/2027
+                                                    </td>
+                        <td>326677</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251758" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC515LT</td>
+                        <td>40</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>337328</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253454" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC515LW</td>
+                        <td>69</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/09/2026
+                                                    </td>
+                        <td>58922</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253456" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC567QI</td>
+                        <td>74</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/10/2026
+                                                    </td>
+                        <td>96689</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/254240" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC670HE</td>
+                        <td>12</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>337367</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/254451" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC670HF</td>
+                        <td>6</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>96488</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/254452" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC670HJ</td>
+                        <td>36</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/09/2026
+                                                    </td>
+                        <td>96219</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/254699" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LK</td>
+                        <td>5</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/09/2026
+                                                    </td>
+                        <td>59080</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272255" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LL</td>
+                        <td>27</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/09/2026
+                                                    </td>
+                        <td>59317</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272137" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LM</td>
+                        <td>41</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/09/2026
+                                                    </td>
+                        <td>59107</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272135" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LS</td>
+                        <td>31</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>59282</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272415" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LU</td>
+                        <td>1</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>96479</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272405" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573LV</td>
+                        <td>29</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>96333</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/272419" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE094OR</td>
+                        <td>78</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/01/2027
+                                                    </td>
+                        <td>326530</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286529" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE094OS</td>
+                        <td>59</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/12/2026
+                                                    </td>
+                        <td>251919</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286502" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE094OU</td>
+                        <td>68</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/12/2026
+                                                    </td>
+                        <td>251958</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286608" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE094OV</td>
+                        <td>73</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/01/2027
+                                                    </td>
+                        <td>321540</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/286611" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE167HN</td>
+                        <td>48</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/01/2027
+                                                    </td>
+                        <td>324868</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/287403" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE167HO</td>
+                        <td>50</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/01/2027
+                                                    </td>
+                        <td>325031</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/287401" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE167HP</td>
+                        <td>14</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>324900</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/287412" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE334RM</td>
+                        <td>47</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>331754</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294255" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE334RN</td>
+                        <td>8</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>331711</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294263" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE386NF</td>
+                        <td>60</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/02/2027
+                                                    </td>
+                        <td>335747</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/295051" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE408GF</td>
+                        <td>44</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>59200</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/296132" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE408GG</td>
+                        <td>56</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>59234</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/296209" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE877ZV</td>
+                        <td>18</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>252005</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/315652" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE893HJ</td>
+                        <td>16</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/01/2027
+                                                    </td>
+                        <td>321471</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/316685" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE893HK</td>
+                        <td>11</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/01/2027
+                                                    </td>
+                        <td>321573</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/316735" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE893HL</td>
+                        <td>33</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/01/2027
+                                                    </td>
+                        <td>252079</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/316459" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE893HM</td>
+                        <td>49</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/01/2027
+                                                    </td>
+                        <td>251979</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/316460" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE951VO</td>
+                        <td>75</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>59226</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/321007" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF372UC</td>
+                        <td>76</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>112049</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341750" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF372UD</td>
+                        <td>24</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/11/2026
+                                                    </td>
+                        <td>112143</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341757" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF620DS</td>
+                        <td>23</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>96367</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/357239" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF620DV</td>
+                        <td>19</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/10/2026
+                                                    </td>
+                        <td>96630</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/357838" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EB</td>
+                        <td>42</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/09/2026
+                                                    </td>
+                        <td>59008</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380721" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG186EC</td>
+                        <td>3</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/09/2026
+                                                    </td>
+                        <td>58896</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/380133" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG835QI</td>
+                        <td>65</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/10/2026
+                                                    </td>
+                        <td>96444</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/402863" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG835QJ</td>
+                        <td>51</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>96418</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/402838" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG835QV</td>
+                        <td>46</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/10/2026
+                                                    </td>
+                        <td>102475</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/403735" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG835RV</td>
+                        <td>72</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/12/2026
+                                                    </td>
+                        <td>249736</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/406961" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG851VC</td>
+                        <td>32</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/01/2027
+                                                    </td>
+                        <td>325055</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/409797" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG851VE</td>
+                        <td>80</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/01/2027
+                                                    </td>
+                        <td>325089</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/409796" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH136GG</td>
+                        <td>35</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>112019</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416289" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH136GT</td>
+                        <td>26</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/11/2026
+                                                    </td>
+                        <td>112167</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/416914" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AH164TI</td>
+                        <td>66</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2025</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2035-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>252003</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/419594" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI076ZE</td>
+                        <td>77</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/10/2026
+                                                    </td>
+                        <td>96579</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/439944" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI076ZF</td>
+                        <td>22</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/10/2026
+                                                    </td>
+                        <td>102620</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/440758" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI076ZG</td>
+                        <td>70</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/10/2026
+                                                    </td>
+                        <td>96636</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/440019" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI076ZY</td>
+                        <td>9</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>112053</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442111" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI076ZZ</td>
+                        <td>64</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>28</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>112055</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442101" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>LLS121</td>
+                        <td>55</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>26</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/12/2026
+                                                    </td>
+                        <td>335590</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/22049" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>LSE242</td>
+                        <td>79</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>26</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/12/2026
+                                                    </td>
+                        <td>335707</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/22624" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>LVL054</td>
+                        <td>10</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>326628</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/23534" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>LVL056</td>
+                        <td>25</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/11/2026
+                                                    </td>
+                        <td>324991</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/23529" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>LVL059</td>
+                        <td>30</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/12/2026
+                                                    </td>
+                        <td>326703</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/23526" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>MXJ331</td>
+                        <td>62</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>26</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/12/2026
+                                                    </td>
+                        <td>326655</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25163" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NBR491</td>
+                        <td>63</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>26</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/11/2026
+                                                    </td>
+                        <td>252067</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25537" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIB143</td>
+                        <td>20</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/11/2026
+                                                    </td>
+                        <td>252114</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25728" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIB144</td>
+                        <td>57</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/10/2026
+                                                    </td>
+                        <td>245681</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25726" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIB145</td>
+                        <td>4</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/10/2026
+                                                    </td>
+                        <td>247227</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25739" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIB146</td>
+                        <td>58</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/12/2026
+                                                    </td>
+                        <td>335554</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25863" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIX706</td>
+                        <td>21</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/12/2026
+                                                    </td>
+                        <td>331803</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25846" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIX707</td>
+                        <td>39</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/09/2026
+                                                    </td>
+                        <td>106900</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25865" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NIX708</td>
+                        <td>28</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/12/2026
+                                                    </td>
+                        <td>326747</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25864" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NJH936</td>
+                        <td>15</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2013</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/11/2026
+                                                    </td>
+                        <td>321624</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/25752" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NRW832</td>
+                        <td>13</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/09/2026
+                                                    </td>
+                        <td>245545</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26484" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NRW849</td>
+                        <td>2</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>247127</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26527" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NSN247</td>
+                        <td>17</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/09/2026
+                                                    </td>
+                        <td>112218</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26651" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>NVX510</td>
+                        <td>38</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>29</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/09/2026
+                                                    </td>
+                        <td>106842</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/26946" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OWG793</td>
+                        <td>34</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/09/2026
+                                                    </td>
+                        <td>108706</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29050" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OYK627</td>
+                        <td>43</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/10/2026
+                                                    </td>
+                        <td>245668</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/134111" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OYK654</td>
+                        <td>67</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>247159</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29189" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OYK655</td>
+                        <td>53</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>245606</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29186" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OYU360</td>
+                        <td>52</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/10/2026
+                                                    </td>
+                        <td>249815</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29303" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OYU361</td>
+                        <td>61</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/10/2026
+                                                    </td>
+                        <td>247299</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29304" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OZS251</td>
+                        <td>54</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>112128</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29748" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OZS252</td>
+                        <td>71</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/10/2026
+                                                    </td>
+                        <td>249898</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29377" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PON409</td>
+                        <td>7</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>26</td>
+                        <td>2067</td>
+                        <td>30-54636615-0</td>
+                        <td>4 DE SEPTIEMBRE S.A.T.C.P.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>331768</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210441" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +2383,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

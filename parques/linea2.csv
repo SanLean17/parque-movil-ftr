@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,1595 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2058&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2058&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA034JL</td>
+                        <td>53</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/09/2026
+                                                    </td>
+                        <td>96719</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/210791" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA832RT</td>
+                        <td>29</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/02/2027
+                                                    </td>
+                        <td>328827</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/223956" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA930TM</td>
+                        <td>31</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>97141</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224948" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB340SW</td>
+                        <td>52</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/01/2027
+                                                    </td>
+                        <td>322864</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/234991" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB370TN</td>
+                        <td>51</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/02/2027
+                                                    </td>
+                        <td>330396</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/236563" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB498BE</td>
+                        <td>38</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/09/2026
+                                                    </td>
+                        <td>62883</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/239853" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB563JT</td>
+                        <td>49</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334917</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/240691" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB653YQ</td>
+                        <td>12</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/09/2026
+                                                    </td>
+                        <td>96833</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/242210" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB761FE</td>
+                        <td>46</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/09/2026
+                                                    </td>
+                        <td>96778</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/244673" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC213SZ</td>
+                        <td>44</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/11/2026
+                                                    </td>
+                        <td>111699</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/249679" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC515FG</td>
+                        <td>34</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/11/2026
+                                                    </td>
+                        <td>106418</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253425" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD154UA</td>
+                        <td>22</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>247312</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262724" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD154UC</td>
+                        <td>33</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/11/2026
+                                                    </td>
+                        <td>111615</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262761" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD179KD</td>
+                        <td>32</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/11/2026
+                                                    </td>
+                        <td>111727</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262659" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD573KX</td>
+                        <td>18</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/02/2027
+                                                    </td>
+                        <td>334467</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/271951" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD741WC</td>
+                        <td>11</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/10/2026
+                                                    </td>
+                        <td>100278</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/276464" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD741WD</td>
+                        <td>35</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334931</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/280643" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD741WG</td>
+                        <td>27</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/10/2026
+                                                    </td>
+                        <td>100268</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/276431" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD921YR</td>
+                        <td>10</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>26</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/02/2027
+                                                    </td>
+                        <td>334469</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/281197" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE081HB</td>
+                        <td>55</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/12/2026
+                                                    </td>
+                        <td>247520</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285520" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE081HC</td>
+                        <td>47</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>250623</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285545" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE081HD</td>
+                        <td>50</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/12/2026
+                                                    </td>
+                        <td>299105</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285559" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE099ZO</td>
+                        <td>16</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/09/2026
+                                                    </td>
+                        <td>96902</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294678" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE099ZU</td>
+                        <td>45</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/09/2026
+                                                    </td>
+                        <td>62882</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/294602" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE631OG</td>
+                        <td>6</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334916</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303070" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE631OH</td>
+                        <td>15</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/12/2026
+                                                    </td>
+                        <td>250551</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/303113" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE696SQ</td>
+                        <td>41</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/12/2026
+                                                    </td>
+                        <td>299104</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/310351" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE696SR</td>
+                        <td>17</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/12/2026
+                                                    </td>
+                        <td>247521</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/308411" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE696SS</td>
+                        <td>4</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/12/2026
+                                                    </td>
+                        <td>250688</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/308773" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE846RE</td>
+                        <td>25</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/09/2026
+                                                    </td>
+                        <td>62892</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/312550" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE928KX</td>
+                        <td>1</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/12/2026
+                                                    </td>
+                        <td>250302</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/320646" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE928KY</td>
+                        <td>7</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2031-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/10/2026
+                                                    </td>
+                        <td>100265</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/317488" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF074FT</td>
+                        <td>21</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>247420</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329152" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF262CP</td>
+                        <td>14</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/12/2026
+                                                    </td>
+                        <td>251724</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/335751" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF293ZP</td>
+                        <td>28</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/09/2026
+                                                    </td>
+                        <td>93058</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/336687" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF293ZQ</td>
+                        <td>8</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/02/2027
+                                                    </td>
+                        <td>330397</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/336233" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF341FS</td>
+                        <td>39</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/12/2026
+                                                    </td>
+                        <td>250565</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/340876" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF347KO</td>
+                        <td>24</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/09/2026
+                                                    </td>
+                        <td>97101</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341244" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF347KT</td>
+                        <td>43</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/10/2026
+                                                    </td>
+                        <td>99854</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/342098" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF347KU</td>
+                        <td>2</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/09/2026
+                                                    </td>
+                        <td>97100</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341576" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF423QZ</td>
+                        <td>30</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>26</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>245972</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/345291" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185IC</td>
+                        <td>9</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/02/2027
+                                                    </td>
+                        <td>334556</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381511" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185ID</td>
+                        <td>3</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/02/2027
+                                                    </td>
+                        <td>334649</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381514" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185IE</td>
+                        <td>23</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>334840</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382646" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185IF</td>
+                        <td>40</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>334365</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381515" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG185IG</td>
+                        <td>19</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>334341</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382648" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG276IR</td>
+                        <td>13</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/02/2027
+                                                    </td>
+                        <td>332341</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/383735" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OAX117</td>
+                        <td>36</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>243641</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/27094" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OGZ667</td>
+                        <td>5</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2014</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>243660</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/27391" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OKV626</td>
+                        <td>54</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/09/2026
+                                                    </td>
+                        <td>243637</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/27685" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OUL012</td>
+                        <td>37</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2015</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/12/2026
+                                                    </td>
+                        <td>332240</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/28685" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>OXJ718</td>
+                        <td>48</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>301516</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29005" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PER048</td>
+                        <td>26</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>334486</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29650" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PER049</td>
+                        <td>42</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/12/2026
+                                                    </td>
+                        <td>332229</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/29649" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>PNH671</td>
+                        <td>20</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>25</td>
+                        <td>2058</td>
+                        <td>30-54660863-4</td>
+                        <td>TRANPORTES VEINTIDOS DE SETIEMBRE S.A.C.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/11/2026
+                                                    </td>
+                        <td>246081</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/136168" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +1683,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

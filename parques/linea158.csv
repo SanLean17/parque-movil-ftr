@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,2855 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2048&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2048&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA681EE</td>
+                        <td>8505</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-02
+                                                                                    </td>
+                        <td>
+                                                            25/02/2027
+                                                    </td>
+                        <td>419958</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/221058" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA836QY</td>
+                        <td>8520</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-02
+                                                                                    </td>
+                        <td>
+                                                            15/11/2026
+                                                    </td>
+                        <td>119245</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224569" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA836QZ</td>
+                        <td>8503</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-04
+                                                                                    </td>
+                        <td>
+                                                            22/11/2026
+                                                    </td>
+                        <td>122245</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224907" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA894KA</td>
+                        <td>8708</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-02
+                                                                                    </td>
+                        <td>
+                                                            20/11/2026
+                                                    </td>
+                        <td>119346</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224567" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA894KD</td>
+                        <td>8507</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-04
+                                                                                    </td>
+                        <td>
+                                                            26/11/2026
+                                                    </td>
+                        <td>122275</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/224909" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB345QR</td>
+                        <td>8821</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/09/2026
+                                                    </td>
+                        <td>66886</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/233793" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB345QU</td>
+                        <td>8826</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419026</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/233789" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB379WR</td>
+                        <td>8820</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/11/2026
+                                                    </td>
+                        <td>119106</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/234849" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB379WS</td>
+                        <td>8823</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>67085</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/234847" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB379WT</td>
+                        <td>8521</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>119130</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/234848" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB411OU</td>
+                        <td>8702</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-09-26
+                                                                                    </td>
+                        <td>
+                                                            18/11/2026
+                                                    </td>
+                        <td>119300</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/240064" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB411PC</td>
+                        <td>8824</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119274</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/236264" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB411PG</td>
+                        <td>8827</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/11/2026
+                                                    </td>
+                        <td>115841</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/236266" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB629FV</td>
+                        <td>8822</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/12/2026
+                                                    </td>
+                        <td>253235</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/242372" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB629FX</td>
+                        <td>8814</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/12/2026
+                                                    </td>
+                        <td>255855</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/242373" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB984ME</td>
+                        <td>8816</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>418903</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/246688" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB984MF</td>
+                        <td>8731</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/02/2027
+                                                    </td>
+                        <td>418973</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/246686" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AB984MG</td>
+                        <td>8817</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/02/2027
+                                                    </td>
+                        <td>418972</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/246687" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC139NW</td>
+                        <td>8819</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/11/2026
+                                                    </td>
+                        <td>119107</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/247911" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC139NX</td>
+                        <td>8815</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/12/2026
+                                                    </td>
+                        <td>253101</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/247915" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC167MI</td>
+                        <td>8523</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>67083</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/249241" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC167MJ</td>
+                        <td>8516</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/09/2026
+                                                    </td>
+                        <td>66894</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/249242" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC167MK</td>
+                        <td>8517</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/02/2027
+                                                    </td>
+                        <td>419980</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/249237" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC167MN</td>
+                        <td>8513</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/02/2027
+                                                    </td>
+                        <td>418998</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/249201" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC520JB</td>
+                        <td>8730</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/10/2026
+                                                    </td>
+                        <td>114222</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/257777" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC830AH</td>
+                        <td>8522</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/02/2027
+                                                    </td>
+                        <td>260684</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/257935" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC830AO</td>
+                        <td>8729</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/01/2027
+                                                    </td>
+                        <td>259116</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/257439" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC873WK</td>
+                        <td>8713</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/11/2026
+                                                    </td>
+                        <td>115759</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/259145" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925SE</td>
+                        <td>8707</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/01/2027
+                                                    </td>
+                        <td>259202</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/259220" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925SG</td>
+                        <td>8710</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/10/2026
+                                                    </td>
+                        <td>115662</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/259143" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925SH</td>
+                        <td>8732</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/10/2026
+                                                    </td>
+                        <td>114400</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/259219" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925SJ</td>
+                        <td>8515</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>259266</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/258878" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925ST</td>
+                        <td>8712</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/01/2027
+                                                    </td>
+                        <td>255996</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262711" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925TD</td>
+                        <td>8709</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/01/2027
+                                                    </td>
+                        <td>260505</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/258550" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC925TN</td>
+                        <td>8711</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/10/2026
+                                                    </td>
+                        <td>114367</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/258780" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD096BS</td>
+                        <td>8508</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-25
+                                                                                    </td>
+                        <td>
+                                                            25/09/2026
+                                                    </td>
+                        <td>74588</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262664" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD096BX</td>
+                        <td>8504</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-25
+                                                                                    </td>
+                        <td>
+                                                            19/09/2026
+                                                    </td>
+                        <td>74552</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/262598" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD490XE</td>
+                        <td>8518</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/10/2026
+                                                    </td>
+                        <td>115666</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/268853" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD514RV</td>
+                        <td>8735</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/01/2027
+                                                    </td>
+                        <td>259165</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/270059" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD514RW</td>
+                        <td>8719</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/02/2027
+                                                    </td>
+                        <td>418900</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/271130" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PO</td>
+                        <td>8717</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>66970</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273313" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PP</td>
+                        <td>8715</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/10/2026
+                                                    </td>
+                        <td>114251</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273309" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PQ</td>
+                        <td>8716</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/10/2026
+                                                    </td>
+                        <td>114335</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273315" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PR</td>
+                        <td>8714</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/10/2026
+                                                    </td>
+                        <td>115688</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273314" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PS</td>
+                        <td>8742</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/10/2026
+                                                    </td>
+                        <td>114290</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273310" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PT</td>
+                        <td>8733</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/10/2026
+                                                    </td>
+                        <td>114268</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273308" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PU</td>
+                        <td>8718</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/10/2026
+                                                    </td>
+                        <td>115639</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273316" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD631PV</td>
+                        <td>8734</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>67029</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/273312" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD761FZ</td>
+                        <td>8804</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/02/2027
+                                                    </td>
+                        <td>260659</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/276933" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD947YT</td>
+                        <td>8705</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-22
+                                                                                    </td>
+                        <td>
+                                                            03/01/2027
+                                                    </td>
+                        <td>255958</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/283074" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE046JL</td>
+                        <td>8805</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-04-18
+                                                                                    </td>
+                        <td>
+                                                            10/02/2027
+                                                    </td>
+                        <td>260717</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285638" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE046JM</td>
+                        <td>8801</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-04-18
+                                                                                    </td>
+                        <td>
+                                                            20/01/2027
+                                                    </td>
+                        <td>259198</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285629" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE046JN</td>
+                        <td>8510</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-02-21
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>418867</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285636" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE046JO</td>
+                        <td>8802</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-02-18
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>259220</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285637" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE046JP</td>
+                        <td>8514</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-04-21
+                                                                                    </td>
+                        <td>
+                                                            23/01/2027
+                                                    </td>
+                        <td>259281</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285653" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE112GE</td>
+                        <td>8701</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>28</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/10/2026
+                                                    </td>
+                        <td>115620</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285803" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE112GH</td>
+                        <td>8736</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>28</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/09/2026
+                                                    </td>
+                        <td>66870</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/285767" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE149KG</td>
+                        <td>8519</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>67058</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/287581" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KR</td>
+                        <td>8818</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/11/2026
+                                                    </td>
+                        <td>122267</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301017" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KS</td>
+                        <td>8509</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-02
+                                                                                    </td>
+                        <td>
+                                                            11/02/2027
+                                                    </td>
+                        <td>260746</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301199" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KT</td>
+                        <td>8704</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-02
+                                                                                    </td>
+                        <td>
+                                                            05/02/2027
+                                                    </td>
+                        <td>260647</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301198" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KU</td>
+                        <td>8825</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-02
+                                                                                    </td>
+                        <td>
+                                                            10/01/2027
+                                                    </td>
+                        <td>256072</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301139" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KV</td>
+                        <td>8706</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-02
+                                                                                    </td>
+                        <td>
+                                                            10/02/2027
+                                                    </td>
+                        <td>260716</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301197" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KY</td>
+                        <td>8803</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119275</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301011" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512KZ</td>
+                        <td>8725</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-22
+                                                                                    </td>
+                        <td>
+                                                            06/02/2027
+                                                    </td>
+                        <td>260664</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301220" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LA</td>
+                        <td>8741</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-03
+                                                                                    </td>
+                        <td>
+                                                            21/01/2027
+                                                    </td>
+                        <td>259233</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301257" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LB</td>
+                        <td>8727</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-03-02
+                                                                                    </td>
+                        <td>
+                                                            14/02/2027
+                                                    </td>
+                        <td>418935</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301095" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LC</td>
+                        <td>8728</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-09-19
+                                                                                    </td>
+                        <td>
+                                                            13/01/2027
+                                                    </td>
+                        <td>259076</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301120" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LD</td>
+                        <td>8806</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-04-17
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>259249</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301071" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LE</td>
+                        <td>8743</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-09-20
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419021</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301258" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE512LF</td>
+                        <td>8726</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2020</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2030-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>255187</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/301078" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE624YE</td>
+                        <td>8502</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-04
+                                                                                    </td>
+                        <td>
+                                                            07/10/2026
+                                                    </td>
+                        <td>67040</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/305964" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AE624YN</td>
+                        <td>8501</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2021</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-06-04
+                                                                                    </td>
+                        <td>
+                                                            14/09/2026
+                                                    </td>
+                        <td>63867</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/306025" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF266IF</td>
+                        <td>8506</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-19
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119263</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/330893" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF332NQ</td>
+                        <td>8739</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/11/2026
+                                                    </td>
+                        <td>115801</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341029" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF332OD</td>
+                        <td>8830</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>29</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-01-08
+                                                                                    </td>
+                        <td>
+                                                            17/09/2026
+                                                    </td>
+                        <td>72330</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341903" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF332OF</td>
+                        <td>8744</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>29</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-01-08
+                                                                                    </td>
+                        <td>
+                                                            04/02/2027
+                                                    </td>
+                        <td>260623</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341768" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF332OG</td>
+                        <td>8829</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>29</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-01-06
+                                                                                    </td>
+                        <td>
+                                                            12/02/2027
+                                                    </td>
+                        <td>418881</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/341758" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF395WJ</td>
+                        <td>8525</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>29</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            27/02/2027
+                                                    </td>
+                        <td>419996</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/344754" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF395WL</td>
+                        <td>8524</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            27/09/2026
+                                                    </td>
+                        <td>74618</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/344746" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF395WM</td>
+                        <td>8512</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            21/02/2027
+                                                    </td>
+                        <td>419045</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/344743" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF525CK</td>
+                        <td>8720</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/01/2027
+                                                    </td>
+                        <td>256099</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/351957" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF525CL</td>
+                        <td>8738</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/01/2027
+                                                    </td>
+                        <td>256074</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/351956" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF571KY</td>
+                        <td>8813</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-26
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>263408</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/355131" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF627NO</td>
+                        <td>8721</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/09/2026
+                                                    </td>
+                        <td>66916</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/357609" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF627NP</td>
+                        <td>8737</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>25</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/09/2026
+                                                    </td>
+                        <td>66936</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/357611" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF951RH</td>
+                        <td>8745</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>31</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-01-08
+                                                                                    </td>
+                        <td>
+                                                            24/02/2027
+                                                    </td>
+                        <td>419081</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/371135" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF951RI</td>
+                        <td>8828</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>31</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2027-01-08
+                                                                                    </td>
+                        <td>
+                                                            11/02/2027
+                                                    </td>
+                        <td>260739</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/371096" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG050EB</td>
+                        <td>8703</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/12/2026
+                                                    </td>
+                        <td>253294</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/376227" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG050EC</td>
+                        <td>8722</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2024-09-27
+                                                                                    </td>
+                        <td>
+                                                            05/12/2026
+                                                    </td>
+                        <td>122443</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/376226" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG050ED</td>
+                        <td>8724</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>253251</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/376222" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG050EE</td>
+                        <td>8740</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/12/2026
+                                                    </td>
+                        <td>253145</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/376224" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG050EF</td>
+                        <td>8723</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>26</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/12/2026
+                                                    </td>
+                        <td>253185</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/376225" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG202SJ</td>
+                        <td>8511</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>255929</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379564" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG366OH</td>
+                        <td>8812</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/11/2026
+                                                    </td>
+                        <td>119213</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/386719" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG469ZG</td>
+                        <td>8811</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>255921</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/390607" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG469ZH</td>
+                        <td>8810</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            17/01/2027
+                                                    </td>
+                        <td>259159</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/390638" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG469ZI</td>
+                        <td>8809</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2034-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/01/2027
+                                                    </td>
+                        <td>259192</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/390691" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG469ZJ</td>
+                        <td>8807</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            04/02/2027
+                                                    </td>
+                        <td>260619</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/391434" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG469ZK</td>
+                        <td>8808</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2024</td>
+                        <td>35</td>
+                        <td>2048</td>
+                        <td>30-54624694-5</td>
+                        <td>EL PUENTE S.A.T.</td>
+                        <td> 
+                                                            UC: 2026-12-16
+                                                                                    </td>
+                        <td>
+                                                            11/01/2027
+                                                    </td>
+                        <td>256090</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/390440" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +2943,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

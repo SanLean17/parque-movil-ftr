@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Consultas Web</title>
-                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
             <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
             <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
             <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
@@ -15,6 +15,8 @@
             <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
 
         
+    <link href="/bundles/app/css/styles.css" rel="stylesheet">
+
                     <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
             <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
             <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
@@ -60,56 +62,2211 @@
                                             <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
                                         
                                                             </div>                    
-                        <style>
-        .row{
-            margin-bottom: 5px;
-        }
-    </style>
-    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
-        <fieldset>
-            <div id="vehiculos_habilitados">
-
-                <div class="form-group">
-                    <div class="row">
-                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
-                        <div class="col-md-4">
-                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
-                                <option></option>
-                                <option value ="ca">Cargas</option>
-                                <option value ="pa">Pasajeros</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
-                        </div>
-                    </div>
-                    <div class="row hide" id="paut">
-                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-4 col-md-offset-2">
-                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
-                    </div>
-                </div>
-
-                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
-            </div>
-        </fieldset>
+                                            <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2005&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=xls" >
+                 Exportar a .xls&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                    <a class="btn btn-link pull-right" target="_blank" tooltip="sea paciente, el proceso puede demorar unos segundos"
+                href="/vehiculo_jn/export?data%5BtipoTransporte%5D=pa&amp;data%5Bdominio%5D=&amp;data%5BempresaNro%5D=2005&amp;data%5BEnviar+consulta%5D=&amp;data%5B_token%5D=&amp;formato=csv" >
+                 Exportar a .csv&nbsp;<i class="glyphicon glyphicon-download"></i>
+            </a>
+                <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Dominio</th>
+                    <th>Int</th>
+                    <th>Servicios</th>
+                    <th>Modelo</th>
+                    <th>Asientos</th>
+                    <th>N° Emp.</th>
+                    <th style="width:9em;" >CUIT</th>
+                    <th>Razon Social</th>
+                    <th>Habilitado Hasta</th>
+                    <th>Tecnica Vigente Hasta</th>
+                    <th>Tecnica Nro.</th>
+                    <th>Tipo Tecnica</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                                    <tr>
+                        <td>AA132UA</td>
+                        <td>4906</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            31/01/2027
+                                                    </td>
+                        <td>260586</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211555" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA132UB</td>
+                        <td>4935</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/12/2026
+                                                    </td>
+                        <td>255172</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211556" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA132UH</td>
+                        <td>4938</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/12/2026
+                                                    </td>
+                        <td>253287</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211558" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA132UI</td>
+                        <td>4945</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/12/2026
+                                                    </td>
+                        <td>255203</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/211762" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA166FN</td>
+                        <td>4936</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            23/12/2026
+                                                    </td>
+                        <td>255220</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/212585" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA166FO</td>
+                        <td>4954</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/12/2026
+                                                    </td>
+                        <td>255234</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/212586" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229RI</td>
+                        <td>4959</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/01/2027
+                                                    </td>
+                        <td>256017</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/212830" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229RJ</td>
+                        <td>4957</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/12/2026
+                                                    </td>
+                        <td>255854</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/212829" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229RZ</td>
+                        <td>4960</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/02/2027
+                                                    </td>
+                        <td>419985</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/213223" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229SC</td>
+                        <td>4972</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            18/02/2027
+                                                    </td>
+                        <td>418978</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/213224" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229SE</td>
+                        <td>4927</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/02/2027
+                                                    </td>
+                        <td>420011</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/213777" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA229SL</td>
+                        <td>4973</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            14/02/2027
+                                                    </td>
+                        <td>418956</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/213778" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA366GD</td>
+                        <td>4919</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2017</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-02
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>122395</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/214579" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AA366GL</td>
+                        <td>4908</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2016</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2026-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/09/2026
+                                                    </td>
+                        <td>63800</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/214590" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RI</td>
+                        <td>4934</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/10/2026
+                                                    </td>
+                        <td>67062</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251719" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RJ</td>
+                        <td>4967</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/10/2026
+                                                    </td>
+                        <td>114396</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251722" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RK</td>
+                        <td>4977</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/10/2026
+                                                    </td>
+                        <td>115683</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251725" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RL</td>
+                        <td>4978</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/10/2026
+                                                    </td>
+                        <td>115661</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251726" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RM</td>
+                        <td>4933</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/10/2026
+                                                    </td>
+                        <td>66980</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251718" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RN</td>
+                        <td>4921</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/10/2026
+                                                    </td>
+                        <td>67087</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251717" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RO</td>
+                        <td>4975</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/10/2026
+                                                    </td>
+                        <td>114373</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251723" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RP</td>
+                        <td>4976</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/10/2026
+                                                    </td>
+                        <td>114340</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251724" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RS</td>
+                        <td>4962</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            15/10/2026
+                                                    </td>
+                        <td>114291</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251721" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC453RU</td>
+                        <td>4953</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/10/2026
+                                                    </td>
+                        <td>114252</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/251720" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625QE</td>
+                        <td>4966</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            07/11/2026
+                                                    </td>
+                        <td>115808</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253748" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625QF</td>
+                        <td>4971</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/11/2026
+                                                    </td>
+                        <td>119126</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253750" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625QN</td>
+                        <td>4950</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/11/2026
+                                                    </td>
+                        <td>119210</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253879" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625QO</td>
+                        <td>4968</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/11/2026
+                                                    </td>
+                        <td>115766</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253749" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625RE</td>
+                        <td>4949</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/11/2026
+                                                    </td>
+                        <td>122310</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253877" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625RF</td>
+                        <td>4937</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/11/2026
+                                                    </td>
+                        <td>115785</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253874" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625RG</td>
+                        <td>4944</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/11/2026
+                                                    </td>
+                        <td>119113</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253875" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625RH</td>
+                        <td>4969</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/11/2026
+                                                    </td>
+                        <td>122217</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253880" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC625RO</td>
+                        <td>4942</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/11/2026
+                                                    </td>
+                        <td>119160</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/253876" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AC676VR</td>
+                        <td>4961</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2018</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2028-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/11/2026
+                                                    </td>
+                        <td>122240</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/254294" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD216XO</td>
+                        <td>4909</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            26/11/2026
+                                                    </td>
+                        <td>122280</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263627" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD216XU</td>
+                        <td>4915</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/12/2026
+                                                    </td>
+                        <td>122351</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263625" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD216XW</td>
+                        <td>4910</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/12/2026
+                                                    </td>
+                        <td>253117</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263626" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD216XX</td>
+                        <td>4920</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/01/2027
+                                                    </td>
+                        <td>255925</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/264233" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD216XY</td>
+                        <td>4917</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            28/11/2026
+                                                    </td>
+                        <td>122320</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263624" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD280GK</td>
+                        <td>4912</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/12/2026
+                                                    </td>
+                        <td>253216</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263932" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD280GL</td>
+                        <td>4916</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            17/12/2026
+                                                    </td>
+                        <td>253266</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/263934" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD973XL</td>
+                        <td>4907</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            27/01/2027
+                                                    </td>
+                        <td>260539</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/282026" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD973XM</td>
+                        <td>4932</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            22/01/2027
+                                                    </td>
+                        <td>259261</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/282036" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD973XN</td>
+                        <td>4903</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            24/01/2027
+                                                    </td>
+                        <td>260518</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/282021" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD973XO</td>
+                        <td>4955</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/01/2027
+                                                    </td>
+                        <td>255992</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/282034" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AD973XQ</td>
+                        <td>4931</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2019</td>
+                        <td>28</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2029-12-31
+                                                                                    </td>
+                        <td>
+                                                            08/01/2027
+                                                    </td>
+                        <td>256039</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/282031" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF231IQ</td>
+                        <td>4940</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            03/12/2026
+                                                    </td>
+                        <td>122387</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329747" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF231IR</td>
+                        <td>4943</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/12/2026
+                                                    </td>
+                        <td>122366</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329763" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF231IS</td>
+                        <td>4951</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            05/12/2026
+                                                    </td>
+                        <td>122440</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329743" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF231IY</td>
+                        <td>4974</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/12/2026
+                                                    </td>
+                        <td>122414</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329764" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF231IZ</td>
+                        <td>4941</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/12/2026
+                                                    </td>
+                        <td>253168</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329787" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF254IA</td>
+                        <td>4952</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/12/2026
+                                                    </td>
+                        <td>253245</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329788" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF254IB</td>
+                        <td>4964</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/12/2026
+                                                    </td>
+                        <td>253143</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329789" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF254IC</td>
+                        <td>4947</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/12/2026
+                                                    </td>
+                        <td>253191</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329784" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF254ID</td>
+                        <td>4965</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            10/12/2026
+                                                    </td>
+                        <td>253169</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329790" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF254IE</td>
+                        <td>4939</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            09/12/2026
+                                                    </td>
+                        <td>253140</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/329782" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZN</td>
+                        <td>4901</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/10/2026
+                                                    </td>
+                        <td>115718</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/332130" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZO</td>
+                        <td>4905</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            04/11/2026
+                                                    </td>
+                        <td>115743</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/332135" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZP</td>
+                        <td>4922</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            12/12/2026
+                                                    </td>
+                        <td>253212</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/332462" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZQ</td>
+                        <td>4924</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/11/2026
+                                                    </td>
+                        <td>122333</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/332475" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZU</td>
+                        <td>4948</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            06/12/2026
+                                                    </td>
+                        <td>253108</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/333506" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AF261ZW</td>
+                        <td>4914</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2022</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2032-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/11/2026
+                                                    </td>
+                        <td>119344</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/332141" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG164GL</td>
+                        <td>4911</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/12/2026
+                                                    </td>
+                        <td>255896</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379173" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG164GM</td>
+                        <td>4913</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/01/2027
+                                                    </td>
+                        <td>255907</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379175" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG164GN</td>
+                        <td>4904</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            29/12/2026
+                                                    </td>
+                        <td>255890</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/379167" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG236AU</td>
+                        <td>4926</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            02/03/2027
+                                                    </td>
+                        <td>420053</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/382012" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG236AV</td>
+                        <td>4925</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            19/02/2027
+                                                    </td>
+                        <td>419003</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381596" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG236AW</td>
+                        <td>4930</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            01/03/2027
+                                                    </td>
+                        <td>420036</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381748" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG236AX</td>
+                        <td>4970</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            21/02/2027
+                                                    </td>
+                        <td>419052</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381618" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG236AY</td>
+                        <td>4928</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            20/02/2027
+                                                    </td>
+                        <td>419032</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/381597" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AG309TC</td>
+                        <td>4929</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2023</td>
+                        <td>35</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2033-12-31
+                                                                                    </td>
+                        <td>
+                                                            30/09/2026
+                                                    </td>
+                        <td>66964</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/383337" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI278BS</td>
+                        <td>4902</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119268</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442643" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI278BT</td>
+                        <td>4956</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119271</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442601" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI278BU</td>
+                        <td>4958</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            16/11/2026
+                                                    </td>
+                        <td>119276</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/442599" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI353JV</td>
+                        <td>4946</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            11/12/2026
+                                                    </td>
+                        <td>253194</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444438" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI353LI</td>
+                        <td>4918</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            13/12/2026
+                                                    </td>
+                        <td>253233</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/444565" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                                    <tr>
+                        <td>AI353LJ</td>
+                        <td>4923</td>
+                        <td>
+                                                            SERVICIO COMÚN                                
+                                                    </td>
+                        <td>2026</td>
+                        <td>33</td>
+                        <td>2005</td>
+                        <td>30-54634107-7</td>
+                        <td>EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.</td>
+                        <td> 
+                                                            UC: 2036-12-31
+                                                                                    </td>
+                        <td>
+                                                            25/12/2026
+                                                    </td>
+                        <td>255859</td>
+                        <td>CENT</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-small" class="getDetalle"
+                                    href="/vehiculo_jn/445303" 
+                                    data-toggle="modal" data-target="#detallesVehiculosPasajeros" 
+                                    tooltip="Detalle del dominio">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                        </td>
+                    </tr>
+                            </tbody>
+        </table>
+    
+    <form>
+        <input type="button" value="Regresar a la consulta" name="volver" onclick="history.back();" class="btn btn-sm btn-primary" />
     </form>
+
+    <!-- Include Modal -->
+    <div class="container">		
+    <div class="row">
+        <!-- Modal -->
+        <div id="detallesVehiculosPasajeros" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <!-- LA INFO SE RENDERIZA AQUÍ -->
+                </div>	
+            </div>
+        </div>
+    </div>
+</div>
+
 
                                             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
                             <div class="modal-dialog" role="document">
@@ -142,24 +2299,10 @@
 
         // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
         $(document).ready(function () {
-        mostrar();
-
-    $('#tipoTransporte').change(function() {
-    mostrar();
+        $('body').on('show.bs.modal', '.modal', function () {
+        $(".modal-content").html('<div class="text-center"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Enviando consulta...</div>');
+        $(this).removeData('bs.modal');
     });
-
-    function mostrar(){
-    if ($('#tipoTransporte').val() == "ca"){
-    $('#paut').removeClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }else if($('#tipoTransporte').val() == "pa"){
-    $('#paut').addClass('hide');
-    $('#informacionContacto').removeClass('hide');
-    }else{
-    $('#paut').addClass('hide');
-    $('#informacionContacto').addClass('hide');
-    }
-    }
         });
     </script>
     <script>

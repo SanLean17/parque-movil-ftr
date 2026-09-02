@@ -2,7 +2,7 @@ import os
 import re
 import requests
 
-# Mapeo de líneas y sus códigos de habilitación de CNRT
+# Mapeo de líneas y códigos de la CNRT
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -16,7 +16,6 @@ EMPRESAS_CNRT = {
 
 OUTPUT_DIR = "parques"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-
 URL = "https://consultapme.cnrt.gob.ar/vehiculos_habilitados"
 
 headers = {
@@ -34,12 +33,11 @@ def descargar_parque(linea, cod_empresa):
     session.headers.update(headers)
     
     try:
-        # Obtener token CSRF del formulario
+        # Extraer token CSRF
         res_get = session.get(URL, timeout=15)
         token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
         csrf_token = token_match.group(1) if token_match else ""
 
-        # Campos exactos que la web de CNRT parsea
         payload = {
             'vehiculos_habilitados[tipoTransporte]': 'pa',
             'vehiculos_habilitados[dominio]': '',
@@ -50,7 +48,7 @@ def descargar_parque(linea, cod_empresa):
         
         res_post = session.post(URL, data=payload, timeout=20)
         
-        # Inyectamos el comentario del código de empresa arriba para que tu parser lo lea
+        # Inyectamos el comentario arriba con el código para que sea fácil de leer después
         header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n".encode('utf-8')
         contenido_final = header_metadata + res_post.content
         
@@ -65,3 +63,4 @@ def descargar_parque(linea, cod_empresa):
 if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():
         descargar_parque(linea, cod)
+        

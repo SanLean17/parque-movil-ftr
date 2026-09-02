@@ -13,16 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar código del repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Instalar librerías
+      - name: Instalar librerías y Navegador
         run: |
-          pip install requests beautifulsoup4
+          pip install playwright beautifulsoup4
+          playwright install chromium --with-deps
 
       - name: Ejecutar descargador de parques
         run: |

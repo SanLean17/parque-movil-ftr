@@ -18,33 +18,29 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Encabezados estándar que requiere la interfaz
 headers_salida = [
-    "dominio", "empresaNro", "razonSocial", "linea", "interno", 
-    "modelo", "chasisMarca", "carroceriaMarca", "habilitado_hasta", 
-    "vta_vigencia", "vta_numero"
+    "DOMINIO", "INTERNO", "MODELO (AÑO)", "HABILITADO HASTA", 
+    "TÉCNICA VIGENTE HASTA", "N° TÉCNICA", "EMPRESA NRO", "RAZON SOCIAL", "LINEA"
 ]
 
 def obtener_datos_empresa(page, nro_empresa):
     try:
         page.goto(URL_FORM, wait_until="networkidle", timeout=30000)
         
-        # Seleccionar 'Pasajeros'
         selects = page.query_selector_all("select")
         if selects:
             selects[0].select_option(label="Pasajeros")
             
-        # Completar código CNRT
         inputs = page.query_selector_all("input[type='text']")
         if len(inputs) >= 2:
             inputs[1].fill(str(nro_empresa))
         elif len(inputs) == 1:
             inputs[0].fill(str(nro_empresa))
 
-        # Click en Enviar consulta
         page.click("input[type='submit'], button[type='submit']")
         page.wait_for_selector("table", timeout=20000)
 
-        # Analizar tabla obtenida
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
         tabla = soup.find("table")
@@ -66,15 +62,13 @@ def obtener_datos_empresa(page, nro_empresa):
 
                 filas_datos.append({
                     "dominio": dom,
-                    "empresaNro": emp,
-                    "razonSocial": raz,
                     "interno": inte,
                     "modelo": mod,
-                    "chasisMarca": "",
-                    "carroceriaMarca": "",
                     "habilitado_hasta": hab,
                     "vta_vigencia": vta_vig,
-                    "vta_numero": vta_num
+                    "vta_numero": vta_num,
+                    "empresaNro": emp,
+                    "razonSocial": raz
                 })
         return filas_datos
     except Exception as e:
@@ -99,9 +93,8 @@ def procesar():
                 
                 for u in unidades:
                     writer.writerow([
-                        u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
-                        u["interno"], u["modelo"], u["chasisMarca"], u["carroceriaMarca"],
-                        u["habilitado_hasta"], u["vta_vigencia"], u["vta_numero"]
+                        u["dominio"], u["interno"], u["modelo"], u["habilitado_hasta"],
+                        u["vta_vigencia"], u["vta_numero"], u["empresaNro"], u["razonSocial"], str_linea
                     ])
 
             print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades)} unidades.")

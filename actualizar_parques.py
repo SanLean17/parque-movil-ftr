@@ -1,5 +1,6 @@
 import os
 import re
+import csv
 import requests
 
 # Mapeo de líneas y sus códigos de empresa en la CNRT
@@ -25,15 +26,15 @@ headers = {
     'Referer': 'https://consultapme.cnrt.gob.ar/vehiculos_habilitados'
 }
 
-def descargar_parque(linea, cod_empresa):
+def descargar_y_convertir_a_csv(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
-    print(f"Descargando Línea {linea} (Código: {cod_empresa})...")
+    print(f"Procesando Línea {linea} (Código CNRT: {cod_empresa})...")
     
     session = requests.Session()
     session.headers.update(headers)
     
     try:
-        # Obtener token CSRF
+        # 1. Obtener Token CSRF
         res_get = session.get(URL, timeout=15)
         token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
         csrf_token = token_match.group(1) if token_match else ""
@@ -46,30 +47,35 @@ def descargar_parque(linea, cod_empresa):
             'vehiculos_habilitados[_token]': csrf_token
         }
         
+        # 2. Hacer la petición POST a la CNRT
         res_post = session.post(URL, data=payload, timeout=20)
-        html_content = res_post.text
+        html_text = res_post.text
 
-        # Intentar extraer la razón social del HTML recibido
-        match_razon = re.search(r'Empresa:\s*([^\n\r<]+)', html_content, re.IGNORECASE)
+        # 3. Extraer la Razón Social real
+        match_razon = re.search(r'Empresa:\s*([^\n\r<]+)', html_text, re.IGNORECASE)
         razon_social = match_razon.group(1).strip() if match_razon else f"LÍNEA {linea}"
 
-        # Reconstruimos las etiquetas HTML exactas que tu index.html busca
-        header_compatibilidad = (
-            f"\n"
-            f"<div class=\"empresa-info\">Empresa: {razon_social}</div>\n"
-            f"<div class=\"nro-empresa\">N° EMP: {cod_empresa}</div>\n"
-        )
+        # 4. Extraer todos los dominios/patentes únicas
+        patentes = set(re.findall(r'\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b', html_text.upper()))
         
-        contenido_final = header_compatibilidad + html_content
-        
-        with open(file_destino, 'w', encoding='utf-8') as f:
-            f.write(contenido_final)
+        # 5. Generar el CSV delimitado por ";" que tu index.html Lee con PapaParse
+        with open(file_destino, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile, delimiter=';')
+            # Encabezados exactos que busca tu index.html
+            writer.writerow(['dominio', 'empresaNro', 'razonSocial', 'linea'])
             
-        print(f"  -> Guardado linea{linea}.csv")
+            if patentes:
+                for pat in patentes:
+                    writer.writerow([pat, str(cod_empresa), razon_social, str(linea)])
+            else:
+                # Si no hay patentes, grabamos una fila técnica con el nombre de la empresa para que al menos se vea en el listado
+                writer.writerow(['', str(cod_empresa), razon_social, str(linea)])
+                
+        print(f"  -> Generado CSV exitoso: {len(patentes)} colectivos para {razon_social}")
         
     except Exception as e:
-        print(f"  -> Error en Línea {linea}: {e}")
+        print(f"  -> Error procesando Línea {linea}: {e}")
 
 if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():
-        descargar_parque(linea, cod)
+        descargar_y_convertir_a_csv(linea, cod)

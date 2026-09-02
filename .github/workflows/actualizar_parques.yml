@@ -24,6 +24,10 @@ jobs:
         run: |
           pip install requests
 
+      - name: Descargar dataset de la CNRT
+        run: |
+          curl -L -o VehiculosPasajeros.csv "https://datos.sstransporte.gob.ar/dataset/parque-movil-pasajeros/archivo/VehiculosPasajeros.csv" || true
+
       - name: Ejecutar descargador de parques
         run: |
           python actualizar_parques.py

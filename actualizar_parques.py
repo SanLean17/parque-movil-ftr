@@ -1,7 +1,7 @@
 import os
 import csv
-import requests
 from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
@@ -24,24 +24,29 @@ headers_salida = [
     "vta_vigencia", "vta_numero"
 ]
 
-def obtener_datos_empresa(session, nro_empresa):
-    payload = {
-        "tipo_transporte": "Pasajeros",
-        "dominio": "",
-        "nro_habilitacion": str(nro_empresa)
-    }
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Referer": URL_FORM
-    }
-    
+def obtener_datos_empresa(page, nro_empresa):
     try:
-        response = session.post(URL_FORM, data=payload, headers=headers, timeout=20)
-        if response.status_code != 200:
-            return []
+        page.goto(URL_FORM, wait_until="networkidle", timeout=30000)
+        
+        # Seleccionar 'Pasajeros'
+        selects = page.query_selector_all("select")
+        if selects:
+            selects[0].select_option(label="Pasajeros")
             
-        soup = BeautifulSoup(response.text, "html.parser")
+        # Completar código CNRT
+        inputs = page.query_selector_all("input[type='text']")
+        if len(inputs) >= 2:
+            inputs[1].fill(str(nro_empresa))
+        elif len(inputs) == 1:
+            inputs[0].fill(str(nro_empresa))
+
+        # Click en Enviar consulta
+        page.click("input[type='submit'], button[type='submit']")
+        page.wait_for_selector("table", timeout=20000)
+
+        # Analizar tabla obtenida
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
         tabla = soup.find("table")
         if not tabla:
             return []
@@ -49,17 +54,14 @@ def obtener_datos_empresa(session, nro_empresa):
         filas_datos = []
         for tr in tabla.find_all("tr")[1:]:
             cols = [td.text.strip() for td in tr.find_all("td")]
-            if len(cols) >= 10:
-                # Mapeo según la estructura que muestra la web de CNRT:
-                # [0] Dominio, [1] Int, [2] Servicios, [3] Modelo, [4] Asientos, 
-                # [5] N° Emp, [6] CUIT, [7] Razon Social, [8] Habilitado Hasta, [9] Tecnica Vigente Hasta, [10] Tecnica Nro
+            if len(cols) >= 9:
                 dom = cols[0]
                 inte = cols[1]
                 mod = cols[3]
                 emp = cols[5]
                 raz = cols[7]
                 hab = cols[8]
-                vta_vig = cols[9]
+                vta_vig = cols[9] if len(cols) > 9 else ""
                 vta_num = cols[10] if len(cols) > 10 else ""
 
                 filas_datos.append({
@@ -76,32 +78,35 @@ def obtener_datos_empresa(session, nro_empresa):
                 })
         return filas_datos
     except Exception as e:
-        print(f"  ⚠️ Error consultando empresa {nro_empresa}: {e}")
+        print(f"  ⚠️ Error en empresa {nro_empresa}: {e}")
         return []
 
 def procesar():
-    session = requests.Session()
-    print("🚀 Consultando datos directamente en la web de CNRT...")
+    print("🚀 Iniciando navegador para consultar CNRT...")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
 
-    for num_linea, cod_emp in EMPRESAS_CNRT.items():
-        str_linea = str(num_linea)
-        file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
-        
-        unidades = obtener_datos_empresa(session, cod_emp)
-        razon_social = unidades[0]["razonSocial"] if unidades else f"LÍNEA {str_linea}"
-
-        with open(file_dest, "w", newline="", encoding="utf-8") as out:
-            writer = csv.writer(out, delimiter=";")
-            writer.writerow(headers_salida)
+        for num_linea, cod_emp in EMPRESAS_CNRT.items():
+            str_linea = str(num_linea)
+            file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
             
-            for u in unidades:
-                writer.writerow([
-                    u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
-                    u["interno"], u["modelo"], u["chasisMarca"], u["carroceriaMarca"],
-                    u["habilitado_hasta"], u["vta_vigencia"], u["vta_numero"]
-                ])
+            unidades = obtener_datos_empresa(page, cod_emp)
 
-        print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades)} unidades procesadas.")
+            with open(file_dest, "w", newline="", encoding="utf-8") as out:
+                writer = csv.writer(out, delimiter=";")
+                writer.writerow(headers_salida)
+                
+                for u in unidades:
+                    writer.writerow([
+                        u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
+                        u["interno"], u["modelo"], u["chasisMarca"], u["carroceriaMarca"],
+                        u["habilitado_hasta"], u["vta_vigencia"], u["vta_numero"]
+                    ])
+
+            print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades)} unidades.")
+
+        browser.close()
 
 if __name__ == "__main__":
     procesar()

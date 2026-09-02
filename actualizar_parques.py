@@ -1,8 +1,8 @@
 import os
 import re
-import json
 import requests
 
+# Mapeo de líneas y sus códigos de empresa en la CNRT
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -25,16 +25,15 @@ headers = {
     'Referer': 'https://consultapme.cnrt.gob.ar/vehiculos_habilitados'
 }
 
-resumen_lineas = {}
-
-def descargar_y_procesar(linea, cod_empresa):
+def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
-    print(f"Procesando Línea {linea} (Código: {cod_empresa})...")
+    print(f"Descargando Línea {linea} (Código: {cod_empresa})...")
     
     session = requests.Session()
     session.headers.update(headers)
     
     try:
+        # Obtener token CSRF
         res_get = session.get(URL, timeout=15)
         token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
         csrf_token = token_match.group(1) if token_match else ""
@@ -48,43 +47,29 @@ def descargar_y_procesar(linea, cod_empresa):
         }
         
         res_post = session.post(URL, data=payload, timeout=20)
-        html_text = res_post.text
+        html_content = res_post.text
+
+        # Intentar extraer la razón social del HTML recibido
+        match_razon = re.search(r'Empresa:\s*([^\n\r<]+)', html_content, re.IGNORECASE)
+        razon_social = match_razon.group(1).strip() if match_razon else f"LÍNEA {linea}"
+
+        # Reconstruimos las etiquetas HTML exactas que tu index.html busca
+        header_compatibilidad = (
+            f"\n"
+            f"<div class=\"empresa-info\">Empresa: {razon_social}</div>\n"
+            f"<div class=\"nro-empresa\">N° EMP: {cod_empresa}</div>\n"
+        )
         
-        # Inyectamos el comentario HTML que leía tu frontend original
-        header_metadata = f"\n"
-        contenido_guardar = header_metadata + html_text
+        contenido_final = header_compatibilidad + html_content
         
         with open(file_destino, 'w', encoding='utf-8') as f:
-            f.write(contenido_guardar)
-
-        # Extraer Razón Social mediante Expresiones Regulares nativas
-        razon_social = f"LÍNEA {linea}"
-        match_empresa = re.search(r'Empresa:\s*([^\n\r<]+)', html_text, re.IGNORECASE)
-        if match_empresa:
-            razon_social = match_empresa.group(1).strip()
-
-        # Extraer patentes
-        patentes = set(re.findall(r'\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b', html_text.upper()))
-        unidades_totales = len(patentes)
-
-        resumen_lineas[str(linea)] = {
-            "nro_emp": str(cod_empresa),
-            "linea": f"LÍNEA {linea}",
-            "razon_social": razon_social,
-            "unidades_totales": unidades_totales,
-            "patentes": list(patentes)
-        }
-        
-        print(f"  -> Línea {linea}: {unidades_totales} colectivos detectados ({razon_social})")
+            f.write(contenido_final)
+            
+        print(f"  -> Guardado linea{linea}.csv")
         
     except Exception as e:
         print(f"  -> Error en Línea {linea}: {e}")
 
 if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():
-        descargar_y_procesar(linea, cod)
-        
-    json_path = os.path.join(OUTPUT_DIR, "resumen.json")
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(resumen_lineas, f, ensure_ascii=False, indent=2)
-    print("\n✅ Resumen consolidado generado en parques/resumen.json")
+        descargar_parque(linea, cod)

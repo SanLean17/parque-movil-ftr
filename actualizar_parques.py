@@ -18,7 +18,6 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Encabezados estándar que requiere la interfaz
 headers_salida = [
     "DOMINIO", "INTERNO", "MODELO (AÑO)", "HABILITADO HASTA", 
     "TÉCNICA VIGENTE HASTA", "N° TÉCNICA", "EMPRESA NRO", "RAZON SOCIAL", "LINEA"
@@ -50,15 +49,31 @@ def obtener_datos_empresa(page, nro_empresa):
         filas_datos = []
         for tr in tabla.find_all("tr")[1:]:
             cols = [td.text.strip() for td in tr.find_all("td")]
-            if len(cols) >= 9:
+            if len(cols) >= 8:
                 dom = cols[0]
                 inte = cols[1]
                 mod = cols[3]
-                emp = cols[5]
-                raz = cols[7]
-                hab = cols[8]
-                vta_vig = cols[9] if len(cols) > 9 else ""
-                vta_num = cols[10] if len(cols) > 10 else ""
+                emp = cols[5] if len(cols) > 5 else str(nro_empresa)
+                raz = cols[7] if len(cols) > 7 else ""
+                
+                # Búsqueda segura de fechas y revisión técnica
+                hab = ""
+                vta_vig = ""
+                vta_num = ""
+
+                # Mapeo según cantidad de columnas devueltas por la CNRT
+                for val in cols:
+                    if "/" in val and len(val) == 10:  # Detecta formato fecha DD/MM/AAAA
+                        if not hab:
+                            hab = val
+                        elif not vta_vig:
+                            vta_vig = val
+                
+                # La última columna o anteúltima suele ser el N° de oblea / revisión
+                if len(cols) >= 11:
+                    vta_num = cols[10]
+                elif len(cols) == 10:
+                    vta_num = cols[9]
 
                 filas_datos.append({
                     "dominio": dom,

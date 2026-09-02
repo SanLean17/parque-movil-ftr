@@ -1,338 +1,177 @@
 <!DOCTYPE html>
-<html lang="es" class="light">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil FTR - Resumen General</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { code: ['"JetBrains Mono"', 'monospace'] }
-                }
-            }
+    <title>Parque Móvil CNRT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
         }
-    </script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        h1 {
+            text-align: center;
+            color: #1a252f;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .loading {
+            text-align: center;
+            font-size: 1.2em;
+            color: #666;
+            padding: 20px;
+        }
+        .badge {
+            background-color: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+<body>
 
-    <header class="bg-blue-900 dark:bg-slate-900 text-white shadow-md py-2.5 px-3 border-b border-blue-800 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-bus-simple text-lg text-blue-300"></i>
-                <div>
-                    <h1 class="text-base sm:text-xl font-black uppercase tracking-wider text-white leading-tight">Parque Móvil FTR</h1>
-                    <p class="text-blue-200 dark:text-slate-400 text-[9px] sm:text-xs">Sistema de Fiscalización de Transporte</p>
-                </div>
-            </div>
+<div class="container">
+    <h1>Estado del Parque Móvil - CNRT</h1>
+    <div id="status" class="loading">Cargando datos de las líneas...</div>
+    
+    <table id="tabla-parques" style="display: none;">
+        <thead>
+            <tr>
+                <th>Línea</th>
+                <th>N° Empresa / Cód.</th>
+                <th>Razón Social / Empresa</th>
+                <th>Cantidad de Unidades</th>
+            </tr>
+        </thead>
+        <tbody id="contenido-tabla"></tbody>
+    </table>
+</div>
+
+<script>
+const EMPRESAS_CNRT = {
+    2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
+    29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
+    56: "2013", 60: "2075", 63: "2037", 70: "2080", 74: "2079", 79: "2079", 80: "2015",
+    85: "359", 91: "2013", 92: "2023", 95: "2003", 98: "2021", 100: "2042", 113: "2037",
+    119: "2068", 126: "2119", 128: "2048", 129: "2033", 133: "2010", 134: "2042",
+    135: "2013", 148: "2033", 154: "2068", 158: "2048", 159: "2100", 160: "2101",
+    164: "2062", 168: "2105", 177: "2079", 178: "2111", 179: "9085", 180: "2099",
+    195: "2077", 197: "2033"
+};
+
+async function cargarParques() {
+    const tbody = document.getElementById('contenido-tabla');
+    const status = document.getElementById('status');
+    const tabla = document.getElementById('tabla-parques');
+    
+    let lineasProcesadas = 0;
+
+    for (const [linea, codEmpresa] of Object.entries(EMPRESAS_CNRT)) {
+        try {
+            const response = await fetch(`parques/linea${linea}.csv`);
+            if (!response.ok) continue;
+
+            const text = await response.text();
             
-            <button onclick="toggleDarkMode()" class="bg-blue-800 dark:bg-slate-800 text-yellow-300 dark:text-yellow-400 p-1.5 sm:px-2.5 rounded-lg border border-blue-700 dark:border-slate-700 hover:bg-blue-700 dark:hover:bg-slate-700 transition text-xs font-bold flex items-center space-x-1">
-                <i id="themeIcon" class="fa-solid fa-moon text-xs"></i>
-                <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
-            </button>
-        </div>
-    </header>
+            // 1. Extraer N° de empresa desde el metadato inyectado o usar el mapeo local
+            let nroEmpresa = codEmpresa;
+            const matchMeta = text.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
+            if (matchMeta) {
+                nroEmpresa = matchMeta[1];
+            }
 
-    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-5 flex-grow w-full">
-        <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-                <h2 class="text-sm sm:text-lg font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Estado General de Líneas</h2>
-            </div>
-            <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                </span>
-                <input type="text" id="lineSearch" onkeyup="filterTable()" placeholder="Buscar por línea o empresa..." 
-                    class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
-            </div>
-        </div>
+            // 2. Crear un documento parser para extraer datos del HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
 
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-300 dark:border-slate-800 overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[750px]">
-                <thead>
-                    <tr class="bg-blue-900 dark:bg-slate-800 text-white text-[10px] sm:text-xs font-black uppercase tracking-wider divide-x divide-blue-800 dark:divide-slate-700 border-b-2 border-blue-950 dark:border-slate-700">
-                        <th class="py-3 px-3 text-center">N° Emp.</th>
-                        <th class="py-3 px-3 text-center">LÍNEA</th>
-                        <th class="py-3 px-3 text-center">RAZÓN SOCIAL</th>
-                        <th class="py-3 px-3 text-center">Unidades<br>Totales</th>
-                        <th class="py-3 px-3 text-center">Unidades<br>Controladas</th>
-                        <th class="py-3 px-3 text-center">% Fiscaliz.</th>
-                        <th class="py-3 px-3 text-center">Última<br>Visita</th>
-                        <th class="py-3 px-3 text-center">Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="linesTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs font-medium">
-                </tbody>
-            </table>
-        </div>
-
-        <div id="noResults" class="hidden text-center py-10 text-slate-400">
-            <i class="fa-solid fa-bus text-3xl mb-1 opacity-40"></i>
-            <p class="text-xs font-semibold">No se encontraron líneas coincidentes</p>
-        </div>
-    </main>
-
-    <footer class="bg-slate-800 dark:bg-slate-950 text-slate-400 py-2.5 text-center text-[10px] mt-auto border-t border-slate-700">
-        Parque Móvil FTR &copy; 2026
-    </footer>
-
-    <script>
-        // Lista actualizada: Sin línea 75, con línea 95
-        const lineas = [
-            2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
-            79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
-            158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
-        ].sort((a, b) => a - b);
-
-        const tbody = document.getElementById("linesTableBody");
-
-        function getProp(obj, names) {
-            if (!obj) return '';
-            const keys = Object.keys(obj);
-            for (let name of names) {
-                const found = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === name.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                if (found && obj[found] !== null && obj[found] !== undefined) {
-                    const val = String(obj[found]).trim();
-                    if (val !== '') return val;
+            // 3. Extraer la Razón Social / Nombre de Empresa
+            let razonSocial = "";
+            
+            // Buscar en selectores o etiquetas del HTML
+            const optionSelected = doc.querySelector('select[name="empresa"] option[selected]');
+            if (optionSelected && optionSelected.textContent.trim()) {
+                razonSocial = optionSelected.textContent.trim();
+            } else {
+                // Intentar leer la tercera columna de la primera fila de datos si existe tabla
+                const primeraFilaTDs = doc.querySelectorAll('table tr td');
+                if (primeraFilaTDs.length >= 3) {
+                    razonSocial = primeraFilaTDs[2].textContent.trim();
                 }
             }
-            return '';
-        }
 
-        function extraerNroEmpresa(row) {
-            if (!row) return '';
-            const nombresPosibles = [
-                'nro_emp', 'num_emp', 'nroemp', 'numemp', 'empresa_id', 'id_empresa', 
-                'cod_empresa', 'codigo_empresa', 'nro_empresa', 'num_empresa', 'cod_emp', 
-                'codigo_emp', 'empresa_num', 'idempresa', 'nroempresa', 'codigo'
-            ];
-            let res = getProp(row, nombresPosibles);
-            if (res) return res;
+            if (!razonSocial || razonSocial === "") {
+                razonSocial = `EMPRESA LÍNEA ${linea}`;
+            }
 
-            for (let key in row) {
-                const cleanKey = key.trim().toLowerCase();
-                if (cleanKey.includes('emp') || cleanKey.includes('cod') || cleanKey.includes('id')) {
-                    const val = String(row[key]).trim();
-                    if (/^\d+$/.test(val)) return val;
+            // 4. Contar la cantidad de unidades/vehículos
+            const filasTabla = doc.querySelectorAll('table tr');
+            let cantidadCoches = 0;
+
+            if (filasTabla.length > 0) {
+                // Descontar la fila de encabezados si existe
+                cantidadCoches = Array.from(filasTabla).filter(tr => tr.querySelectorAll('td').length > 0).length;
+            } else {
+                // Fallback por si la respuesta no tiene estructura tr/td clásica
+                const matchesDominios = text.match(/\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b/gi);
+                if (matchesDominios) {
+                    cantidadCoches = new Set(matchesDominios.map(d => d.toUpperCase())).size;
                 }
             }
-            return '';
-        }
 
-        function parseFecha(fechaStr) {
-            if (!fechaStr || fechaStr === '-' || fechaStr.toLowerCase().includes('sin')) return null;
-            if (fechaStr.includes('/')) {
-                const p = fechaStr.split('/');
-                if (p.length === 3) return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
-            }
-            if (fechaStr.includes('-')) {
-                const p = fechaStr.split('-');
-                if (p.length === 3) {
-                    if (p[0].length === 4) return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
-                    else return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
-                }
-            }
-            const d = new Date(fechaStr);
-            return isNaN(d.getTime()) ? null : d;
-        }
-
-        function formatFecha(date) {
-            if (!date) return 'Sin registros';
-            const dia = String(date.getDate()).padStart(2, '0');
-            const mes = String(date.getMonth() + 1).padStart(2, '0');
-            return `${dia}/${mes}/${date.getFullYear()}`;
-        }
-
-        lineas.forEach((id, index) => {
-            const tr = document.createElement("tr");
-            const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
-            tr.className = `line-row ${bgClass} hover:bg-blue-100/50 dark:hover:bg-slate-700/60 transition divide-x divide-slate-200 dark:divide-slate-800`;
-            tr.setAttribute("data-linea", id);
-
+            // 5. Agregar la fila a la tabla
+            const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="py-2.5 px-3 text-center font-code text-slate-600 dark:text-slate-400 text-[11px] font-bold" id="emp-num-${id}">-</td>
-                <td class="py-2.5 px-3 text-center font-black text-slate-900 dark:text-slate-100 font-code whitespace-nowrap">
-                    <span class="bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded shadow-sm">LÍNEA ${id}</span>
-                </td>
-                <td class="py-2.5 px-3 font-bold text-slate-700 dark:text-slate-200 uppercase truncate max-w-[200px]" id="empresa-${id}">Cargando...</td>
-                <td class="py-2.5 px-3 text-center font-code font-bold text-slate-800 dark:text-slate-100" id="total-${id}">-</td>
-                <td class="py-2.5 px-3 text-center font-code font-bold text-green-600 dark:text-green-400" id="controladas-${id}">-</td>
-                <td class="py-2.5 px-3 text-center font-code font-bold text-blue-600 dark:text-blue-400" id="porcentaje-${id}">-</td>
-                <td class="py-2.5 px-3 text-center font-code text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap" id="visita-${id}">-</td>
-                <td class="py-2.5 px-3 text-center whitespace-nowrap">
-                    <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition inline-flex items-center space-x-1 shadow-sm">
-                        <span>Parque Móvil</span>
-                        <i class="fa-solid fa-chevron-right text-[9px]"></i>
-                    </a>
-                </td>
+                <td><strong>Línea ${linea}</strong></td>
+                <td>${nroEmpresa}</td>
+                <td>${razonSocial}</td>
+                <td><span class="badge">${cantidadCoches} coches</span></td>
             `;
             tbody.appendChild(tr);
-            cargarDatosLinea(id);
-        });
+            lineasProcesadas++;
 
-        function cargarDatosLinea(id) {
-            Papa.parse(`parques/linea${id}.csv`, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(resParque) {
-                    let totalParque = 0;
-                    if (resParque && resParque.data) {
-                        const parqueData = resParque.data;
-                        totalParque = parqueData.length;
-                        document.getElementById(`total-${id}`).textContent = totalParque;
-
-                        if (totalParque > 0) {
-                            let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
-                            document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
-                            let nroEmp = extraerNroEmpresa(parqueData[0]);
-                            document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
-                        } else {
-                            document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                            document.getElementById(`emp-num-${id}`).textContent = '-';
-                        }
-
-                        Papa.parse(`controlados/linea${id}.csv`, {
-                            download: true,
-                            header: true,
-                            skipEmptyLines: true,
-                            complete: function(resControl) {
-                                if (resControl && resControl.data) {
-                                    const controlData = resControl.data;
-                                    const dominiosControlados = new Set();
-                                    let maxFechaObj = null;
-
-                                    controlData.forEach(row => {
-                                        let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
-                                        if (!dom) {
-                                            for (let key in row) {
-                                                const val = String(row[key]).trim();
-                                                if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
-                                                    dom = val;
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (dom) dominiosControlados.add(dom.toUpperCase());
-
-                                        let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
-                                        if (!fechaStr) {
-                                            for (let key in row) {
-                                                const val = String(row[key]).trim();
-                                                if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
-                                                    fechaStr = val;
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (fechaStr) {
-                                            const dObj = parseFecha(fechaStr);
-                                            if (dObj && (!maxFechaObj || dObj > maxFechaObj)) maxFechaObj = dObj;
-                                        }
-                                    });
-
-                                    const controladasCount = dominiosControlados.size;
-                                    document.getElementById(`controladas-${id}`).textContent = controladasCount;
-
-                                    if (totalParque > 0) {
-                                        const pct = Math.round((controladasCount / totalParque) * 100);
-                                        document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
-                                    } else {
-                                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                    }
-
-                                    document.getElementById(`visita-${id}`).textContent = formatFecha(maxFechaObj);
-
-                                } else {
-                                    document.getElementById(`controladas-${id}`).textContent = 0;
-                                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                                }
-                            },
-                            error: function() {
-                                document.getElementById(`controladas-${id}`).textContent = 0;
-                                document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                                document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                            }
-                        });
-
-                    } else {
-                        document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                        document.getElementById(`emp-num-${id}`).textContent = '-';
-                        document.getElementById(`total-${id}`).textContent = 0;
-                        document.getElementById(`controladas-${id}`).textContent = 0;
-                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                        document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                    }
-                },
-                error: function() {
-                    document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                    document.getElementById(`emp-num-${id}`).textContent = '-';
-                    document.getElementById(`total-${id}`).textContent = 0;
-                    document.getElementById(`controladas-${id}`).textContent = 0;
-                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
-                }
-            });
+        } catch (e) {
+            console.error(`Error cargando línea ${linea}:`, e);
         }
+    }
 
-        function filterTable() {
-            const query = document.getElementById("lineSearch").value.trim().toLowerCase();
-            const rows = document.querySelectorAll(".line-row");
-            let visibleCount = 0;
+    if (lineasProcesadas > 0) {
+        status.style.display = 'none';
+        tabla.style.display = 'table';
+    } else {
+        status.textContent = 'No se encontraron datos cargados en la carpeta /parques.';
+    }
+}
 
-            rows.forEach(row => {
-                const num = row.getAttribute("data-linea");
-                const empEl = row.querySelector(`#empresa-${num}`);
-                const empNumEl = row.querySelector(`#emp-num-${num}`);
-                const empText = empEl ? empEl.textContent.toLowerCase() : "";
-                const empNumText = empNumEl ? empNumEl.textContent.toLowerCase() : "";
+document.addEventListener('DOMContentLoaded', cargarParques);
+</script>
 
-                if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query) || empNumText.includes(query)) {
-                    row.style.display = "";
-                    visibleCount++;
-                } else {
-                    row.style.display = "none";
-                }
-            });
-
-            const noResults = document.getElementById("noResults");
-            if (visibleCount === 0) noResults.classList.remove("hidden");
-            else noResults.classList.add("hidden");
-        }
-
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const themeIcon = document.getElementById('themeIcon');
-            const themeText = document.getElementById('themeText');
-            
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                themeIcon.className = 'fa-solid fa-moon text-xs';
-                themeText.textContent = 'Oscuro';
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                themeIcon.className = 'fa-solid fa-sun text-xs';
-                themeText.textContent = 'Claro';
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-            document.getElementById('themeIcon').className = 'fa-solid fa-sun text-xs';
-            document.getElementById('themeText').textContent = 'Claro';
-        }
-    </script>
 </body>
 </html>

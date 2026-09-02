@@ -84,9 +84,10 @@
     </footer>
 
     <script>
+        // Lista actualizada: Sin línea 75, con línea 95
         const lineas = [
-            2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 75, 
-            79, 80, 85, 91, 92, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
+            2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
+            79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
             158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
         ].sort((a, b) => a - b);
 
@@ -220,7 +221,6 @@
                                             }
                                         }
 
-                                        // Contabiliza todo vehículo inspeccionado físicamente
                                         if (dom) dominiosControlados.add(dom.toUpperCase());
 
                                         let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);

@@ -1,7 +1,6 @@
 import os
 import csv
 
-# Mapeo de Líneas y su Código de Empresa (N° EMP) en CNRT
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -15,64 +14,51 @@ EMPRESAS_CNRT = {
 
 OUTPUT_DIR = "parques"
 ORIGEN_CSV = "VehiculosPasajeros.csv"
-
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def procesar_parques_locales():
+def procesar():
     if not os.path.exists(ORIGEN_CSV):
-        print(f"❌ Error: No se encuentra el archivo base '{ORIGEN_CSV}'.")
+        print(f"❌ No existe {ORIGEN_CSV}")
         return
 
-    # Estructura para agrupar vehículos por número de línea
-    vehiculos_por_linea = {str(num): [] for num in EMPRESAS_CNRT.keys()}
-
-    print(f"Leyendo datos desde '{ORIGEN_CSV}'...")
+    # Indexar vehículos del CSV base
+    vehiculos_por_linea = {str(k): [] for k in EMPRESAS_CNRT.keys()}
     
     with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:
         reader = csv.DictReader(f, delimiter=";")
-        
         for row in reader:
-            linea_raw = str(row.get("linea", "")).strip()
-            
-            # Si el registro pertenece a una de nuestras líneas
-            if linea_raw in vehiculos_por_linea:
-                vehiculos_por_linea[linea_raw].append({
-                    "dominio": row.get("dominio", "").strip(),
-                    "empresaNro": row.get("empresaNro", "").strip(),
-                    "razonSocial": row.get("razonSocial", "").strip(),
-                    "linea": linea_raw,
-                    "interno": row.get("interno", "").strip(),
-                    "chasisMarca": row.get("chasisMarca", "").strip(),
-                    "carroceriaMarca": row.get("CarroceriaMarca", "").strip()
-                })
+            # Obtener línea ignorando mayúsculas/minúsculas en el nombre de columna
+            lin = str(row.get("linea") or row.get("Linea") or "").strip()
+            if lin in vehiculos_por_linea:
+                vehiculos_por_linea[lin].append(row)
 
-    # Guardar cada línea en su respectivo parque/lineaXX.csv
-    for linea_num, cod_emp in EMPRESAS_CNRT.items():
-        str_linea = str(linea_num)
-        file_destino = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
-        registros = vehiculos_por_linea.get(str_linea, [])
+    # Generar archivos por línea
+    for num_linea, cod_emp in EMPRESAS_CNRT.items():
+        str_linea = str(num_linea)
+        file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
+        unidades = vehiculos_por_linea.get(str_linea, [])
 
-        with open(file_destino, "w", newline="", encoding="utf-8") as csvfile:
-            writer = csv.writer(csvfile, delimiter=";")
-            # Encabezado esperado por index.html y PapaParse
+        razon_social = f"LÍNEA {str_linea}"
+        if unidades:
+            razon_social = unidades[0].get("razonSocial") or unidades[0].get("RazonSocial") or razon_social
+
+        with open(file_dest, "w", newline="", encoding="utf-8") as out:
+            writer = csv.writer(out, delimiter=";")
             writer.writerow(["dominio", "empresaNro", "razonSocial", "linea", "interno", "chasisMarca", "carroceriaMarca"])
-
-            if registros:
-                for reg in registros:
-                    writer.writerow([
-                        reg["dominio"],
-                        reg["empresaNro"] or cod_emp,
-                        reg["razonSocial"],
-                        reg["linea"],
-                        reg["interno"],
-                        reg["chasisMarca"],
-                        reg["carroceriaMarca"]
-                    ])
-                print(f"  -> Línea {str_linea}: {len(registros)} colectivos guardados ({registros[0]['razonSocial']})")
+            
+            if unidades:
+                for u in unidades:
+                    dom = u.get("dominio") or u.get("Dominio") or ""
+                    emp = u.get("empresaNro") or u.get("EmpresaNro") or cod_emp
+                    raz = u.get("razonSocial") or u.get("RazonSocial") or razon_social
+                    inte = u.get("interno") or u.get("Interno") or ""
+                    cha = u.get("chasisMarca") or u.get("ChasisMarca") or ""
+                    car = u.get("carroceriaMarca") or u.get("CarroceriaMarca") or ""
+                    writer.writerow([dom, emp, raz, str_linea, inte, cha, car])
             else:
-                # Si la línea no tiene registros cargados aún en el CSV base
-                writer.writerow(["", cod_emp, f"LÍNEA {str_linea}", str_linea, "", "", ""])
-                print(f"  -> Línea {str_linea}: Sin registros en el CSV base.")
+                writer.writerow(["", cod_emp, razon_social, str_linea, "", "", ""])
+
+        print(f"✅ Línea {str_linea}: {len(unidades)} unidades ({razon_social})")
 
 if __name__ == "__main__":
-    procesar_parques_locales()
+    procesar()

@@ -16,6 +16,16 @@ OUTPUT_DIR = "parques"
 ORIGEN_CSV = "VehiculosPasajeros.csv"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+def obtener_campo(row, claves):
+    for k in claves:
+        if k in row and row[k]:
+            return str(row[k]).strip()
+        # Búsqueda insensible a mayúsculas/minúsculas
+        for row_k in row.keys():
+            if row_k and row_k.lower() == k.lower() and row[row_k]:
+                return str(row[row_k]).strip()
+    return ""
+
 def procesar():
     if not os.path.exists(ORIGEN_CSV):
         print(f"❌ No existe {ORIGEN_CSV}")
@@ -23,12 +33,26 @@ def procesar():
 
     vehiculos_por_linea = {str(k): [] for k in EMPRESAS_CNRT.keys()}
     
-    with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:
-        reader = csv.DictReader(f, delimiter=";")
-        for row in reader:
-            lin = str(row.get("linea") or row.get("Linea") or "").strip()
-            if lin in vehiculos_por_linea:
-                vehiculos_por_linea[lin].append(row)
+    # Intentar leer el CSV probando delimitadores habituales
+    for delim in [";", ","]:
+        try:
+            with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:
+                reader = csv.DictReader(f, delimiter=delim)
+                filas = list(reader)
+                if filas and len(filas[0].keys()) > 1:
+                    for row in filas:
+                        lin = obtener_campo(row, ["linea", "Linea", "LINEA"])
+                        if lin in vehiculos_por_linea:
+                            vehiculos_por_linea[lin].append(row)
+                    break
+        except Exception:
+            continue
+
+    headers_salida = [
+        "dominio", "empresaNro", "razonSocial", "linea", "interno", 
+        "modelo", "chasisMarca", "carroceriaMarca", "habilitado_hasta", 
+        "vta_vigencia", "vta_numero"
+    ]
 
     for num_linea, cod_emp in EMPRESAS_CNRT.items():
         str_linea = str(num_linea)
@@ -37,22 +61,26 @@ def procesar():
 
         razon_social = f"LÍNEA {str_linea}"
         if unidades:
-            razon_social = unidades[0].get("razonSocial") or unidades[0].get("RazonSocial") or razon_social
+            razon_social = obtener_campo(unidades[0], ["razonSocial", "RazonSocial", "empresa"]) or razon_social
 
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
-            # FORZAMOS DELIMITADOR PUNTO Y COMA
             writer = csv.writer(out, delimiter=";")
-            writer.writerow(["dominio", "empresaNro", "razonSocial", "linea", "interno", "chasisMarca", "carroceriaMarca"])
+            writer.writerow(headers_salida)
             
             if unidades:
                 for u in unidades:
-                    dom = u.get("dominio") or u.get("Dominio") or ""
-                    emp = u.get("empresaNro") or u.get("EmpresaNro") or cod_emp
-                    raz = u.get("razonSocial") or u.get("RazonSocial") or razon_social
-                    inte = u.get("interno") or u.get("Interno") or ""
-                    cha = u.get("chasisMarca") or u.get("ChasisMarca") or ""
-                    car = u.get("carroceriaMarca") or u.get("CarroceriaMarca") or ""
-                    writer.writerow([dom, emp, raz, str_linea, inte, cha, car])
+                    dom = obtener_campo(u, ["dominio", "Dominio", "patente"])
+                    emp = obtener_campo(u, ["empresaNro", "EmpresaNro"]) or cod_emp
+                    raz = obtener_campo(u, ["razonSocial", "RazonSocial"]) or razon_social
+                    inte = obtener_campo(u, ["interno", "Interno"])
+                    mod = obtener_campo(u, ["modelo", "Modelo", "anio", "Anio", "anioModelo"])
+                    cha = obtener_campo(u, ["chasisMarca", "ChasisMarca", "chasis"])
+                    car = obtener_campo(u, ["carroceriaMarca", "CarroceriaMarca", "carroceria"])
+                    hab = obtener_campo(u, ["habilitado_hasta", "habilitadoHasta", "fechaHabilitacion", "vencimiento"])
+                    vta_vig = obtener_campo(u, ["vta_vigencia", "vtaVigencia", "tecnicaVigencia", "vtavencimiento"])
+                    vta_num = obtener_campo(u, ["vta_numero", "vtaNumero", "tecnicaNumero", "vtanumero"])
+
+                    writer.writerow([dom, emp, raz, str_linea, inte, mod, cha, car, hab, vta_vig, vta_num])
 
         print(f"✅ Línea {str_linea}: {len(unidades)} unidades ({razon_social})")
 

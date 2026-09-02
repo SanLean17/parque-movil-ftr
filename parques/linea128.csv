@@ -1,2 +1,169 @@
-nro_emp,empresa,dominio,interno,carroceria,chasis,modelo
-2048,EMPRESA LÍNEA 128,,,,,
+<!-- nro_emp: 2048 -->
+<!DOCTYPE html>
+<html>
+    <head lang="es">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Consultas Web</title>
+                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+            <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
+            <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
+            <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
+            <link href="/bundles/cnrtseguridad/css/select2.min.css" rel="stylesheet">
+
+            <!-- Propios de la app -->
+            <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
+
+        
+                    <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
+            <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
+            <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
+
+            <!-- Propios de la app -->
+            <script src="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.js"></script>
+            <script src="/bundles/app/js/datepicker-es.js"></script>
+        
+        <!--[if lt IE 9]>
+                <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+                <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+                    <nav id="navbar-cnrt" 
+            class="navbar navbar-default navbar-static" role="navigation" >
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <div class="col-md-2">
+                            <a href="https://www.cnrt.gob.ar/" class="navbar-brand" >
+                                <img id="logo-cnrt" src="/bundles/cnrtseguridad/images/logo_cnrt.png" alt="Ir a la página de CNRT">
+                            </a>
+                        </div>
+                        <div class="col-md-offset-5 col-md-5 text-center">
+                                                                                                                    </div>
+                    </div>
+                    <div class="">
+                        <ul class="nav navbar-nav navbar-right">
+                                                    </ul>
+
+                    </div>
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            <div>
+                <div class="page-header">
+                        <h3>&nbsp<i class="glyphicon glyphicon-check"></i> Consulta de Dominios de Transporte de Pasajeros Automotor Habilitadas</h3>
+                </div>
+
+                <div class="container-fluid" >
+
+                                            <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
+                                        
+                                                            </div>                    
+                        <style>
+        .row{
+            margin-bottom: 5px;
+        }
+    </style>
+    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
+        <fieldset>
+            <div id="vehiculos_habilitados">
+
+                <div class="form-group">
+                    <div class="row">
+                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
+                        <div class="col-md-4">
+                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
+                                <option></option>
+                                <option value ="ca">Cargas</option>
+                                <option value ="pa">Pasajeros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
+                        </div>
+                    </div>
+                    <div class="row hide" id="paut">
+                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-4 col-md-offset-2">
+                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
+                    </div>
+                </div>
+
+                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
+            </div>
+        </fieldset>
+    </form>
+
+                                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Mensaje</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                                                    </div>
+                                <div class="modal-footer">
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+        <br>
+        <div class="modal-footer">
+                            <div class="alert alert-dismissible alert-info" style="text-align: left;" id="informacionContacto">
+                    <strong><u>Importante:</u></strong> El estado de la inspección técnica se actualiza diariamente de acuerdo a datos provistos por la Consultora Ejecutiva Nacional de Transporte (CENT). Para conocer el estado del seguro puede <a href="https://servicios.cnrt.gob.ar/" target="blank" class="alert-link">ingresar en https://servicios.cnrt.gob.ar/</a>
+                </div>
+                    </div>
+
+
+    </div>
+
+    <script>
+        //convierte a todos los select del aplicativo en select2 se jquery
+        //$('select').select2();
+
+        // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
+        $(document).ready(function () {
+        mostrar();
+
+    $('#tipoTransporte').change(function() {
+    mostrar();
+    });
+
+    function mostrar(){
+    if ($('#tipoTransporte').val() == "ca"){
+    $('#paut').removeClass('hide');
+    $('#informacionContacto').addClass('hide');
+    }else if($('#tipoTransporte').val() == "pa"){
+    $('#paut').addClass('hide');
+    $('#informacionContacto').removeClass('hide');
+    }else{
+    $('#paut').addClass('hide');
+    $('#informacionContacto').addClass('hide');
+    }
+    }
+        });
+    </script>
+    <script>
+                                </script>
+<script id="alidatatable-scripts" type="text/javascript"></script></body>
+</html>
+

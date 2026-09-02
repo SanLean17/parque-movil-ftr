@@ -2,6 +2,7 @@ import os
 import re
 import requests
 
+# Mapeo de líneas y sus códigos de habilitación de CNRT
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -16,30 +17,29 @@ EMPRESAS_CNRT = {
 OUTPUT_DIR = "parques"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-BASE_URL = "https://consultapme.cnrt.gob.ar"
+URL = "https://consultapme.cnrt.gob.ar/vehiculos_habilitados"
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Origin': BASE_URL,
-    'Referer': f"{BASE_URL}/vehiculos_habilitados"
+    'Origin': 'https://consultapme.cnrt.gob.ar',
+    'Referer': 'https://consultapme.cnrt.gob.ar/vehiculos_habilitados'
 }
 
 def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
-    print(f"\n--- Procesando Línea {linea} (Habilitación: {cod_empresa}) ---")
+    print(f"Descargando Línea {linea} (Código: {cod_empresa})...")
     
     session = requests.Session()
     session.headers.update(headers)
     
     try:
-        # 1. Obtener la página del formulario y extraer el token CSRF
-        res_get = session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
-        
+        # Obtener token CSRF del formulario
+        res_get = session.get(URL, timeout=15)
         token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
         csrf_token = token_match.group(1) if token_match else ""
 
-        # 2. Enviar los parámetros exactos requeridos por la CNRT
+        # Campos exactos que la web de CNRT parsea
         payload = {
             'vehiculos_habilitados[tipoTransporte]': 'pa',
             'vehiculos_habilitados[dominio]': '',
@@ -48,21 +48,19 @@ def descargar_parque(linea, cod_empresa):
             'vehiculos_habilitados[_token]': csrf_token
         }
         
-        res_post = session.post(f"{BASE_URL}/vehiculos_habilitados", data=payload, timeout=20)
+        res_post = session.post(URL, data=payload, timeout=20)
         
-        # Validar si devolvió una tabla válida con datos de colectivos
-        if res_post.status_code == 200 and ("<table" in res_post.text.lower() or "dominio" in res_post.text.lower()):
-            header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n"
-            contenido_final = header_metadata.encode('utf-8') + res_post.content
+        # Inyectamos el comentario del código de empresa arriba para que tu parser lo lea
+        header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n".encode('utf-8')
+        contenido_final = header_metadata + res_post.content
+        
+        with open(file_destino, 'wb') as f:
+            f.write(contenido_final)
             
-            with open(file_destino, 'wb') as f:
-                f.write(contenido_final)
-            print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(contenido_final)} bytes)")
-        else:
-            print(f"⚠️ No se obtuvieron registros válidos para la Línea {linea}")
-            
+        print(f"  -> Guardado linea{linea}.csv ({len(contenido_final)} bytes)")
+        
     except Exception as e:
-        print(f"❌ Error en Línea {linea}: {e}")
+        print(f"  -> Error en Línea {linea}: {e}")
 
 if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():

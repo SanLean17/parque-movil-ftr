@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 
 EMPRESAS_CNRT = {
@@ -32,20 +33,25 @@ def descargar_parque(linea, cod_empresa):
     session.headers.update(headers)
     
     try:
-        # 1. Crear sesión en la CNRT
-        session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
+        # 1. Obtener la página del formulario y extraer el token CSRF
+        res_get = session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
         
-        # 2. Hacer la consulta
+        token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
+        csrf_token = token_match.group(1) if token_match else ""
+
+        # 2. Enviar los parámetros exactos requeridos por la CNRT
         payload = {
-            'tipo_transporte': '1',
-            'dominio': '',
-            'empresa': str(cod_empresa)
+            'vehiculos_habilitados[tipoTransporte]': 'pa',
+            'vehiculos_habilitados[dominio]': '',
+            'vehiculos_habilitados[empresaNro]': str(cod_empresa),
+            'vehiculos_habilitados[Enviar consulta]': '',
+            'vehiculos_habilitados[_token]': csrf_token
         }
         
         res_post = session.post(f"{BASE_URL}/vehiculos_habilitados", data=payload, timeout=20)
         
-        if res_post.status_code == 200 and len(res_post.content) > 1000:
-            # Insertar metadato con el nro de empresa al inicio del archivo
+        # Validar si devolvió una tabla válida con datos de colectivos
+        if res_post.status_code == 200 and ("<table" in res_post.text.lower() or "dominio" in res_post.text.lower()):
             header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n"
             contenido_final = header_metadata.encode('utf-8') + res_post.content
             
@@ -53,7 +59,7 @@ def descargar_parque(linea, cod_empresa):
                 f.write(contenido_final)
             print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(contenido_final)} bytes)")
         else:
-            print(f"⚠️ No se obtuvieron datos para Línea {linea}")
+            print(f"⚠️ No se obtuvieron registros válidos para la Línea {linea}")
             
     except Exception as e:
         print(f"❌ Error en Línea {linea}: {e}")

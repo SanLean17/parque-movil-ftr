@@ -1,5 +1,7 @@
 import os
+import csv
 import requests
+from bs4 import BeautifulSoup
 
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
@@ -24,6 +26,61 @@ headers = {
     'Referer': f"{BASE_URL}/vehiculos_habilitados"
 }
 
+def parsear_y_guardar_csv(html_content, file_destino, cod_empresa):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    tabla = soup.find('table')
+    
+    if not tabla:
+        return False
+
+    filas = tabla.find_all('tr')
+    if not filas:
+        return False
+
+    datos_csv = []
+    
+    # Extraer encabezados o usar unos estándar si no están definidos en <th>
+    headers_tabla = []
+    ths = filas[0].find_all(['th', 'td'])
+    if ths:
+        headers_tabla = [th.text.strip().lower() for th in ths]
+    
+    # Si la primera fila es encabezado, procesar desde la segunda
+    start_idx = 1 if 'dominio' in ''.join(headers_tabla) or 'patente' in ''.join(headers_tabla) else 0
+
+    for tr in filas[start_idx:]:
+        cols = tr.find_all('td')
+        if not cols:
+            continue
+        
+        row_data = [c.text.strip() for c in cols]
+        
+        # Validar que la fila tenga contenido (ej. Dominio)
+        if len(row_data) >= 2:
+            datos_csv.append(row_data)
+
+    if not datos_csv:
+        return False
+
+    # Guardar en CSV estructurado compatible con index.html
+    with open(file_destino, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        # Encabezados estándar esperados por PapaParse
+        writer.writerow(['nro_emp', 'empresa', 'dominio', 'interno', 'carroceria', 'chasis', 'modelo'])
+        
+        for row in datos_csv:
+            # Asignar valores según las columnas extraídas
+            dominio = row[0] if len(row) > 0 else ''
+            interno = row[1] if len(row) > 1 else ''
+            empresa = row[2] if len(row) > 2 else f'EMPRESA {cod_empresa}'
+            carroceria = row[3] if len(row) > 3 else ''
+            chasis = row[4] if len(row) > 4 else ''
+            modelo = row[5] if len(row) > 5 else ''
+            
+            writer.writerow([cod_empresa, empresa, dominio, interno, carroceria, chasis, modelo])
+
+    return len(datos_csv)
+
 def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
     print(f"\n--- Procesando Línea {linea} (Habilitación: {cod_empresa}) ---")
@@ -32,10 +89,8 @@ def descargar_parque(linea, cod_empresa):
     session.headers.update(headers)
     
     try:
-        # 1. Crear sesión visitando la portada
         session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
         
-        # 2. Hacer la consulta del formulario vía POST
         payload = {
             'tipo_transporte': '1',
             'dominio': '',
@@ -44,23 +99,14 @@ def descargar_parque(linea, cod_empresa):
         
         res_post = session.post(f"{BASE_URL}/vehiculos_habilitados", data=payload, timeout=20)
         
-        # 3. Intentar obtener el archivo exportado tras la consulta exitosa
-        url_csv = f"{BASE_URL}/vehiculos_habilitados/exportar_csv"
-        res_csv = session.get(url_csv, timeout=20)
-        
-        # Validar si devolvió un archivo CSV real
-        if res_csv.status_code == 200 and len(res_csv.content) > 100 and b"<html" not in res_csv.content.lower():
-            with open(file_destino, 'wb') as f:
-                f.write(res_csv.content)
-            print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(res_csv.content)} bytes)")
-        else:
-            # Fallback: Extraer la tabla del POST directo si no genera el CSV
-            if res_post.status_code == 200 and len(res_post.content) > 2000:
-                with open(file_destino, 'wb') as f:
-                    f.write(res_post.content)
-                print(f"✅ ÉXITO (HTML Tabla): linea{linea}.csv guardado ({len(res_post.content)} bytes)")
+        if res_post.status_code == 200:
+            cant = parsear_y_guardar_csv(res_post.content, file_destino, cod_empresa)
+            if cant:
+                print(f"✅ ÉXITO: linea{linea}.csv guardado con {cant} unidades.")
             else:
-                print(f"⚠️ No se obtuvieron datos. Status CSV: {res_csv.status_code}")
+                print(f"⚠️ No se encontraron registros en la tabla para la Línea {linea}")
+        else:
+            print(f"⚠️ Error HTTP {res_post.status_code} al consultar Línea {linea}")
             
     except Exception as e:
         print(f"❌ Error en Línea {linea}: {e}")

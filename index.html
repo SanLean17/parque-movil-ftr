@@ -38,3 +38,284 @@
                 <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
             </button>
         </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-3 sm:py-5 flex-grow w-full">
+        <div class="mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+                <h2 class="text-sm sm:text-lg font-black text-slate-800 dark:text-slate-100 uppercase tracking-wide">Estado General de Líneas</h2>
+            </div>
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
+                <input type="text" id="lineSearch" onkeyup="filterTable()" placeholder="Buscar por línea o empresa..." 
+                    class="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code shadow-sm">
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-300 dark:border-slate-800 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[750px]">
+                <thead>
+                    <tr class="bg-blue-900 dark:bg-slate-800 text-white text-[10px] sm:text-xs font-black uppercase tracking-wider divide-x divide-blue-800 dark:divide-slate-700 border-b-2 border-blue-950 dark:border-slate-700">
+                        <th class="py-3 px-3 text-center">N° EMP.</th>
+                        <th class="py-3 px-3 text-center">LÍNEA</th>
+                        <th class="py-3 px-3 text-center">RAZÓN SOCIAL</th>
+                        <th class="py-3 px-3 text-center">UNIDADES<br>TOTALES</th>
+                        <th class="py-3 px-3 text-center">UNIDADES<br>CONTROLADAS</th>
+                        <th class="py-3 px-3 text-center">% FISCALIZ.</th>
+                        <th class="py-3 px-3 text-center">ÚLTIMA<br>VISITA</th>
+                        <th class="py-3 px-3 text-center">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody id="linesTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs font-medium">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noResults" class="hidden text-center py-10 text-slate-400">
+            <i class="fa-solid fa-bus text-3xl mb-1 opacity-40"></i>
+            <p class="text-xs font-semibold">No se encontraron líneas coincidentes</p>
+        </div>
+    </main>
+
+    <footer class="bg-slate-800 dark:bg-slate-950 text-slate-400 py-2.5 text-center text-[10px] mt-auto border-t border-slate-700">
+        Parque Móvil FTR &copy; 2026
+    </footer>
+
+    <script>
+        const lineas = [
+            2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
+            79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
+            158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
+        ].sort((a, b) => a - b);
+
+        const tbody = document.getElementById("linesTableBody");
+
+        function cleanKey(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/^\ufeff/, '')
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        function getProp(obj, targetKeys) {
+            if (!obj) return '';
+            const normalizedTargets = targetKeys.map(k => cleanKey(k));
+            for (let k in obj) {
+                const normKey = cleanKey(k);
+                if (normalizedTargets.includes(normKey)) {
+                    const val = String(obj[k] || '').replace(/^"|"$/g, '').trim();
+                    if (val) return val;
+                }
+            }
+            return '';
+        }
+
+        function parseFecha(fechaStr) {
+            if (!fechaStr || fechaStr === '-' || fechaStr.toLowerCase().includes('sin')) return null;
+            if (fechaStr.includes('/')) {
+                const p = fechaStr.split('/');
+                if (p.length === 3) return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+            }
+            if (fechaStr.includes('-')) {
+                const p = fechaStr.split('-');
+                if (p.length === 3) {
+                    if (p[0].length === 4) return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+                    else return new Date(parseInt(p[2], 10), parseInt(p[1], 10) - 1, parseInt(p[0], 10));
+                }
+            }
+            const d = new Date(fechaStr);
+            return isNaN(d.getTime()) ? null : d;
+        }
+
+        function formatFecha(date) {
+            if (!date) return 'Sin registros';
+            const dia = String(date.getDate()).padStart(2, '0');
+            const mes = String(date.getMonth() + 1).padStart(2, '0');
+            return `${dia}/${mes}/${date.getFullYear()}`;
+        }
+
+        lineas.forEach((id, index) => {
+            const tr = document.createElement("tr");
+            const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
+            tr.className = `line-row ${bgClass} hover:bg-blue-100/50 dark:hover:bg-slate-700/60 transition divide-x divide-slate-200 dark:divide-slate-800`;
+            tr.setAttribute("data-linea", id);
+
+            tr.innerHTML = `
+                <td class="py-2.5 px-3 text-center font-code text-slate-600 dark:text-slate-400 text-[11px] font-bold" id="emp-num-${id}">-</td>
+                <td class="py-2.5 px-3 text-center font-black text-slate-900 dark:text-slate-100 font-code whitespace-nowrap">
+                    <span class="bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 px-2 py-0.5 rounded shadow-sm">LÍNEA ${id}</span>
+                </td>
+                <td class="py-2.5 px-3 font-bold text-slate-700 dark:text-slate-200 uppercase truncate max-w-[200px]" id="empresa-${id}">Cargando...</td>
+                <td class="py-2.5 px-3 text-center font-code font-bold text-slate-800 dark:text-slate-100" id="total-${id}">-</td>
+                <td class="py-2.5 px-3 text-center font-code font-bold text-green-600 dark:text-green-400" id="controladas-${id}">-</td>
+                <td class="py-2.5 px-3 text-center font-code font-bold text-blue-600 dark:text-blue-400" id="porcentaje-${id}">-</td>
+                <td class="py-2.5 px-3 text-center font-code text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap" id="visita-${id}">-</td>
+                <td class="py-2.5 px-3 text-center whitespace-nowrap">
+                    <a href="linea.html?id=${id}" class="bg-blue-800 hover:bg-blue-900 text-white text-[11px] px-2.5 py-1 rounded-md font-bold transition inline-flex items-center space-x-1 shadow-sm">
+                        <span>Parque Móvil</span>
+                        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                    </a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+            cargarDatosLinea(id);
+        });
+
+        function cargarDatosLinea(id) {
+            Papa.parse(`parques/linea${id}.csv`, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: function(resParque) {
+                    let totalUnidades = 0;
+                    let razonSocial = '';
+                    let nroEmpresa = '';
+
+                    if (resParque && resParque.data && resParque.data.length > 0) {
+                        const filasValidas = resParque.data.filter(row => {
+                            const dom = getProp(row, ['dominio', 'patente']);
+                            return dom && dom.trim().length >= 6;
+                        });
+
+                        totalUnidades = filasValidas.length;
+
+                        const primerReg = resParque.data[0];
+                        razonSocial = getProp(primerReg, ['razonSocial', 'razonsocial', 'empresa']);
+                        nroEmpresa = getProp(primerReg, ['empresaNro', 'empresanro', 'nroempresa']);
+                    }
+
+                    document.getElementById(`empresa-${id}`).textContent = razonSocial || `LÍNEA ${id}`;
+                    document.getElementById(`emp-num-${id}`).textContent = nroEmpresa || '-';
+                    document.getElementById(`total-${id}`).textContent = totalUnidades;
+
+                    Papa.parse(`controlados/linea${id}.csv`, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(resControl) {
+                            if (resControl && resControl.data && resControl.data.length > 0) {
+                                const controlData = resControl.data;
+                                const dominiosControlados = new Set();
+                                let maxFechaObj = null;
+
+                                controlData.forEach(row => {
+                                    let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
+                                    if (!dom) {
+                                        for (let key in row) {
+                                            const val = String(row[key] || '').trim();
+                                            if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
+                                                dom = val;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (dom) dominiosControlados.add(dom.toUpperCase());
+
+                                    let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
+                                    if (!fechaStr) {
+                                        for (let key in row) {
+                                            const val = String(row[key] || '').trim();
+                                            if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
+                                                fechaStr = val;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (fechaStr) {
+                                        const dObj = parseFecha(fechaStr);
+                                        if (dObj && (!maxFechaObj || dObj > maxFechaObj)) maxFechaObj = dObj;
+                                    }
+                                });
+
+                                const controladasCount = dominiosControlados.size;
+                                document.getElementById(`controladas-${id}`).textContent = controladasCount;
+
+                                if (totalUnidades > 0) {
+                                    const pct = Math.round((controladasCount / totalUnidades) * 100);
+                                    document.getElementById(`porcentaje-${id}`).textContent = `${pct}%`;
+                                } else {
+                                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
+                                }
+
+                                document.getElementById(`visita-${id}`).textContent = formatFecha(maxFechaObj);
+                            } else {
+                                setFallbackControlados(id, totalUnidades);
+                            }
+                        },
+                        error: function() {
+                            setFallbackControlados(id, totalUnidades);
+                        }
+                    });
+                },
+                error: function() {
+                    document.getElementById(`empresa-${id}`).textContent = `LÍNEA ${id}`;
+                    document.getElementById(`emp-num-${id}`).textContent = '-';
+                    document.getElementById(`total-${id}`).textContent = 0;
+                    setFallbackControlados(id, 0);
+                }
+            });
+        }
+
+        function setFallbackControlados(id, totalUnidades) {
+            document.getElementById(`controladas-${id}`).textContent = 0;
+            document.getElementById(`porcentaje-${id}`).textContent = '0%';
+            document.getElementById(`visita-${id}`).textContent = 'Sin registros';
+        }
+
+        function filterTable() {
+            const query = document.getElementById("lineSearch").value.trim().toLowerCase();
+            const rows = document.querySelectorAll(".line-row");
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const num = row.getAttribute("data-linea");
+                const empEl = row.querySelector(`#empresa-${num}`);
+                const empNumEl = row.querySelector(`#emp-num-${num}`);
+                const empText = empEl ? empEl.textContent.toLowerCase() : "";
+                const empNumText = empNumEl ? empNumEl.textContent.toLowerCase() : "";
+
+                if (num.includes(query) || `linea ${num}`.includes(query) || empText.includes(query) || empNumText.includes(query)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            const noResults = document.getElementById("noResults");
+            if (visibleCount === 0) noResults.classList.remove("hidden");
+            else noResults.classList.add("hidden");
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-xs';
+                themeText.textContent = 'Oscuro';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-xs';
+                themeText.textContent = 'Claro';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fa-solid fa-sun text-xs';
+            document.getElementById('themeText').textContent = 'Claro';
+        }
+    </script>
+</body>
+</html>

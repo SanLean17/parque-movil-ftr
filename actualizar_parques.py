@@ -15,35 +15,55 @@ EMPRESAS_CNRT = {
 OUTPUT_DIR = "parques"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+BASE_URL = "https://consultapme.cnrt.gob.ar"
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Referer': 'https://consultapme.cnrt.gob.ar/vehiculos_habilitados'
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Origin': BASE_URL,
+    'Referer': f"{BASE_URL}/vehiculos_habilitados"
 }
 
 def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
-    print(f"\n--- Procesando Línea {linea} (Código: {cod_empresa}) ---")
+    print(f"\n--- Procesando Línea {linea} (Habilitación: {cod_empresa}) ---")
     
     session = requests.Session()
+    session.headers.update(headers)
     
     try:
-        # Descarga directa por parámetros de exportación de la plataforma
-        url = f"https://consultapme.cnrt.gob.ar/vehiculos_habilitados/exportar_csv?empresa={cod_empresa}&tipo_transporte=1"
-        res = session.get(url, headers=headers, timeout=25)
+        # 1. Crear sesión visitando la portada
+        session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
         
-        # Validar si el archivo devuelto contiene registros CSV
-        contenido = res.text.strip()
+        # 2. Hacer la consulta del formulario vía POST
+        payload = {
+            'tipo_transporte': '1',
+            'dominio': '',
+            'empresa': str(cod_empresa)
+        }
         
-        if res.status_code == 200 and len(contenido) > 50 and "html" not in contenido.lower():
-            with open(file_destino, 'w', encoding='utf-8') as f:
-                f.write(contenido)
-            print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(contenido)} bytes)")
+        res_post = session.post(f"{BASE_URL}/vehiculos_habilitados", data=payload, timeout=20)
+        
+        # 3. Intentar obtener el archivo exportado tras la consulta exitosa
+        url_csv = f"{BASE_URL}/vehiculos_habilitados/exportar_csv"
+        res_csv = session.get(url_csv, timeout=20)
+        
+        # Validar si devolvió un archivo CSV real
+        if res_csv.status_code == 200 and len(res_csv.content) > 100 and b"<html" not in res_csv.content.lower():
+            with open(file_destino, 'wb') as f:
+                f.write(res_csv.content)
+            print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(res_csv.content)} bytes)")
         else:
-            print(f"⚠️ Respuesta no válida (Status: {res.status_code}, Tamaño: {len(contenido)} bytes)")
-            print(f"Primeros 100 caracteres: {contenido[:100]}")
+            # Fallback: Extraer la tabla del POST directo si no genera el CSV
+            if res_post.status_code == 200 and len(res_post.content) > 2000:
+                with open(file_destino, 'wb') as f:
+                    f.write(res_post.content)
+                print(f"✅ ÉXITO (HTML Tabla): linea{linea}.csv guardado ({len(res_post.content)} bytes)")
+            else:
+                print(f"⚠️ No se obtuvieron datos. Status CSV: {res_csv.status_code}")
             
     except Exception as e:
-        print(f"❌ Error de conexión en Línea {linea}: {e}")
+        print(f"❌ Error en Línea {linea}: {e}")
 
 if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():

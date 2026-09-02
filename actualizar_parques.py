@@ -1,5 +1,7 @@
 import os
 import csv
+import requests
+from bs4 import BeautifulSoup
 
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
@@ -13,74 +15,93 @@ EMPRESAS_CNRT = {
 }
 
 OUTPUT_DIR = "parques"
-ORIGEN_CSV = "VehiculosPasajeros.csv"
+URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def obtener_campo(row, claves):
-    for k in claves:
-        if k in row and row[k]:
-            return str(row[k]).strip()
-        for row_k in row.keys():
-            if row_k and row_k.lower() == k.lower() and row[row_k]:
-                return str(row[row_k]).strip()
-    return ""
+headers_salida = [
+    "dominio", "empresaNro", "razonSocial", "linea", "interno", 
+    "modelo", "chasisMarca", "carroceriaMarca", "habilitado_hasta", 
+    "vta_vigencia", "vta_numero"
+]
+
+def obtener_datos_empresa(session, nro_empresa):
+    payload = {
+        "tipo_transporte": "Pasajeros",
+        "dominio": "",
+        "nro_habilitacion": str(nro_empresa)
+    }
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Referer": URL_FORM
+    }
+    
+    try:
+        response = session.post(URL_FORM, data=payload, headers=headers, timeout=20)
+        if response.status_code != 200:
+            return []
+            
+        soup = BeautifulSoup(response.text, "html.parser")
+        tabla = soup.find("table")
+        if not tabla:
+            return []
+
+        filas_datos = []
+        for tr in tabla.find_all("tr")[1:]:
+            cols = [td.text.strip() for td in tr.find_all("td")]
+            if len(cols) >= 10:
+                # Mapeo según la estructura que muestra la web de CNRT:
+                # [0] Dominio, [1] Int, [2] Servicios, [3] Modelo, [4] Asientos, 
+                # [5] N° Emp, [6] CUIT, [7] Razon Social, [8] Habilitado Hasta, [9] Tecnica Vigente Hasta, [10] Tecnica Nro
+                dom = cols[0]
+                inte = cols[1]
+                mod = cols[3]
+                emp = cols[5]
+                raz = cols[7]
+                hab = cols[8]
+                vta_vig = cols[9]
+                vta_num = cols[10] if len(cols) > 10 else ""
+
+                filas_datos.append({
+                    "dominio": dom,
+                    "empresaNro": emp,
+                    "razonSocial": raz,
+                    "interno": inte,
+                    "modelo": mod,
+                    "chasisMarca": "",
+                    "carroceriaMarca": "",
+                    "habilitado_hasta": hab,
+                    "vta_vigencia": vta_vig,
+                    "vta_numero": vta_num
+                })
+        return filas_datos
+    except Exception as e:
+        print(f"  ⚠️ Error consultando empresa {nro_empresa}: {e}")
+        return []
 
 def procesar():
-    if not os.path.exists(ORIGEN_CSV):
-        print(f"❌ No existe {ORIGEN_CSV}")
-        return
-
-    vehiculos_por_linea = {str(k): [] for k in EMPRESAS_CNRT.keys()}
-    
-    for delim in [";", ","]:
-        try:
-            with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:
-                reader = csv.DictReader(f, delimiter=delim)
-                filas = list(reader)
-                if filas and len(filas[0].keys()) > 1:
-                    for row in filas:
-                        lin = obtener_campo(row, ["linea", "Linea", "LINEA"])
-                        if lin in vehiculos_por_linea:
-                            vehiculos_por_linea[lin].append(row)
-                    break
-        except Exception:
-            continue
-
-    headers_salida = [
-        "dominio", "empresaNro", "razonSocial", "linea", "interno", 
-        "modelo", "chasisMarca", "carroceriaMarca", "habilitado_hasta", 
-        "vta_vigencia", "vta_numero"
-    ]
+    session = requests.Session()
+    print("🚀 Consultando datos directamente en la web de CNRT...")
 
     for num_linea, cod_emp in EMPRESAS_CNRT.items():
         str_linea = str(num_linea)
         file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
-        unidades = vehiculos_por_linea.get(str_linea, [])
-
-        razon_social = f"LÍNEA {str_linea}"
-        if unidades:
-            razon_social = obtener_campo(unidades[0], ["razonSocial", "RazonSocial", "empresa"]) or razon_social
+        
+        unidades = obtener_datos_empresa(session, cod_emp)
+        razon_social = unidades[0]["razonSocial"] if unidades else f"LÍNEA {str_linea}"
 
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
             writer = csv.writer(out, delimiter=";")
             writer.writerow(headers_salida)
             
-            if unidades:
-                for u in unidades:
-                    dom = obtener_campo(u, ["dominio", "Dominio", "patente"])
-                    emp = obtener_campo(u, ["empresaNro", "EmpresaNro"]) or cod_emp
-                    raz = obtener_campo(u, ["razonSocial", "RazonSocial"]) or razon_social
-                    inte = obtener_campo(u, ["interno", "Interno"])
-                    mod = obtener_campo(u, ["modelo", "Modelo", "anio", "Anio", "anioModelo"])
-                    cha = obtener_campo(u, ["chasisMarca", "ChasisMarca", "chasis"])
-                    car = obtener_campo(u, ["carroceriaMarca", "CarroceriaMarca", "carroceria"])
-                    hab = obtener_campo(u, ["habilitado_hasta", "habilitadoHasta", "fechaHabilitacion", "vencimiento"])
-                    vta_vig = obtener_campo(u, ["vta_vigencia", "vtaVigencia", "tecnicaVigencia", "vtavencimiento"])
-                    vta_num = obtener_campo(u, ["vta_numero", "vtaNumero", "tecnicaNumero", "vtanumero"])
+            for u in unidades:
+                writer.writerow([
+                    u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
+                    u["interno"], u["modelo"], u["chasisMarca"], u["carroceriaMarca"],
+                    u["habilitado_hasta"], u["vta_vigencia"], u["vta_numero"]
+                ])
 
-                    writer.writerow([dom, emp, raz, str_linea, inte, mod, cha, car, hab, vta_vig, vta_num])
-
-        print(f"✅ Línea {str_linea}: {len(unidades)} unidades ({razon_social})")
+        print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades)} unidades procesadas.")
 
 if __name__ == "__main__":
     procesar()

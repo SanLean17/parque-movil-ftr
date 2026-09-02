@@ -84,7 +84,7 @@
     </footer>
 
     <script>
-        // Lista actualizada: Sin línea 75, con línea 95
+        // Lista de líneas a desplegar
         const lineas = [
             2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
             79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
@@ -93,11 +93,13 @@
 
         const tbody = document.getElementById("linesTableBody");
 
+        // Búsqueda flexible de propiedades en filas de CSV
         function getProp(obj, names) {
             if (!obj) return '';
             const keys = Object.keys(obj);
             for (let name of names) {
-                const found = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                const targetName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const found = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === targetName);
                 if (found && obj[found] !== null && obj[found] !== undefined) {
                     const val = String(obj[found]).trim();
                     if (val !== '') return val;
@@ -106,24 +108,26 @@
             return '';
         }
 
+        // Extracción robusta del N°/Código de empresa
         function extraerNroEmpresa(row) {
             if (!row) return '';
             const nombresPosibles = [
                 'nro_emp', 'num_emp', 'nroemp', 'numemp', 'empresa_id', 'id_empresa', 
                 'cod_empresa', 'codigo_empresa', 'nro_empresa', 'num_empresa', 'cod_emp', 
-                'codigo_emp', 'empresa_num', 'idempresa', 'nroempresa', 'codigo'
+                'codigo_emp', 'empresa_num', 'idempresa', 'nroempresa', 'codigo', 'empresa'
             ];
+            
             let res = getProp(row, nombresPosibles);
-            if (res) return res;
+            if (res && /^\d+$/.test(res)) return res;
 
             for (let key in row) {
-                const cleanKey = key.trim().toLowerCase();
+                const cleanKey = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
                 if (cleanKey.includes('emp') || cleanKey.includes('cod') || cleanKey.includes('id')) {
                     const val = String(row[key]).trim();
                     if (/^\d+$/.test(val)) return val;
                 }
             }
-            return '';
+            return res || '';
         }
 
         function parseFecha(fechaStr) {
@@ -150,6 +154,7 @@
             return `${dia}/${mes}/${date.getFullYear()}`;
         }
 
+        // Renderizado inicial de filas en la tabla
         lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
             const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
@@ -177,6 +182,7 @@
             cargarDatosLinea(id);
         });
 
+        // Lectura y procesamiento de CSVs
         function cargarDatosLinea(id) {
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
@@ -184,21 +190,19 @@
                 skipEmptyLines: true,
                 complete: function(resParque) {
                     let totalParque = 0;
-                    if (resParque && resParque.data) {
+                    if (resParque && resParque.data && resParque.data.length > 0) {
                         const parqueData = resParque.data;
                         totalParque = parqueData.length;
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
-                        if (totalParque > 0) {
-                            let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial']);
-                            document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
-                            let nroEmp = extraerNroEmpresa(parqueData[0]);
-                            document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
-                        } else {
-                            document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                            document.getElementById(`emp-num-${id}`).textContent = '-';
-                        }
+                        // Lectura de Razón Social y N° Empresa
+                        let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial', 'denominacion']);
+                        document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
+                        
+                        let nroEmp = extraerNroEmpresa(parqueData[0]);
+                        document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
 
+                        // Procesa CSV de controlados
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
@@ -285,6 +289,7 @@
             });
         }
 
+        // Buscador interactivo por línea, empresa o N°
         function filterTable() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
             const rows = document.querySelectorAll(".line-row");
@@ -310,6 +315,7 @@
             else noResults.classList.add("hidden");
         }
 
+        // Toggle Modo Oscuro / Claro
         function toggleDarkMode() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');

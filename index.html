@@ -167,44 +167,71 @@
 
         async function cargarDatosLinea(id) {
             try {
-                // 1. Obtener el archivo HTML/CSV generado por el bot
+                // 1. Obtener el HTML guardado en el archivo con extensión .csv
                 const res = await fetch(`parques/linea${id}.csv`);
                 if (!res.ok) throw new Error("No se encontró el archivo");
                 
                 const htmlText = await res.text();
 
-                // 2. Extraer N° Empresa desde el comentario <!-- nro_emp: XXXX -->
+                // 2. N° Empresa desde la etiqueta <!-- nro_emp: XXXX -->
                 const empMatch = htmlText.match(/<!--\s*nro_emp:\s*(\d+)\s*-->/);
                 const nroEmpresa = empMatch ? empMatch[1] : '-';
                 document.getElementById(`emp-num-${id}`).textContent = nroEmpresa;
 
-                // 3. Parsear el HTML interno
+                // 3. Parsear el documento HTML de la CNRT
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
 
-                // Extraer Razón Social
+                // --- Extraer Razón Social ---
                 let razonSocial = '';
-                const empLabel = Array.from(doc.querySelectorAll('td, th, label, div, b, strong, p'))
-                    .find(el => el.textContent.includes('EMPRESA:') || el.textContent.includes('Empresa:'));
                 
-                if (empLabel) {
-                    razonSocial = empLabel.textContent.replace(/EMPRESA:/i, '').trim();
-                } else {
-                    const firstTd = doc.querySelector('table tr td');
-                    if (firstTd && isNaN(firstTd.textContent.trim())) {
-                        razonSocial = firstTd.textContent.trim();
+                // Buscar en celdas, títulos o negritas que mencionen la empresa
+                const elementosTexto = Array.from(doc.querySelectorAll('td, th, h1, h2, h3, div, p, b, strong, span'));
+                for (let el of elementosTexto) {
+                    const txt = el.textContent.trim();
+                    if (/empresa\s*:/i.test(txt) || /raz[oó]n\s*social\s*:/i.test(txt)) {
+                        razonSocial = txt.replace(/.*(?:empresa|raz[oó]n\s*social)\s*:\s*/i, '').trim();
+                        if (razonSocial) break;
+                    }
+                }
+
+                // Si no la encontró por etiqueta, buscar en celdas o tablas que contengan texto de la razón social
+                if (!razonSocial) {
+                    const celdas = doc.querySelectorAll('table td');
+                    for (let celda of celdas) {
+                        const txt = celda.textContent.trim();
+                        // Texto largo en mayúsculas descartando formatos numéricos o patentes
+                        if (txt.length > 3 && isNaN(txt) && !/\d{2}\/\d{2}\/\d{4}/.test(txt) && !/^[A-Z]{2}\d{3}[A-Z]{2}$/.test(txt)) {
+                            razonSocial = txt;
+                            break;
+                        }
                     }
                 }
 
                 document.getElementById(`empresa-${id}`).textContent = razonSocial || `LÍNEA ${id}`;
 
-                // Contar filas reales de colectivos en la tabla del HTML
-                const filasColectivos = doc.querySelectorAll('table tr');
-                // Descontamos 1 por el encabezado si existe tabla
-                let totalUnidades = filasColectivos.length > 1 ? filasColectivos.length - 1 : 0;
+                // --- Extraer Unidades Totales ---
+                let totalUnidades = 0;
+                const tablas = doc.querySelectorAll('table');
+                
+                tablas.forEach(tabla => {
+                    const filas = tabla.querySelectorAll('tr');
+                    filas.forEach(fila => {
+                        const celdas = fila.querySelectorAll('td');
+                        // Si la fila tiene celdas de datos
+                        if (celdas.length > 0) {
+                            const textoFila = fila.textContent.trim().toLowerCase();
+                            // Descartar mensajes vacíos o de falta de registro
+                            if (textoFila && !textoFila.includes('no se encontraron') && !textoFila.includes('sin registros')) {
+                                totalUnidades++;
+                            }
+                        }
+                    });
+                });
+
                 document.getElementById(`total-${id}`).textContent = totalUnidades;
 
-                // 4. Cargar Unidades Controladas desde la carpeta controlados (CSV real)
+                // 4. Cargar Unidades Controladas desde la carpeta controlados (CSV)
                 Papa.parse(`controlados/linea${id}.csv`, {
                     download: true,
                     header: true,

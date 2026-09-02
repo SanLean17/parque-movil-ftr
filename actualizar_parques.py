@@ -1,5 +1,6 @@
 import os
 import csv
+import re
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -22,6 +23,32 @@ headers_salida = [
     "DOMINIO", "INTERNO", "MODELO (AÑO)", "HABILITADO HASTA", 
     "TÉCNICA VIGENTE HASTA", "N° TÉCNICA", "EMPRESA NRO", "RAZON SOCIAL", "LINEA"
 ]
+
+def extraer_fechas_y_tecnica(cols):
+    fechas = []
+    vta_num = "-"
+    
+    # Expresión regular para detectar fechas tipo DD/MM/AAAA
+    patron_fecha = re.compile(r'\b\d{2}/\d{2}/\d{4}\b')
+    
+    for idx, c in enumerate(cols):
+        encontrados = patron_fecha.findall(c)
+        if encontrados:
+            fechas.extend(encontrados)
+        # Si no es fecha pero es un número/código largo pasados los datos principales
+        elif idx >= 8 and c.strip() and not c.strip().startswith("20"):
+            vta_num = c.strip()
+
+    hab = fechas[0] if len(fechas) > 0 else "-"
+    vta_vig = fechas[1] if len(fechas) > 1 else "-"
+    
+    # Si no capturamos número de oblea por posición, tomamos la última columna poblada
+    if vta_num == "-" and len(cols) > 9:
+        ultimo_valor = cols[-1].strip()
+        if ultimo_valor and not patron_fecha.search(ultimo_valor):
+            vta_num = ultimo_valor
+
+    return hab, vta_vig, vta_num
 
 def obtener_datos_empresa(page, nro_empresa):
     try:
@@ -49,31 +76,14 @@ def obtener_datos_empresa(page, nro_empresa):
         filas_datos = []
         for tr in tabla.find_all("tr")[1:]:
             cols = [td.text.strip() for td in tr.find_all("td")]
-            if len(cols) >= 8:
-                dom = cols[0]
-                inte = cols[1]
-                mod = cols[3]
-                emp = cols[5] if len(cols) > 5 else str(nro_empresa)
+            if len(cols) >= 5:
+                dom = cols[0] if len(cols) > 0 else "-"
+                inte = cols[1] if len(cols) > 1 else "-"
+                mod = cols[3] if len(cols) > 3 else "-"
+                emp = str(nro_empresa)
                 raz = cols[7] if len(cols) > 7 else ""
-                
-                # Búsqueda segura de fechas y revisión técnica
-                hab = ""
-                vta_vig = ""
-                vta_num = ""
 
-                # Mapeo según cantidad de columnas devueltas por la CNRT
-                for val in cols:
-                    if "/" in val and len(val) == 10:  # Detecta formato fecha DD/MM/AAAA
-                        if not hab:
-                            hab = val
-                        elif not vta_vig:
-                            vta_vig = val
-                
-                # La última columna o anteúltima suele ser el N° de oblea / revisión
-                if len(cols) >= 11:
-                    vta_num = cols[10]
-                elif len(cols) == 10:
-                    vta_num = cols[9]
+                hab, vta_vig, vta_num = extraer_fechas_y_tecnica(cols)
 
                 filas_datos.append({
                     "dominio": dom,

@@ -1,42 +1,168 @@
-﻿dominio;interno;servicios;anioModelo;cantAsientos;empresaNro;cuit;razonSocial;vigenciaHastaInspeccionTecnica;tecnicaNro;tipoTecnica;categoriaAprob;CarroceriaMarca;CarroceriaModelo;expOrig;expModif;disposicion;tacografoMarca;tacografoNro;linea;chasisNro;chasisMarca;chasisModelo;accesibilidad;jurisdiccion;aireAcondicionado;vigenciaHasta
-AA033UU;105;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";28/02/2027;335793;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145905;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-AA033UV;115;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";07/09/2026;58991;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145903;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-AA033UX;129;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";07/01/2027;252109;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145948;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-08-09
-AA125ZK;141;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";26/09/2026;96255;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145901;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-AA125ZO;127;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";03/01/2027;252042;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145896;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-08-09
-AA841QP;103;"SERVICIO COMÚN";2017;25;2080;30546346710;"TRANSPORTES 270 S.A.";30/10/2026;106765;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;50239/2016;;0048/16;;;70;8AC368185GA146138;"MERCEDES BENZ";"OH 1621 L-SB/55";SI;JN:NACIONAL;SI;UC:2027-12-31
-AA841QQ;124;"SERVICIO COMÚN";2017;25;2080;30546346710;"TRANSPORTES 270 S.A.";12/11/2026;112016;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;50239/2016;;0048/16;;;70;8AB368185GA146210;"MERCEDES BENZ";"OH 1621 L-SB/55";SI;JN:NACIONAL;SI;UC:2027-12-31
-AA841QR;119;"SERVICIO COMÚN";2017;25;2080;30546346710;"TRANSPORTES 270 S.A.";11/11/2026;108779;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;50239/2016;;0048/16;;;70;8AB368185GA146209;"MERCEDES BENZ";"OH 1621 L-SB/55";SI;JN:NACIONAL;SI;UC:2027-12-31
-AC817WA;108;"SERVICIO COMÚN";2018;25;2080;30546346710;"TRANSPORTES 270 S.A.";20/02/2027;331895;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";"LA FAVORITA";;68086/2016;;0067/16;;;70;8AB368185JA149074;"MERCEDES BENZ";"OH 1621 L-SB/55";SI;JN:NACIONAL;SI;UC:2028-12-31
-AE918ZE;137;"SERVICIO COMÚN";2021;25;2080;30546346710;"TRANSPORTES 270 S.A.";05/02/2027;326642;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187MA150581;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2031-12-31
-AE918ZG;135;"SERVICIO COMÚN";2021;25;2080;30546346710;"TRANSPORTES 270 S.A.";25/01/2027;325002;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187MA150580;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2031-12-31
-AE918ZH;136;"SERVICIO COMÚN";2021;25;2080;30546346710;"TRANSPORTES 270 S.A.";22/01/2027;324934;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187MA150252;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2031-12-31
-AE918ZI;111;"SERVICIO COMÚN";2021;25;2080;30546346710;"TRANSPORTES 270 S.A.";31/01/2027;326546;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187MA150596;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2031-12-31
-AE918ZJ;133;"SERVICIO COMÚN";2021;25;2080;30546346710;"TRANSPORTES 270 S.A.";08/02/2027;326727;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187MA150589;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2031-12-31
-AF235WZ;139;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";28/01/2027;325053;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA150797;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF239HA;128;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";01/02/2027;326581;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA150798;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF239HE;117;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";03/02/2027;326590;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA150793;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF239HF;112;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";21/01/2027;324894;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA150795;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF239HG;106;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";24/01/2027;324983;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA150794;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF324QD;113;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";01/10/2026;96405;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151219;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF324QE;114;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";30/09/2026;96331;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151221;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF324QF;109;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";30/09/2026;96365;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151220;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF445AD;122;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";23/12/2026;249836;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151348;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF445AE;123;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";24/12/2026;249869;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151361;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AF445AF;125;"SERVICIO COMÚN";2022;25;2080;30546346710;"TRANSPORTES 270 S.A.";27/12/2026;249941;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187NA151360;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2032-12-31
-AG186EI;138;"SERVICIO COMÚN";2023;25;2080;30546346710;"TRANSPORTES 270 S.A.";16/09/2026;59184;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187PA151854;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2033-12-31
-AG186EK;101;"SERVICIO COMÚN";2023;25;2080;30546346710;"TRANSPORTES 270 S.A.";05/09/2026;58930;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187PA151975;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2033-12-31
-AG186EL;134;"SERVICIO COMÚN";2023;25;2080;30546346710;"TRANSPORTES 270 S.A.";14/09/2026;59171;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187PA151856;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2033-12-31
-AG186EM;140;"SERVICIO COMÚN";2023;25;2080;30546346710;"TRANSPORTES 270 S.A.";17/09/2026;59222;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187PA151855;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2033-12-31
-AG186EN;132;"SERVICIO COMÚN";2023;25;2080;30546346710;"TRANSPORTES 270 S.A.";13/09/2026;59133;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";ITALBUS;;2021-15550954;;011/21;;;70;8AB368187PA151976;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2033-12-31
-AI198AH;118;"SERVICIO COMÚN";2026;26;2080;30546346710;"TRANSPORTES 270 S.A.";02/01/2027;252022;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";AUTOBUS;;2018-66869977;;009/19;;;70;8AB368187SA152755;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2036-12-31
-AI198AI;120;"SERVICIO COMÚN";2026;26;2080;30546346710;"TRANSPORTES 270 S.A.";03/12/2026;245674;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";AUTOBUS;;2018-66869977;;009/19;;;70;8AB368187SA152754;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2036-12-31
-AI198AJ;102;"SERVICIO COMÚN";2026;26;2080;30546346710;"TRANSPORTES 270 S.A.";05/12/2026;247092;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";AUTOBUS;;2018-66869977;;009/19;;;70;8AB368187SA152654;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2036-12-31
-AI198AK;116;"SERVICIO COMÚN";2026;26;2080;30546346710;"TRANSPORTES 270 S.A.";17/12/2026;249738;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";AUTOBUS;;2018-66869977;;009/19;;;70;8AB368187SA152658;"MERCEDES BENZ";"OH 1721 L-SB/62";SI;JN:NACIONAL;SI;UC:2036-12-31
-PLS346;131;"SERVICIO COMÚN";2016;26;2080;30546346710;"TRANSPORTES 270 S.A.";11/01/2027;321495;CENT;"URBANO COMÚN CON AIRE";AUTOBUS;;85268/2012;;549/12;;;70;8AB368187GA145304;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-08-09
-PMW800;121;"SERVICIO COMÚN";2016;26;2080;30546346710;"TRANSPORTES 270 S.A.";03/12/2026;245667;CENT;"URBANO COMÚN CON AIRE";AUTOBUS;;85268/2012;;549/12;;;70;8AB368187GA145339;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-08-09
-PMW813;126;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";14/11/2026;112078;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145468;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-PMW814;110;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";01/12/2026;245600;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145469;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-PMW815;130;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";18/11/2026;112138;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145471;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-PMW816;104;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";19/11/2026;112163;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145417;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
-PMW817;107;"SERVICIO COMÚN";2016;29;2080;30546346710;"TRANSPORTES 270 S.A.";04/12/2026;247059;CENT;"URBANO PISO BAJO MOVILIDAD REDUCIDA CON AIRE ACONDICIONADO";METALPAR;;434705/2010;;2549/10;;;70;8AB368187GA145419;"MERCEDES BENZ";"OH 1718 L/62";SI;JN:NACIONAL;SI;UC:2026-12-31
+<!DOCTYPE html>
+<html>
+    <head lang="es">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Consultas Web</title>
+                    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+            <!-- Se utiliza el tema cerulean de bootstrap: http://bootswatch.com/cerulean/ -->
+            <link href="/bundles/cnrtseguridad/css/bootstrap.cerulean.min.css" rel="stylesheet">
+            <link href="/bundles/app/css/cnrtseguridad.css" rel="stylesheet">
+            <link href="/bundles/cnrtseguridad/css/select2.min.css" rel="stylesheet">
+
+            <!-- Propios de la app -->
+            <link href="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.css" rel="stylesheet">
+
+        
+                    <script src="/bundles/cnrtseguridad/js/jquery.min.js"></script>
+            <script src="/bundles/cnrtseguridad/js/bootstrap.js"></script>
+            <script src="/bundles/cnrtseguridad/js/select2.min.js"></script>
+
+            <!-- Propios de la app -->
+            <script src="/bundles/app/ui/jquery-ui-1.12.0.custom/jquery-ui.js"></script>
+            <script src="/bundles/app/js/datepicker-es.js"></script>
+        
+        <!--[if lt IE 9]>
+                <script src="//oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+                <script src="js/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+                    <nav id="navbar-cnrt" 
+            class="navbar navbar-default navbar-static" role="navigation" >
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <div class="col-md-2">
+                            <a href="https://www.cnrt.gob.ar/" class="navbar-brand" >
+                                <img id="logo-cnrt" src="/bundles/cnrtseguridad/images/logo_cnrt.png" alt="Ir a la página de CNRT">
+                            </a>
+                        </div>
+                        <div class="col-md-offset-5 col-md-5 text-center">
+                                                                                                                    </div>
+                    </div>
+                    <div class="">
+                        <ul class="nav navbar-nav navbar-right">
+                                                    </ul>
+
+                    </div>
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            <div>
+                <div class="page-header">
+                        <h3>&nbsp<i class="glyphicon glyphicon-check"></i> Consulta de Dominios de Transporte de Pasajeros Automotor Habilitadas</h3>
+                </div>
+
+                <div class="container-fluid" >
+
+                                            <div style="position: fixed; top: 60px; right: -60px; opacity: 0.9; filter: alpha(opacity=90); z-index: 9999" class="col-lg-5">                    
+                                        
+                                                            </div>                    
+                        <style>
+        .row{
+            margin-bottom: 5px;
+        }
+    </style>
+    <form method="post" name="vehiculos_habilitados" id="vehiculos_habilitados" class="form-horizontal" action="/vehiculos_habilitados">
+        <fieldset>
+            <div id="vehiculos_habilitados">
+
+                <div class="form-group">
+                    <div class="row">
+                        <label for="vehiculos_habilitados_tipoTransporte"  class="col-lg-2 control-label">Tipo Transporte</label>
+                        <div class="col-md-4">
+                            <select id="tipoTransporte" class="form-control" name="vehiculos_habilitados[tipoTransporte]" required="required">
+                                <option></option>
+                                <option value ="ca">Cargas</option>
+                                <option value ="pa">Pasajeros</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="vehiculos_habilitados_dominio" class="col-lg-2 control-label">Dominio</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[dominio]" id="vehiculos_habilitados_dominio" placeholder="use opcionalmente uno de los campos o ámbos">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="vehiculos_habilitados_empresaNro"  class="col-lg-2 control-label">Nro Habilitación CNRT</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[empresaNro]" id="vehiculos_habilitados_empresaNro" placeholder="use opcionalmente uno de los campos o ámbos">
+                        </div>
+                    </div>
+                    <div class="row hide" id="paut">
+                        <label for="vehiculos_habilitados_paut"  class="col-lg-2 control-label">PAUT</label>
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="vehiculos_habilitados[paut]" id="vehiculos_habilitados_paut" placeholder="paut">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-4 col-md-offset-2">
+                        <button name="vehiculos_habilitados[Enviar consulta]" id="vehiculos_habilitados_Enviar consulta" type="submit" class="btn btn-sm  btn-primary">Enviar consulta</button>
+                    </div>
+                </div>
+
+                <input type="hidden" value="W1A7UTCD1v8IhgTJCfM3Q-MVTZn0y9zn2lmxAMM50ZA" name="vehiculos_habilitados[_token]" id="vehiculos_habilitados__token">
+            </div>
+        </fieldset>
+    </form>
+
+                                            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" keyboard="false" backdrop='static'>
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Mensaje</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                                                    </div>
+                                <div class="modal-footer">
+                                                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+        <br>
+        <div class="modal-footer">
+                            <div class="alert alert-dismissible alert-info" style="text-align: left;" id="informacionContacto">
+                    <strong><u>Importante:</u></strong> El estado de la inspección técnica se actualiza diariamente de acuerdo a datos provistos por la Consultora Ejecutiva Nacional de Transporte (CENT). Para conocer el estado del seguro puede <a href="https://servicios.cnrt.gob.ar/" target="blank" class="alert-link">ingresar en https://servicios.cnrt.gob.ar/</a>
+                </div>
+                    </div>
+
+
+    </div>
+
+    <script>
+        //convierte a todos los select del aplicativo en select2 se jquery
+        //$('select').select2();
+
+        // se ejecuta cuando HTML-Document esta cargado y el DOM esta listo
+        $(document).ready(function () {
+        mostrar();
+
+    $('#tipoTransporte').change(function() {
+    mostrar();
+    });
+
+    function mostrar(){
+    if ($('#tipoTransporte').val() == "ca"){
+    $('#paut').removeClass('hide');
+    $('#informacionContacto').addClass('hide');
+    }else if($('#tipoTransporte').val() == "pa"){
+    $('#paut').addClass('hide');
+    $('#informacionContacto').removeClass('hide');
+    }else{
+    $('#paut').addClass('hide');
+    $('#informacionContacto').addClass('hide');
+    }
+    }
+        });
+    </script>
+    <script>
+                                </script>
+<script id="alidatatable-scripts" type="text/javascript"></script></body>
+</html>
+

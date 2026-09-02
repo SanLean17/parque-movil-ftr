@@ -1,74 +1,97 @@
 import os
 import requests
-import re
-from bs4 import BeautifulSoup
 
-# Lista de líneas a procesar
-LINEAS = [
-    2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 75, 
-    79, 80, 85, 91, 92, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
-    158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
-]
-
-# Si conocés empresas que comparten archivo, las mapeás acá
-# Ejemplo: la 119 y 154 usan la misma consulta que la 45
-REGLAS_COMPARTIDAS = {
-    119: 45,
-    154: 45
+# Mapa exacto: Línea -> Nro Habilitación CNRT
+EMPRESAS_CNRT = {
+    2: "2058",
+    9: "2062",
+    10: "2008",
+    15: "67",
+    17: "2024",
+    22: "2022",
+    24: "2005",
+    29: "2064",
+    32: "2048",
+    33: "972",
+    37: "2067",
+    45: "2068",
+    51: "2079",
+    53: "2054",
+    56: "2013",
+    60: "2075",
+    63: "2037",
+    70: "2080",
+    74: "2079",
+    79: "2079",
+    80: "2015",
+    85: "359",
+    91: "2013",
+    92: "2023",
+    95: "2003",
+    98: "2021",
+    100: "2042",
+    113: "2037",
+    119: "2068",
+    126: "2119",
+    128: "2048",
+    129: "2033",
+    133: "2010",
+    134: "2042",
+    135: "2013",
+    148: "2033",
+    154: "2068",
+    158: "2048",
+    159: "2100",
+    160: "2101",
+    164: "2062",
+    168: "2105",
+    177: "2079",
+    178: "2111",
+    179: "9085",
+    180: "2099",
+    195: "2077",
+    197: "2033"
 }
 
-BASE_URL = "https://consultapme.cnrt.gob.ar"
 OUTPUT_DIR = "parques"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Content-Type': 'application/x-www-form-urlencoded'
 }
 
-session = requests.Session()
-
-def descargar_parque(linea):
-    linea_consulta = REGLAS_COMPARTIDAS.get(linea, linea)
+def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
+    print(f"--- Procesando Línea {linea} (Habilitación CNRT: {cod_empresa}) ---")
     
-    print(f"--- Procesando Línea {linea} (Consulta CNRT: Línea {linea_consulta}) ---")
+    session = requests.Session()
+    
+    payload = {
+        'tipo_transporte': '1',  # Pasajeros
+        'dominio': '',
+        'empresa': cod_empresa
+    }
     
     try:
-        # 1. Consultar la página de búsqueda para obtener el ID de empresa dinámicamente
-        url_busqueda = f"{BASE_URL}/vehiculos_habilitados?linea={linea_consulta}"
-        res = session.get(url_busqueda, headers=headers, timeout=20)
+        # 1. Simula el envío del formulario 'Enviar consulta'
+        session.post("https://consultapme.cnrt.gob.ar/vehiculos_habilitados", data=payload, headers=headers, timeout=20)
         
-        id_empresa = None
-        # Buscar el ID de empresa en el HTML
-        matches = re.findall(r'empresa=(\d+)', res.text)
-        if matches:
-            id_empresa = matches[0]
-            
-        if id_empresa:
-            # 2. Descargar directamente el archivo VehiculosPasajeros.csv oficial
-            url_csv = f"{BASE_URL}/vehiculos_habilitados/exportar_csv?empresa={id_empresa}"
-            res_csv = session.get(url_csv, headers=headers, timeout=20)
-            
-            if res_csv.status_code == 200 and len(res_csv.text) > 50:
-                with open(file_destino, 'w', encoding='utf-8') as f:
-                    f.write(res_csv.text)
-                print(f"✅ ÉXITO: linea{linea}.csv actualizado ({len(res_csv.text)} bytes).")
-            else:
-                print(f"⚠️ El servidor de la CNRT no devolvió datos válidos para Línea {linea}.")
+        # 2. Descarga el CSV exportado directamente
+        url_csv = f"https://consultapme.cnrt.gob.ar/vehiculos_habilitados/exportar_csv?empresa={cod_empresa}"
+        res_csv = session.get(url_csv, headers=headers, timeout=20)
+        
+        if res_csv.status_code == 200 and len(res_csv.text) > 100:
+            with open(file_destino, 'w', encoding='utf-8') as f:
+                f.write(res_csv.text)
+            print(f"✅ EXITO: linea{linea}.csv guardado ({len(res_csv.text)} bytes)")
         else:
-            # Si no requirió ID o tiene descarga directa por línea
-            url_directa = f"{BASE_URL}/vehiculos_habilitados/exportar_csv?linea={linea_consulta}"
-            res_directa = session.get(url_directa, headers=headers, timeout=20)
-            if res_directa.status_code == 200 and len(res_directa.text) > 50:
-                with open(file_destino, 'w', encoding='utf-8') as f:
-                    f.write(res_directa.text)
-                print(f"✅ ÉXITO: linea{linea}.csv actualizado vía directa.")
-            else:
-                print(f"❌ No se pudo detectar el ID de empresa para Línea {linea}.")
-
+            print(f"⚠️ Sin datos para la Línea {linea}")
+            
     except Exception as e:
-        print(f"❌ Error procesando Línea {linea}: {e}")
+        print(f"❌ Error en Línea {linea}: {e}")
 
 if __name__ == "__main__":
-    for l in LINEAS:
-        descargar_parque(l)
+    for linea, cod in EMPRESAS_CNRT.items():
+        descargar_parque(linea, cod)

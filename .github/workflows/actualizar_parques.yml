@@ -2,9 +2,11 @@ name: Actualizador Mensual de Parques CNRT
 
 on:
   schedule:
-    # Se ejecuta automáticamente el día 1 de cada mes a las 03:00 AM UTC
     - cron: '0 3 1 * *'
-  workflow_dispatch: # Permite ejecutarlo manualmente con un clic cuando quieras
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   actualizar:
@@ -14,7 +16,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configurar Python
-        uses: actions/python-python@v4
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -32,3 +34,4 @@ jobs:
           git config --global user.email "bot@parquemovil.local"
           git add parques/*.csv
           git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-actualización de parques CNRT [skip ci]" && git push)
+          

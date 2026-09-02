@@ -2,7 +2,6 @@ import os
 import re
 import json
 import requests
-from bs4 import BeautifulSoup
 
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
@@ -36,7 +35,6 @@ def descargar_y_procesar(linea, cod_empresa):
     session.headers.update(headers)
     
     try:
-        # Obtener token CSRF
         res_get = session.get(URL, timeout=15)
         token_match = re.search(r'name="vehiculos_habilitados\[_token\]"\s+value="([^"]+)"', res_get.text)
         csrf_token = token_match.group(1) if token_match else ""
@@ -52,24 +50,20 @@ def descargar_y_procesar(linea, cod_empresa):
         res_post = session.post(URL, data=payload, timeout=20)
         html_text = res_post.text
         
-        # Guardar archivo local con el comentario de metadata que leía tu frontend original
-        header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n"
+        # Inyectamos el comentario HTML que leía tu frontend original
+        header_metadata = f"\n"
         contenido_guardar = header_metadata + html_text
         
         with open(file_destino, 'w', encoding='utf-8') as f:
             f.write(contenido_guardar)
 
-        # Extraer Razón Social
-        soup = BeautifulSoup(html_text, 'html.parser')
+        # Extraer Razón Social mediante Expresiones Regulares nativas
         razon_social = f"LÍNEA {linea}"
-        
-        # Buscar el nombre de la empresa en el HTML
-        texto_pagina = soup.get_text()
-        match_empresa = re.search(r'Empresa:\s*([^\n\r]+)', texto_pagina, re.IGNORECASE)
+        match_empresa = re.search(r'Empresa:\s*([^\n\r<]+)', html_text, re.IGNORECASE)
         if match_empresa:
             razon_social = match_empresa.group(1).strip()
 
-        # Extraer patentes para Unidades Totales
+        # Extraer patentes
         patentes = set(re.findall(r'\b[A-Z]{2}\d{3}[A-Z]{2}\b|\b[A-Z]{3}\d{3}\b', html_text.upper()))
         unidades_totales = len(patentes)
 
@@ -90,7 +84,6 @@ if __name__ == "__main__":
     for linea, cod in EMPRESAS_CNRT.items():
         descargar_y_procesar(linea, cod)
         
-    # Guardar resumen consolidado JSON
     json_path = os.path.join(OUTPUT_DIR, "resumen.json")
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(resumen_lineas, f, ensure_ascii=False, indent=2)

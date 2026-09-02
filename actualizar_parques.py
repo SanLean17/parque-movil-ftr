@@ -32,10 +32,10 @@ def descargar_parque(linea, cod_empresa):
     session.headers.update(headers)
     
     try:
-        # 1. Crear sesión
+        # 1. Crear sesión en la CNRT
         session.get(f"{BASE_URL}/vehiculos_habilitados", timeout=20)
         
-        # 2. Hacer la consulta del formulario vía POST (El método que SÍ funcionó)
+        # 2. Hacer la consulta
         payload = {
             'tipo_transporte': '1',
             'dominio': '',
@@ -45,7 +45,7 @@ def descargar_parque(linea, cod_empresa):
         res_post = session.post(f"{BASE_URL}/vehiculos_habilitados", data=payload, timeout=20)
         
         if res_post.status_code == 200 and len(res_post.content) > 1000:
-            # Insertar el metadato del número de empresa al inicio del archivo para index.html
+            # Insertar metadato con el nro de empresa al inicio del archivo
             header_metadata = f"<!-- nro_emp: {cod_empresa} -->\n"
             contenido_final = header_metadata.encode('utf-8') + res_post.content
             
@@ -53,7 +53,7 @@ def descargar_parque(linea, cod_empresa):
                 f.write(contenido_final)
             print(f"✅ ÉXITO: linea{linea}.csv guardado ({len(contenido_final)} bytes)")
         else:
-            print(f"⚠️ No se obtuvieron datos suficientes para Línea {linea}")
+            print(f"⚠️ No se obtuvieron datos para Línea {linea}")
             
     except Exception as e:
         print(f"❌ Error en Línea {linea}: {e}")

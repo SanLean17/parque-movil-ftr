@@ -1,7 +1,6 @@
 import os
 import requests
 
-# Mapa exacto: Línea -> Nro Habilitación CNRT
 EMPRESAS_CNRT = {
     2: "2058",
     9: "2062",
@@ -56,38 +55,46 @@ EMPRESAS_CNRT = {
 OUTPUT_DIR = "parques"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Content-Type': 'application/x-www-form-urlencoded'
+headers_base = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'es-ES,es;q=0.9',
 }
 
 def descargar_parque(linea, cod_empresa):
     file_destino = os.path.join(OUTPUT_DIR, f"linea{linea}.csv")
-    print(f"--- Procesando Línea {linea} (Habilitación CNRT: {cod_empresa}) ---")
+    print(f"--- Procesando Línea {linea} (Habilitación: {cod_empresa}) ---")
     
     session = requests.Session()
-    
-    payload = {
-        'tipo_transporte': '1',  # Pasajeros
-        'dominio': '',
-        'empresa': cod_empresa
-    }
+    session.headers.update(headers_base)
     
     try:
-        # 1. Simula el envío del formulario 'Enviar consulta'
-        session.post("https://consultapme.cnrt.gob.ar/vehiculos_habilitados", data=payload, headers=headers, timeout=20)
+        # 1. Visitar la página inicial para recibir la cookie de sesión
+        session.get("https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados", timeout=20)
         
-        # 2. Descarga el CSV exportado directamente
+        # 2. Enviar la consulta con multipart/form-data como un navegador real
+        payload_data = {
+            'tipo_transporte': '1',
+            'dominio': '',
+            'empresa': str(cod_empresa)
+        }
+        
+        session.post(
+            "https://consultapme.cnrt.gob.ar/vehiculos_habilitados", 
+            data=payload_data, 
+            timeout=20
+        )
+        
+        # 3. Exportar directamente el CSV
         url_csv = f"https://consultapme.cnrt.gob.ar/vehiculos_habilitados/exportar_csv?empresa={cod_empresa}"
-        res_csv = session.get(url_csv, headers=headers, timeout=20)
+        res_csv = session.get(url_csv, timeout=20)
         
-        if res_csv.status_code == 200 and len(res_csv.text) > 100:
-            with open(file_destino, 'w', encoding='utf-8') as f:
-                f.write(res_csv.text)
-            print(f"✅ EXITO: linea{linea}.csv guardado ({len(res_csv.text)} bytes)")
+        if res_csv.status_code == 200 and len(res_csv.content) > 100:
+            with open(file_destino, 'wb') as f:
+                f.write(res_csv.content)
+            print(f"✅ EXITO: linea{linea}.csv guardado ({len(res_csv.content)} bytes)")
         else:
-            print(f"⚠️ Sin datos para la Línea {linea}")
+            print(f"⚠️ No se obtuvieron datos para la Línea {linea}")
             
     except Exception as e:
         print(f"❌ Error en Línea {linea}: {e}")

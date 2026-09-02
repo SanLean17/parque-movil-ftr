@@ -20,7 +20,6 @@ def obtener_campo(row, claves):
     for k in claves:
         if k in row and row[k]:
             return str(row[k]).strip()
-        # Búsqueda insensible a mayúsculas/minúsculas
         for row_k in row.keys():
             if row_k and row_k.lower() == k.lower() and row[row_k]:
                 return str(row[row_k]).strip()
@@ -33,7 +32,6 @@ def procesar():
 
     vehiculos_por_linea = {str(k): [] for k in EMPRESAS_CNRT.keys()}
     
-    # Intentar leer el CSV probando delimitadores habituales
     for delim in [";", ","]:
         try:
             with open(ORIGEN_CSV, mode="r", encoding="utf-8", errors="ignore") as f:

@@ -92,17 +92,15 @@
 
         const tbody = document.getElementById("linesTableBody");
 
-        // Normaliza claves del CSV eliminando acentos, caracteres especiales y espacios
         function cleanKey(str) {
             if (!str) return '';
             return String(str)
-                .replace(/^\ufeff/, '') // Remueve BOM de UTF-8
+                .replace(/^\ufeff/, '')
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                 .toLowerCase()
                 .replace(/[^a-z0-9]/g, '');
         }
 
-        // Búsqueda inteligente de Razón Social
         function extraerRazonSocial(row) {
             if (!row) return '';
             const targetKeywords = ['razonsocial', 'razon', 'empresa', 'nombreempresa', 'operador', 'denominacion', 'titular'];
@@ -111,23 +109,21 @@
                 const keyNorm = cleanKey(k);
                 if (targetKeywords.some(kw => keyNorm.includes(kw))) {
                     const val = String(row[k] || '').trim();
-                    if (val && val !== 'null' && val !== 'undefined' && isNaN(val)) {
+                    if (val && !val.toLowerCase().includes('doctype') && !val.toLowerCase().includes('html') && isNaN(val)) {
                         return val;
                     }
                 }
             }
 
-            // Fallback: busca la primera celda con texto descriptivo
             for (let k in row) {
                 const val = String(row[k] || '').trim();
-                if (val && isNaN(val) && val.length > 3 && !val.includes('/') && !val.includes('-')) {
+                if (val && isNaN(val) && val.length > 3 && !val.includes('/') && !val.includes('-') && !val.toLowerCase().includes('doctype')) {
                     return val;
                 }
             }
             return '';
         }
 
-        // Búsqueda inteligente de N° de Empresa
         function extraerNroEmpresa(row) {
             if (!row) return '';
             const targetKeywords = ['nroemp', 'numemp', 'codemp', 'codigoemp', 'idemp', 'empresa', 'nro', 'num', 'cod', 'codigo', 'id'];
@@ -142,7 +138,6 @@
                 }
             }
 
-            // Fallback: busca el primer entero de la fila
             for (let k in row) {
                 const val = String(row[k] || '').trim();
                 if (/^\d{1,5}$/.test(val) && k.toLowerCase() !== 'linea' && k.toLowerCase() !== 'interno') {
@@ -189,7 +184,6 @@
             return `${dia}/${mes}/${date.getFullYear()}`;
         }
 
-        // Renderizado inicial de la tabla
         lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
             const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
@@ -218,11 +212,22 @@
         });
 
         function cargarDatosLinea(id) {
-            Papa.parse(`parques/linea${id}.csv`, {
+            // Intentar cargar la ruta del parque
+            const rutaParque = `parques/linea${id}.csv`;
+
+            Papa.parse(rutaParque, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(resParque) {
+                    // Validar si la respuesta es HTML (Error 404 de GitHub)
+                    const primerColumna = resParque.meta.fields ? resParque.meta.fields[0] : '';
+                    if (primerColumna.toLowerCase().includes('doctype') || primerColumna.toLowerCase().includes('html')) {
+                        console.error(`Error 404 al cargar ${rutaParque}: No se encontró el archivo.`);
+                        setFallbackData(id);
+                        return;
+                    }
+
                     if (resParque && resParque.data && resParque.data.length > 0) {
                         const parqueData = resParque.data;
                         const totalParque = parqueData.length;
@@ -231,22 +236,22 @@
                         let emp = '';
                         let nroEmp = '';
 
-                        // Busca en las filas iniciales
                         for (let row of parqueData) {
                             if (!emp) emp = extraerRazonSocial(row);
                             if (!nroEmp) nroEmp = extraerNroEmpresa(row);
                             if (emp && nroEmp) break;
                         }
 
-                        if (emp) document.getElementById(`empresa-${id}`).textContent = emp;
-                        if (nroEmp) document.getElementById(`emp-num-${id}`).textContent = nroEmp;
+                        document.getElementById(`empresa-${id}`).textContent = emp || `LÍNEA ${id}`;
+                        document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
 
+                        // Cargar fiscalizados
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
                             skipEmptyLines: true,
                             complete: function(resControl) {
-                                if (resControl && resControl.data) {
+                                if (resControl && resControl.data && resControl.meta.fields && !resControl.meta.fields[0].toLowerCase().includes('html')) {
                                     const controlData = resControl.data;
                                     const dominiosControlados = new Set();
                                     let maxFechaObj = null;
@@ -308,23 +313,22 @@
                         });
 
                     } else {
-                        document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                        document.getElementById(`emp-num-${id}`).textContent = '-';
-                        document.getElementById(`total-${id}`).textContent = 0;
-                        document.getElementById(`controladas-${id}`).textContent = 0;
-                        document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                        document.getElementById(`visita-${id}`).textContent = 'Sin registros';
+                        setFallbackData(id);
                     }
                 },
                 error: function() {
-                    document.getElementById(`empresa-${id}`).textContent = `EMPRESA LÍNEA ${id}`;
-                    document.getElementById(`emp-num-${id}`).textContent = '-';
-                    document.getElementById(`total-${id}`).textContent = 0;
-                    document.getElementById(`controladas-${id}`).textContent = 0;
-                    document.getElementById(`porcentaje-${id}`).textContent = '0%';
-                    document.getElementById(`visita-${id}`).textContent = 'Sin registros';
+                    setFallbackData(id);
                 }
             });
+        }
+
+        function setFallbackData(id) {
+            document.getElementById(`empresa-${id}`).textContent = `LÍNEA ${id}`;
+            document.getElementById(`emp-num-${id}`).textContent = '-';
+            document.getElementById(`total-${id}`).textContent = 0;
+            document.getElementById(`controladas-${id}`).textContent = 0;
+            document.getElementById(`porcentaje-${id}`).textContent = '0%';
+            document.getElementById(`visita-${id}`).textContent = 'Sin registros';
         }
 
         function filterTable() {

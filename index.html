@@ -84,7 +84,6 @@
     </footer>
 
     <script>
-        // Lista de líneas a desplegar
         const lineas = [
             2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
             79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
@@ -93,41 +92,77 @@
 
         const tbody = document.getElementById("linesTableBody");
 
-        // Búsqueda flexible de propiedades en filas de CSV
-        function getProp(obj, names) {
-            if (!obj) return '';
-            const keys = Object.keys(obj);
-            for (let name of names) {
-                const targetName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                const found = keys.find(k => k.trim().toLowerCase().replace(/[^a-z0-9]/g, '') === targetName);
-                if (found && obj[found] !== null && obj[found] !== undefined) {
-                    const val = String(obj[found]).trim();
-                    if (val !== '') return val;
+        // Normaliza claves del CSV eliminando acentos, caracteres especiales y espacios
+        function cleanKey(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/^\ufeff/, '') // Remueve BOM de UTF-8
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, '');
+        }
+
+        // Búsqueda inteligente de Razón Social
+        function extraerRazonSocial(row) {
+            if (!row) return '';
+            const targetKeywords = ['razonsocial', 'razon', 'empresa', 'nombreempresa', 'operador', 'denominacion', 'titular'];
+
+            for (let k in row) {
+                const keyNorm = cleanKey(k);
+                if (targetKeywords.some(kw => keyNorm.includes(kw))) {
+                    const val = String(row[k] || '').trim();
+                    if (val && val !== 'null' && val !== 'undefined' && isNaN(val)) {
+                        return val;
+                    }
+                }
+            }
+
+            // Fallback: busca la primera celda con texto descriptivo
+            for (let k in row) {
+                const val = String(row[k] || '').trim();
+                if (val && isNaN(val) && val.length > 3 && !val.includes('/') && !val.includes('-')) {
+                    return val;
                 }
             }
             return '';
         }
 
-        // Extracción robusta del N°/Código de empresa
+        // Búsqueda inteligente de N° de Empresa
         function extraerNroEmpresa(row) {
             if (!row) return '';
-            const nombresPosibles = [
-                'nro_emp', 'num_emp', 'nroemp', 'numemp', 'empresa_id', 'id_empresa', 
-                'cod_empresa', 'codigo_empresa', 'nro_empresa', 'num_empresa', 'cod_emp', 
-                'codigo_emp', 'empresa_num', 'idempresa', 'nroempresa', 'codigo', 'empresa'
-            ];
-            
-            let res = getProp(row, nombresPosibles);
-            if (res && /^\d+$/.test(res)) return res;
+            const targetKeywords = ['nroemp', 'numemp', 'codemp', 'codigoemp', 'idemp', 'empresa', 'nro', 'num', 'cod', 'codigo', 'id'];
 
-            for (let key in row) {
-                const cleanKey = key.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (cleanKey.includes('emp') || cleanKey.includes('cod') || cleanKey.includes('id')) {
-                    const val = String(row[key]).trim();
-                    if (/^\d+$/.test(val)) return val;
+            for (let k in row) {
+                const keyNorm = cleanKey(k);
+                if (targetKeywords.some(kw => keyNorm.includes(kw))) {
+                    const val = String(row[k] || '').trim();
+                    if (/^\d+$/.test(val)) {
+                        return val;
+                    }
                 }
             }
-            return res || '';
+
+            // Fallback: busca el primer entero de la fila
+            for (let k in row) {
+                const val = String(row[k] || '').trim();
+                if (/^\d{1,5}$/.test(val) && k.toLowerCase() !== 'linea' && k.toLowerCase() !== 'interno') {
+                    return val;
+                }
+            }
+            return '';
+        }
+
+        function getProp(obj, targetKeys) {
+            if (!obj) return '';
+            const normalizedTargets = targetKeys.map(k => cleanKey(k));
+            for (let k in obj) {
+                const normKey = cleanKey(k);
+                if (normalizedTargets.includes(normKey)) {
+                    const val = String(obj[k] || '').trim();
+                    if (val) return val;
+                }
+            }
+            return '';
         }
 
         function parseFecha(fechaStr) {
@@ -154,7 +189,7 @@
             return `${dia}/${mes}/${date.getFullYear()}`;
         }
 
-        // Renderizado inicial de filas en la tabla
+        // Renderizado inicial de la tabla
         lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
             const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
@@ -182,27 +217,30 @@
             cargarDatosLinea(id);
         });
 
-        // Lectura y procesamiento de CSVs
         function cargarDatosLinea(id) {
             Papa.parse(`parques/linea${id}.csv`, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
                 complete: function(resParque) {
-                    let totalParque = 0;
                     if (resParque && resParque.data && resParque.data.length > 0) {
                         const parqueData = resParque.data;
-                        totalParque = parqueData.length;
+                        const totalParque = parqueData.length;
                         document.getElementById(`total-${id}`).textContent = totalParque;
 
-                        // Lectura de Razón Social y N° Empresa
-                        let emp = getProp(parqueData[0], ['empresa', 'razonsocial', 'razon_social', 'nombre_empresa', 'empresa_nombre', 'razonSocial', 'denominacion']);
-                        document.getElementById(`empresa-${id}`).textContent = emp || `EMPRESA LÍNEA ${id}`;
-                        
-                        let nroEmp = extraerNroEmpresa(parqueData[0]);
-                        document.getElementById(`emp-num-${id}`).textContent = nroEmp || '-';
+                        let emp = '';
+                        let nroEmp = '';
 
-                        // Procesa CSV de controlados
+                        // Busca en las filas iniciales
+                        for (let row of parqueData) {
+                            if (!emp) emp = extraerRazonSocial(row);
+                            if (!nroEmp) nroEmp = extraerNroEmpresa(row);
+                            if (emp && nroEmp) break;
+                        }
+
+                        if (emp) document.getElementById(`empresa-${id}`).textContent = emp;
+                        if (nroEmp) document.getElementById(`emp-num-${id}`).textContent = nroEmp;
+
                         Papa.parse(`controlados/linea${id}.csv`, {
                             download: true,
                             header: true,
@@ -217,7 +255,7 @@
                                         let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
                                         if (!dom) {
                                             for (let key in row) {
-                                                const val = String(row[key]).trim();
+                                                const val = String(row[key] || '').trim();
                                                 if (/[A-Z]{2}\d{3}[A-Z]{2}/i.test(val) || /[A-Z]{3}\d{3}/i.test(val)) {
                                                     dom = val;
                                                     break;
@@ -230,7 +268,7 @@
                                         let fechaStr = getProp(row, ['ultima_fiscalizacion', 'fecha_fiscalizacion', 'fecha', 'fechas', 'fecha_control', 'fecha_visita', 'fecha_inspeccion']);
                                         if (!fechaStr) {
                                             for (let key in row) {
-                                                const val = String(row[key]).trim();
+                                                const val = String(row[key] || '').trim();
                                                 if (/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(val)) {
                                                     fechaStr = val;
                                                     break;
@@ -289,7 +327,6 @@
             });
         }
 
-        // Buscador interactivo por línea, empresa o N°
         function filterTable() {
             const query = document.getElementById("lineSearch").value.trim().toLowerCase();
             const rows = document.querySelectorAll(".line-row");
@@ -315,7 +352,6 @@
             else noResults.classList.add("hidden");
         }
 
-        // Toggle Modo Oscuro / Claro
         function toggleDarkMode() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeIcon');

@@ -1,6 +1,7 @@
 import os
 import csv
 import re
+from collections import defaultdict
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
 
@@ -19,7 +20,6 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Nombres exactos de las columnas que tu JavaScript mapea en el frontend
 headers_salida = [
     "dominio", "empresaNro", "razonSocial", "linea", "interno", 
     "anioModelo", "chasisMarca", "carroceriaMarca", "vigenciaHasta", 
@@ -77,6 +77,13 @@ def obtener_datos_empresa(page, nro_empresa):
             if len(cols) >= 5:
                 dom = cols[0] if len(cols) > 0 else ""
                 inte = cols[1] if len(cols) > 1 else ""
+                
+                # Extraer el número/nombre de la línea desde la celda de la CNRT (suele estar en cols[2] o cols[4])
+                linea_raw = cols[2] if len(cols) > 2 else ""
+                # Extraer solo los números de la línea (ej: "Línea 45" -> "45")
+                linea_num_match = re.search(r'\d+', linea_raw)
+                linea_extraida = linea_num_match.group(0) if linea_num_match else linea_raw
+
                 mod = cols[3] if len(cols) > 3 else ""
                 emp = str(nro_empresa)
                 raz = cols[7] if len(cols) > 7 else ""
@@ -87,6 +94,7 @@ def obtener_datos_empresa(page, nro_empresa):
                     "dominio": dom,
                     "empresaNro": emp,
                     "razonSocial": raz,
+                    "linea": linea_extraida,
                     "interno": inte,
                     "anioModelo": mod,
                     "chasisMarca": "",
@@ -101,31 +109,57 @@ def obtener_datos_empresa(page, nro_empresa):
         return []
 
 def procesar():
-    print("🚀 Iniciando navegador para consultar CNRT...")
+    print("🚀 Iniciando descarga de parques CNRT...")
+    
+    # Agrupador para evitar hacer múltiples consultas a la misma empresa de la CNRT
+    empresas_procesadas = {}
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
-        for num_linea, cod_emp in EMPRESAS_CNRT.items():
-            str_linea = str(num_linea)
-            file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
-            
-            unidades = obtener_datos_empresa(page, cod_emp)
+        # 1. Consultar cada código de empresa único
+        codigos_unicos = set(EMPRESAS_CNRT.values())
+        unidades_por_empresa = {}
 
-            with open(file_dest, "w", newline="", encoding="utf-8") as out:
-                writer = csv.writer(out, delimiter=";")
-                writer.writerow(headers_salida)
-                
-                for u in unidades:
-                    writer.writerow([
-                        u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
-                        u["interno"], u["anioModelo"], u["chasisMarca"], u["carroceriaMarca"],
-                        u["vigenciaHasta"], u["vigenciaHastaInspeccionTecnica"], u["tecnicaNro"]
-                    ])
-
-            print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades)} unidades.")
+        for cod_emp in codigos_unicos:
+            print(f"📡 Consultando empresa CNRT N° {cod_emp}...")
+            unidades_por_empresa[cod_emp] = obtener_datos_empresa(page, cod_emp)
 
         browser.close()
+
+    # 2. Filtrar y separar por línea específica
+    print("\n📂 Filtrando y generando archivos CSV por línea...")
+    for num_linea, cod_emp in EMPRESAS_CNRT.items():
+        str_linea = str(num_linea)
+        file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
+        
+        todas_unidades = unidades_por_empresa.get(cod_emp, [])
+        
+        # Filtrar unidades que pertenezcan exactamente a esta línea
+        unidades_filtradas = [
+            u for u in todas_unidades 
+            if u["linea"] == str_linea or u["linea"] == f"0{str_linea}" or not u["linea"]
+        ]
+
+        # Si el filtro por coincidencia estricta devuelve 0 pero la empresa maneja 1 sola línea, asignarla
+        lineas_de_esta_empresa = [str(l) for l, c in EMPRESAS_CNRT.items() if c == cod_emp]
+        if len(lineas_de_esta_empresa) == 1 and not unidades_filtradas:
+            unidades_filtradas = todas_unidades
+
+        # Escribir el CSV con el total real de la línea
+        with open(file_dest, "w", newline="", encoding="utf-8") as out:
+            writer = csv.writer(out, delimiter=";")
+            writer.writerow(headers_salida)
+            
+            for u in unidades_filtradas:
+                writer.writerow([
+                    u["dominio"], u["empresaNro"], u["razonSocial"], str_linea,
+                    u["interno"], u["anioModelo"], u["chasisMarca"], u["carroceriaMarca"],
+                    u["vigenciaHasta"], u["vigenciaHastaInspeccionTecnica"], u["tecnicaNro"]
+                ])
+
+        print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades_filtradas)} unidades (de {len(todas_unidades)} totales de la empresa).")
 
 if __name__ == "__main__":
     procesar()

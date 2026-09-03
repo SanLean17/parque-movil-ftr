@@ -18,7 +18,7 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Nombres exactos de las columnas que espera tu pagina web
+# Encabezados estándar separados por coma
 headers_salida = [
     "dominio", "empresaNro", "razonSocial", "linea", "interno", 
     "anioModelo", "chasisMarca", "carroceriaMarca", "vigenciaHasta", 
@@ -54,7 +54,6 @@ def descargar_csv_empresa(page, nro_empresa):
         page.click("input[type='submit'], button[type='submit']")
         page.wait_for_selector("table", timeout=20000)
 
-        # Esperar y hacer clic en el botón "Exportar a .csv"
         with page.expect_download(timeout=30000) as download_info:
             page.click("a:has-text('Exportar a .csv')")
         
@@ -63,11 +62,13 @@ def descargar_csv_empresa(page, nro_empresa):
         download.save_as(temp_path)
 
         filas_datos = []
-        # Leer el CSV nativo descargado de la CNRT
         with open(temp_path, "r", encoding="utf-8", errors="ignore") as f:
+            # Detectar separador del archivo descargado de la CNRT
             reader = csv.DictReader(f)
             for row in reader:
-                filas_datos.append(row)
+                # Normalizar claves a minusculas
+                row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+                filas_datos.append(row_norm)
 
         if os.path.exists(temp_path):
             os.remove(temp_path)
@@ -100,40 +101,36 @@ def procesar():
         todas_unidades = unidades_por_empresa.get(cod_emp, [])
         lineas_asociadas = [l for l, c in EMPRESAS_CNRT.items() if c == cod_emp]
 
-        # Filtrar usando el campo 'linea' del CSV descargado
         unidades_filtradas = []
         for u in todas_unidades:
-            val_linea = str(u.get("linea", ""))
-            # Coincidencia con el número de línea (ej: "56", "9", "164")
+            val_linea = u.get("linea", "")
             if re.search(r'\b' + str_linea + r'\b', val_linea):
                 unidades_filtradas.append(u)
 
-        # Si la empresa solo maneja 1 línea en tu lista y no filtró nada
         if not unidades_filtradas and len(lineas_asociadas) == 1:
             unidades_filtradas = todas_unidades
 
-        # Razón social de respaldo
-        razon_fallback = next((u.get("razonSocial", "") for u in todas_unidades if u.get("razonSocial")), "")
+        razon_fallback = next((u.get("razonsocial", "") for u in todas_unidades if u.get("razonsocial")), "")
 
+        # Guardar CSV con separador COMA (,)
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
-            writer = csv.writer(out, delimiter=";")
+            writer = csv.writer(out, delimiter=",")
             writer.writerow(headers_salida)
             
             for u in unidades_filtradas:
-                # Leer columnas directamente del CSV oficial de la CNRT
-                vta_tecnica = u.get("vigenciaHastaInspec") or u.get("vigenciaHastaInspeccionTecnica") or ""
-                num_tecnica = u.get("tecnicaNro") or ""
+                vta_tecnica = u.get("vigenciahastainspec") or u.get("vigenciahastainspecciontecnica") or ""
+                num_tecnica = u.get("tecnicanro") or ""
 
                 writer.writerow([
                     u.get("dominio", ""),
-                    u.get("empresaNro") or cod_emp,
-                    u.get("razonSocial") or razon_fallback,
+                    u.get("empresanro") or cod_emp,
+                    u.get("razonsocial") or razon_fallback,
                     str_linea,
                     u.get("interno", ""),
-                    u.get("anioModelo", ""),
-                    u.get("chasisMarca", ""),
-                    u.get("carroceriaMarca", ""),
-                    formatear_fecha(u.get("vigenciaHasta", "")),
+                    u.get("aniomodelo", ""),
+                    u.get("chasismarca", ""),
+                    u.get("carroceriamarca", ""),
+                    formatear_fecha(u.get("vigenciahasta", "")),
                     formatear_fecha(vta_tecnica),
                     num_tecnica
                 ])

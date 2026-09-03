@@ -166,7 +166,8 @@
         });
 
         function cargarDatosLinea(id) {
-            Papa.parse(`parques/linea${id}.csv`, {
+            // Se agrega timestamp en la URL para omitir el cache del navegador
+            Papa.parse(`parques/linea${id}.csv?t=${new Date().getTime()}`, {
                 download: true,
                 header: true,
                 skipEmptyLines: true,
@@ -177,22 +178,22 @@
 
                     if (resParque && resParque.data && resParque.data.length > 0) {
                         const filasValidas = resParque.data.filter(row => {
-                            const dom = getProp(row, ['dominio', 'patente']);
+                            const dom = getProp(row, ['dominio', 'patente', 'dominio_vehiculo']);
                             return dom && dom.trim().length >= 6;
                         });
 
-                        totalUnidades = filasValidas.length;
+                        totalUnidades = filasValidas.length > 0 ? filasValidas.length : resParque.data.length;
 
                         const primerReg = resParque.data[0];
-                        razonSocial = getProp(primerReg, ['razonSocial', 'razonsocial', 'empresa']);
-                        nroEmpresa = getProp(primerReg, ['empresaNro', 'empresanro', 'nroempresa']);
+                        razonSocial = getProp(primerReg, ['razonSocial', 'razonsocial', 'empresa', 'razon_social']);
+                        nroEmpresa = getProp(primerReg, ['empresaNro', 'empresanro', 'nroempresa', 'empresa_nro', 'nro_empresa']);
                     }
 
                     document.getElementById(`empresa-${id}`).textContent = razonSocial || `LÍNEA ${id}`;
                     document.getElementById(`emp-num-${id}`).textContent = nroEmpresa || '-';
                     document.getElementById(`total-${id}`).textContent = totalUnidades;
 
-                    Papa.parse(`controlados/linea${id}.csv`, {
+                    Papa.parse(`controlados/linea${id}.csv?t=${new Date().getTime()}`, {
                         download: true,
                         header: true,
                         skipEmptyLines: true,

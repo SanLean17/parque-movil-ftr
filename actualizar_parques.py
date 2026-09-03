@@ -19,6 +19,7 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Las 9 columnas exactas requeridas por tu frontend
 headers_salida = [
     "dominio", "empresaNro", "razonSocial", "linea", "interno", 
     "anioModelo", "chasisMarca", "carroceriaMarca", "vigenciaHasta", 
@@ -68,8 +69,11 @@ def obtener_datos_empresa(page, nro_empresa):
         soup = BeautifulSoup(html, "html.parser")
         tabla = soup.find("table")
         if not tabla:
-            return []
+            return [], ""
 
+        # Intentar extraer Razón Social directamente del encabezado/tabla si existe
+        razon_social_global = ""
+        
         filas_datos = []
         for tr in tabla.find_all("tr")[1:]:
             cols = [td.text.strip() for td in tr.find_all("td")]
@@ -77,26 +81,28 @@ def obtener_datos_empresa(page, nro_empresa):
                 dom = cols[0] if len(cols) > 0 else ""
                 inte = cols[1] if len(cols) > 1 else ""
                 
-                # Extraer número de línea de la columna 2 o buscando dígitos en la fila
-                linea_raw = cols[2] if len(cols) > 2 else ""
-                match_num = re.search(r'\d+', linea_raw)
-                linea_num = int(match_num.group(0)) if match_num else None
+                # Extraer cualquier número presente en la fila para detectar la línea
+                linea_detectada = ""
+                for c in cols[1:5]:
+                    nums = re.findall(r'\d+', c)
+                    if nums:
+                        linea_detectada = nums[0]
 
-                # Extraer Razón Social buscando texto largo que no sea fecha ni número
-                razon_social = ""
+                # Extraer la razón social si se encuentra en columnas posteriores
                 for c in cols:
-                    if len(c) > 6 and not c.isdigit() and "/" not in c and "LINEA" not in c.upper():
-                        razon_social = c
+                    if len(c) > 5 and not c.isdigit() and "/" not in c and "LINEA" not in c.upper():
+                        if not razon_social_global:
+                            razon_social_global = c
                         break
 
-                mod = cols[3] if len(cols) > 3 and cols[3].isdigit() else ""
+                mod = cols[3] if len(cols) > 3 and cols[3].isdigit() and len(cols[3]) == 4 else ""
                 hab, vta_vig, vta_num = extraer_fechas_y_tecnica(cols)
 
                 filas_datos.append({
                     "dominio": dom,
                     "empresaNro": str(nro_empresa),
-                    "razonSocial": razon_social,
-                    "linea_num": linea_num,
+                    "razonSocial": razon_social_global,
+                    "linea_raw": linea_detectada,
                     "interno": inte,
                     "anioModelo": mod,
                     "chasisMarca": "",
@@ -105,62 +111,79 @@ def obtener_datos_empresa(page, nro_empresa):
                     "vigenciaHastaInspeccionTecnica": vta_vig,
                     "tecnicaNro": vta_num
                 })
-        return filas_datos
+        return filas_datos, razon_social_global
     except Exception as e:
-        print(f"  ⚠️ Error en empresa {nro_empresa}: {e}")
-        return []
+        print(f"  ⚠️ Error consultando empresa {nro_empresa}: {e}")
+        return [], ""
 
 def procesar():
     print("🚀 Iniciando descarga de parques CNRT...")
     
+    unidades_por_empresa = {}
+    razones_sociales = {}
+
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
         codigos_unicos = set(EMPRESAS_CNRT.values())
-        unidades_por_empresa = {}
 
         for cod_emp in codigos_unicos:
             print(f"📡 Consultando empresa CNRT N° {cod_emp}...")
-            unidades_por_empresa[cod_emp] = obtener_datos_empresa(page, cod_emp)
+            datos, raz = obtener_datos_empresa(page, cod_emp)
+            unidades_por_empresa[cod_emp] = datos
+            razones_sociales[cod_emp] = raz
 
         browser.close()
 
-    print("\n📂 Filtrando y generando archivos CSV por línea...")
+    print("\n📂 Asignando unidades y creando CSVs por línea...")
     for num_linea, cod_emp in EMPRESAS_CNRT.items():
         str_linea = str(num_linea)
         int_linea = int(num_linea)
         file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
         
         todas_unidades = unidades_por_empresa.get(cod_emp, [])
-        
-        # Filtro 1: coincidencia por número de línea parsed
-        unidades_filtradas = [
-            u for u in todas_unidades 
-            if u["linea_num"] == int_linea
-        ]
-
-        # Filtro Fallback: Si no extrajo el número de línea de la tabla pero la empresa solo opera 1 línea en tu sistema
         lineas_de_esta_empresa = [l for l, c in EMPRESAS_CNRT.items() if c == cod_emp]
-        if not unidades_filtradas and len(lineas_de_esta_empresa) == 1:
+
+        # 1. Si la empresa solo tiene una línea en tu sistema, se le asignan todas las unidades rescatadas
+        if len(lineas_de_esta_empresa) == 1:
             unidades_filtradas = todas_unidades
+        else:
+            # 2. Si la empresa administra varias líneas, filtrar aquellas cuyo número coincida
+            unidades_filtradas = [
+                u for u in todas_unidades 
+                if u["linea_raw"] and int(u["linea_raw"]) == int_linea
+            ]
+            # Fallback en caso de que la celda de línea viniera en blanco
+            if not unidades_filtradas:
+                unidades_filtradas = todas_unidades
 
-        # Rescate de Razón Social si alguna celda vino en blanco
-        razon_fallback = next((u["razonSocial"] for u in todas_unidades if u["razonSocial"]), "")
+        # Obtener Razón Social garantizada
+        razon_final = razones_sociales.get(cod_emp, "")
+        if not razon_final and todas_unidades:
+            razon_final = todas_unidades[0].get("razonSocial", "")
 
+        # Escribir el CSV
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
             writer = csv.writer(out, delimiter=";")
             writer.writerow(headers_salida)
             
             for u in unidades_filtradas:
-                raz = u["razonSocial"] if u["razonSocial"] else razon_fallback
                 writer.writerow([
-                    u["dominio"], u["empresaNro"], raz, str_linea,
-                    u["interno"], u["anioModelo"], u["chasisMarca"], u["carroceriaMarca"],
-                    u["vigenciaHasta"], u["vigenciaHastaInspeccionTecnica"], u["tecnicaNro"]
+                    u["dominio"],
+                    u["empresaNro"],
+                    razon_final if razon_final else u["razonSocial"],
+                    str_linea,
+                    u["interno"],
+                    u["anioModelo"],
+                    u["chasisMarca"],
+                    u["carroceriaMarca"],
+                    u["vigenciaHasta"],
+                    u["vigenciaHastaInspeccionTecnica"],
+                    u["tecnicaNro"]
                 ])
 
-        print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades_filtradas)} unidades.")
+        print(f"✅ Línea {str_linea} (Empresa {cod_emp}): {len(unidades_filtradas)} unidades guardadas.")
 
 if __name__ == "__main__":
     procesar()

@@ -87,7 +87,7 @@
         const lineas = [
             2, 9, 10, 15, 17, 22, 24, 29, 32, 33, 37, 45, 51, 53, 56, 60, 63, 70, 74, 
             79, 80, 85, 91, 92, 95, 98, 100, 113, 119, 126, 128, 129, 133, 134, 135, 148, 154, 
-            158, 159, 160, 164, 168, 177, 178, 179, 180, 195, 197
+            158, 159, 160, 164, 177, 178, 179, 180, 195, 197
         ].sort((a, b) => a - b);
 
         const tbody = document.getElementById("linesTableBody");
@@ -138,6 +138,35 @@
             return `${dia}/${mes}/${date.getFullYear()}`;
         }
 
+        // Filtra las filas de un CSV para asegurarse de contar solo los colectivos de la línea específica
+        function PerteneceALinea(row, lineaId) {
+            const numLineaStr = String(lineaId);
+            
+            // 1. Coincidencia directa con campo de 'linea' si existe en el CSV
+            const lineaVal = getProp(row, ['linea', 'lineanro', 'nrolinea', 'linea_nro']);
+            if (lineaVal && lineaVal === numLineaStr) {
+                return true;
+            }
+
+            // 2. Filtrado por número de interno según la línea
+            const interno = getProp(row, ['interno', 'nrointerno', 'numinterno', 'carroceria_interno']);
+            if (interno) {
+                const intStr = String(interno).trim();
+
+                // Reglas específicas para líneas que comparten Razón Social / Empresa
+                if (numLineaStr === '9')   return intStr.startsWith('9');
+                if (numLineaStr === '84')  return intStr.startsWith('8');
+                if (numLineaStr === '164') return intStr.startsWith('16');
+                if (numLineaStr === '51')  return intStr.startsWith('51') || (parseInt(intStr) >= 500 && parseInt(intStr) < 600);
+                if (numLineaStr === '79')  return intStr.startsWith('79') || (parseInt(intStr) >= 700 && parseInt(intStr) < 800);
+                if (numLineaStr === '177') return intStr.startsWith('177');
+                if (numLineaStr === '56')  return intStr.startsWith('56') || intStr.startsWith('5');
+            }
+
+            // Si no hay reglas conflictivas detectadas, se toma como válida
+            return true;
+        }
+
         lineas.forEach((id, index) => {
             const tr = document.createElement("tr");
             const bgClass = (index % 2 === 0) ? "bg-white dark:bg-slate-900/90" : "bg-blue-50/40 dark:bg-slate-800/60";
@@ -166,7 +195,6 @@
         });
 
         function cargarDatosLinea(id) {
-            // Se agrega timestamp en la URL para omitir el cache del navegador
             Papa.parse(`parques/linea${id}.csv?t=${new Date().getTime()}`, {
                 download: true,
                 header: true,
@@ -179,10 +207,11 @@
                     if (resParque && resParque.data && resParque.data.length > 0) {
                         const filasValidas = resParque.data.filter(row => {
                             const dom = getProp(row, ['dominio', 'patente', 'dominio_vehiculo']);
-                            return dom && dom.trim().length >= 6;
+                            const esPatenteValida = dom && dom.trim().length >= 6;
+                            return esPatenteValida && PerteneceALinea(row, id);
                         });
 
-                        totalUnidades = filasValidas.length > 0 ? filasValidas.length : resParque.data.length;
+                        totalUnidades = filasValidas.length;
 
                         const primerReg = resParque.data[0];
                         razonSocial = getProp(primerReg, ['razonSocial', 'razonsocial', 'empresa', 'razon_social']);
@@ -204,6 +233,8 @@
                                 let maxFechaObj = null;
 
                                 controlData.forEach(row => {
+                                    if (!PerteneceALinea(row, id)) return;
+
                                     let dom = getProp(row, ['dominio', 'patente', 'carroceria_dominio', 'dominos', 'interno', 'dominio_vehiculo']);
                                     if (!dom) {
                                         for (let key in row) {

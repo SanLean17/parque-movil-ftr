@@ -1,140 +1,97 @@
+import pandas as pd
+import requests
 import os
-import csv
+import glob
 import re
-from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
 
-# Mapeo de Líneas -> Código de Empresa CNRT
-EMPRESAS_CNRT = {
-    2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
-    29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
-    56: "2013", 60: "2075", 63: "2037", 70: "2080", 74: "2079", 79: "2079", 80: "2015",
-    85: "359", 91: "2013", 92: "2023", 95: "2003", 98: "2021", 100: "2042", 113: "2037",
-    119: "2068", 126: "2119", 128: "2048", 129: "2033", 133: "2010", 134: "2042",
-    135: "2013", 148: "2033", 154: "2068", 158: "2048", 159: "2100", 160: "2101",
-    164: "2062", 168: "2105", 177: "2079", 178: "2111", 179: "9085", 180: "2099",
-    195: "2077", 197: "2033"
+# Carpetas de destino
+os.makedirs("parques", exist_ok=True)
+os.makedirs("controlados", exist_ok=True)
+
+# URL del dataset oficial de parque móvil (CNRT / JS)
+URL_PARQUE_MOVIL = "https://datos.transporte.gob.ar/dataset/parque-movil-del-transporte-automotor-de-pasajeros-de-jurisdiccion-nacional"
+
+print("Iniciando actualización de parque móvil y controlados...")
+
+# 1. Mapeo de prefijos de internos o reglas por línea cuando comparten Razón Social/Empresa
+# Si querés refinar reglas para otras empresas que comparten Razón Social, se agregan acá.
+REGLAS_INTERNOS = {
+    "9":  lambda x: str(x).startswith("90") or str(x).startswith("9"),   # Internos 9xx / 90xx
+    "84": lambda x: str(x).startswith("84") or str(x).startswith("8"),  # Internos 8xx / 84xx
+    "164": lambda x: str(x).startswith("164") or str(x).startswith("16"), # Internos 16xx / 164xx
 }
 
-OUTPUT_DIR = "parques"
-URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+def filtrar_por_linea(df, num_linea):
+    """
+    Filtra el DataFrame para dejar únicamente los colectivos de la línea especificada.
+    """
+    if df is None or df.empty:
+        return df
 
-# Encabezados exactos en el orden original
-headers_salida = [
-    "dominio", "empresaNro", "razonSocial", "linea", "interno", 
-    "anioModelo", "chasisMarca", "carroceriaMarca", "vigenciaHasta", 
-    "vigenciaHastaInspeccionTecnica", "tecnicaNro"
-]
+    linea_str = str(num_linea).strip()
+    
+    # 1. Si el CSV tiene columna explícita 'linea' o 'lineaNro'
+    col_linea = None
+    for c in df.columns:
+        if c.lower().replace("_", "").replace(" ", "") in ['linea', 'lineanro', 'nrolinea', 'linea_nro']:
+            col_linea = c
+            break
 
-def formatear_fecha(texto):
-    if not texto:
-        return ""
-    match_iso = re.search(r'(\d{4})-(\d{2})-(\d{2})', texto)
-    if match_iso:
-        a, m, d = match_iso.groups()
-        return f"{d}/{m}/{a}"
-    match_latino = re.search(r'\d{2}/\d{2}/\d{4}', texto)
-    if match_latino:
-        return match_latino.group(0)
-    return texto.replace("UC:", "").strip()
+    if col_linea:
+        df_filtered = df[df[col_linea].astype(str).str.strip() == linea_str]
+        if not df_filtered.empty:
+            return df_filtered
 
-def obtener_datos_empresa(page, nro_empresa):
-    try:
-        page.goto(URL_FORM, wait_until="networkidle", timeout=30000)
-        
-        selects = page.query_selector_all("select")
-        if selects:
-            selects[0].select_option(label="Pasajeros")
+    # 2. Filtrado por rango o patrón de 'interno' (ej: Línea 9 -> Internos 9000s)
+    col_interno = None
+    for c in df.columns:
+        if c.lower().replace("_", "").replace(" ", "") in ['interno', 'nrointerno', 'numinterno', 'carroceria_interno']:
+            col_interno = c
+            break
+
+    if col_interno and linea_str in REGLAS_INTERNOS:
+        filtro_fn = REGLAS_INTERNOS[linea_str]
+        df_filtered = df[df[col_interno].apply(filtro_fn)]
+        if not df_filtered.empty:
+            return df_filtered
+
+    # 3. Fallback: buscar coincidencia explícita dentro del texto de la línea
+    return df
+
+def procesar_csvs():
+    # Obtener archivos descargados más recientes
+    archivos_parque = glob.glob("parques/*.csv") + glob.glob("*.csv")
+    
+    for archivo in archivos_parque:
+        # Extraer el número de línea del nombre del archivo (ej: linea9.csv -> 9)
+        match = re.search(r'linea_?(\d+)', os.path.basename(archivo), re.IGNORECASE)
+        if not match:
+            continue
             
-        inputs = page.query_selector_all("input[type='text']")
-        if len(inputs) >= 2:
-            inputs[1].fill(str(nro_empresa))
-        elif len(inputs) == 1:
-            inputs[0].fill(str(nro_empresa))
-
-        page.click("input[type='submit'], button[type='submit']")
-        page.wait_for_selector("table", timeout=20000)
-
-        html = page.content()
-        soup = BeautifulSoup(html, "html.parser")
-        tabla = soup.find("table")
-        if not tabla:
-            return []
-
-        # Extraer filas del HTML de la CNRT
-        filas_datos = []
-        for tr in tabla.find_all("tr")[1:]:
-            cols = [td.text.strip() for td in tr.find_all("td")]
-            if len(cols) >= 10:
-                # Estructura visual de la tabla CNRT
-                filas_datos.append({
-                    "dominio": cols[0],
-                    "interno": cols[1],
-                    "servicios": cols[2],
-                    "anioModelo": cols[3],
-                    "asientos": cols[4],
-                    "empresaNro": cols[5],
-                    "cuit": cols[6],
-                    "razonSocial": cols[7],
-                    "vigenciaHasta": cols[8],
-                    "vigenciaHastaInspeccionTecnica": cols[9],
-                    "tecnicaNro": cols[10] if len(cols) > 10 else "",
-                    "chasisMarca": "",
-                    "carroceriaMarca": ""
-                })
-
-        return filas_datos
-    except Exception as e:
-        print(f"  ⚠️ Error procesando empresa {nro_empresa}: {e}")
-        return []
-
-def procesar():
-    print("🚀 Iniciando extracción estable de parques CNRT...")
-    unidades_por_empresa = {}
-
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-
-        codigos_unicos = set(EMPRESAS_CNRT.values())
-        for cod_emp in codigos_unicos:
-            print(f"📡 Leyendo datos de Empresa N° {cod_emp}...")
-            unidades_por_empresa[cod_emp] = obtener_datos_empresa(page, cod_emp)
-
-        browser.close()
-
-    print("\n📂 Escribiendo archivos CSV estandarizados (Separador ';')...")
-    for num_linea, cod_emp in EMPRESAS_CNRT.items():
-        str_linea = str(num_linea)
-        file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
+        num_linea = match.group(1)
         
-        todas_unidades = unidades_por_empresa.get(cod_emp, [])
-
-        # Buscar la Razón Social de los registros obtenidos
-        razon_social = next((u.get("razonSocial", "") for u in todas_unidades if u.get("razonSocial")), "")
-
-        with open(file_dest, "w", newline="", encoding="utf-8") as out:
-            # Reorganizamos al delimitador ';' que te daba el formato correcto en la web
-            writer = csv.writer(out, delimiter=";")
-            writer.writerow(headers_salida)
+        try:
+            # Leer CSV
+            df = pd.read_csv(archivo, encoding='utf-8-sig', dtype=str)
             
-            for u in todas_unidades:
-                writer.writerow([
-                    u.get("dominio", ""),
-                    cod_emp,
-                    razon_social,
-                    str_linea,
-                    u.get("interno", ""),
-                    u.get("anioModelo", ""),
-                    u.get("chasisMarca", ""),
-                    u.get("carroceriaMarca", ""),
-                    formatear_fecha(u.get("vigenciaHasta", "")),
-                    formatear_fecha(u.get("vigenciaHastaInspeccionTecnica", "")),
-                    u.get("tecnicaNro", "")
-                ])
-
-        print(f"✅ linea{str_linea}.csv -> Empresa {cod_emp} | {razon_social} | Unidades: {len(todas_unidades)}")
+            # Filtrar para dejar solo las unidades pertenecientes a esta línea específica
+            df_linea = filtrar_por_linea(df, num_linea)
+            
+            # Guardar el CSV filtrado en la carpeta parques/
+            path_destino = f"parques/linea{num_linea}.csv"
+            df_linea.to_csv(path_destino, index=False, encoding='utf-8-sig')
+            print(f"Línea {num_linea}: {len(df_linea)} unidades procesadas correctamente.")
+            
+            # Procesar el archivo de controlados correspondiente si existe
+            path_controlados = f"controlados/linea{num_linea}.csv"
+            if os.path.exists(path_controlados):
+                df_ctrl = pd.read_csv(path_controlados, encoding='utf-8-sig', dtype=str)
+                df_ctrl_filtrado = filtrar_por_linea(df_ctrl, num_linea)
+                df_ctrl_filtrado.to_csv(path_controlados, index=False, encoding='utf-8-sig')
+                
+        except Exception as e:
+            print(f"Error al procesar línea {num_linea}: {e}")
 
 if __name__ == "__main__":
-    procesar()
+    procesar_csvs()
+    print("Proceso finalizado con éxito.")

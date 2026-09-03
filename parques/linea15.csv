@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AA786DO;67;TRANSPORTES SUR-NOR C.I.S.A.;15;111;2015;;;31/12/2028;31/01/2027;326579
 AA786DP;67;TRANSPORTES SUR-NOR C.I.S.A.;15;57;2015;;;31/12/2028;29/11/2026;245583
 AA786DR;67;TRANSPORTES SUR-NOR C.I.S.A.;15;105;2015;;;31/12/2028;07/01/2027;252117

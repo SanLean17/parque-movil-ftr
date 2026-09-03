@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AA132UA;2005;EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.;24;4906;2016;;;31/12/2026;31/01/2027;260586
 AA132UB;2005;EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.;24;4935;2016;;;31/12/2026;19/12/2026;255172
 AA132UH;2005;EMP.TRANSP.AUTOM.DE PASAJEROS S.A.C.I.F.;24;4938;2016;;;31/12/2026;18/12/2026;253287

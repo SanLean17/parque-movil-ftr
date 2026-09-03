@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AE096UY;2054;LINEA 213 S.A. DE TRANSPORTE;53;69;2020;;;31/12/2030;18/11/2026;117949
 AE096UZ;2054;LINEA 213 S.A. DE TRANSPORTE;53;70;2020;;;31/12/2030;11/11/2026;117865
 AE106RA;2054;LINEA 213 S.A. DE TRANSPORTE;53;98;2020;;;31/12/2030;10/12/2026;122771

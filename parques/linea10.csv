@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AB259JS;2008;LINEA 10 S.A.;10;160;2017;;;31/12/2027;08/02/2027;330539
 AB570SC;2008;LINEA 10 S.A.;10;133;2017;;;31/12/2027;12/09/2026;93390
 AB570SD;2008;LINEA 10 S.A.;10;142;2017;;;31/12/2027;16/09/2026;93516

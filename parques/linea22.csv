@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AA040AW;2022;LINEA 22 S.A.;22;324;2016;;;31/12/2026;11/12/2026;109818
 AA040CR;2022;LINEA 22 S.A.;22;329;2016;;;31/12/2026;29/12/2026;110163
 AA356KZ;2022;LINEA 22 S.A.;22;340;2016;;;11/10/2024;30/10/2026;97915

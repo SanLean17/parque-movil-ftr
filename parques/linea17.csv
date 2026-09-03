@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AB570SH;2024;LINEA 17 S.A.;17;269;2017;;;31/12/2027;11/11/2026;110645
 AD419ZJ;2024;LINEA 17 S.A.;17;272;2019;;;31/12/2029;12/02/2027;330654
 AD419ZX;2024;LINEA 17 S.A.;17;223;2019;;;31/12/2029;30/12/2026;252735

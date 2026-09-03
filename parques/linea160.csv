@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AA397SV;2101;MICRO OMNIBUS SUR S.A.C.;160;100;2017;;;31/12/2027;25/09/2026;95188
 AA397SW;2101;MICRO OMNIBUS SUR S.A.C.;160;65;2016;;;31/12/2026;14/02/2027;328055
 AA397SX;2101;MICRO OMNIBUS SUR S.A.C.;160;106;2016;;;31/12/2026;29/10/2026;105306

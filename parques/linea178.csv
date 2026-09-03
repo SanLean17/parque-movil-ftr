@@ -1,4 +1,4 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+﻿dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
 AA346DN;2111;COMPAÑIA MICROOMNIBUS LA COLORADA SACI.;178;88;2017;;;31/12/2027;08/12/2026;109725
 AA618TJ;2111;COMPAÑIA MICROOMNIBUS LA COLORADA SACI.;178;38;2017;;;31/12/2027;17/01/2027;321707
 AB217CU;2111;COMPAÑIA MICROOMNIBUS LA COLORADA SACI.;178;91;2017;;;31/12/2027;23/01/2027;321826

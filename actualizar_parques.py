@@ -3,6 +3,7 @@ import csv
 import re
 from playwright.sync_api import sync_playwright
 
+# Mapeo exacto de Líneas -> Códigos de Empresa CNRT
 EMPRESAS_CNRT = {
     2: "2058", 9: "2062", 10: "2008", 15: "67", 17: "2024", 22: "2022", 24: "2005",
     29: "2064", 32: "2048", 33: "972", 37: "2067", 45: "2068", 51: "2079", 53: "2054",
@@ -18,7 +19,7 @@ OUTPUT_DIR = "parques"
 URL_FORM = "https://consultapme.cnrt.gob.ar/consulta_vehiculos_habilitados"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Encabezados estándar separados por coma
+# Columnas estándar para la web (separadas por coma)
 headers_salida = [
     "dominio", "empresaNro", "razonSocial", "linea", "interno", 
     "anioModelo", "chasisMarca", "carroceriaMarca", "vigenciaHasta", 
@@ -63,11 +64,14 @@ def descargar_csv_empresa(page, nro_empresa):
 
         filas_datos = []
         with open(temp_path, "r", encoding="utf-8", errors="ignore") as f:
-            # Detectar separador del archivo descargado de la CNRT
-            reader = csv.DictReader(f)
+            # Detectar separador del CSV descargado de CNRT
+            linea_test = f.readline()
+            sep = ";" if ";" in linea_test else ","
+            f.seek(0)
+            
+            reader = csv.DictReader(f, delimiter=sep)
             for row in reader:
-                # Normalizar claves a minusculas
-                row_norm = {k.strip().lower(): v.strip() for k, v in row.items() if k}
+                row_norm = {k.strip().lower(): (v.strip() if v else "") for k, v in row.items() if k}
                 filas_datos.append(row_norm)
 
         if os.path.exists(temp_path):
@@ -93,49 +97,44 @@ def procesar():
 
         browser.close()
 
-    print("\n📂 Procesando y generando archivos por línea para la web...")
+    print("\n📂 Generando archivos finales por línea...")
     for num_linea, cod_emp in EMPRESAS_CNRT.items():
         str_linea = str(num_linea)
         file_dest = os.path.join(OUTPUT_DIR, f"linea{str_linea}.csv")
         
         todas_unidades = unidades_por_empresa.get(cod_emp, [])
-        lineas_asociadas = [l for l, c in EMPRESAS_CNRT.items() if c == cod_emp]
 
-        unidades_filtradas = []
+        # Buscar la Razón Social real devuelta por la CNRT
+        razon_social = ""
         for u in todas_unidades:
-            val_linea = u.get("linea", "")
-            if re.search(r'\b' + str_linea + r'\b', val_linea):
-                unidades_filtradas.append(u)
+            r = u.get("razon social") or u.get("razonsocial") or u.get("empresa") or ""
+            if r:
+                razon_social = r
+                break
 
-        if not unidades_filtradas and len(lineas_asociadas) == 1:
-            unidades_filtradas = todas_unidades
-
-        razon_fallback = next((u.get("razonsocial", "") for u in todas_unidades if u.get("razonsocial")), "")
-
-        # Guardar CSV con separador COMA (,)
+        # Guardar archivo CSV estandarizado con comas
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
             writer = csv.writer(out, delimiter=",")
             writer.writerow(headers_salida)
             
-            for u in unidades_filtradas:
-                vta_tecnica = u.get("vigenciahastainspec") or u.get("vigenciahastainspecciontecnica") or ""
-                num_tecnica = u.get("tecnicanro") or ""
-
+            for u in todas_unidades:
+                vta_tecnica = u.get("vigencia hasta insp") or u.get("vigenciahastainspecciontecnica") or ""
+                
                 writer.writerow([
-                    u.get("dominio", ""),
-                    u.get("empresanro") or cod_emp,
-                    u.get("razonsocial") or razon_fallback,
+                    u.get("dominio") or u.get("patente") or "",
+                    cod_emp,
+                    razon_social,
                     str_linea,
-                    u.get("interno", ""),
-                    u.get("aniomodelo", ""),
-                    u.get("chasismarca", ""),
-                    u.get("carroceriamarca", ""),
-                    formatear_fecha(u.get("vigenciahasta", "")),
+                    u.get("interno") or "",
+                    u.get("año modelo") or u.get("aniomodelo") or u.get("modelo") or "",
+                    u.get("chasis marca") or u.get("chasismarca") or "",
+                    u.get("carroceria marca") or u.get("carroceriamarca") or "",
+                    formatear_fecha(u.get("vigencia hasta") or u.get("vigenciahasta") or ""),
                     formatear_fecha(vta_tecnica),
-                    num_tecnica
+                    u.get("tecnica nro") or u.get("tecnicanro") or ""
                 ])
 
-        print(f"✅ linea{str_linea}.csv generado con {len(unidades_filtradas)} colectivos.")
+        print(f"✅ linea{str_linea}.csv generado -> Empresa N° {cod_emp} | Razón Social: '{razon_social}' | Colectivos: {len(todas_unidades)}")
 
 if __name__ == "__main__":
     procesar()

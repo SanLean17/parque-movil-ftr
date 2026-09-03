@@ -2,15 +2,14 @@ name: Actualizador Mensual de Parques CNRT
 
 on:
   schedule:
+    # Se ejecuta automáticamente el día 1 de cada mes a las 03:00 UTC
     - cron: '0 3 1 * *'
-  workflow_dispatch:
-
-permissions:
-  contents: write
+  workflow_dispatch: # Permite ejecutarlo manualmente desde la pestaña Actions
 
 jobs:
   actualizar:
     runs-on: ubuntu-latest
+
     steps:
       - name: Descargar código del repositorio
         uses: actions/checkout@v4
@@ -22,8 +21,8 @@ jobs:
 
       - name: Instalar librerías y Navegador
         run: |
-          pip install playwright beautifulsoup4
-          playwright install chromium --with-deps
+          python -m pip install --upgrade pip
+          pip install pandas requests
 
       - name: Ejecutar descargador de parques
         run: |
@@ -31,7 +30,8 @@ jobs:
 
       - name: Guardar cambios en el repositorio
         run: |
-          git config --global user.name "Bot Parque Móvil"
-          git config --global user.email "bot@parquemovil.local"
-          git add parques/*.csv
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-actualización de parques CNRT [skip ci]" && git push)
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add parques/*.csv controlados/*.csv
+          git diff --staged --quiet || git commit -m "Bot: Actualización automática de parques y controlados"
+          git push

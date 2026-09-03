@@ -1,1 +1,1 @@
-dominio;empresaNro;razonSocial;linea;interno;anioModelo;chasisMarca;carroceriaMarca;vigenciaHasta;vigenciaHastaInspeccionTecnica;tecnicaNro
+dominio,empresaNro,razonSocial,linea,interno,anioModelo,chasisMarca,carroceriaMarca,vigenciaHasta,vigenciaHastaInspeccionTecnica,tecnicaNro

@@ -73,23 +73,21 @@ def obtener_datos_empresa(page, nro_empresa):
         filas_datos = []
         for tr in tabla.find_all("tr")[1:]:
             cols = [td.text.strip() for td in tr.find_all("td")]
-            if len(cols) >= 4:
+            if len(cols) >= 3:
                 dom = cols[0] if len(cols) > 0 else ""
                 inte = cols[1] if len(cols) > 1 else ""
                 
-                # Buscar dinámicamente la celda que contiene la línea y la razón social
-                linea_raw = ""
-                razon_social = ""
-                
-                for c in cols:
-                    if "LINEA" in c.upper() or "LÍNEA" in c.upper():
-                        linea_raw = c
-                    elif len(c) > 5 and not c.isdigit() and "/" not in c and not razon_social:
-                        razon_social = c
-
-                # Extraer solo el número entero de la línea para normalizar (ej. "LÍNEA 009" -> 9)
+                # Extraer número de línea de la columna 2 o buscando dígitos en la fila
+                linea_raw = cols[2] if len(cols) > 2 else ""
                 match_num = re.search(r'\d+', linea_raw)
                 linea_num = int(match_num.group(0)) if match_num else None
+
+                # Extraer Razón Social buscando texto largo que no sea fecha ni número
+                razon_social = ""
+                for c in cols:
+                    if len(c) > 6 and not c.isdigit() and "/" not in c and "LINEA" not in c.upper():
+                        razon_social = c
+                        break
 
                 mod = cols[3] if len(cols) > 3 and cols[3].isdigit() else ""
                 hab, vta_vig, vta_num = extraer_fechas_y_tecnica(cols)
@@ -136,28 +134,28 @@ def procesar():
         
         todas_unidades = unidades_por_empresa.get(cod_emp, [])
         
-        # Filtro flexible por número entero
+        # Filtro 1: coincidencia por número de línea parsed
         unidades_filtradas = [
             u for u in todas_unidades 
             if u["linea_num"] == int_linea
         ]
 
-        # Si no hubo coincidencia de número de línea pero la empresa solo opera una línea en tu sistema, asignarla directamente
+        # Filtro Fallback: Si no extrajo el número de línea de la tabla pero la empresa solo opera 1 línea en tu sistema
         lineas_de_esta_empresa = [l for l, c in EMPRESAS_CNRT.items() if c == cod_emp]
-        if len(lineas_de_esta_empresa) == 1 and not unidades_filtradas:
+        if not unidades_filtradas and len(lineas_de_esta_empresa) == 1:
             unidades_filtradas = todas_unidades
 
-        # Extraer razón social general si algún registro venía vacío
-        razon_social_fallback = next((u["razonSocial"] for u in todas_unidades if u["razonSocial"]), "")
+        # Rescate de Razón Social si alguna celda vino en blanco
+        razon_fallback = next((u["razonSocial"] for u in todas_unidades if u["razonSocial"]), "")
 
         with open(file_dest, "w", newline="", encoding="utf-8") as out:
             writer = csv.writer(out, delimiter=";")
             writer.writerow(headers_salida)
             
             for u in unidades_filtradas:
-                raz_final = u["razonSocial"] if u["razonSocial"] else razon_social_fallback
+                raz = u["razonSocial"] if u["razonSocial"] else razon_fallback
                 writer.writerow([
-                    u["dominio"], u["empresaNro"], raz_final, str_linea,
+                    u["dominio"], u["empresaNro"], raz, str_linea,
                     u["interno"], u["anioModelo"], u["chasisMarca"], u["carroceriaMarca"],
                     u["vigenciaHasta"], u["vigenciaHastaInspeccionTecnica"], u["tecnicaNro"]
                 ])

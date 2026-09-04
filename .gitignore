@@ -1,0 +1,12 @@
+# ============================================================
+# ARCHIVOS TEMPORALES
+# ============================================================
+
+tmp_drive/
+cnrt/
+
+__pycache__/
+*.pyc
+
+# Archivos de diagnóstico CNRT
+cnrt_error_*.png

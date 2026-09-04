@@ -8,10 +8,9 @@ os.makedirs("controlados", exist_ok=True)
 
 def leer_csv_robusto(path):
     """
-    Intenta leer el CSV detectando si usa comas o punto y coma como separador.
+    Lee el CSV detectando si el separador es ';' (estándar CNRT) o ','.
     """
     try:
-        # Primero probamos con punto y coma (;) que es el estándar de CNRT
         df = pd.read_csv(path, encoding='utf-8-sig', dtype=str, sep=';')
         if len(df.columns) > 1:
             return df
@@ -19,7 +18,6 @@ def leer_csv_robusto(path):
         pass
         
     try:
-        # Fallback a coma (,)
         df = pd.read_csv(path, encoding='utf-8-sig', dtype=str, sep=',')
         return df
     except Exception as e:
@@ -41,7 +39,7 @@ def filtrar_por_linea(df, num_linea):
     col_linea = obtener_columna_linea(df)
 
     if col_linea:
-        # Compara el valor de la columna 'linea' ignorando espacios o ceros extra
+        # Compara el número de línea exacto como cadena de texto
         mask = df[col_linea].fillna('').astype(str).str.strip() == linea_str
         df_filtrado = df[mask]
         
@@ -51,9 +49,11 @@ def filtrar_por_linea(df, num_linea):
     return df
 
 def procesar_archivos():
-    # Procesar la carpeta parques
+    # 1. Si hay descargas nuevas de la CNRT en descargas_raw, procesarlas primero
+    archivos_raw = glob.glob("descargas_raw/*.csv")
     archivos_parques = glob.glob("parques/*.csv")
     
+    # Procesar la carpeta parques/
     for archivo in archivos_parques:
         nombre = os.path.basename(archivo)
         match = re.search(r'linea_?(\d+)', nombre, re.IGNORECASE)
@@ -62,17 +62,22 @@ def procesar_archivos():
             
         num_linea = match.group(1)
         
-        df = leer_csv_robusto(archivo)
+        # Preferir archivo de descargas_raw si está disponible, de lo contrario usar parques/
+        origen = archivo
+        if archivos_raw:
+            origen = archivos_raw[0] # Usa la descarga cruda de la empresa
+            
+        df = leer_csv_robusto(origen)
         if df is not None and not df.empty:
             total_antes = len(df)
             df_filtrado = filtrar_por_linea(df, num_linea)
             total_despues = len(df_filtrado)
             
-            # Guardamos manteniendo el separador ';' original de los CSVs
+            # Guardar el CSV filtrado exclusivamente para esa línea usando ';'
             df_filtrado.to_csv(archivo, index=False, encoding='utf-8-sig', sep=';')
-            print(f"Línea {num_linea}: de {total_antes} filas paso a {total_despues} unidades reales.")
+            print(f"Línea {num_linea}: de {total_antes} filas se filtraron {total_despues} unidades correspondientes.")
 
-    # Procesar la carpeta controlados si existen archivos
+    # 2. Procesar la carpeta controlados/ si aplica
     archivos_controlados = glob.glob("controlados/*.csv")
     for archivo in archivos_controlados:
         nombre = os.path.basename(archivo)
@@ -81,7 +86,6 @@ def procesar_archivos():
             continue
             
         num_linea = match.group(1)
-        
         df = leer_csv_robusto(archivo)
         if df is not None and not df.empty:
             df_filtrado = filtrar_por_linea(df, num_linea)
@@ -89,4 +93,4 @@ def procesar_archivos():
 
 if __name__ == "__main__":
     procesar_archivos()
-    print("Filtrado y separación por punto y coma finalizado.")
+    print("Filtrado e independización de parques finalizado exitosamente.")

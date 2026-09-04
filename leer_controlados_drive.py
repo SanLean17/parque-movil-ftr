@@ -1,17 +1,20 @@
 # ============================================================
-# LECTOR DE CONTROLES DESDE GOOGLE DRIVE
+# LEER CONTROLADOS DESDE GOOGLE DRIVE
+# PARQUE MÓVIL FTR
 # ============================================================
 
-import json
-import os
-import re
 from pathlib import Path
+import io
+import json
+import re
 
 import pandas as pd
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
+
+from openpyxl import load_workbook
 
 from configuracion_lineas import LINEAS_EMPRESAS
 
@@ -20,183 +23,596 @@ from configuracion_lineas import LINEAS_EMPRESAS
 # CONFIGURACIÓN
 # ============================================================
 
-DRIVE_FOLDER_ID = (
+CARPETA_CONTROLADOS = Path("controlados")
+
+ID_CARPETA_DRIVE = (
     "1lS7Ybqr4Knej93BCdun4pDLVZX3ldv59"
 )
 
+GOOGLE_SERVICE_ACCOUNT_JSON = (
+    "GOOGLE_SERVICE_ACCOUNT_JSON"
+)
+
 SCOPES = [
-    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/drive.readonly"
 ]
-
-CARPETA_CONTROLADOS = Path("controlados")
-CARPETA_TEMP = Path("tmp_drive")
-
-CARPETA_CONTROLADOS.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-CARPETA_TEMP.mkdir(
-    parents=True,
-    exist_ok=True
-)
 
 
 # ============================================================
 # NORMALIZAR TEXTO
 # ============================================================
 
-def normalizar_texto(valor):
+def limpiar_texto(valor):
 
     if valor is None:
         return ""
 
-    try:
+    if pd.isna(valor):
+        return ""
 
-        if pd.isna(valor):
-            return ""
-
-    except Exception:
-        pass
-
-    return str(valor).strip()
+    return re.sub(
+        r"\s+",
+        " ",
+        str(valor)
+    ).strip()
 
 
 # ============================================================
-# NORMALIZAR NOMBRE DE COLUMNA
+# NORMALIZAR DOMINIO
 # ============================================================
 
-def normalizar_columna(nombre):
+def normalizar_dominio(valor):
 
-    texto = normalizar_texto(nombre).lower()
+    texto = limpiar_texto(valor)
 
-    reemplazos = {
-        "á": "a",
-        "é": "e",
-        "í": "i",
-        "ó": "o",
-        "ú": "u",
-        "ü": "u",
-        "ñ": "n",
-    }
+    if not texto:
+        return ""
 
-    for viejo, nuevo in reemplazos.items():
+    return texto.upper()
 
-        texto = texto.replace(
-            viejo,
-            nuevo
-        )
 
-    texto = re.sub(
-        r"[^a-z0-9]",
-        "",
-        texto
-    )
+# ============================================================
+# NORMALIZAR INTERNO
+# ============================================================
+
+def normalizar_interno(valor):
+
+    texto = limpiar_texto(valor)
+
+    if not texto:
+        return ""
 
     return texto
 
 
 # ============================================================
-# EXTRAER LÍNEAS DE UN TEXTO
+# EXTRAER NÚMEROS DE LÍNEA
 # ============================================================
 
-def extraer_lineas_configuradas(valor):
+def extraer_numeros_linea(texto):
 
-    texto = normalizar_texto(valor).upper()
+    """
+    Detecta líneas dentro de textos como:
+
+        LINEA 63
+        Línea 113
+        63
+        63/113
+        LINEA 63/113
+        LINEA 51/74/79/164/177
+
+    IMPORTANTE:
+    Solo devuelve números que realmente estén configurados
+    en LINEAS_EMPRESAS.
+    """
+
+    texto = limpiar_texto(texto)
 
     if not texto:
-        return []
+        return set()
 
-    resultados = []
+    lineas_configuradas = {
+        str(linea)
+        for linea in LINEAS_EMPRESAS.keys()
+    }
+
+    encontrados = set()
 
     # --------------------------------------------------------
-    # CASO:
+    # Buscar números completos
+    # --------------------------------------------------------
+
+    numeros = re.findall(
+        r"(?<!\d)(\d+)(?!\d)",
+        texto
+    )
+
+    for numero in numeros:
+
+        if numero in lineas_configuradas:
+
+            encontrados.add(numero)
+
+    return encontrados
+
+
+# ============================================================
+# DETERMINAR SI UNA CELDA ES ENCABEZADO DE LÍNEA
+# ============================================================
+
+def detectar_lineas_en_celda(valor):
+
+    texto = limpiar_texto(valor)
+
+    if not texto:
+        return set()
+
+    # --------------------------------------------------------
+    # Tiene que parecer un encabezado de línea.
     #
-    # LINEA 45
-    # LINEA 51/74/79
-    # LINEA 45-70-119
+    # Permitimos:
+    #
+    # LINEA 63
+    # LÍNEA 63
+    # LINEA 63/113
+    # 63
+    #
+    # Pero evitamos tomar cualquier número perdido dentro
+    # de una fecha, dominio, etc.
     # --------------------------------------------------------
 
-    coincidencias = re.findall(
-        r"\bLINEA(?:S)?\s*[:#-]?\s*([0-9][0-9\-/,\s]*)",
-        texto
-    )
+    texto_mayuscula = texto.upper()
 
-    for coincidencia in coincidencias:
+    if (
+        "LINEA" in texto_mayuscula
+        or "LÍNEA" in texto_mayuscula
+    ):
 
-        numeros = re.findall(
-            r"\d+",
-            coincidencia
-        )
-
-        for numero in numeros:
-
-            numero = int(numero)
-
-            if numero in LINEAS_EMPRESAS:
-
-                resultados.append(
-                    numero
-                )
-
-    return list(
-        dict.fromkeys(resultados)
-    )
-
-
-# ============================================================
-# LÍNEAS EN NOMBRE DE ARCHIVO
-# ============================================================
-
-def lineas_del_nombre(nombre):
-
-    texto = normalizar_texto(nombre).upper()
-
-    resultados = extraer_lineas_configuradas(
-        texto
-    )
-
-    # --------------------------------------------------------
-    # Si el nombre no tiene "LINEA", intentar buscar
-    # directamente números conocidos.
-    # --------------------------------------------------------
-
-    if not resultados:
-
-        numeros = re.findall(
-            r"\d+",
+        return extraer_numeros_linea(
             texto
         )
 
-        for numero in numeros:
+    # Si es exactamente uno de los números de línea
+    if re.fullmatch(
+        r"\d+",
+        texto
+    ):
 
-            numero = int(numero)
+        if texto in {
+            str(linea)
+            for linea in LINEAS_EMPRESAS.keys()
+        }:
 
-            if numero in LINEAS_EMPRESAS:
+            return {texto}
 
-                resultados.append(
-                    numero
+    return set()
+
+
+# ============================================================
+# BUSCAR COLUMNAS FECHA / DOMINIO / INTERNO
+# ============================================================
+
+def identificar_encabezados(
+    fila,
+    columna_inicio=0
+):
+
+    resultado = {}
+
+    for columna in range(
+        columna_inicio,
+        len(fila)
+    ):
+
+        valor = limpiar_texto(
+            fila[columna]
+        ).lower()
+
+        if not valor:
+            continue
+
+        valor_normalizado = (
+            valor
+            .replace("_", "")
+            .replace("-", "")
+            .replace(" ", "")
+        )
+
+        if (
+            "fecha" in valor_normalizado
+            and "fecha" not in resultado
+        ):
+
+            resultado["fecha"] = columna
+
+        elif (
+            "dominio" in valor_normalizado
+            and "dominio" not in resultado
+        ):
+
+            resultado["dominio"] = columna
+
+        elif (
+            "interno" in valor_normalizado
+            and "interno" not in resultado
+        ):
+
+            resultado["interno"] = columna
+
+    return resultado
+
+
+# ============================================================
+# BUSCAR ENCABEZADOS DE CADA BLOQUE
+# ============================================================
+
+def encontrar_bloques(ws):
+
+    bloques = []
+
+    # --------------------------------------------------------
+    # Recorrer todas las celdas de la hoja
+    # --------------------------------------------------------
+
+    for fila in range(
+        1,
+        ws.max_row + 1
+    ):
+
+        for columna in range(
+            1,
+            ws.max_column + 1
+        ):
+
+            celda = ws.cell(
+                fila,
+                columna
+            )
+
+            valor = celda.value
+
+            lineas = detectar_lineas_en_celda(
+                valor
+            )
+
+            if not lineas:
+                continue
+
+            # ------------------------------------------------
+            # Tenemos un encabezado de línea.
+            #
+            # Ahora buscamos el encabezado:
+            #
+            # fecha | dominio | interno
+            #
+            # debajo del mismo bloque.
+            # ------------------------------------------------
+
+            encabezados = None
+            fila_encabezados = None
+
+            for fila_siguiente in range(
+                fila + 1,
+                min(
+                    fila + 8,
+                    ws.max_row + 1
+                )
+            ):
+
+                valores_fila = []
+
+                for col in range(
+                    1,
+                    ws.max_column + 1
+                ):
+
+                    valores_fila.append(
+                        ws.cell(
+                            fila_siguiente,
+                            col
+                        ).value
+                    )
+
+                posibles = identificar_encabezados(
+                    valores_fila,
+                    max(
+                        0,
+                        columna - 1
+                    )
                 )
 
-    return list(
-        dict.fromkeys(resultados)
+                if (
+                    "fecha" in posibles
+                    and "dominio" in posibles
+                    and "interno" in posibles
+                ):
+
+                    encabezados = posibles
+                    fila_encabezados = (
+                        fila_siguiente
+                    )
+
+                    break
+
+            if encabezados is None:
+                continue
+
+            # ------------------------------------------------
+            # Evitar duplicados
+            # ------------------------------------------------
+
+            ya_existe = False
+
+            for bloque in bloques:
+
+                if (
+                    bloque["fila_linea"] == fila
+                    and
+                    bloque["columna_linea"]
+                    == columna
+                ):
+
+                    ya_existe = True
+                    break
+
+            if ya_existe:
+                continue
+
+            # ------------------------------------------------
+            # Crear un bloque por cada línea detectada.
+            #
+            # Si el encabezado fuera:
+            #
+            # LINEA 63/113
+            #
+            # se registran ambas.
+            # ------------------------------------------------
+
+            for linea in sorted(
+                lineas,
+                key=lambda x: int(x)
+            ):
+
+                bloques.append(
+                    {
+                        "linea": linea,
+                        "fila_linea": fila,
+                        "columna_linea": columna,
+                        "fila_encabezados":
+                            fila_encabezados,
+                        "col_fecha":
+                            encabezados["fecha"],
+                        "col_dominio":
+                            encabezados["dominio"],
+                        "col_interno":
+                            encabezados["interno"],
+                    }
+                )
+
+    # --------------------------------------------------------
+    # Ordenar por posición
+    # --------------------------------------------------------
+
+    bloques.sort(
+        key=lambda bloque: (
+            bloque["fila_linea"],
+            bloque["columna_linea"]
+        )
     )
 
+    return bloques
+
 
 # ============================================================
-# AUTENTICACIÓN
+# EXTRAER DATOS DE UN BLOQUE
 # ============================================================
 
-def obtener_credenciales():
+def extraer_datos_bloque(
+    ws,
+    bloque
+):
+
+    linea = bloque["linea"]
+
+    fila_inicio = (
+        bloque["fila_encabezados"]
+        + 1
+    )
+
+    col_fecha = bloque["col_fecha"]
+    col_dominio = bloque["col_dominio"]
+    col_interno = bloque["col_interno"]
+
+    registros = []
+
+    # --------------------------------------------------------
+    # Determinar dónde termina este bloque
+    #
+    # Puede terminar:
+    #
+    # 1. antes de otro encabezado de línea
+    # 2. al encontrar muchas filas vacías
+    # 3. al terminar la hoja
+    # --------------------------------------------------------
+
+    fila = fila_inicio
+
+    filas_vacias_consecutivas = 0
+
+    while fila <= ws.max_row:
+
+        # ----------------------------------------------------
+        # Detectar si comienza otro bloque
+        # ----------------------------------------------------
+
+        otra_linea = False
+
+        for columna in range(
+            1,
+            ws.max_column + 1
+        ):
+
+            valor = ws.cell(
+                fila,
+                columna
+            ).value
+
+            lineas = detectar_lineas_en_celda(
+                valor
+            )
+
+            if lineas:
+
+                # Si es el encabezado del propio bloque,
+                # no cortar.
+                if not (
+                    fila
+                    == bloque["fila_linea"]
+                ):
+
+                    # Si encontramos otra línea en una fila
+                    # posterior, termina el bloque.
+                    if fila > fila_inicio:
+
+                        otra_linea = True
+                        break
+
+        if otra_linea:
+            break
+
+        # ----------------------------------------------------
+        # Leer las tres columnas
+        # ----------------------------------------------------
+
+        fecha = ws.cell(
+            fila,
+            col_fecha + 1
+        ).value
+
+        dominio = ws.cell(
+            fila,
+            col_dominio + 1
+        ).value
+
+        interno = ws.cell(
+            fila,
+            col_interno + 1
+        ).value
+
+        fecha = limpiar_texto(
+            fecha
+        )
+
+        dominio = normalizar_dominio(
+            dominio
+        )
+
+        interno = normalizar_interno(
+            interno
+        )
+
+        # ----------------------------------------------------
+        # Determinar si realmente hay un vehículo
+        # ----------------------------------------------------
+
+        tiene_datos = (
+            bool(dominio)
+            or bool(interno)
+        )
+
+        if tiene_datos:
+
+            registros.append(
+                {
+                    "fecha": fecha,
+                    "dominio": dominio,
+                    "interno": interno,
+                }
+            )
+
+            filas_vacias_consecutivas = 0
+
+        else:
+
+            filas_vacias_consecutivas += 1
+
+            # Varias filas completamente vacías indican
+            # el final del bloque.
+            if filas_vacias_consecutivas >= 3:
+
+                break
+
+        fila += 1
+
+    # --------------------------------------------------------
+    # Crear DataFrame
+    # --------------------------------------------------------
+
+    if not registros:
+
+        return pd.DataFrame(
+            columns=[
+                "fecha",
+                "dominio",
+                "interno"
+            ]
+        )
+
+    df = pd.DataFrame(
+        registros
+    )
+
+    # --------------------------------------------------------
+    # Eliminar filas sin dominio e interno
+    # --------------------------------------------------------
+
+    df = df[
+        (
+            df["dominio"].astype(str).str.strip()
+            != ""
+        )
+        |
+        (
+            df["interno"].astype(str).str.strip()
+            != ""
+        )
+    ].copy()
+
+    # --------------------------------------------------------
+    # Agregar línea
+    # --------------------------------------------------------
+
+    df.insert(
+        0,
+        "linea",
+        linea
+    )
+
+    return df
+
+
+# ============================================================
+# CONECTAR CON GOOGLE DRIVE
+# ============================================================
+
+def conectar_drive():
+
+    contenido = None
+
+    # --------------------------------------------------------
+    # Leer Secret
+    # --------------------------------------------------------
+
+    import os
 
     contenido = os.environ.get(
-        "GOOGLE_SERVICE_ACCOUNT_JSON"
+        GOOGLE_SERVICE_ACCOUNT_JSON
     )
 
     if not contenido:
 
         raise RuntimeError(
-            "No existe la variable "
+            "No se encontró el Secret "
             "GOOGLE_SERVICE_ACCOUNT_JSON."
         )
 
@@ -206,14 +622,15 @@ def obtener_credenciales():
             contenido
         )
 
-    except Exception as e:
+    except Exception as error:
 
         raise RuntimeError(
+            "El Secret "
             "GOOGLE_SERVICE_ACCOUNT_JSON "
             "no contiene un JSON válido."
-        ) from e
+        ) from error
 
-    return (
+    credenciales = (
         service_account
         .Credentials
         .from_service_account_info(
@@ -222,971 +639,570 @@ def obtener_credenciales():
         )
     )
 
-
-# ============================================================
-# CONECTAR DRIVE
-# ============================================================
-
-def obtener_drive():
-
-    credenciales = obtener_credenciales()
-
     return build(
         "drive",
         "v3",
-        credentials=credenciales,
+        credentials=credenciales
     )
 
 
 # ============================================================
-# LISTAR TODOS LOS ARCHIVOS
+# LISTAR ARCHIVOS DE DRIVE
 # ============================================================
 
-def listar_archivos(drive):
+def listar_archivos_drive(
+    drive
+):
 
-    archivos = []
+    consulta = (
+        f"'{ID_CARPETA_DRIVE}' "
+        "in parents "
+        "and trashed = false"
+    )
 
-    page_token = None
+    respuesta = drive.files().list(
+        q=consulta,
+        fields=(
+            "files("
+            "id,"
+            "name,"
+            "mimeType"
+            ")"
+        ),
+        pageSize=1000
+    ).execute()
 
-    while True:
-
-        respuesta = (
-            drive.files()
-            .list(
-                q=(
-                    f"'{DRIVE_FOLDER_ID}' in parents "
-                    "and trashed = false"
-                ),
-                fields=(
-                    "nextPageToken,"
-                    "files("
-                    "id,"
-                    "name,"
-                    "mimeType,"
-                    "modifiedTime"
-                    ")"
-                ),
-                pageSize=1000,
-                pageToken=page_token,
-                orderBy="name",
-            )
-            .execute()
-        )
-
-        encontrados = respuesta.get(
-            "files",
-            []
-        )
-
-        archivos.extend(
-            encontrados
-        )
-
-        page_token = respuesta.get(
-            "nextPageToken"
-        )
-
-        if not page_token:
-            break
-
-    return archivos
+    return respuesta.get(
+        "files",
+        []
+    )
 
 
 # ============================================================
 # DESCARGAR ARCHIVO
 # ============================================================
 
-def descargar_archivo(drive, archivo):
+def descargar_archivo(
+    drive,
+    archivo
+):
 
-    archivo_id = archivo["id"]
-    nombre = archivo["name"]
-    mime = archivo.get(
-        "mimeType",
-        ""
-    )
+    file_id = archivo["id"]
+    mime_type = archivo["mimeType"]
 
     # --------------------------------------------------------
-    # GOOGLE SHEETS
+    # Google Sheets
     # --------------------------------------------------------
 
-    if (
-        mime
-        == "application/vnd.google-apps.spreadsheet"
+    if mime_type == (
+        "application/vnd.google-apps.spreadsheet"
     ):
 
-        nombre_seguro = re.sub(
-            r'[\\/:*?"<>|]',
-            "_",
-            nombre
-        )
-
-        destino = (
-            CARPETA_TEMP
-            / f"{nombre_seguro}.xlsx"
-        )
-
-        request = (
-            drive.files()
-            .export_media(
-                fileId=archivo_id,
-                mimeType=(
-                    "application/"
-                    "vnd.openxmlformats-officedocument."
-                    "spreadsheetml.sheet"
-                ),
+        request = drive.files().export_media(
+            fileId=file_id,
+            mimeType=(
+                "application/vnd.openxmlformats-"
+                "officedocument.spreadsheetml.sheet"
             )
         )
-
-    # --------------------------------------------------------
-    # EXCEL
-    # --------------------------------------------------------
 
     else:
 
-        nombre_seguro = re.sub(
-            r'[\\/:*?"<>|]',
-            "_",
-            nombre
+        request = drive.files().get_media(
+            fileId=file_id
         )
 
-        destino = (
-            CARPETA_TEMP
-            / nombre_seguro
-        )
+    buffer = io.BytesIO()
 
-        request = (
-            drive.files()
-            .get_media(
-                fileId=archivo_id
-            )
-        )
-
-    print(
-        f"Descargando: {nombre}"
+    downloader = MediaIoBaseDownload(
+        buffer,
+        request
     )
 
-    with open(
-        destino,
-        "wb"
-    ) as archivo_salida:
+    terminado = False
 
-        downloader = MediaIoBaseDownload(
-            archivo_salida,
-            request
-        )
+    while not terminado:
 
-        terminado = False
+        _, terminado = downloader.next_chunk()
 
-        while not terminado:
+    buffer.seek(0)
 
-            estado, terminado = (
-                downloader.next_chunk()
-            )
-
-            if estado:
-
-                print(
-                    f"  Progreso: "
-                    f"{int(estado.progress() * 100)}%"
-                )
-
-    return destino
+    return buffer
 
 
 # ============================================================
-# LEER EXCEL
+# PROCESAR UN ARCHIVO
 # ============================================================
 
-def leer_excel(path):
+def procesar_archivo(
+    drive,
+    archivo
+):
+
+    nombre = limpiar_texto(
+        archivo["name"]
+    )
+
+    print()
+    print("=" * 70)
 
     print(
-        f"Leyendo archivo: {path.name}"
+        f"ARCHIVO DRIVE: {nombre}"
     )
+
+    print("=" * 70)
+
+    # --------------------------------------------------------
+    # Descargar
+    # --------------------------------------------------------
 
     try:
 
-        return pd.read_excel(
-            path,
-            sheet_name=None,
-            header=None,
-            dtype=str,
+        contenido = descargar_archivo(
+            drive,
+            archivo
         )
 
-    except Exception as e:
+    except Exception as error:
 
         print(
-            f"ERROR leyendo "
-            f"{path.name}: {e}"
+            f"ERROR descargando "
+            f"{nombre}: {error}"
         )
 
         return {}
 
+    # --------------------------------------------------------
+    # Abrir Excel
+    # --------------------------------------------------------
 
-# ============================================================
-# BUSCAR POSICIONES DE ENCABEZADOS
-# ============================================================
+    try:
 
-def posiciones_encabezados(valores):
-
-    posiciones = {
-        "fecha": None,
-        "dominio": None,
-        "interno": None,
-    }
-
-    for i, valor in enumerate(valores):
-
-        nombre = normalizar_columna(
-            valor
+        wb = load_workbook(
+            contenido,
+            data_only=True
         )
 
-        if nombre == "fecha":
-
-            posiciones["fecha"] = i
-
-        elif nombre == "dominio":
-
-            posiciones["dominio"] = i
-
-        elif nombre == "interno":
-
-            posiciones["interno"] = i
-
-    return posiciones
-
-
-# ============================================================
-# BUSCAR LÍNEA MÁS CERCANA
-# ============================================================
-
-def buscar_linea_para_bloque(
-    df,
-    fila_encabezado,
-    columna_inicio,
-    lineas_archivo
-):
-
-    # --------------------------------------------------------
-    # Buscar hacia arriba hasta 15 filas.
-    # --------------------------------------------------------
-
-    fila_minima = max(
-        0,
-        fila_encabezado - 15
-    )
-
-    candidatos = []
-
-    for fila_num in range(
-        fila_minima,
-        fila_encabezado
-    ):
-
-        fila = df.iloc[
-            fila_num
-        ].tolist()
-
-        for columna_num, valor in enumerate(
-            fila
-        ):
-
-            lineas = extraer_lineas_configuradas(
-                valor
-            )
-
-            if not lineas:
-                continue
-
-            distancia = abs(
-                columna_num
-                - columna_inicio
-            )
-
-            candidatos.append(
-                (
-                    distancia,
-                    fila_encabezado
-                    - fila_num,
-                    lineas
-                )
-            )
-
-    # --------------------------------------------------------
-    # Elegir encabezado más cercano
-    # espacialmente al bloque.
-    # --------------------------------------------------------
-
-    if candidatos:
-
-        candidatos.sort(
-            key=lambda x: (
-                x[0],
-                x[1]
-            )
-        )
-
-        lineas = candidatos[0][2]
-
-        if lineas:
-
-            return lineas[0]
-
-    # --------------------------------------------------------
-    # Si no encontramos encabezado dentro de la hoja,
-    # usar nombre del archivo únicamente si tiene una
-    # sola línea.
-    # --------------------------------------------------------
-
-    if len(lineas_archivo) == 1:
-
-        return lineas_archivo[0]
-
-    return None
-
-
-# ============================================================
-# EXTRAER BLOQUES DE UNA HOJA
-# ============================================================
-
-def extraer_bloques(
-    df,
-    lineas_archivo,
-    nombre_hoja
-):
-
-    controles = []
-
-    if df is None or df.empty:
-
-        return controles
-
-    df = df.fillna("")
-
-    # --------------------------------------------------------
-    # BUSCAR TODAS LAS FILAS QUE CONTIENEN "LINEA"
-    # --------------------------------------------------------
-
-    encabezados_linea = []
-
-    for fila_num in range(
-        len(df)
-    ):
-
-        fila = df.iloc[
-            fila_num
-        ].tolist()
-
-        for columna_num, valor in enumerate(
-            fila
-        ):
-
-            lineas = extraer_lineas_configuradas(
-                valor
-            )
-
-            if lineas:
-
-                encabezados_linea.append(
-                    (
-                        fila_num,
-                        columna_num,
-                        lineas
-                    )
-                )
-
-    print(
-        f"  Hoja '{nombre_hoja}': "
-        f"{len(encabezados_linea)} "
-        f"encabezados de línea detectados."
-    )
-
-    # --------------------------------------------------------
-    # BUSCAR TODAS LAS FILAS DE COLUMNAS
-    # --------------------------------------------------------
-
-    encabezados_datos = []
-
-    for fila_num in range(
-        len(df)
-    ):
-
-        valores = [
-            normalizar_texto(v)
-            for v in df.iloc[
-                fila_num
-            ].tolist()
-        ]
-
-        posiciones = posiciones_encabezados(
-            valores
-        )
-
-        if (
-            posiciones["fecha"] is not None
-            and posiciones["dominio"] is not None
-            and posiciones["interno"] is not None
-        ):
-
-            encabezados_datos.append(
-                (
-                    fila_num,
-                    posiciones
-                )
-            )
-
-    print(
-        f"  Hoja '{nombre_hoja}': "
-        f"{len(encabezados_datos)} "
-        f"bloques de datos detectados."
-    )
-
-    # --------------------------------------------------------
-    # PROCESAR CADA BLOQUE
-    # --------------------------------------------------------
-
-    for indice_bloque, (
-        fila_encabezado,
-        posiciones
-    ) in enumerate(encabezados_datos):
-
-        columna_fecha = posiciones[
-            "fecha"
-        ]
-
-        columna_dominio = posiciones[
-            "dominio"
-        ]
-
-        columna_interno = posiciones[
-            "interno"
-        ]
-
-        columna_inicio = min(
-            columna_fecha,
-            columna_dominio,
-            columna_interno
-        )
-
-        # ----------------------------------------------------
-        # DETERMINAR LÍNEA
-        # ----------------------------------------------------
-
-        linea = buscar_linea_para_bloque(
-            df,
-            fila_encabezado,
-            columna_inicio,
-            lineas_archivo
-        )
-
-        if linea is None:
-
-            print(
-                f"  Bloque {indice_bloque + 1}: "
-                "no se pudo determinar la línea. "
-                "Se ignora."
-            )
-
-            continue
+    except Exception as error:
 
         print(
-            f"  Bloque {indice_bloque + 1}: "
-            f"Línea {linea}"
+            f"ERROR abriendo "
+            f"{nombre}: {error}"
         )
 
-        # ----------------------------------------------------
-        # DÓNDE TERMINA EL BLOQUE
-        # ----------------------------------------------------
+        return {}
 
-        siguiente_encabezado = len(df)
+    resultados = {}
 
-        if (
-            indice_bloque + 1
-            < len(encabezados_datos)
-        ):
+    # --------------------------------------------------------
+    # Recorrer hojas
+    # --------------------------------------------------------
 
-            siguiente_encabezado = (
-                encabezados_datos[
-                    indice_bloque + 1
-                ][0]
-            )
-
-        # ----------------------------------------------------
-        # LEER FILAS
-        # ----------------------------------------------------
-
-        for fila_num in range(
-            fila_encabezado + 1,
-            siguiente_encabezado
-        ):
-
-            fila = df.iloc[
-                fila_num
-            ].tolist()
-
-            max_pos = max(
-                columna_fecha,
-                columna_dominio,
-                columna_interno
-            )
-
-            if len(fila) <= max_pos:
-                continue
-
-            # ------------------------------------------------
-            # SI APARECE OTRO "LINEA", TERMINAR BLOQUE
-            # ------------------------------------------------
-
-            contiene_nueva_linea = False
-
-            for valor in fila:
-
-                if extraer_lineas_configuradas(
-                    valor
-                ):
-
-                    contiene_nueva_linea = True
-                    break
-
-            if contiene_nueva_linea:
-
-                break
-
-            # ------------------------------------------------
-            # EXTRAER DATOS
-            # ------------------------------------------------
-
-            fecha = normalizar_texto(
-                fila[columna_fecha]
-            )
-
-            dominio = normalizar_texto(
-                fila[columna_dominio]
-            ).upper()
-
-            interno = normalizar_texto(
-                fila[columna_interno]
-            )
-
-            # ------------------------------------------------
-            # VALIDACIONES
-            # ------------------------------------------------
-
-            if not fecha:
-                continue
-
-            if not dominio:
-                continue
-
-            if not interno:
-                continue
-
-            if (
-                normalizar_columna(dominio)
-                == "dominio"
-            ):
-                continue
-
-            # ------------------------------------------------
-            # GUARDAR
-            # ------------------------------------------------
-
-            controles.append(
-                {
-                    "fecha": fecha,
-                    "dominio": dominio,
-                    "interno": interno,
-                    "linea": str(linea),
-                }
-            )
-
-    return controles
-
-
-# ============================================================
-# PROCESAR ARCHIVO COMPLETO
-# ============================================================
-
-def procesar_archivo(path):
-
-    lineas_archivo = lineas_del_nombre(
-        path.name
-    )
-
-    print(
-        f"Líneas detectadas por nombre: "
-        f"{lineas_archivo}"
-    )
-
-    hojas = leer_excel(
-        path
-    )
-
-    todos = []
-
-    for nombre_hoja, df in hojas.items():
+    for ws in wb.worksheets:
 
         print()
         print(
-            f"Procesando hoja: "
-            f"{nombre_hoja}"
+            f"Hoja: {ws.title}"
         )
 
-        controles = extraer_bloques(
-            df,
-            lineas_archivo,
-            nombre_hoja
+        bloques = encontrar_bloques(
+            ws
         )
 
-        todos.extend(
-            controles
-        )
-
-    return todos
-
-
-# ============================================================
-# GUARDAR CONTROLES
-# ============================================================
-
-def guardar_controles(controles):
-
-    if not controles:
-
-        print(
-            "No se encontraron controles."
-        )
-
-        return
-
-    df_nuevo = pd.DataFrame(
-        controles
-    )
-
-    # --------------------------------------------------------
-    # ASEGURAR COLUMNAS
-    # --------------------------------------------------------
-
-    columnas = [
-        "fecha",
-        "dominio",
-        "interno",
-        "linea",
-    ]
-
-    for columna in columnas:
-
-        if columna not in df_nuevo.columns:
-
-            df_nuevo[columna] = ""
-
-    df_nuevo = df_nuevo[
-        columnas
-    ]
-
-    # --------------------------------------------------------
-    # TODAS LAS LÍNEAS DETECTADAS
-    # --------------------------------------------------------
-
-    lineas = sorted(
-        set(
-            df_nuevo["linea"]
-            .astype(str)
-            .tolist()
-        )
-    )
-
-    for linea_texto in lineas:
-
-        try:
-
-            linea = int(
-                linea_texto
-            )
-
-        except ValueError:
-
-            continue
-
-        if linea not in LINEAS_EMPRESAS:
+        if not bloques:
 
             print(
-                f"Ignorando línea {linea}: "
-                "no está configurada."
+                "No se encontraron bloques "
+                "de líneas."
             )
 
             continue
 
-        df_linea = df_nuevo[
-            df_nuevo["linea"].astype(int)
-            == linea
-        ].copy()
+        print(
+            f"Bloques encontrados: "
+            f"{len(bloques)}"
+        )
 
-        if df_linea.empty:
+        for bloque in bloques:
+
+            linea = bloque["linea"]
+
+            print()
+            print(
+                f"Procesando Línea {linea}..."
+            )
+
+            print(
+                f"  Fila encabezado: "
+                f"{bloque['fila_linea']}"
+            )
+
+            print(
+                f"  Columna bloque: "
+                f"{bloque['columna_linea'] + 1}"
+            )
+
+            print(
+                f"  Fila columnas: "
+                f"{bloque['fila_encabezados']}"
+            )
+
+            df = extraer_datos_bloque(
+                ws,
+                bloque
+            )
+
+            if df.empty:
+
+                print(
+                    f"  Línea {linea}: "
+                    "0 controlados."
+                )
+
+                continue
+
+            print(
+                f"  Línea {linea}: "
+                f"{len(df)} controlados."
+            )
+
+            if linea not in resultados:
+
+                resultados[linea] = []
+
+            resultados[linea].append(
+                df
+            )
+
+    return resultados
+
+
+# ============================================================
+# UNIR Y GUARDAR CONTROLADOS
+# ============================================================
+
+def guardar_resultados(
+    resultados
+):
+
+    CARPETA_CONTROLADOS.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    for linea, dataframes in resultados.items():
+
+        if not dataframes:
             continue
 
-        archivo = (
+        df_nuevo = pd.concat(
+            dataframes,
+            ignore_index=True
+        )
+
+        if df_nuevo.empty:
+            continue
+
+        archivo_salida = (
             CARPETA_CONTROLADOS
             / f"linea{linea}.csv"
         )
 
         # ----------------------------------------------------
-        # LEER EXISTENTES
+        # Si ya existe información anterior,
+        # conservarla y agregar lo nuevo.
         # ----------------------------------------------------
 
-        if archivo.exists():
+        if archivo_salida.exists():
 
             try:
 
-                df_existente = pd.read_csv(
-                    archivo,
+                df_anterior = pd.read_csv(
+                    archivo_salida,
                     dtype=str,
-                    keep_default_na=False,
                     encoding="utf-8-sig"
                 )
 
-            except Exception as e:
+            except Exception:
 
-                print(
-                    f"Advertencia leyendo "
-                    f"{archivo}: {e}"
+                df_anterior = pd.DataFrame()
+
+            if not df_anterior.empty:
+
+                # Asegurar columnas
+                for columna in [
+                    "linea",
+                    "fecha",
+                    "dominio",
+                    "interno"
+                ]:
+
+                    if columna not in df_anterior.columns:
+
+                        df_anterior[
+                            columna
+                        ] = ""
+
+                df_nuevo = pd.concat(
+                    [
+                        df_anterior,
+                        df_nuevo
+                    ],
+                    ignore_index=True
                 )
 
-                df_existente = pd.DataFrame()
-
-        else:
-
-            df_existente = pd.DataFrame()
-
         # ----------------------------------------------------
-        # UNIR
+        # Normalizar columnas
         # ----------------------------------------------------
 
-        df_final = pd.concat(
-            [
-                df_existente,
-                df_linea
-            ],
-            ignore_index=True,
-            sort=False
-        )
+        columnas_finales = [
+            "linea",
+            "fecha",
+            "dominio",
+            "interno"
+        ]
 
-        # ----------------------------------------------------
-        # ASEGURAR COLUMNAS
-        # ----------------------------------------------------
+        for columna in columnas_finales:
 
-        for columna in columnas:
+            if columna not in df_nuevo.columns:
 
-            if columna not in df_final.columns:
+                df_nuevo[
+                    columna
+                ] = ""
 
-                df_final[columna] = ""
-
-        df_final = df_final[
-            columnas
+        df_nuevo = df_nuevo[
+            columnas_finales
         ]
 
         # ----------------------------------------------------
-        # NORMALIZAR
+        # Limpiar
         # ----------------------------------------------------
 
-        for columna in columnas:
+        df_nuevo["linea"] = (
+            df_nuevo["linea"]
+            .astype(str)
+            .str.strip()
+        )
 
-            df_final[columna] = (
-                df_final[columna]
-                .astype(str)
-                .str.strip()
-            )
-
-        df_final["dominio"] = (
-            df_final["dominio"]
+        df_nuevo["dominio"] = (
+            df_nuevo["dominio"]
+            .astype(str)
+            .str.strip()
             .str.upper()
         )
 
+        df_nuevo["interno"] = (
+            df_nuevo["interno"]
+            .astype(str)
+            .str.strip()
+        )
+
         # ----------------------------------------------------
-        # ELIMINAR DUPLICADOS
+        # Eliminar duplicados
         # ----------------------------------------------------
 
-        df_final = df_final.drop_duplicates(
+        df_nuevo = df_nuevo.drop_duplicates(
             subset=[
-                "fecha",
-                "dominio",
-                "interno",
                 "linea",
+                "dominio",
+                "interno"
             ],
             keep="last"
         )
 
         # ----------------------------------------------------
-        # ORDENAR
+        # Eliminar filas completamente vacías
         # ----------------------------------------------------
 
-        df_final = df_final.sort_values(
-            by=[
-                "fecha",
-                "dominio"
-            ],
-            kind="stable"
-        )
+        df_nuevo = df_nuevo[
+            (
+                df_nuevo["dominio"] != ""
+            )
+            |
+            (
+                df_nuevo["interno"] != ""
+            )
+        ]
 
         # ----------------------------------------------------
-        # GUARDAR
+        # Guardar
         # ----------------------------------------------------
 
-        df_final.to_csv(
-            archivo,
+        df_nuevo.to_csv(
+            archivo_salida,
             index=False,
             encoding="utf-8-sig"
         )
 
+        print()
         print(
-            f"Línea {linea}: "
-            f"{len(df_final)} controles -> "
-            f"{archivo}"
+            f"GUARDADO CONTROLADOS "
+            f"LÍNEA {linea}: "
+            f"{len(df_nuevo)} registros"
+        )
+
+        print(
+            f"Archivo: {archivo_salida}"
         )
 
 
 # ============================================================
-# MAIN
+# PROGRAMA PRINCIPAL
 # ============================================================
 
 def main():
 
     print()
-    print("=" * 60)
+    print("=" * 70)
     print(
-        "ACTUALIZADOR DE CONTROLADOS DESDE GOOGLE DRIVE"
+        "LECTOR DE CONTROLADOS DESDE GOOGLE DRIVE"
     )
-    print("=" * 60)
+    print("=" * 70)
+
+    print(
+        f"Carpeta Drive: "
+        f"{ID_CARPETA_DRIVE}"
+    )
+
     print()
 
-    drive = obtener_drive()
-
     # --------------------------------------------------------
-    # TODOS LOS ARCHIVOS DE LA CARPETA
+    # Conectar
     # --------------------------------------------------------
 
-    archivos = listar_archivos(
+    drive = conectar_drive()
+
+    print(
+        "Conexión con Google Drive: OK"
+    )
+
+    # --------------------------------------------------------
+    # Listar archivos
+    # --------------------------------------------------------
+
+    archivos = listar_archivos_drive(
         drive
     )
 
     print(
-        f"Archivos encontrados en Drive: "
+        f"Archivos encontrados: "
         f"{len(archivos)}"
     )
 
-    todos_los_controles = []
+    # --------------------------------------------------------
+    # Procesar
+    # --------------------------------------------------------
 
-    # --------------------------------------------------------
-    # PROCESAR TODO
-    # --------------------------------------------------------
+    resultados_totales = {}
 
     for archivo in archivos:
 
-        nombre = archivo.get(
-            "name",
-            ""
-        )
-
-        mime = archivo.get(
-            "mimeType",
-            ""
+        nombre = limpiar_texto(
+            archivo.get("name", "")
         )
 
         # ----------------------------------------------------
-        # TIPOS VÁLIDOS
+        # Solo procesar archivos que parezcan planillas
         # ----------------------------------------------------
+
+        nombre_mayuscula = (
+            nombre.upper()
+        )
 
         extensiones_validas = (
-            ".xlsx",
-            ".xls",
-            ".xlsm",
+            ".XLSX",
+            ".XLS",
+            ".CSV",
+            ".ODS"
         )
 
-        es_google_sheet = (
-            mime
-            == "application/vnd.google-apps.spreadsheet"
-        )
-
-        es_excel = (
-            nombre.lower().endswith(
+        es_planilla = (
+            nombre_mayuscula.endswith(
                 extensiones_validas
             )
+            or
+            archivo.get("mimeType")
+            == (
+                "application/vnd.google-apps.spreadsheet"
+            )
         )
 
-        if not es_google_sheet and not es_excel:
-
-            print(
-                f"Ignorando archivo no compatible: "
-                f"{nombre}"
-            )
+        if not es_planilla:
 
             continue
 
-        # ----------------------------------------------------
-        # PROCESAR
-        # ----------------------------------------------------
-
-        print()
-        print("-" * 60)
-        print(
-            f"PROCESANDO: {nombre}"
+        resultados = procesar_archivo(
+            drive,
+            archivo
         )
-        print("-" * 60)
 
-        try:
+        # ----------------------------------------------------
+        # Acumular
+        # ----------------------------------------------------
 
-            path = descargar_archivo(
-                drive,
-                archivo
-            )
+        for linea, dataframes in resultados.items():
 
-            controles = procesar_archivo(
-                path
-            )
+            if linea not in resultados_totales:
 
-            print(
-                f"Controles encontrados en archivo: "
-                f"{len(controles)}"
-            )
+                resultados_totales[
+                    linea
+                ] = []
 
-            todos_los_controles.extend(
-                controles
-            )
-
-        except Exception as e:
-
-            print(
-                f"ERROR procesando "
-                f"{nombre}: {e}"
+            resultados_totales[
+                linea
+            ].extend(
+                dataframes
             )
 
     # --------------------------------------------------------
-    # TOTAL
+    # Guardar
     # --------------------------------------------------------
 
     print()
-    print("=" * 60)
+    print("=" * 70)
     print(
-        f"TOTAL DE CONTROLES ENCONTRADOS: "
-        f"{len(todos_los_controles)}"
+        "GUARDANDO CONTROLADOS"
     )
-    print("=" * 60)
+    print("=" * 70)
+
+    guardar_resultados(
+        resultados_totales
+    )
 
     # --------------------------------------------------------
-    # GUARDAR
+    # Resumen
     # --------------------------------------------------------
-
-    guardar_controles(
-        todos_los_controles
-    )
 
     print()
-    print("=" * 60)
+    print("=" * 70)
     print(
-        "ACTUALIZACIÓN DE CONTROLADOS TERMINADA"
+        "LECTURA DE DRIVE COMPLETADA"
     )
-    print("=" * 60)
-    print()
+    print("=" * 70)
 
+    for linea in sorted(
+        resultados_totales.keys(),
+        key=lambda x: int(x)
+    ):
+
+        cantidad = sum(
+            len(df)
+            for df in resultados_totales[
+                linea
+            ]
+        )
+
+        print(
+            f"Línea {linea}: "
+            f"{cantidad} registros nuevos leídos"
+        )
+
+    print("=" * 70)
+
+
+# ============================================================
+# EJECUCIÓN
+# ============================================================
 
 if __name__ == "__main__":
 

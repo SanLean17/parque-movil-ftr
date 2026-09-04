@@ -2,15 +2,9 @@ name: Actualizador de Parques CNRT
 
 on:
 
-  # Ejecución automática diaria.
-  #
-  # El script decide si ya pasaron 15 días
-  # desde la última actualización real.
   schedule:
     - cron: "0 3 * * *"
 
-  # Permite ejecutarlo manualmente desde:
-  # GitHub → Actions → Actualizador de Parques CNRT
   workflow_dispatch:
 
 permissions:
@@ -25,17 +19,9 @@ jobs:
 
     steps:
 
-      # ------------------------------------------------------
-      # 1. DESCARGAR REPOSITORIO
-      # ------------------------------------------------------
-
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-
-      # ------------------------------------------------------
-      # 2. CONFIGURAR PYTHON
-      # ------------------------------------------------------
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -43,10 +29,6 @@ jobs:
         with:
           python-version: "3.11"
 
-
-      # ------------------------------------------------------
-      # 3. INSTALAR LIBRERÍAS
-      # ------------------------------------------------------
 
       - name: Instalar dependencias
         run: |
@@ -60,43 +42,68 @@ jobs:
           playwright install-deps chromium
 
 
-      # ------------------------------------------------------
-      # 4. DESCARGAR DATOS DESDE CNRT
-      # ------------------------------------------------------
+      # ----------------------------------------------------
+      # COMPROBAR SI YA PASARON 15 DÍAS
+      # ----------------------------------------------------
+
+      - name: Comprobar intervalo de actualización
+        id: intervalo
+        run: |
+
+          python control_actualizacion.py > intervalo.txt
+
+          cat intervalo.txt
+
+          if grep -q "ACTUALIZAR" intervalo.txt; then
+
+            echo "actualizar=true" >> "$GITHUB_OUTPUT"
+
+          else
+
+            echo "actualizar=false" >> "$GITHUB_OUTPUT"
+
+          fi
+
+
+      # ----------------------------------------------------
+      # DESCARGAR CNRT
+      # ----------------------------------------------------
 
       - name: Descargar parque desde CNRT
+        if: steps.intervalo.outputs.actualizar == 'true'
         run: |
 
           python descargar_cnrt.py
 
 
-      # ------------------------------------------------------
-      # 5. SEPARAR POR LÍNEA
-      # ------------------------------------------------------
+      # ----------------------------------------------------
+      # PROCESAR PARQUES
+      # ----------------------------------------------------
 
-      - name: Procesar parques por línea
+      - name: Separar vehículos por línea
+        if: steps.intervalo.outputs.actualizar == 'true'
         run: |
 
           python actualizar_parques.py
 
 
-      # ------------------------------------------------------
-      # 6. MOSTRAR CAMBIOS
-      # ------------------------------------------------------
+      # ----------------------------------------------------
+      # GUARDAR FECHA
+      # ----------------------------------------------------
 
-      - name: Mostrar cambios
+      - name: Guardar fecha de actualización
+        if: steps.intervalo.outputs.actualizar == 'true'
         run: |
 
-          git status
-
-          git diff --stat
+          python -c "from control_actualizacion import guardar_fecha; guardar_fecha()"
 
 
-      # ------------------------------------------------------
-      # 7. GUARDAR CAMBIOS
-      # ------------------------------------------------------
+      # ----------------------------------------------------
+      # GUARDAR TODO EN GITHUB
+      # ----------------------------------------------------
 
       - name: Guardar cambios en GitHub
+        if: steps.intervalo.outputs.actualizar == 'true'
         run: |
 
           git config user.name "github-actions[bot]"
@@ -108,6 +115,8 @@ jobs:
           git add controlados/*.csv || true
 
           git add cnrt/*.csv
+
+          git add ultima_actualizacion.txt
 
           git add cnrt_debug.png || true
 
@@ -122,3 +131,15 @@ jobs:
             git push
 
           fi
+
+
+      # ----------------------------------------------------
+      # MENSAJE CUANDO TODAVÍA NO CORRESPONDE ACTUALIZAR
+      # ----------------------------------------------------
+
+      - name: No corresponde actualizar todavía
+        if: steps.intervalo.outputs.actualizar == 'false'
+        run: |
+
+          echo "Todavía no pasaron 15 días desde la última actualización."
+          echo "No se descargará nuevamente CNRT."

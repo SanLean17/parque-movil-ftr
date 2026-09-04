@@ -1,670 +1,563 @@
+# ============================================================
+# ACTUALIZAR PARQUES POR LÍNEA
+# ============================================================
+
 from pathlib import Path
 import pandas as pd
+import re
 
 from configuracion_lineas import LINEAS_EMPRESAS
 
 
-# ============================================================
+# ------------------------------------------------------------
 # CARPETAS
-# ============================================================
+# ------------------------------------------------------------
 
 CARPETA_CNRT = Path("cnrt")
 CARPETA_PARQUES = Path("parques")
-CARPETA_CONTROLADOS = Path("controlados")
+
+CARPETA_CNRT.mkdir(exist_ok=True)
+CARPETA_PARQUES.mkdir(exist_ok=True)
 
 
-CARPETA_CNRT.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-CARPETA_PARQUES.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-CARPETA_CONTROLADOS.mkdir(
-    parents=True,
-    exist_ok=True
-)
-
-
-# ============================================================
-# FUNCIONES DE COLUMNAS
-# ============================================================
+# ------------------------------------------------------------
+# NORMALIZACIÓN DE COLUMNAS
+# ------------------------------------------------------------
 
 def normalizar_nombre_columna(nombre):
+    """
+    Convierte nombres de columnas a una forma comparable.
+    """
 
-    return (
-        str(nombre)
-        .strip()
-        .lower()
-        .replace("_", "")
-        .replace(" ", "")
-    )
+    nombre = str(nombre).strip().lower()
 
-
-def obtener_columna(df, nombres):
-
-    buscadas = {
-        normalizar_nombre_columna(nombre)
-        for nombre in nombres
+    reemplazos = {
+        "á": "a",
+        "é": "e",
+        "í": "i",
+        "ó": "o",
+        "ú": "u",
+        "ü": "u",
+        "ñ": "n",
     }
 
-    for columna in df.columns:
+    for viejo, nuevo in reemplazos.items():
+        nombre = nombre.replace(viejo, nuevo)
 
-        normalizada = (
-            normalizar_nombre_columna(
-                columna
-            )
-        )
+    nombre = re.sub(r"[^a-z0-9]", "", nombre)
 
-        if normalizada in buscadas:
+    return nombre
 
-            return columna
+
+def encontrar_columna(df, posibles):
+    """
+    Busca una columna aunque CNRT cambie mayúsculas,
+    espacios o acentos.
+    """
+
+    mapa = {
+        normalizar_nombre_columna(col): col
+        for col in df.columns
+    }
+
+    for posible in posibles:
+        clave = normalizar_nombre_columna(posible)
+
+        if clave in mapa:
+            return mapa[clave]
 
     return None
 
 
-def obtener_columna_linea(df):
+# ------------------------------------------------------------
+# EXTRAER LÍNEAS
+# ------------------------------------------------------------
 
-    return obtener_columna(
-        df,
-        [
-            "linea",
-            "lineanro",
-            "nrolinea",
-            "linea_nro",
-        ]
-    )
+def extraer_numeros_linea(valor):
+    """
+    Extrae números de una celda de línea.
 
+    Ejemplos:
 
-def obtener_columna_empresa(df):
+    '195'
+        -> [195]
 
-    return obtener_columna(
-        df,
-        [
-            "empresaNro",
-            "empresa",
-            "nroEmpresa",
-            "nroHabilitacionCNRT",
-        ]
-    )
+    '195, 2077IE, 2077OE, 2077OP1'
+        -> [195]
 
+    '45, 70, 119'
+        -> [45, 70, 119]
 
-def obtener_columna_dominio(df):
+    '51/74/79/164/177'
+        -> [51, 74, 79, 164, 177]
 
-    return obtener_columna(
-        df,
-        [
-            "dominio",
-            "patente",
-            "dominio_vehiculo",
-        ]
-    )
-
-
-# ============================================================
-# NORMALIZACIÓN
-# ============================================================
-
-def normalizar_numero(valor):
+    La idea es quedarse con los identificadores numéricos
+    de las líneas y NO confundir los números internos de
+    una empresa con líneas.
+    """
 
     if pd.isna(valor):
-
-        return ""
+        return []
 
     texto = str(valor).strip()
 
     if not texto:
+        return []
 
-        return ""
+    # Separadores habituales.
+    partes = re.split(r"[,;/|]+", texto)
 
-    try:
+    resultado = []
 
-        numero = float(texto)
+    for parte in partes:
 
-        if numero.is_integer():
+        parte = parte.strip()
 
-            return str(int(numero))
-
-    except Exception:
-
-        pass
-
-    return texto
-
-
-def normalizar_dominio(valor):
-
-    if pd.isna(valor):
-
-        return ""
-
-    return (
-        str(valor)
-        .strip()
-        .upper()
-    )
-
-
-# ============================================================
-# LEER CSV
-# ============================================================
-
-def leer_csv(path):
-
-    for separador in [";", ","]:
-
-        try:
-
-            df = pd.read_csv(
-                path,
-                encoding="utf-8-sig",
-                dtype=str,
-                sep=separador
-            )
-
-            if len(df.columns) > 1:
-
-                return df
-
-        except Exception:
-
+        if not parte:
             continue
 
-    raise RuntimeError(
-        f"No se pudo leer el CSV: {path}"
-    )
+        # Si el elemento empieza directamente con números,
+        # tomamos ese número.
+        #
+        # Ejemplo:
+        # 195       -> 195
+        # 2077IE    -> 2077
+        # 2077OP11  -> 2077
+        #
+        # PERO posteriormente solo aceptaremos números que
+        # estén dentro de LINEAS_EMPRESAS.
+        match = re.match(r"^(\d+)", parte)
+
+        if match:
+            numero = int(match.group(1))
+
+            if numero in LINEAS_EMPRESAS:
+                resultado.append(numero)
+
+    # Eliminar duplicados conservando orden.
+    return list(dict.fromkeys(resultado))
 
 
-# ============================================================
-# OBTENER ARCHIVOS CNRT
-# ============================================================
+# ------------------------------------------------------------
+# OBTENER LÍNEA PRINCIPAL
+# ------------------------------------------------------------
 
-def obtener_archivos_cnrt():
+def obtener_lineas_de_fila(valor):
+    """
+    Devuelve las líneas configuradas encontradas en la celda.
+    """
 
-    archivos = sorted(
-        CARPETA_CNRT.glob(
-            "empresa_*.csv"
-        )
-    )
-
-    return archivos
+    return extraer_numeros_linea(valor)
 
 
-# ============================================================
-# CARGAR TODAS LAS DESCARGAS
-# ============================================================
+# ------------------------------------------------------------
+# LEER TODOS LOS CSV CNRT
+# ------------------------------------------------------------
 
 def cargar_datos_cnrt():
-
-    archivos = obtener_archivos_cnrt()
+    archivos = sorted(CARPETA_CNRT.glob("empresa_*.csv"))
 
     if not archivos:
+        print("ERROR: no se encontraron CSV en la carpeta cnrt/")
+        return pd.DataFrame()
 
-        raise RuntimeError(
-            "No hay archivos CNRT descargados."
-        )
-
-    dfs = []
+    datos = []
 
     for archivo in archivos:
 
-        print(
-            f"Leyendo: {archivo}"
-        )
-
-        df = leer_csv(archivo)
-
-        if df.empty:
-
-            print(
-                f"ADVERTENCIA: {archivo} está vacío."
-            )
-
-            continue
-
-        dfs.append(df)
-
-    if not dfs:
-
-        raise RuntimeError(
-            "Todos los CSV de CNRT están vacíos."
-        )
-
-    return pd.concat(
-        dfs,
-        ignore_index=True
-    )
-
-
-# ============================================================
-# FILTRAR POR CONFIGURACIÓN
-# ============================================================
-
-def filtrar_lineas_configuradas(df):
-
-    columna_empresa = obtener_columna_empresa(
-        df
-    )
-
-    columna_linea = obtener_columna_linea(
-        df
-    )
-
-    if columna_empresa is None:
-
-        raise RuntimeError(
-            "El CSV de CNRT no tiene columna "
-            "empresaNro."
-        )
-
-    if columna_linea is None:
-
-        raise RuntimeError(
-            "El CSV de CNRT no tiene columna "
-            "linea."
-        )
-
-    trabajo = df.copy()
-
-    trabajo["_empresa"] = (
-        trabajo[columna_empresa]
-        .fillna("")
-        .apply(normalizar_numero)
-    )
-
-    trabajo["_linea"] = (
-        trabajo[columna_linea]
-        .fillna("")
-        .apply(normalizar_numero)
-    )
-
-    # --------------------------------------------------------
-    # CREAR PARES VÁLIDOS
-    # --------------------------------------------------------
-
-    pares_validos = {
-        (
-            str(empresa),
-            str(linea)
-        )
-        for linea, empresa
-        in LINEAS_EMPRESAS.items()
-    }
-
-    trabajo["_par"] = list(
-        zip(
-            trabajo["_empresa"],
-            trabajo["_linea"]
-        )
-    )
-
-    filtrado = trabajo[
-        trabajo["_par"].isin(
-            pares_validos
-        )
-    ].copy()
-
-    # --------------------------------------------------------
-    # ELIMINAR COLUMNAS AUXILIARES
-    # --------------------------------------------------------
-
-    filtrado.drop(
-        columns=[
-            "_empresa",
-            "_linea",
-            "_par"
-        ],
-        inplace=True
-    )
-
-    return filtrado
-
-
-# ============================================================
-# MOSTRAR RESUMEN
-# ============================================================
-
-def mostrar_resumen(df):
-
-    columna_empresa = obtener_columna_empresa(
-        df
-    )
-
-    columna_linea = obtener_columna_linea(
-        df
-    )
-
-    print()
-    print("========================================")
-    print(" RESUMEN DE VEHÍCULOS")
-    print("========================================")
-
-    for linea, empresa in sorted(
-        LINEAS_EMPRESAS.items(),
-        key=lambda x: int(x[0])
-    ):
-
-        datos = df[
-            (
-                df[columna_empresa]
-                .fillna("")
-                .apply(normalizar_numero)
-                == normalizar_numero(empresa)
-            )
-            &
-            (
-                df[columna_linea]
-                .fillna("")
-                .apply(normalizar_numero)
-                == normalizar_numero(linea)
-            )
-        ]
-
-        print(
-            f"Línea {linea:>3} "
-            f"(empresa {empresa}): "
-            f"{len(datos)} vehículos"
-        )
-
-
-# ============================================================
-# GUARDAR PARQUES
-# ============================================================
-
-def guardar_parques(df):
-
-    columna_empresa = obtener_columna_empresa(
-        df
-    )
-
-    columna_linea = obtener_columna_linea(
-        df
-    )
-
-    if columna_empresa is None:
-
-        raise RuntimeError(
-            "No existe columna empresa."
-        )
-
-    if columna_linea is None:
-
-        raise RuntimeError(
-            "No existe columna linea."
-        )
-
-    for linea, empresa in sorted(
-        LINEAS_EMPRESAS.items(),
-        key=lambda x: int(x[0])
-    ):
-
-        empresa_normalizada = (
-            normalizar_numero(empresa)
-        )
-
-        linea_normalizada = (
-            normalizar_numero(linea)
-        )
-
-        datos = df[
-            (
-                df[columna_empresa]
-                .fillna("")
-                .apply(normalizar_numero)
-                == empresa_normalizada
-            )
-            &
-            (
-                df[columna_linea]
-                .fillna("")
-                .apply(normalizar_numero)
-                == linea_normalizada
-            )
-        ].copy()
-
-        if datos.empty:
-
-            print(
-                f"ADVERTENCIA: Línea {linea} "
-                f"no devolvió vehículos."
-            )
-
-            print(
-                "NO se reemplaza su CSV anterior."
-            )
-
-            continue
-
-        archivo = (
-            CARPETA_PARQUES
-            / f"linea{linea}.csv"
-        )
-
-        datos.to_csv(
-            archivo,
-            index=False,
-            encoding="utf-8-sig",
-            sep=";"
-        )
-
-        print(
-            f"Línea {linea}: "
-            f"{len(datos)} vehículos → {archivo}"
-        )
-
-
-# ============================================================
-# ACTUALIZAR CONTROLADOS
-# ============================================================
-
-def actualizar_controlados(df):
-
-    columna_linea = obtener_columna_linea(
-        df
-    )
-
-    columna_dominio = obtener_columna_dominio(
-        df
-    )
-
-    if columna_linea is None:
-
-        raise RuntimeError(
-            "No existe columna linea."
-        )
-
-    if columna_dominio is None:
-
-        raise RuntimeError(
-            "No existe columna dominio."
-        )
-
-    print()
-    print("========================================")
-    print(" ACTUALIZANDO CONTROLADOS")
-    print("========================================")
-
-    for linea, empresa in sorted(
-        LINEAS_EMPRESAS.items(),
-        key=lambda x: int(x[0])
-    ):
-
-        archivo_controlados = (
-            CARPETA_CONTROLADOS
-            / f"linea{linea}.csv"
-        )
-
-        if not archivo_controlados.exists():
-
-            continue
+        print(f"Leyendo: {archivo}")
 
         try:
-
-            controlados = leer_csv(
-                archivo_controlados
+            df = pd.read_csv(
+                archivo,
+                dtype=str,
+                keep_default_na=False,
+                encoding="utf-8-sig",
             )
-
+        except UnicodeDecodeError:
+            df = pd.read_csv(
+                archivo,
+                dtype=str,
+                keep_default_na=False,
+                encoding="latin-1",
+            )
         except Exception as e:
-
-            print(
-                f"Error leyendo {archivo_controlados}: "
-                f"{e}"
-            )
-
+            print(f"ERROR leyendo {archivo}: {e}")
             continue
 
-        if controlados.empty:
-
+        if df.empty:
+            print(f"  -> vacío")
             continue
 
-        columna_dom_controlados = (
-            obtener_columna_dominio(
-                controlados
-            )
+        # Empresa obtenida del nombre:
+        #
+        # empresa_2077.csv
+        #
+        match = re.search(r"empresa_(\d+)", archivo.stem)
+
+        if match:
+            empresa = int(match.group(1))
+            df["_empresa_archivo"] = str(empresa)
+
+        datos.append(df)
+
+    if not datos:
+        return pd.DataFrame()
+
+    resultado = pd.concat(
+        datos,
+        ignore_index=True,
+        sort=False,
+    )
+
+    return resultado
+
+
+# ------------------------------------------------------------
+# FILTRAR POR LÍNEA
+# ------------------------------------------------------------
+
+def filtrar_por_linea(df, linea):
+    """
+    Devuelve únicamente los vehículos que pertenecen a la línea
+    indicada y a su empresa correspondiente.
+
+    IMPORTANTE:
+    No existe fallback que devuelva toda la empresa.
+    """
+
+    linea = int(linea)
+
+    empresa_esperada = LINEAS_EMPRESAS.get(linea)
+
+    if empresa_esperada is None:
+        print(f"Línea {linea}: no está configurada.")
+        return pd.DataFrame(columns=df.columns)
+
+    if df.empty:
+        return pd.DataFrame(columns=df.columns)
+
+    columna_linea = encontrar_columna(
+        df,
+        [
+            "linea",
+            "línea",
+            "lineanro",
+            "nrolinea",
+            "nro_linea",
+        ],
+    )
+
+    if columna_linea is None:
+        print(
+            f"ERROR: no se encontró columna 'linea' "
+            f"para la línea {linea}."
         )
 
-        if columna_dom_controlados is None:
+        return pd.DataFrame(columns=df.columns)
 
-            print(
-                f"No se encontró dominio en "
-                f"{archivo_controlados}"
-            )
+    columna_empresa = encontrar_columna(
+        df,
+        [
+            "empresaNro",
+            "empresa_nro",
+            "empresa",
+            "nroempresa",
+            "nro_empresa",
+        ],
+    )
 
+    filas_validas = []
+
+    for _, fila in df.iterrows():
+
+        # ----------------------------------------------------
+        # COMPROBAR EMPRESA
+        # ----------------------------------------------------
+
+        if columna_empresa:
+
+            valor_empresa = str(
+                fila.get(columna_empresa, "")
+            ).strip()
+
+            # Si la empresa no coincide, descartamos.
+            if valor_empresa:
+
+                numeros_empresa = re.findall(
+                    r"\d+",
+                    valor_empresa
+                )
+
+                if numeros_empresa:
+
+                    if str(empresa_esperada) not in numeros_empresa:
+                        continue
+
+        else:
+
+            # Si no existe columna empresa, usamos el nombre
+            # del archivo como respaldo.
+            empresa_archivo = str(
+                fila.get("_empresa_archivo", "")
+            ).strip()
+
+            if empresa_archivo:
+                if empresa_archivo != str(empresa_esperada):
+                    continue
+
+        # ----------------------------------------------------
+        # COMPROBAR LÍNEA
+        # ----------------------------------------------------
+
+        valor_linea = fila.get(
+            columna_linea,
+            ""
+        )
+
+        lineas_encontradas = obtener_lineas_de_fila(
+            valor_linea
+        )
+
+        # La línea configurada debe aparecer explícitamente.
+        if linea not in lineas_encontradas:
             continue
 
-        parque_linea = df[
-            (
-                df[columna_linea]
-                .fillna("")
-                .apply(normalizar_numero)
-                == normalizar_numero(linea)
-            )
-            &
-            (
-                df[
-                    obtener_columna_empresa(df)
-                ]
-                .fillna("")
-                .apply(normalizar_numero)
-                == normalizar_numero(empresa)
-            )
-        ]
+        filas_validas.append(fila)
 
-        dominios_actuales = {
-            normalizar_dominio(valor)
-            for valor
-            in parque_linea[
-                columna_dominio
-            ]
-        }
+    if not filas_validas:
+        return pd.DataFrame(columns=df.columns)
 
-        controlados["_dominio_temp"] = (
-            controlados[
-                columna_dom_controlados
-            ]
-            .apply(normalizar_dominio)
+    resultado = pd.DataFrame(
+        filas_validas,
+        columns=df.columns,
+    )
+
+    return resultado
+
+
+# ------------------------------------------------------------
+# LIMPIAR COLUMNAS INTERNAS
+# ------------------------------------------------------------
+
+def limpiar_dataframe(df):
+    columnas_eliminar = [
+        "_empresa_archivo",
+    ]
+
+    columnas_existentes = [
+        columna
+        for columna in columnas_eliminar
+        if columna in df.columns
+    ]
+
+    if columnas_existentes:
+        df = df.drop(
+            columns=columnas_existentes
         )
 
-        controlados = controlados[
-            controlados[
-                "_dominio_temp"
-            ].isin(
-                dominios_actuales
-            )
-        ].copy()
+    return df
 
-        controlados.drop(
-            columns=[
-                "_dominio_temp"
-            ],
-            inplace=True
-        )
 
-        controlados.to_csv(
-            archivo_controlados,
-            index=False,
-            encoding="utf-8-sig",
-            sep=";"
-        )
+# ------------------------------------------------------------
+# GUARDAR
+# ------------------------------------------------------------
+
+def guardar_linea(df, linea):
+    """
+
+    Guarda:
+
+        parques/lineaXXX.csv
+
+    """
+
+    archivo = CARPETA_PARQUES / f"linea{linea}.csv"
+
+    df = limpiar_dataframe(df)
+
+    # Si no encontramos vehículos, NO sobrescribimos un archivo
+    # existente con vacío.
+    #
+    # Esto evita que una falla temporal de CNRT destruya
+    # los datos anteriores.
+    if df.empty:
 
         print(
-            f"Línea {linea}: "
-            f"{len(controlados)} controlados conservados."
+            f"Línea {linea}: 0 vehículos encontrados."
         )
 
+        if archivo.exists():
+            print(
+                f"  -> Se conserva {archivo} "
+                f"porque ya existe."
+            )
+        else:
+            print(
+                f"  -> No se crea archivo vacío."
+            )
 
-# ============================================================
-# PROGRAMA PRINCIPAL
-# ============================================================
+        return
+
+    df.to_csv(
+        archivo,
+        index=False,
+        encoding="utf-8-sig",
+    )
+
+    print(
+        f"Línea {linea}: {len(df)} vehículos -> {archivo}"
+    )
+
+
+# ------------------------------------------------------------
+# DIAGNÓSTICO
+# ------------------------------------------------------------
+
+def diagnostico_linea_195(df):
+    """
+    Diagnóstico específico de la Línea 195.
+
+    Sirve para que en los logs de GitHub Actions podamos
+    comprobar qué está entregando CNRT.
+    """
+
+    linea = 195
+
+    print("")
+    print("=" * 60)
+    print("DIAGNÓSTICO LÍNEA 195")
+    print("=" * 60)
+
+    columna_linea = encontrar_columna(
+        df,
+        [
+            "linea",
+            "línea",
+            "lineanro",
+            "nrolinea",
+            "nro_linea",
+        ],
+    )
+
+    if columna_linea is None:
+        print("No se encontró columna linea.")
+        print("=" * 60)
+        return
+
+    columna_empresa = encontrar_columna(
+        df,
+        [
+            "empresaNro",
+            "empresa_nro",
+            "empresa",
+            "nroempresa",
+            "nro_empresa",
+        ],
+    )
+
+    if columna_empresa:
+
+        df_195 = df[
+            df[columna_empresa].astype(str).str.strip()
+            == "2077"
+        ]
+
+    else:
+
+        df_195 = df.copy()
+
+    print(
+        f"Filas de empresa 2077: {len(df_195)}"
+    )
+
+    contador = 0
+
+    for _, fila in df_195.iterrows():
+
+        valor = fila.get(
+            columna_linea,
+            ""
+        )
+
+        lineas = extraer_numeros_linea(valor)
+
+        if 195 in lineas:
+
+            contador += 1
+
+            if contador <= 10:
+
+                print(
+                    f"Ejemplo {contador}:"
+                )
+
+                print(
+                    f"  linea CNRT = {valor}"
+                )
+
+                print(
+                    f"  líneas detectadas = {lineas}"
+                )
+
+    print(
+        f"Vehículos donde se detectó línea 195: "
+        f"{contador}"
+    )
+
+    print("=" * 60)
+    print("")
+
+
+# ------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------
 
 def main():
 
-    print()
-    print("========================================")
-    print(" ACTUALIZADOR DE PARQUES FTR")
-    print("========================================")
+    print("")
+    print("=" * 60)
+    print("ACTUALIZADOR DE PARQUES CNRT")
+    print("=" * 60)
+    print("")
 
-    # --------------------------------------------------------
-    # CARGAR CNRT
-    # --------------------------------------------------------
+    df = cargar_datos_cnrt()
 
-    df_cnrt = cargar_datos_cnrt()
-
-    print()
-    print(
-        f"Registros totales descargados: "
-        f"{len(df_cnrt)}"
-    )
-
-    # --------------------------------------------------------
-    # FILTRAR
-    # --------------------------------------------------------
-
-    df_filtrado = (
-        filtrar_lineas_configuradas(
-            df_cnrt
+    if df.empty:
+        print(
+            "ERROR: no se pudieron cargar datos CNRT."
         )
-    )
+        return
 
     print(
-        f"Registros correspondientes a "
-        f"las líneas de la web: "
-        f"{len(df_filtrado)}"
+        f"Total de registros CNRT cargados: {len(df)}"
     )
 
-    # --------------------------------------------------------
-    # RESUMEN
-    # --------------------------------------------------------
-
-    mostrar_resumen(
-        df_filtrado
-    )
+    # Diagnóstico específico para 195.
+    diagnostico_linea_195(df)
 
     # --------------------------------------------------------
-    # GUARDAR PARQUES
+    # GENERAR CADA LÍNEA
     # --------------------------------------------------------
 
-    guardar_parques(
-        df_filtrado
-    )
+    for linea in sorted(LINEAS_EMPRESAS):
 
-    # --------------------------------------------------------
-    # CONTROLADOS
-    # --------------------------------------------------------
+        resultado = filtrar_por_linea(
+            df,
+            linea,
+        )
 
-    actualizar_controlados(
-        df_filtrado
-    )
+        guardar_linea(
+            resultado,
+            linea,
+        )
 
-    print()
-    print("========================================")
-    print(" ACTUALIZACIÓN COMPLETADA")
-    print("========================================")
+    print("")
+    print("=" * 60)
+    print("PROCESO TERMINADO")
+    print("=" * 60)
+    print("")
 
 
 if __name__ == "__main__":
-
     main()

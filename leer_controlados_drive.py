@@ -122,7 +122,7 @@ def listar_archivos(drive):
 # DESCARGAR ARCHIVO
 # ============================================================
 
-def descargar_archivo(drive, archivo):
+def descargar_archivo(drive, archivo):      archivo_id = archivo["id"]     nombre = archivo["name"]     mime = archivo.get("mimeType", "")      # --------------------------------------------------------     # GOOGLE SHEETS     # --------------------------------------------------------      if mime == "application/vnd.google-apps.spreadsheet":          destino = (             CARPETA_TEMP             / f"{nombre}.xlsx"         )          request = drive.files().export_media(             fileId=archivo_id,             mimeType=(                 "application/"                 "vnd.openxmlformats-officedocument."                 "spreadsheetml.sheet"             ),         )      # --------------------------------------------------------     # EXCEL NORMAL     # --------------------------------------------------------      else:          destino = (             CARPETA_TEMP             / nombre         )          request = drive.files().get_media(             fileId=archivo_id         )      with open(destino, "wb") as f:          downloader = MediaIoBaseDownload(             f,             request,         )          terminado = False          while not terminado:              estado, terminado = (                 downloader.next_chunk()             )              if estado:                  print(                     f"  Descargando {nombre}: "                     f"{int(estado.progress() * 100)}%"                 )      return destino
 
     archivo_id = archivo["id"]
     nombre = archivo["name"]
@@ -756,21 +756,28 @@ def main():
         # SOLO EXCEL
         # ----------------------------------------------------
 
-        extensiones_validas = (
-            ".xlsx",
-            ".xls",
-            ".xlsm",
-        )
+extensiones_validas = (
+    ".xlsx",
+    ".xls",
+    ".xlsm",
+)
 
-        if not nombre.lower().endswith(
-            extensiones_validas
-        ):
+es_google_sheet = (
+    mime
+    == "application/vnd.google-apps.spreadsheet"
+)
 
-            print(
-                f"Ignorando: {nombre}"
-            )
+es_excel = nombre.lower().endswith(
+    extensiones_validas
+)
 
-            continue
+if not es_google_sheet and not es_excel:
+
+    print(
+        f"Ignorando: {nombre}"
+    )
+
+    continue
 
         print("")
         print(

@@ -1,42 +1,124 @@
 name: Actualizador de Parques CNRT
 
 on:
+
+  # Ejecución automática diaria.
+  #
+  # El script decide si ya pasaron 15 días
+  # desde la última actualización real.
   schedule:
-    # Se ejecuta automáticamente el día 1 y 15 de cada mes a las 03:00 UTC
-    - cron: '0 3 1,15 * *'
-  workflow_dispatch: # Permite ejecutarlo manualmente desde la pestaña Actions en GitHub
+    - cron: "0 3 * * *"
+
+  # Permite ejecutarlo manualmente desde:
+  # GitHub → Actions → Actualizador de Parques CNRT
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 
 jobs:
+
   actualizar:
+
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar código del repositorio
+
+      # ------------------------------------------------------
+      # 1. DESCARGAR REPOSITORIO
+      # ------------------------------------------------------
+
+      - name: Descargar repositorio
         uses: actions/checkout@v4
+
+
+      # ------------------------------------------------------
+      # 2. CONFIGURAR PYTHON
+      # ------------------------------------------------------
 
       - name: Configurar Python
         uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
 
-      - name: Instalar librerías y Navegador Playwright
+        with:
+          python-version: "3.11"
+
+
+      # ------------------------------------------------------
+      # 3. INSTALAR LIBRERÍAS
+      # ------------------------------------------------------
+
+      - name: Instalar dependencias
         run: |
+
           python -m pip install --upgrade pip
-          pip install pandas requests playwright
+
+          pip install pandas playwright
+
           playwright install chromium
 
-      - name: Descargar parques oficiales de CNRT
-        run: |
-          python scraper.py
+          playwright install-deps chromium
 
-      - name: Filtrar y separar por línea
+
+      # ------------------------------------------------------
+      # 4. DESCARGAR DATOS DESDE CNRT
+      # ------------------------------------------------------
+
+      - name: Descargar parque desde CNRT
         run: |
+
+          python descargar_cnrt.py
+
+
+      # ------------------------------------------------------
+      # 5. SEPARAR POR LÍNEA
+      # ------------------------------------------------------
+
+      - name: Procesar parques por línea
+        run: |
+
           python actualizar_parques.py
 
-      - name: Guardar cambios en el repositorio
+
+      # ------------------------------------------------------
+      # 6. MOSTRAR CAMBIOS
+      # ------------------------------------------------------
+
+      - name: Mostrar cambios
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add parques/*.csv controlados/*.csv
-          git diff --staged --quiet || git commit -m "Bot: Actualización de parques y filtrado por línea"
-          git push
+
+          git status
+
+          git diff --stat
+
+
+      # ------------------------------------------------------
+      # 7. GUARDAR CAMBIOS
+      # ------------------------------------------------------
+
+      - name: Guardar cambios en GitHub
+        run: |
+
+          git config user.name "github-actions[bot]"
+
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add parques/*.csv
+
+          git add controlados/*.csv || true
+
+          git add cnrt/*.csv
+
+          git add cnrt_debug.png || true
+
+          if git diff --staged --quiet; then
+
+            echo "No hay cambios para guardar."
+
+          else
+
+            git commit -m "Bot: actualización CNRT de parques"
+
+            git push
+
+          fi

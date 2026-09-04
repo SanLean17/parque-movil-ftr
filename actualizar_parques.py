@@ -1,113 +1,126 @@
 # ============================================================
-# ACTUALIZAR PARQUES POR LÍNEA
+# ACTUALIZADOR DE PARQUES - PARQUE MÓVIL FTR
 # ============================================================
 
 from pathlib import Path
-import pandas as pd
 import re
+
+import pandas as pd
 
 from configuracion_lineas import LINEAS_EMPRESAS
 
 
-# ------------------------------------------------------------
-# CARPETAS
-# ------------------------------------------------------------
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
 
 CARPETA_CNRT = Path("cnrt")
 CARPETA_PARQUES = Path("parques")
 
-CARPETA_CNRT.mkdir(exist_ok=True)
-CARPETA_PARQUES.mkdir(exist_ok=True)
 
-
-# ------------------------------------------------------------
-# NORMALIZACIÓN DE COLUMNAS
-# ------------------------------------------------------------
+# ============================================================
+# NORMALIZAR NOMBRES DE COLUMNAS
+# ============================================================
 
 def normalizar_nombre_columna(nombre):
-    """
-    Convierte nombres de columnas a una forma comparable.
-    """
-
-    nombre = str(nombre).strip().lower()
-
-    reemplazos = {
-        "á": "a",
-        "é": "e",
-        "í": "i",
-        "ó": "o",
-        "ú": "u",
-        "ü": "u",
-        "ñ": "n",
-    }
-
-    for viejo, nuevo in reemplazos.items():
-        nombre = nombre.replace(viejo, nuevo)
-
-    nombre = re.sub(r"[^a-z0-9]", "", nombre)
-
-    return nombre
+    return (
+        str(nombre)
+        .strip()
+        .lower()
+        .replace(" ", "")
+        .replace("_", "")
+        .replace("-", "")
+    )
 
 
-def encontrar_columna(df, posibles):
-    """
-    Busca una columna aunque CNRT cambie mayúsculas,
-    espacios o acentos.
-    """
+def buscar_columna(df, posibles):
 
-    mapa = {
-        normalizar_nombre_columna(col): col
-        for col in df.columns
-    }
+    mapa = {}
+
+    for columna in df.columns:
+
+        normalizada = normalizar_nombre_columna(
+            columna
+        )
+
+        mapa[normalizada] = columna
 
     for posible in posibles:
-        clave = normalizar_nombre_columna(posible)
 
-        if clave in mapa:
-            return mapa[clave]
+        normalizada = normalizar_nombre_columna(
+            posible
+        )
+
+        if normalizada in mapa:
+
+            return mapa[normalizada]
 
     return None
 
 
-# ------------------------------------------------------------
-# EXTRAER LÍNEAS
-# ------------------------------------------------------------
+# ============================================================
+# NORMALIZAR EMPRESA
+# ============================================================
 
-def extraer_numeros_linea(valor):
+def normalizar_empresa(valor):
+
+    if pd.isna(valor):
+        return ""
+
+    texto = str(valor).strip()
+
+    # Evita casos como 2077.0
+    if re.fullmatch(r"\d+\.0", texto):
+        texto = texto[:-2]
+
+    return texto
+
+
+# ============================================================
+# EXTRAER NÚMEROS DE LÍNEA
+# ============================================================
+
+def extraer_lineas(valor):
+
     """
-    Extrae números de una celda de línea.
+    Convierte un campo CNRT como:
 
-    Ejemplos:
+        195
 
-    '195'
-        -> [195]
+    o:
 
-    '195, 2077IE, 2077OE, 2077OP1'
-        -> [195]
+        195, 2077IE, 2077OE, 2077OP1, 2077OP11
 
-    '45, 70, 119'
-        -> [45, 70, 119]
+    en:
 
-    '51/74/79/164/177'
-        -> [51, 74, 79, 164, 177]
+        {195, 2077}
 
-    La idea es quedarse con los identificadores numéricos
-    de las líneas y NO confundir los números internos de
-    una empresa con líneas.
+    Pero NO utilizaremos todos los números encontrados
+    automáticamente. La comparación final se hace contra
+    LINEAS_EMPRESAS.
+
+    Esto permite detectar correctamente 195 aunque el campo
+    contenga información adicional.
     """
 
     if pd.isna(valor):
-        return []
+        return set()
 
     texto = str(valor).strip()
 
     if not texto:
-        return []
+        return set()
 
-    # Separadores habituales.
-    partes = re.split(r"[,;/|]+", texto)
+    encontrados = set()
 
-    resultado = []
+    # --------------------------------------------------------
+    # Separar los diferentes elementos del campo
+    # --------------------------------------------------------
+
+    partes = re.split(
+        r"[,;/|]+",
+        texto
+    )
 
     for parte in partes:
 
@@ -116,448 +129,509 @@ def extraer_numeros_linea(valor):
         if not parte:
             continue
 
-        # Si el elemento empieza directamente con números,
-        # tomamos ese número.
+        # ----------------------------------------------------
+        # Tomar solamente el número inicial
         #
-        # Ejemplo:
+        # Ejemplos:
+        #
         # 195       -> 195
         # 2077IE    -> 2077
+        # 2077OP1   -> 2077
         # 2077OP11  -> 2077
-        #
-        # PERO posteriormente solo aceptaremos números que
-        # estén dentro de LINEAS_EMPRESAS.
-        match = re.match(r"^(\d+)", parte)
+        # ----------------------------------------------------
 
-        if match:
-            numero = int(match.group(1))
+        coincidencia = re.match(
+            r"^(\d+)",
+            parte
+        )
 
-            if numero in LINEAS_EMPRESAS:
-                resultado.append(numero)
+        if coincidencia:
 
-    # Eliminar duplicados conservando orden.
-    return list(dict.fromkeys(resultado))
+            numero = coincidencia.group(1)
 
-
-# ------------------------------------------------------------
-# OBTENER LÍNEA PRINCIPAL
-# ------------------------------------------------------------
-
-def obtener_lineas_de_fila(valor):
-    """
-    Devuelve las líneas configuradas encontradas en la celda.
-    """
-
-    return extraer_numeros_linea(valor)
-
-
-# ------------------------------------------------------------
-# LEER TODOS LOS CSV CNRT
-# ------------------------------------------------------------
-
-def cargar_datos_cnrt():
-    archivos = sorted(CARPETA_CNRT.glob("empresa_*.csv"))
-
-    if not archivos:
-        print("ERROR: no se encontraron CSV en la carpeta cnrt/")
-        return pd.DataFrame()
-
-    datos = []
-
-    for archivo in archivos:
-
-        print(f"Leyendo: {archivo}")
-
-        try:
-            df = pd.read_csv(
-                archivo,
-                dtype=str,
-                keep_default_na=False,
-                encoding="utf-8-sig",
+            encontrados.add(
+                numero
             )
-        except UnicodeDecodeError:
-            df = pd.read_csv(
-                archivo,
-                dtype=str,
-                keep_default_na=False,
-                encoding="latin-1",
-            )
-        except Exception as e:
-            print(f"ERROR leyendo {archivo}: {e}")
-            continue
 
-        if df.empty:
-            print(f"  -> vacío")
-            continue
+    return encontrados
 
-        # Empresa obtenida del nombre:
-        #
-        # empresa_2077.csv
-        #
-        match = re.search(r"empresa_(\d+)", archivo.stem)
 
-        if match:
-            empresa = int(match.group(1))
-            df["_empresa_archivo"] = str(empresa)
+# ============================================================
+# DETERMINAR SI UNA FILA PERTENECE A UNA LÍNEA
+# ============================================================
 
-        datos.append(df)
+def pertenece_a_linea(
+    valor_linea,
+    linea_buscada
+):
 
-    if not datos:
-        return pd.DataFrame()
+    linea_buscada = str(
+        linea_buscada
+    ).strip()
 
-    resultado = pd.concat(
-        datos,
-        ignore_index=True,
-        sort=False,
+    if not linea_buscada:
+        return False
+
+    lineas_encontradas = extraer_lineas(
+        valor_linea
     )
 
-    return resultado
+    return linea_buscada in lineas_encontradas
 
 
-# ------------------------------------------------------------
-# FILTRAR POR LÍNEA
-# ------------------------------------------------------------
+# ============================================================
+# LEER CSV CNRT
+# ============================================================
 
-def filtrar_por_linea(df, linea):
-    """
-    Devuelve únicamente los vehículos que pertenecen a la línea
-    indicada y a su empresa correspondiente.
+def leer_csv_cnrt(ruta):
 
-    IMPORTANTE:
-    No existe fallback que devuelva toda la empresa.
-    """
-
-    linea = int(linea)
-
-    empresa_esperada = LINEAS_EMPRESAS.get(linea)
-
-    if empresa_esperada is None:
-        print(f"Línea {linea}: no está configurada.")
-        return pd.DataFrame(columns=df.columns)
-
-    if df.empty:
-        return pd.DataFrame(columns=df.columns)
-
-    columna_linea = encontrar_columna(
-        df,
-        [
-            "linea",
-            "línea",
-            "lineanro",
-            "nrolinea",
-            "nro_linea",
-        ],
+    print()
+    print(
+        f"Leyendo: {ruta}"
     )
 
-    if columna_linea is None:
-        print(
-            f"ERROR: no se encontró columna 'linea' "
-            f"para la línea {linea}."
+    # --------------------------------------------------------
+    # Primero intentamos UTF-8
+    # --------------------------------------------------------
+
+    try:
+
+        df = pd.read_csv(
+            ruta,
+            dtype=str,
+            encoding="utf-8-sig"
         )
 
-        return pd.DataFrame(columns=df.columns)
-
-    columna_empresa = encontrar_columna(
-        df,
-        [
-            "empresaNro",
-            "empresa_nro",
-            "empresa",
-            "nroempresa",
-            "nro_empresa",
-        ],
-    )
-
-    filas_validas = []
-
-    for _, fila in df.iterrows():
+    except Exception:
 
         # ----------------------------------------------------
-        # COMPROBAR EMPRESA
+        # Segundo intento: latin-1
         # ----------------------------------------------------
 
-        if columna_empresa:
-
-            valor_empresa = str(
-                fila.get(columna_empresa, "")
-            ).strip()
-
-            # Si la empresa no coincide, descartamos.
-            if valor_empresa:
-
-                numeros_empresa = re.findall(
-                    r"\d+",
-                    valor_empresa
-                )
-
-                if numeros_empresa:
-
-                    if str(empresa_esperada) not in numeros_empresa:
-                        continue
-
-        else:
-
-            # Si no existe columna empresa, usamos el nombre
-            # del archivo como respaldo.
-            empresa_archivo = str(
-                fila.get("_empresa_archivo", "")
-            ).strip()
-
-            if empresa_archivo:
-                if empresa_archivo != str(empresa_esperada):
-                    continue
-
-        # ----------------------------------------------------
-        # COMPROBAR LÍNEA
-        # ----------------------------------------------------
-
-        valor_linea = fila.get(
-            columna_linea,
-            ""
+        df = pd.read_csv(
+            ruta,
+            dtype=str,
+            encoding="latin-1"
         )
 
-        lineas_encontradas = obtener_lineas_de_fila(
-            valor_linea
-        )
+    # --------------------------------------------------------
+    # Limpiar nombres de columnas
+    # --------------------------------------------------------
 
-        # La línea configurada debe aparecer explícitamente.
-        if linea not in lineas_encontradas:
-            continue
-
-        filas_validas.append(fila)
-
-    if not filas_validas:
-        return pd.DataFrame(columns=df.columns)
-
-    resultado = pd.DataFrame(
-        filas_validas,
-        columns=df.columns,
-    )
-
-    return resultado
-
-
-# ------------------------------------------------------------
-# LIMPIAR COLUMNAS INTERNAS
-# ------------------------------------------------------------
-
-def limpiar_dataframe(df):
-    columnas_eliminar = [
-        "_empresa_archivo",
+    df.columns = [
+        str(columna).strip()
+        for columna in df.columns
     ]
 
-    columnas_existentes = [
-        columna
-        for columna in columnas_eliminar
-        if columna in df.columns
-    ]
+    print(
+        f"Filas encontradas: {len(df)}"
+    )
 
-    if columnas_existentes:
-        df = df.drop(
-            columns=columnas_existentes
-        )
+    print(
+        "Columnas:"
+    )
+
+    print(
+        list(df.columns)
+    )
 
     return df
 
 
-# ------------------------------------------------------------
-# GUARDAR
-# ------------------------------------------------------------
+# ============================================================
+# FILTRAR UNA LÍNEA
+# ============================================================
 
-def guardar_linea(df, linea):
-    """
+def filtrar_por_linea(
+    df,
+    linea,
+    empresa_esperada,
+    nombre_archivo
+):
 
-    Guarda:
-
-        parques/lineaXXX.csv
-
-    """
-
-    archivo = CARPETA_PARQUES / f"linea{linea}.csv"
-
-    df = limpiar_dataframe(df)
-
-    # Si no encontramos vehículos, NO sobrescribimos un archivo
-    # existente con vacío.
-    #
-    # Esto evita que una falla temporal de CNRT destruya
-    # los datos anteriores.
-    if df.empty:
-
-        print(
-            f"Línea {linea}: 0 vehículos encontrados."
-        )
-
-        if archivo.exists():
-            print(
-                f"  -> Se conserva {archivo} "
-                f"porque ya existe."
-            )
-        else:
-            print(
-                f"  -> No se crea archivo vacío."
-            )
-
-        return
-
-    df.to_csv(
-        archivo,
-        index=False,
-        encoding="utf-8-sig",
-    )
-
-    print(
-        f"Línea {linea}: {len(df)} vehículos -> {archivo}"
-    )
-
-
-# ------------------------------------------------------------
-# DIAGNÓSTICO
-# ------------------------------------------------------------
-
-def diagnostico_linea_195(df):
-    """
-    Diagnóstico específico de la Línea 195.
-
-    Sirve para que en los logs de GitHub Actions podamos
-    comprobar qué está entregando CNRT.
-    """
-
-    linea = 195
-
-    print("")
-    print("=" * 60)
-    print("DIAGNÓSTICO LÍNEA 195")
-    print("=" * 60)
-
-    columna_linea = encontrar_columna(
+    columna_linea = buscar_columna(
         df,
         [
             "linea",
-            "línea",
             "lineanro",
             "nrolinea",
-            "nro_linea",
-        ],
+            "linea_nro"
+        ]
     )
 
     if columna_linea is None:
-        print("No se encontró columna linea.")
-        print("=" * 60)
-        return
 
-    columna_empresa = encontrar_columna(
+        print(
+            f"ADVERTENCIA: {nombre_archivo} "
+            "no tiene columna 'linea'."
+        )
+
+        return pd.DataFrame(
+            columns=df.columns
+        )
+
+    columna_empresa = buscar_columna(
         df,
         [
             "empresaNro",
+            "empresanro",
             "empresa_nro",
             "empresa",
             "nroempresa",
-            "nro_empresa",
-        ],
-    )
-
-    if columna_empresa:
-
-        df_195 = df[
-            df[columna_empresa].astype(str).str.strip()
-            == "2077"
+            "nrohabilitacioncnrt"
         ]
-
-    else:
-
-        df_195 = df.copy()
-
-    print(
-        f"Filas de empresa 2077: {len(df_195)}"
     )
 
-    contador = 0
+    # --------------------------------------------------------
+    # Filtrar por línea
+    # --------------------------------------------------------
 
-    for _, fila in df_195.iterrows():
+    mascara_linea = df[
+        columna_linea
+    ].apply(
+        lambda valor: pertenece_a_linea(
+            valor,
+            linea
+        )
+    )
 
-        valor = fila.get(
-            columna_linea,
-            ""
+    resultado = df[
+        mascara_linea
+    ].copy()
+
+    print(
+        f"Línea {linea}: "
+        f"{len(resultado)} vehículos "
+        f"encontrados por columna '{columna_linea}'."
+    )
+
+    # --------------------------------------------------------
+    # Si existe columna empresa, verificarla
+    # --------------------------------------------------------
+
+    if columna_empresa is not None:
+
+        empresa_normalizada = (
+            resultado[
+                columna_empresa
+            ]
+            .apply(normalizar_empresa)
         )
 
-        lineas = extraer_numeros_linea(valor)
+        empresa_esperada = normalizar_empresa(
+            empresa_esperada
+        )
 
-        if 195 in lineas:
+        # ----------------------------------------------------
+        # Solo eliminar cuando la empresa está informada
+        # y es diferente.
+        #
+        # Si está vacía, conservamos la fila porque el CSV
+        # ya proviene de la empresa consultada.
+        # ----------------------------------------------------
 
-            contador += 1
+        mascara_empresa_valida = (
+            (empresa_normalizada == "")
+            |
+            (
+                empresa_normalizada
+                == empresa_esperada
+            )
+        )
 
-            if contador <= 10:
+        eliminados = (
+            len(resultado)
+            - int(
+                mascara_empresa_valida.sum()
+            )
+        )
 
-                print(
-                    f"Ejemplo {contador}:"
-                )
+        if eliminados > 0:
 
-                print(
-                    f"  linea CNRT = {valor}"
-                )
+            print(
+                f"Línea {linea}: "
+                f"se eliminaron {eliminados} "
+                "filas de otra empresa."
+            )
 
-                print(
-                    f"  líneas detectadas = {lineas}"
-                )
+        resultado = resultado[
+            mascara_empresa_valida
+        ].copy()
 
-    print(
-        f"Vehículos donde se detectó línea 195: "
-        f"{contador}"
+    return resultado
+
+
+# ============================================================
+# PROCESAR TODAS LAS LÍNEAS
+# ============================================================
+
+def procesar():
+
+    CARPETA_CNRT.mkdir(
+        parents=True,
+        exist_ok=True
     )
 
-    print("=" * 60)
-    print("")
+    CARPETA_PARQUES.mkdir(
+        parents=True,
+        exist_ok=True
+    )
 
+    archivos = sorted(
+        CARPETA_CNRT.glob(
+            "empresa_*.csv"
+        )
+    )
 
-# ------------------------------------------------------------
-# MAIN
-# ------------------------------------------------------------
+    if not archivos:
 
-def main():
+        raise RuntimeError(
+            "No se encontraron archivos "
+            "empresa_*.csv en la carpeta cnrt."
+        )
 
-    print("")
-    print("=" * 60)
-    print("ACTUALIZADOR DE PARQUES CNRT")
-    print("=" * 60)
-    print("")
+    print()
+    print("=" * 70)
+    print(
+        "ACTUALIZADOR DE PARQUES CNRT"
+    )
+    print("=" * 70)
 
-    df = cargar_datos_cnrt()
+    print(
+        f"Archivos CNRT encontrados: "
+        f"{len(archivos)}"
+    )
 
-    if df.empty:
+    print()
+
+    # --------------------------------------------------------
+    # Cargar todos los CSV
+    # --------------------------------------------------------
+
+    empresas_data = {}
+
+    for archivo in archivos:
+
+        coincidencia = re.search(
+            r"empresa_(\d+)\.csv$",
+            archivo.name,
+            re.IGNORECASE
+        )
+
+        if not coincidencia:
+
+            continue
+
+        empresa = coincidencia.group(1)
+
+        try:
+
+            df = leer_csv_cnrt(
+                archivo
+            )
+
+            empresas_data[
+                empresa
+            ] = df
+
+        except Exception as error:
+
+            print(
+                f"ERROR leyendo {archivo}: "
+                f"{error}"
+            )
+
+    # --------------------------------------------------------
+    # Procesar cada línea configurada
+    # --------------------------------------------------------
+
+    total_lineas = 0
+
+    for linea, empresa in sorted(
+        LINEAS_EMPRESAS.items(),
+        key=lambda item: int(item[0])
+    ):
+
+        linea = str(linea)
+        empresa = str(empresa)
+
+        total_lineas += 1
+
+        print()
+        print("=" * 70)
+
         print(
-            "ERROR: no se pudieron cargar datos CNRT."
+            f"PROCESANDO LÍNEA {linea}"
         )
-        return
 
-    print(
-        f"Total de registros CNRT cargados: {len(df)}"
-    )
+        print(
+            f"Empresa CNRT: {empresa}"
+        )
 
-    # Diagnóstico específico para 195.
-    diagnostico_linea_195(df)
+        print("=" * 70)
 
-    # --------------------------------------------------------
-    # GENERAR CADA LÍNEA
-    # --------------------------------------------------------
+        # ----------------------------------------------------
+        # Buscar CSV de la empresa
+        # ----------------------------------------------------
 
-    for linea in sorted(LINEAS_EMPRESAS):
+        df = empresas_data.get(
+            empresa
+        )
+
+        if df is None:
+
+            print(
+                f"ADVERTENCIA: "
+                f"no existe empresa_{empresa}.csv"
+            )
+
+            continue
+
+        # ----------------------------------------------------
+        # Filtrar
+        # ----------------------------------------------------
 
         resultado = filtrar_por_linea(
             df,
             linea,
+            empresa,
+            f"empresa_{empresa}.csv"
         )
 
-        guardar_linea(
-            resultado,
-            linea,
+        # ----------------------------------------------------
+        # Archivo de salida
+        # ----------------------------------------------------
+
+        archivo_salida = (
+            CARPETA_PARQUES
+            / f"linea{linea}.csv"
         )
 
-    print("")
-    print("=" * 60)
-    print("PROCESO TERMINADO")
-    print("=" * 60)
-    print("")
+        # ----------------------------------------------------
+        # CASO ESPECIAL:
+        # si no encontramos vehículos, NO sobrescribimos
+        # automáticamente un archivo anterior válido.
+        # ----------------------------------------------------
 
+        if resultado.empty:
+
+            print(
+                f"ADVERTENCIA: "
+                f"Línea {linea} quedó sin vehículos."
+            )
+
+            if archivo_salida.exists():
+
+                print(
+                    f"Se conserva el archivo existente: "
+                    f"{archivo_salida}"
+                )
+
+            else:
+
+                print(
+                    f"No existe archivo anterior para "
+                    f"Línea {linea}."
+                )
+
+            continue
+
+        # ----------------------------------------------------
+        # Guardar
+        # ----------------------------------------------------
+
+        resultado.to_csv(
+            archivo_salida,
+            index=False,
+            encoding="utf-8-sig"
+        )
+
+        print(
+            f"GUARDADO -> {archivo_salida}"
+        )
+
+        print(
+            f"Vehículos Línea {linea}: "
+            f"{len(resultado)}"
+        )
+
+        # ----------------------------------------------------
+        # Diagnóstico especial Línea 195
+        # ----------------------------------------------------
+
+        if linea == "195":
+
+            print()
+            print(
+                "DIAGNÓSTICO LÍNEA 195"
+            )
+
+            print(
+                "-" * 50
+            )
+
+            print(
+                f"Columna utilizada: "
+                f"{buscar_columna(df, ['linea', 'lineanro', 'nrolinea', 'linea_nro'])}"
+            )
+
+            print(
+                f"Vehículos encontrados: "
+                f"{len(resultado)}"
+            )
+
+            if not resultado.empty:
+
+                columna_linea = buscar_columna(
+                    resultado,
+                    [
+                        "linea",
+                        "lineanro",
+                        "nrolinea",
+                        "linea_nro"
+                    ]
+                )
+
+                valores = (
+                    resultado[
+                        columna_linea
+                    ]
+                    .dropna()
+                    .astype(str)
+                    .drop_duplicates()
+                    .head(20)
+                    .tolist()
+                )
+
+                print(
+                    "Ejemplos de valores CNRT:"
+                )
+
+                for valor in valores:
+
+                    print(
+                        f"  - {valor}"
+                    )
+
+    print()
+    print("=" * 70)
+    print(
+        "ACTUALIZACIÓN COMPLETADA"
+    )
+    print("=" * 70)
+
+    print(
+        f"Líneas procesadas: "
+        f"{total_lineas}"
+    )
+
+    print("=" * 70)
+
+
+# ============================================================
+# PROGRAMA PRINCIPAL
+# ============================================================
 
 if __name__ == "__main__":
-    main()
+
+    procesar()

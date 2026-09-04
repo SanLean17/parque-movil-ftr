@@ -1,5 +1,6 @@
 pandas
 openpyxl
+playwright
 requests
 google-api-python-client
 google-auth

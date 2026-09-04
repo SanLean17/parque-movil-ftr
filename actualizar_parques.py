@@ -1,8 +1,9 @@
 # ============================================================
-# ACTUALIZADOR DE PARQUES - PARQUE MÓVIL FTR
+# ACTUALIZADOR DE PARQUES CNRT - PARQUE MÓVIL FTR
 # ============================================================
 
 from pathlib import Path
+import csv
 import re
 
 import pandas as pd
@@ -19,41 +20,45 @@ CARPETA_PARQUES = Path("parques")
 
 
 # ============================================================
-# NORMALIZAR NOMBRES DE COLUMNAS
+# NORMALIZAR NOMBRE DE COLUMNA
 # ============================================================
 
 def normalizar_nombre_columna(nombre):
+
     return (
         str(nombre)
         .strip()
         .lower()
+        .replace("\ufeff", "")
         .replace(" ", "")
         .replace("_", "")
         .replace("-", "")
     )
 
 
+# ============================================================
+# BUSCAR COLUMNA
+# ============================================================
+
 def buscar_columna(df, posibles):
 
-    mapa = {}
+    columnas_normalizadas = {}
 
     for columna in df.columns:
 
-        normalizada = normalizar_nombre_columna(
-            columna
-        )
-
-        mapa[normalizada] = columna
+        columnas_normalizadas[
+            normalizar_nombre_columna(columna)
+        ] = columna
 
     for posible in posibles:
 
-        normalizada = normalizar_nombre_columna(
+        clave = normalizar_nombre_columna(
             posible
         )
 
-        if normalizada in mapa:
+        if clave in columnas_normalizadas:
 
-            return mapa[normalizada]
+            return columnas_normalizadas[clave]
 
     return None
 
@@ -65,12 +70,22 @@ def buscar_columna(df, posibles):
 def normalizar_empresa(valor):
 
     if pd.isna(valor):
+
         return ""
 
     texto = str(valor).strip()
 
-    # Evita casos como 2077.0
-    if re.fullmatch(r"\d+\.0", texto):
+    texto = texto.replace(
+        "\ufeff",
+        ""
+    )
+
+    # Ejemplo: 2077.0 -> 2077
+    if re.fullmatch(
+        r"\d+\.0",
+        texto
+    ):
+
         texto = texto[:-2]
 
     return texto
@@ -83,7 +98,7 @@ def normalizar_empresa(valor):
 def extraer_lineas(valor):
 
     """
-    Convierte un campo CNRT como:
+    CNRT puede devolver valores como:
 
         195
 
@@ -91,30 +106,35 @@ def extraer_lineas(valor):
 
         195, 2077IE, 2077OE, 2077OP1, 2077OP11
 
-    en:
+    El objetivo es detectar que la fila pertenece a la
+    Línea 195 aunque existan otros datos después.
 
-        {195, 2077}
+    Cada elemento separado por coma, punto y coma, barra,
+    etc. se analiza individualmente.
 
-    Pero NO utilizaremos todos los números encontrados
-    automáticamente. La comparación final se hace contra
-    LINEAS_EMPRESAS.
+    Ejemplos:
 
-    Esto permite detectar correctamente 195 aunque el campo
-    contenga información adicional.
+        195          -> 195
+        2077IE       -> 2077
+        2077OP1      -> 2077
+        2077OP11     -> 2077
+
     """
 
     if pd.isna(valor):
+
         return set()
 
     texto = str(valor).strip()
 
     if not texto:
+
         return set()
 
     encontrados = set()
 
     # --------------------------------------------------------
-    # Separar los diferentes elementos del campo
+    # Separar elementos
     # --------------------------------------------------------
 
     partes = re.split(
@@ -127,17 +147,11 @@ def extraer_lineas(valor):
         parte = parte.strip()
 
         if not parte:
+
             continue
 
         # ----------------------------------------------------
         # Tomar solamente el número inicial
-        #
-        # Ejemplos:
-        #
-        # 195       -> 195
-        # 2077IE    -> 2077
-        # 2077OP1   -> 2077
-        # 2077OP11  -> 2077
         # ----------------------------------------------------
 
         coincidencia = re.match(
@@ -157,7 +171,7 @@ def extraer_lineas(valor):
 
 
 # ============================================================
-# DETERMINAR SI UNA FILA PERTENECE A UNA LÍNEA
+# DETERMINAR SI PERTENECE A UNA LÍNEA
 # ============================================================
 
 def pertenece_a_linea(
@@ -170,13 +184,55 @@ def pertenece_a_linea(
     ).strip()
 
     if not linea_buscada:
+
         return False
 
     lineas_encontradas = extraer_lineas(
         valor_linea
     )
 
-    return linea_buscada in lineas_encontradas
+    return (
+        linea_buscada
+        in lineas_encontradas
+    )
+
+
+# ============================================================
+# DETECTAR SEPARADOR DEL CSV
+# ============================================================
+
+def detectar_separador(ruta):
+
+    try:
+
+        with open(
+            ruta,
+            "r",
+            encoding="utf-8-sig",
+            errors="replace"
+        ) as archivo:
+
+            muestra = archivo.read(
+                10000
+            )
+
+        try:
+
+            dialecto = csv.Sniffer().sniff(
+                muestra,
+                delimiters=",;\t|"
+            )
+
+            return dialecto.delimiter
+
+        except Exception:
+
+            # Los CSV de CNRT normalmente utilizan coma.
+            return ","
+
+    except Exception:
+
+        return ","
 
 
 # ============================================================
@@ -190,8 +246,19 @@ def leer_csv_cnrt(ruta):
         f"Leyendo: {ruta}"
     )
 
+    separador = detectar_separador(
+        ruta
+    )
+
+    print(
+        f"Separador detectado: "
+        f"{repr(separador)}"
+    )
+
+    errores = []
+
     # --------------------------------------------------------
-    # Primero intentamos UTF-8
+    # Intento 1 - UTF-8
     # --------------------------------------------------------
 
     try:
@@ -199,47 +266,65 @@ def leer_csv_cnrt(ruta):
         df = pd.read_csv(
             ruta,
             dtype=str,
-            encoding="utf-8-sig"
+            encoding="utf-8-sig",
+            sep=separador,
+            engine="python",
+            on_bad_lines="warn"
         )
 
-    except Exception:
+        print(
+            f"CSV leído correctamente: "
+            f"{len(df)} filas"
+        )
 
-        # ----------------------------------------------------
-        # Segundo intento: latin-1
-        # ----------------------------------------------------
+        return df
+
+    except Exception as error:
+
+        errores.append(
+            f"UTF-8: {error}"
+        )
+
+    # --------------------------------------------------------
+    # Intento 2 - Latin-1
+    # --------------------------------------------------------
+
+    try:
 
         df = pd.read_csv(
             ruta,
             dtype=str,
-            encoding="latin-1"
+            encoding="latin-1",
+            sep=separador,
+            engine="python",
+            on_bad_lines="warn"
+        )
+
+        print(
+            f"CSV leído correctamente: "
+            f"{len(df)} filas"
+        )
+
+        return df
+
+    except Exception as error:
+
+        errores.append(
+            f"Latin-1: {error}"
         )
 
     # --------------------------------------------------------
-    # Limpiar nombres de columnas
+    # Si no se pudo leer
     # --------------------------------------------------------
 
-    df.columns = [
-        str(columna).strip()
-        for columna in df.columns
-    ]
-
-    print(
-        f"Filas encontradas: {len(df)}"
+    raise RuntimeError(
+        "No se pudo leer el CSV.\n"
+        + "\n".join(errores)
     )
-
-    print(
-        "Columnas:"
-    )
-
-    print(
-        list(df.columns)
-    )
-
-    return df
 
 
 # ============================================================
-# FILTRAR UNA LÍNEA
+# FILTRAR POR LÍNEA
 # ============================================================
 
 def filtrar_por_linea(
@@ -248,6 +333,10 @@ def filtrar_por_linea(
     empresa_esperada,
     nombre_archivo
 ):
+
+    # --------------------------------------------------------
+    # Buscar columna LINEA
+    # --------------------------------------------------------
 
     columna_linea = buscar_columna(
         df,
@@ -263,12 +352,24 @@ def filtrar_por_linea(
 
         print(
             f"ADVERTENCIA: {nombre_archivo} "
-            "no tiene columna 'linea'."
+            "no contiene una columna LINEA."
+        )
+
+        print(
+            "Columnas encontradas:"
+        )
+
+        print(
+            list(df.columns)
         )
 
         return pd.DataFrame(
             columns=df.columns
         )
+
+    # --------------------------------------------------------
+    # Buscar columna EMPRESA
+    # --------------------------------------------------------
 
     columna_empresa = buscar_columna(
         df,
@@ -283,15 +384,24 @@ def filtrar_por_linea(
     )
 
     # --------------------------------------------------------
-    # Filtrar por línea
+    # FILTRAR LÍNEA
     # --------------------------------------------------------
 
-    mascara_linea = df[
-        columna_linea
-    ].apply(
-        lambda valor: pertenece_a_linea(
-            valor,
-            linea
+    print(
+        f"Buscando vehículos de "
+        f"Línea {linea}..."
+    )
+
+    mascara_linea = (
+        df[
+            columna_linea
+        ]
+        .apply(
+            lambda valor:
+                pertenece_a_linea(
+                    valor,
+                    linea
+                )
         )
     )
 
@@ -302,80 +412,62 @@ def filtrar_por_linea(
     print(
         f"Línea {linea}: "
         f"{len(resultado)} vehículos "
-        f"encontrados por columna '{columna_linea}'."
+        f"encontrados."
     )
 
     # --------------------------------------------------------
-    # Si existe columna empresa, verificarla
+    # FILTRAR EMPRESA
     # --------------------------------------------------------
 
     if columna_empresa is not None:
 
-        empresa_normalizada = (
+        empresa_esperada = (
+            normalizar_empresa(
+                empresa_esperada
+            )
+        )
+
+        valores_empresa = (
             resultado[
                 columna_empresa
             ]
-            .apply(normalizar_empresa)
-        )
-
-        empresa_esperada = normalizar_empresa(
-            empresa_esperada
+            .apply(
+                normalizar_empresa
+            )
         )
 
         # ----------------------------------------------------
-        # Solo eliminar cuando la empresa está informada
-        # y es diferente.
+        # Si la empresa está vacía, conservamos la fila.
         #
-        # Si está vacía, conservamos la fila porque el CSV
-        # ya proviene de la empresa consultada.
+        # El archivo ya fue descargado específicamente para
+        # la empresa correspondiente.
         # ----------------------------------------------------
 
-        mascara_empresa_valida = (
-            (empresa_normalizada == "")
+        mascara_empresa = (
+            (valores_empresa == "")
             |
             (
-                empresa_normalizada
+                valores_empresa
                 == empresa_esperada
             )
         )
 
-        eliminados = (
-            len(resultado)
-            - int(
-                mascara_empresa_valida.sum()
-            )
-        )
-
-        if eliminados > 0:
-
-            print(
-                f"Línea {linea}: "
-                f"se eliminaron {eliminados} "
-                "filas de otra empresa."
-            )
-
         resultado = resultado[
-            mascara_empresa_valida
+            mascara_empresa
         ].copy()
+
+    # --------------------------------------------------------
+    # DEVOLVER RESULTADO
+    # --------------------------------------------------------
 
     return resultado
 
 
 # ============================================================
-# PROCESAR TODAS LAS LÍNEAS
+# PROCESAR TODAS LAS EMPRESAS
 # ============================================================
 
-def procesar():
-
-    CARPETA_CNRT.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    CARPETA_PARQUES.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+def cargar_empresas():
 
     archivos = sorted(
         CARPETA_CNRT.glob(
@@ -387,28 +479,16 @@ def procesar():
 
         raise RuntimeError(
             "No se encontraron archivos "
-            "empresa_*.csv en la carpeta cnrt."
+            "empresa_*.csv dentro de cnrt."
         )
 
-    print()
-    print("=" * 70)
-    print(
-        "ACTUALIZADOR DE PARQUES CNRT"
-    )
-    print("=" * 70)
+    empresas = {}
 
+    print()
     print(
         f"Archivos CNRT encontrados: "
         f"{len(archivos)}"
     )
-
-    print()
-
-    # --------------------------------------------------------
-    # Cargar todos los CSV
-    # --------------------------------------------------------
-
-    empresas_data = {}
 
     for archivo in archivos:
 
@@ -430,38 +510,99 @@ def procesar():
                 archivo
             )
 
-            empresas_data[
+            empresas[
                 empresa
             ] = df
 
         except Exception as error:
 
+            print()
             print(
-                f"ERROR leyendo {archivo}: "
-                f"{error}"
+                "ERROR leyendo "
+                f"{archivo}:"
             )
 
-    # --------------------------------------------------------
-    # Procesar cada línea configurada
-    # --------------------------------------------------------
+            print(
+                error
+            )
 
-    total_lineas = 0
+            # No detenemos todo el proceso por
+            # un CSV defectuoso.
+            continue
+
+    return empresas
+
+
+# ============================================================
+# PROCESAR PARQUES
+# ============================================================
+
+def procesar():
+
+    CARPETA_CNRT.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    CARPETA_PARQUES.mkdir(
+        parents=True,
+        exist_ok=True
+    )
+
+    print()
+    print("=" * 70)
+    print(
+        "ACTUALIZADOR DE PARQUES CNRT"
+    )
+    print("=" * 70)
+
+    empresas_data = cargar_empresas()
+
+    if not empresas_data:
+
+        raise RuntimeError(
+            "No se pudo cargar ningún "
+            "CSV de empresas."
+        )
+
+    print()
+    print("=" * 70)
+    print(
+        "SEPARANDO VEHÍCULOS POR LÍNEA"
+    )
+    print("=" * 70)
+
+    lineas_procesadas = 0
+
+    # --------------------------------------------------------
+    # LINEAS_EMPRESAS tiene:
+    #
+    # línea -> empresa
+    #
+    # Ejemplo:
+    #
+    # 195 -> 2077
+    # --------------------------------------------------------
 
     for linea, empresa in sorted(
         LINEAS_EMPRESAS.items(),
-        key=lambda item: int(item[0])
+        key=lambda item:
+            int(item[0])
     ):
 
-        linea = str(linea)
-        empresa = str(empresa)
+        linea = str(
+            linea
+        )
 
-        total_lineas += 1
+        empresa = str(
+            empresa
+        )
 
         print()
         print("=" * 70)
 
         print(
-            f"PROCESANDO LÍNEA {linea}"
+            f"LÍNEA {linea}"
         )
 
         print(
@@ -471,7 +612,7 @@ def procesar():
         print("=" * 70)
 
         # ----------------------------------------------------
-        # Buscar CSV de la empresa
+        # Buscar datos de la empresa
         # ----------------------------------------------------
 
         df = empresas_data.get(
@@ -482,7 +623,8 @@ def procesar():
 
             print(
                 f"ADVERTENCIA: "
-                f"no existe empresa_{empresa}.csv"
+                f"no se encontró "
+                f"empresa_{empresa}.csv"
             )
 
             continue
@@ -498,46 +640,46 @@ def procesar():
             f"empresa_{empresa}.csv"
         )
 
-        # ----------------------------------------------------
-        # Archivo de salida
-        # ----------------------------------------------------
-
         archivo_salida = (
             CARPETA_PARQUES
             / f"linea{linea}.csv"
         )
 
         # ----------------------------------------------------
-        # CASO ESPECIAL:
-        # si no encontramos vehículos, NO sobrescribimos
-        # automáticamente un archivo anterior válido.
+        # NO SOBRESCRIBIR CON VACÍO
         # ----------------------------------------------------
 
         if resultado.empty:
 
+            print()
             print(
                 f"ADVERTENCIA: "
-                f"Línea {linea} quedó sin vehículos."
+                f"Línea {linea} "
+                "no encontró vehículos."
             )
 
             if archivo_salida.exists():
 
                 print(
-                    f"Se conserva el archivo existente: "
-                    f"{archivo_salida}"
+                    "Se conserva el archivo "
+                    "anterior:"
+                )
+
+                print(
+                    archivo_salida
                 )
 
             else:
 
                 print(
-                    f"No existe archivo anterior para "
-                    f"Línea {linea}."
+                    "No existe un archivo "
+                    "anterior para esta línea."
                 )
 
             continue
 
         # ----------------------------------------------------
-        # Guardar
+        # GUARDAR
         # ----------------------------------------------------
 
         resultado.to_csv(
@@ -546,50 +688,61 @@ def procesar():
             encoding="utf-8-sig"
         )
 
+        print()
         print(
-            f"GUARDADO -> {archivo_salida}"
+            f"OK -> {archivo_salida}"
         )
 
         print(
-            f"Vehículos Línea {linea}: "
+            f"Vehículos encontrados: "
             f"{len(resultado)}"
         )
 
+        lineas_procesadas += 1
+
         # ----------------------------------------------------
-        # Diagnóstico especial Línea 195
+        # DIAGNÓSTICO ESPECIAL PARA 195
         # ----------------------------------------------------
 
         if linea == "195":
 
             print()
+            print("=" * 70)
             print(
-                "DIAGNÓSTICO LÍNEA 195"
+                "DIAGNÓSTICO ESPECIAL - LÍNEA 195"
+            )
+            print("=" * 70)
+
+            print(
+                f"Empresa: {empresa}"
             )
 
             print(
-                "-" * 50
-            )
-
-            print(
-                f"Columna utilizada: "
+                f"Columna LINEA utilizada: "
                 f"{buscar_columna(df, ['linea', 'lineanro', 'nrolinea', 'linea_nro'])}"
             )
 
             print(
-                f"Vehículos encontrados: "
+                f"Vehículos Línea 195: "
                 f"{len(resultado)}"
             )
 
-            if not resultado.empty:
+            columna_linea = buscar_columna(
+                resultado,
+                [
+                    "linea",
+                    "lineanro",
+                    "nrolinea",
+                    "linea_nro"
+                ]
+            )
 
-                columna_linea = buscar_columna(
-                    resultado,
-                    [
-                        "linea",
-                        "lineanro",
-                        "nrolinea",
-                        "linea_nro"
-                    ]
+            if columna_linea is not None:
+
+                print()
+                print(
+                    "Valores de LINEA "
+                    "encontrados:"
                 )
 
                 valores = (
@@ -599,37 +752,37 @@ def procesar():
                     .dropna()
                     .astype(str)
                     .drop_duplicates()
-                    .head(20)
+                    .head(30)
                     .tolist()
-                )
-
-                print(
-                    "Ejemplos de valores CNRT:"
                 )
 
                 for valor in valores:
 
                     print(
-                        f"  - {valor}"
+                        f"  {valor}"
                     )
+
+            print(
+                "=" * 70
+            )
 
     print()
     print("=" * 70)
     print(
-        "ACTUALIZACIÓN COMPLETADA"
+        "PROCESO FINALIZADO"
     )
     print("=" * 70)
 
     print(
-        f"Líneas procesadas: "
-        f"{total_lineas}"
+        f"Líneas procesadas correctamente: "
+        f"{lineas_procesadas}"
     )
 
     print("=" * 70)
 
 
 # ============================================================
-# PROGRAMA PRINCIPAL
+# EJECUCIÓN
 # ============================================================
 
 if __name__ == "__main__":

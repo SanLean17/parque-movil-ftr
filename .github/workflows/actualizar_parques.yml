@@ -7,6 +7,7 @@ on:
 
   workflow_dispatch:
 
+
 permissions:
   contents: write
 
@@ -42,32 +43,42 @@ jobs:
           playwright install-deps chromium
 
 
-      # ----------------------------------------------------
-      # COMPROBAR SI YA PASARON 15 DÍAS
-      # ----------------------------------------------------
+      # ====================================================
+      # DETERMINAR SI ES EJECUCIÓN MANUAL
+      # ====================================================
 
-      - name: Comprobar intervalo de actualización
+      - name: Comprobar intervalo de 15 días
         id: intervalo
         run: |
 
-          python control_actualizacion.py > intervalo.txt
-
-          cat intervalo.txt
-
-          if grep -q "ACTUALIZAR" intervalo.txt; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
 
             echo "actualizar=true" >> "$GITHUB_OUTPUT"
 
+            echo "Ejecución manual: se fuerza actualización."
+
           else
 
-            echo "actualizar=false" >> "$GITHUB_OUTPUT"
+            python control_actualizacion.py > intervalo.txt
+
+            cat intervalo.txt
+
+            if grep -q "ACTUALIZAR" intervalo.txt; then
+
+              echo "actualizar=true" >> "$GITHUB_OUTPUT"
+
+            else
+
+              echo "actualizar=false" >> "$GITHUB_OUTPUT"
+
+            fi
 
           fi
 
 
-      # ----------------------------------------------------
+      # ====================================================
       # DESCARGAR CNRT
-      # ----------------------------------------------------
+      # ====================================================
 
       - name: Descargar parque desde CNRT
         if: steps.intervalo.outputs.actualizar == 'true'
@@ -76,20 +87,20 @@ jobs:
           python descargar_cnrt.py
 
 
-      # ----------------------------------------------------
-      # PROCESAR PARQUES
-      # ----------------------------------------------------
+      # ====================================================
+      # SEPARAR POR LÍNEA
+      # ====================================================
 
-      - name: Separar vehículos por línea
+      - name: Procesar parques por línea
         if: steps.intervalo.outputs.actualizar == 'true'
         run: |
 
           python actualizar_parques.py
 
 
-      # ----------------------------------------------------
+      # ====================================================
       # GUARDAR FECHA
-      # ----------------------------------------------------
+      # ====================================================
 
       - name: Guardar fecha de actualización
         if: steps.intervalo.outputs.actualizar == 'true'
@@ -98,9 +109,9 @@ jobs:
           python -c "from control_actualizacion import guardar_fecha; guardar_fecha()"
 
 
-      # ----------------------------------------------------
-      # GUARDAR TODO EN GITHUB
-      # ----------------------------------------------------
+      # ====================================================
+      # GUARDAR CAMBIOS
+      # ====================================================
 
       - name: Guardar cambios en GitHub
         if: steps.intervalo.outputs.actualizar == 'true'
@@ -122,7 +133,7 @@ jobs:
 
           if git diff --staged --quiet; then
 
-            echo "No hay cambios para guardar."
+            echo "No hay cambios."
 
           else
 
@@ -133,13 +144,14 @@ jobs:
           fi
 
 
-      # ----------------------------------------------------
-      # MENSAJE CUANDO TODAVÍA NO CORRESPONDE ACTUALIZAR
-      # ----------------------------------------------------
+      # ====================================================
+      # NO ACTUALIZAR
+      # ====================================================
 
-      - name: No corresponde actualizar todavía
+      - name: Esperar hasta la próxima actualización
         if: steps.intervalo.outputs.actualizar == 'false'
         run: |
 
-          echo "Todavía no pasaron 15 días desde la última actualización."
-          echo "No se descargará nuevamente CNRT."
+          echo "Todavía no han pasado 15 días."
+
+          echo "No se modifica el parque móvil."

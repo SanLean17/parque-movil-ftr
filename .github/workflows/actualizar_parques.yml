@@ -1,195 +1,102 @@
-name: Actualizador de Parques CNRT
-
+name: Actualizador de Parque y Controles
 
 on:
 
-  # GitHub comprueba todos los días si ya
-  # corresponde una actualización.
+  # Ejecutar todos los días a las 03:00 UTC
   schedule:
+    - cron: '0 3 * * *'
 
-    - cron: "0 3 * * *"
-
-
-  # Permite actualización manual.
+  # Permite ejecutarlo manualmente desde GitHub
   workflow_dispatch:
 
-
-permissions:
-
-  contents: write
-
-
 jobs:
-
 
   actualizar:
 
     runs-on: ubuntu-latest
 
-
     steps:
 
-
-      # ======================================================
-      # 1. DESCARGAR REPOSITORIO
-      # ======================================================
+      # ------------------------------------------------------
+      # DESCARGAR REPOSITORIO
+      # ------------------------------------------------------
 
       - name: Descargar repositorio
-
         uses: actions/checkout@v4
 
-
-      # ======================================================
-      # 2. PYTHON
-      # ======================================================
+      # ------------------------------------------------------
+      # PYTHON
+      # ------------------------------------------------------
 
       - name: Configurar Python
-
         uses: actions/setup-python@v5
-
         with:
+          python-version: '3.10'
 
-          python-version: "3.11"
+      # ------------------------------------------------------
+      # INSTALAR DEPENDENCIAS
+      # ------------------------------------------------------
 
-
-      # ======================================================
-      # 3. PLAYWRIGHT
-      # ======================================================
-
-      - name: Instalar dependencias
-
+      - name: Instalar librerías
         run: |
-
           python -m pip install --upgrade pip
+          pip install pandas openpyxl
+          pip install google-api-python-client
+          pip install google-auth
+          pip install google-auth-httplib2
+          pip install google-auth-oauthlib
+          pip install requests
+          pip install playwright
 
-          pip install pandas playwright
+      # ------------------------------------------------------
+      # PLAYWRIGHT
+      # ------------------------------------------------------
 
+      - name: Instalar Chromium
+        run: |
           playwright install chromium
 
-          playwright install-deps chromium
+      # ------------------------------------------------------
+      # GOOGLE DRIVE
+      # ------------------------------------------------------
 
-
-      # ======================================================
-      # 4. COMPROBAR LOS 15 DÍAS
-      # ======================================================
-
-      - name: Comprobar intervalo
-
-        id: intervalo
-
+      - name: Actualizar controles desde Google Drive
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
+          python leer_controlados_drive.py
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+      # ------------------------------------------------------
+      # CNRT
+      # ------------------------------------------------------
 
-            echo "actualizar=true" >> "$GITHUB_OUTPUT"
-
-            echo "Ejecución manual: se fuerza la actualización."
-
-          else
-
-            python control_actualizacion.py > intervalo.txt
-
-            cat intervalo.txt
-
-            if grep -q "ACTUALIZAR" intervalo.txt; then
-
-              echo "actualizar=true" >> "$GITHUB_OUTPUT"
-
-            else
-
-              echo "actualizar=false" >> "$GITHUB_OUTPUT"
-
-            fi
-
-          fi
-
-
-      # ======================================================
-      # 5. DESCARGAR TODAS LAS EMPRESAS
-      # ======================================================
-
-      - name: Descargar parques desde CNRT
-
-        if: steps.intervalo.outputs.actualizar == 'true'
-
+      - name: Descargar parques oficiales CNRT
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
+          python scraper.py
 
-          python descargar_cnrt.py
+      # ------------------------------------------------------
+      # SEPARAR POR LÍNEA
+      # ------------------------------------------------------
 
-
-      # ======================================================
-      # 6. SEPARAR LAS LÍNEAS
-      # ======================================================
-
-      - name: Procesar parques por línea
-
-        if: steps.intervalo.outputs.actualizar == 'true'
-
+      - name: Filtrar y separar parques por línea
         run: |
-
           python actualizar_parques.py
 
-
-      # ======================================================
-      # 7. GUARDAR FECHA
-      # ======================================================
-
-      - name: Guardar fecha de actualización
-
-        if: steps.intervalo.outputs.actualizar == 'true'
-
-        run: |
-
-          python -c "from control_actualizacion import guardar_fecha; guardar_fecha()"
-
-
-      # ======================================================
-      # 8. GUARDAR CSV Y FECHA EN GITHUB
-      # ======================================================
+      # ------------------------------------------------------
+      # GUARDAR CAMBIOS
+      # ------------------------------------------------------
 
       - name: Guardar cambios
-
-        if: steps.intervalo.outputs.actualizar == 'true'
-
         run: |
 
-          git config user.name "github-actions[bot]"
-
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git add parques/*.csv
+          git add controlados/*.csv
 
-          git add controlados/*.csv || true
+          git diff --staged --quiet || git commit -m "Bot: actualización CNRT y controles"
 
-          git add cnrt/*.csv
-
-          git add ultima_actualizacion.txt
-
-
-          if git diff --staged --quiet; then
-
-            echo "No hubo cambios."
-
-          else
-
-            git commit -m "Bot: actualización CNRT de parques"
-
-            git push
-
-          fi
-
-
-      # ======================================================
-      # 9. SI NO PASARON 15 DÍAS
-      # ======================================================
-
-      - name: No corresponde actualizar
-
-        if: steps.intervalo.outputs.actualizar == 'false'
-
-        run: |
-
-          echo "Todavía no pasaron 15 días."
-
-          echo "No se descargará nuevamente CNRT."
+          git push

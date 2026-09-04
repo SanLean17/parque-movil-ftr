@@ -3,8 +3,9 @@
 # ============================================================
 
 from pathlib import Path
+import re
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 from configuracion_lineas import EMPRESAS_CNRT
 
@@ -15,48 +16,220 @@ from configuracion_lineas import EMPRESAS_CNRT
 
 URL_CNRT = (
     "https://consultapme.cnrt.gob.ar/"
-    "consulta_vehiculos_habilitados"
+    "vehiculos_habilitados"
 )
 
 CARPETA_SALIDA = Path("cnrt")
 
 
 # ============================================================
-# BUSCAR PASAJEROS
+# UTILIDADES
 # ============================================================
 
-def buscar_opcion_pasajeros(page):
+def texto_limpio(valor):
+    if valor is None:
+        return ""
+
+    return re.sub(
+        r"\s+",
+        " ",
+        str(valor)
+    ).strip()
+
+
+# ============================================================
+# BUSCAR Y SELECCIONAR TIPO TRANSPORTE
+# ============================================================
+
+def seleccionar_pasajeros(page):
+
+    print(
+        "Seleccionando Tipo Transporte = Pasajeros..."
+    )
 
     selects = page.locator("select")
 
-    for i in range(selects.count()):
+    cantidad_selects = selects.count()
+
+    print(
+        f"Selects encontrados en la página: "
+        f"{cantidad_selects}"
+    )
+
+    # --------------------------------------------------------
+    # PRIMER INTENTO:
+    # buscar un select que tenga una opción cuyo texto
+    # contenga "Pasajeros"
+    # --------------------------------------------------------
+
+    for i in range(cantidad_selects):
 
         select = selects.nth(i)
 
         try:
 
+            if not select.is_visible():
+                continue
+
             opciones = select.locator("option")
 
-            for j in range(opciones.count()):
+            cantidad_opciones = opciones.count()
 
-                texto = (
-                    opciones.nth(j)
-                    .inner_text()
-                    .strip()
+            for j in range(cantidad_opciones):
+
+                opcion = opciones.nth(j)
+
+                texto = texto_limpio(
+                    opcion.inner_text()
+                )
+
+                value = opcion.get_attribute(
+                    "value"
                 )
 
                 if "pasajero" in texto.lower():
 
-                    opciones.nth(j).click()
-
                     print(
-                        f"Tipo de transporte: {texto}"
+                        f"Encontrada opción "
+                        f"'{texto}' "
+                        f"(value={value})"
                     )
 
-                    return True
+                    # ----------------------------------------
+                    # Seleccionar por value cuando exista
+                    # ----------------------------------------
+
+                    if value is not None:
+
+                        try:
+
+                            select.select_option(
+                                value=value
+                            )
+
+                            print(
+                                "Tipo de transporte "
+                                "seleccionado correctamente."
+                            )
+
+                            return True
+
+                        except Exception:
+                            pass
+
+                    # ----------------------------------------
+                    # Segundo intento: seleccionar por label
+                    # ----------------------------------------
+
+                    try:
+
+                        select.select_option(
+                            label=texto
+                        )
+
+                        print(
+                            "Tipo de transporte "
+                            "seleccionado correctamente."
+                        )
+
+                        return True
+
+                    except Exception:
+                        pass
 
         except Exception:
             continue
+
+    # --------------------------------------------------------
+    # SEGUNDO INTENTO:
+    # buscar específicamente el select relacionado con
+    # "Tipo Transporte"
+    # --------------------------------------------------------
+
+    posibles_selectores = [
+
+        'select[name*="tipo" i]',
+
+        'select[id*="tipo" i]',
+
+        'select[name*="transporte" i]',
+
+        'select[id*="transporte" i]',
+
+    ]
+
+    for selector in posibles_selectores:
+
+        campos = page.locator(selector)
+
+        for i in range(campos.count()):
+
+            select = campos.nth(i)
+
+            try:
+
+                if not select.is_visible():
+                    continue
+
+                opciones = select.locator("option")
+
+                for j in range(opciones.count()):
+
+                    opcion = opciones.nth(j)
+
+                    texto = texto_limpio(
+                        opcion.inner_text()
+                    )
+
+                    value = opcion.get_attribute(
+                        "value"
+                    )
+
+                    if "pasajero" not in texto.lower():
+                        continue
+
+                    print(
+                        f"Encontrada opción "
+                        f"'{texto}' "
+                        f"(value={value})"
+                    )
+
+                    if value:
+
+                        try:
+
+                            select.select_option(
+                                value=value
+                            )
+
+                            print(
+                                "Tipo de transporte "
+                                "seleccionado correctamente."
+                            )
+
+                            return True
+
+                        except Exception:
+                            pass
+
+                    try:
+
+                        select.select_option(
+                            label=texto
+                        )
+
+                        print(
+                            "Tipo de transporte "
+                            "seleccionado correctamente."
+                        )
+
+                        return True
+
+                    except Exception:
+                        pass
+
+            except Exception:
+                continue
 
     return False
 
@@ -70,10 +243,22 @@ def buscar_campo_empresa(page):
     posibles = [
 
         'input[name*="habilitacion" i]',
+
         'input[id*="habilitacion" i]',
+
         'input[name*="nro" i]',
+
         'input[id*="nro" i]',
+
+        'input[placeholder*="habilitacion" i]',
+
+        'input[placeholder*="número" i]',
+
+        'input[placeholder*="numero" i]',
+
         'input[type="text"]',
+
+        'input[type="number"]',
 
     ]
 
@@ -108,15 +293,22 @@ def buscar_boton_consulta(page):
 
         page.get_by_role(
             "button",
-            name="Enviar consulta"
+            name=re.compile(
+                r"Enviar consulta",
+                re.IGNORECASE
+            )
         ),
 
         page.get_by_text(
-            "Enviar consulta",
-            exact=True
+            re.compile(
+                r"Enviar consulta",
+                re.IGNORECASE
+            )
         ),
 
-        page.locator("button"),
+        page.locator(
+            'button'
+        ),
 
         page.locator(
             'input[type="submit"]'
@@ -139,16 +331,26 @@ def buscar_boton_consulta(page):
 
                 try:
 
-                    texto = (
-                        elemento
-                        .inner_text()
-                        .strip()
-                        .lower()
-                    )
+                    texto = texto_limpio(
+                        elemento.inner_text()
+                    ).lower()
 
                 except Exception:
 
                     texto = ""
+
+                # Para input submit puede estar en value
+                if not texto:
+
+                    try:
+
+                        texto = texto_limpio(
+                            elemento.get_attribute("value")
+                        ).lower()
+
+                    except Exception:
+
+                        texto = ""
 
                 if "enviar consulta" in texto:
 
@@ -170,33 +372,35 @@ def buscar_boton_exportar(page):
     candidatos = [
 
         page.get_by_text(
-            "Exportar a .csv",
-            exact=True
-        ),
-
-        page.get_by_text(
-            "Exportar a CSV",
-            exact=True
+            re.compile(
+                r"Exportar.*csv",
+                re.IGNORECASE
+            )
         ),
 
         page.get_by_role(
             "button",
-            name="Exportar a .csv"
+            name=re.compile(
+                r"Exportar.*csv",
+                re.IGNORECASE
+            )
         ),
 
         page.get_by_role(
             "link",
-            name="Exportar a .csv"
-        ),
-
-        page.get_by_text(
-            "Exportar",
-            exact=False
+            name=re.compile(
+                r"Exportar.*csv",
+                re.IGNORECASE
+            )
         ),
 
         page.locator("a"),
 
         page.locator("button"),
+
+        page.locator(
+            'input[type="button"]'
+        ),
 
     ]
 
@@ -215,16 +419,25 @@ def buscar_boton_exportar(page):
 
                 try:
 
-                    texto = (
-                        elemento
-                        .inner_text()
-                        .strip()
-                        .lower()
-                    )
+                    texto = texto_limpio(
+                        elemento.inner_text()
+                    ).lower()
 
                 except Exception:
 
                     texto = ""
+
+                if not texto:
+
+                    try:
+
+                        texto = texto_limpio(
+                            elemento.get_attribute("value")
+                        ).lower()
+
+                    except Exception:
+
+                        texto = ""
 
                 if (
                     "exportar" in texto
@@ -241,16 +454,48 @@ def buscar_boton_exportar(page):
 
 
 # ============================================================
+# GUARDAR CAPTURA DE ERROR
+# ============================================================
+
+def guardar_captura_error(
+    page,
+    codigo_empresa,
+    nombre
+):
+
+    try:
+
+        page.screenshot(
+            path=(
+                f"cnrt_error_"
+                f"{codigo_empresa}_"
+                f"{nombre}.png"
+            ),
+            full_page=True
+        )
+
+    except Exception:
+
+        pass
+
+
+# ============================================================
 # DESCARGAR UNA EMPRESA
 # ============================================================
 
-def descargar_empresa(page, codigo_empresa):
+def descargar_empresa(
+    page,
+    codigo_empresa
+):
 
     print()
     print("=" * 50)
+
     print(
-        f"CONSULTANDO EMPRESA CNRT {codigo_empresa}"
+        f"CONSULTANDO EMPRESA CNRT "
+        f"{codigo_empresa}"
     )
+
     print("=" * 50)
 
     # --------------------------------------------------------
@@ -259,9 +504,20 @@ def descargar_empresa(page, codigo_empresa):
 
     page.goto(
         URL_CNRT,
-        wait_until="networkidle",
+        wait_until="domcontentloaded",
         timeout=120000
     )
+
+    try:
+
+        page.wait_for_load_state(
+            "networkidle",
+            timeout=30000
+        )
+
+    except PlaywrightTimeoutError:
+
+        pass
 
     page.wait_for_timeout(3000)
 
@@ -269,23 +525,39 @@ def descargar_empresa(page, codigo_empresa):
     # PASAJEROS
     # --------------------------------------------------------
 
-    print(
-        "Seleccionando Tipo Transporte = Pasajeros..."
-    )
+    if not seleccionar_pasajeros(page):
 
-    if not buscar_opcion_pasajeros(page):
+        guardar_captura_error(
+            page,
+            codigo_empresa,
+            "pasajeros"
+        )
 
         raise RuntimeError(
-            "No se encontró la opción Pasajeros."
+            "No se pudo seleccionar "
+            "Tipo Transporte = Pasajeros."
         )
 
     # --------------------------------------------------------
     # EMPRESA
     # --------------------------------------------------------
 
-    campo_empresa = buscar_campo_empresa(page)
+    print(
+        "Buscando campo "
+        "Nro Habilitación CNRT..."
+    )
+
+    campo_empresa = buscar_campo_empresa(
+        page
+    )
 
     if campo_empresa is None:
+
+        guardar_captura_error(
+            page,
+            codigo_empresa,
+            "campo_empresa"
+        )
 
         raise RuntimeError(
             "No se encontró el campo "
@@ -297,25 +569,40 @@ def descargar_empresa(page, codigo_empresa):
     )
 
     print(
-        f"Nro Habilitación CNRT: {codigo_empresa}"
+        f"Nro Habilitación CNRT: "
+        f"{codigo_empresa}"
     )
 
     # --------------------------------------------------------
     # ENVIAR CONSULTA
     # --------------------------------------------------------
 
-    boton_consulta = buscar_boton_consulta(page)
+    boton_consulta = buscar_boton_consulta(
+        page
+    )
 
     if boton_consulta is None:
+
+        guardar_captura_error(
+            page,
+            codigo_empresa,
+            "boton_consulta"
+        )
 
         raise RuntimeError(
             "No se encontró el botón "
             "Enviar consulta."
         )
 
-    print("Enviando consulta...")
+    print(
+        "Enviando consulta..."
+    )
 
     boton_consulta.click()
+
+    # --------------------------------------------------------
+    # ESPERAR RESULTADOS
+    # --------------------------------------------------------
 
     try:
 
@@ -326,26 +613,35 @@ def descargar_empresa(page, codigo_empresa):
 
     except Exception:
 
-        # Algunas consultas son AJAX.
+        # La página puede procesar la consulta
+        # mediante AJAX.
         pass
 
-    page.wait_for_timeout(5000)
+    page.wait_for_timeout(7000)
 
     # --------------------------------------------------------
-    # BUSCAR EXPORTACIÓN
+    # EXPORTACIÓN
     # --------------------------------------------------------
 
-    boton_exportar = buscar_boton_exportar(page)
+    print(
+        "Buscando Exportar a .csv..."
+    )
+
+    boton_exportar = buscar_boton_exportar(
+        page
+    )
 
     if boton_exportar is None:
 
-        page.screenshot(
-            path=f"cnrt_error_{codigo_empresa}.png",
-            full_page=True
+        guardar_captura_error(
+            page,
+            codigo_empresa,
+            "exportar"
         )
 
         raise RuntimeError(
-            "No se encontró 'Exportar a .csv' "
+            "No se encontró "
+            "'Exportar a .csv' "
             f"para empresa {codigo_empresa}."
         )
 
@@ -353,7 +649,14 @@ def descargar_empresa(page, codigo_empresa):
     # DESCARGAR
     # --------------------------------------------------------
 
-    print("Descargando CSV...")
+    print(
+        "Descargando CSV..."
+    )
+
+    archivo_destino = (
+        CARPETA_SALIDA
+        / f"empresa_{codigo_empresa}.csv"
+    )
 
     with page.expect_download(
         timeout=120000
@@ -362,11 +665,6 @@ def descargar_empresa(page, codigo_empresa):
         boton_exportar.click()
 
     descarga = descarga_info.value
-
-    archivo_destino = (
-        CARPETA_SALIDA
-        / f"empresa_{codigo_empresa}.csv"
-    )
 
     descarga.save_as(
         str(archivo_destino)
@@ -379,13 +677,16 @@ def descargar_empresa(page, codigo_empresa):
     if not archivo_destino.exists():
 
         raise RuntimeError(
-            f"No se creó {archivo_destino}"
+            f"No se creó "
+            f"{archivo_destino}"
         )
 
     if archivo_destino.stat().st_size == 0:
 
         raise RuntimeError(
-            f"El archivo {archivo_destino} está vacío."
+            f"El archivo "
+            f"{archivo_destino} "
+            "está vacío."
         )
 
     print(
@@ -406,7 +707,9 @@ def main():
 
     print()
     print("=" * 60)
-    print("DESCARGADOR CNRT - PARQUE MÓVIL FTR")
+    print(
+        "DESCARGADOR CNRT - PARQUE MÓVIL FTR"
+    )
     print("=" * 60)
 
     print(
@@ -453,9 +756,15 @@ def main():
 
     print()
     print("=" * 60)
-    print("DESCARGA CNRT COMPLETADA")
+    print(
+        "DESCARGA CNRT COMPLETADA"
+    )
     print("=" * 60)
 
+
+# ============================================================
+# EJECUTAR
+# ============================================================
 
 if __name__ == "__main__":
 

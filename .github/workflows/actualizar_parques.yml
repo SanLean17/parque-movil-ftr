@@ -2,11 +2,9 @@ name: Actualizador de Parque y Controles
 
 on:
 
-  # Ejecutar todos los días a las 03:00 UTC
   schedule:
     - cron: '0 3 * * *'
 
-  # Permite ejecutarlo manualmente desde GitHub
   workflow_dispatch:
 
 jobs:
@@ -17,25 +15,13 @@ jobs:
 
     steps:
 
-      # ------------------------------------------------------
-      # DESCARGAR REPOSITORIO
-      # ------------------------------------------------------
-
       - name: Descargar repositorio
         uses: actions/checkout@v4
-
-      # ------------------------------------------------------
-      # PYTHON
-      # ------------------------------------------------------
 
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      # ------------------------------------------------------
-      # INSTALAR DEPENDENCIAS
-      # ------------------------------------------------------
 
       - name: Instalar librerías
         run: |
@@ -48,17 +34,13 @@ jobs:
           pip install requests
           pip install playwright
 
-      # ------------------------------------------------------
-      # PLAYWRIGHT
-      # ------------------------------------------------------
-
       - name: Instalar Chromium
         run: |
           playwright install chromium
 
-      # ------------------------------------------------------
-      # GOOGLE DRIVE
-      # ------------------------------------------------------
+      # ====================================================
+      # DRIVE — TODOS LOS DÍAS
+      # ====================================================
 
       - name: Actualizar controles desde Google Drive
         env:
@@ -66,27 +48,40 @@ jobs:
         run: |
           python leer_controlados_drive.py
 
-      # ------------------------------------------------------
-      # CNRT
-      # ------------------------------------------------------
+      # ====================================================
+      # CNRT — SOLO CUANDO CORRESPONDA
+      # ====================================================
+
+      - name: Comprobar si corresponde actualizar CNRT
+        id: control
+        run: |
+          python -c "from control_actualizacion import debe_actualizar; print('actualizar=' + str(debe_actualizar()).lower())" > estado.txt
+          cat estado.txt
+
+          if grep -q "actualizar=true" estado.txt; then
+            echo "actualizar=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "actualizar=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Descargar parques oficiales CNRT
-        env:
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        if: steps.control.outputs.actualizar == 'true'
         run: |
           python scraper.py
 
-      # ------------------------------------------------------
-      # SEPARAR POR LÍNEA
-      # ------------------------------------------------------
-
       - name: Filtrar y separar parques por línea
+        if: steps.control.outputs.actualizar == 'true'
         run: |
           python actualizar_parques.py
 
-      # ------------------------------------------------------
+      - name: Guardar fecha de actualización CNRT
+        if: steps.control.outputs.actualizar == 'true'
+        run: |
+          python -c "from control_actualizacion import guardar_fecha; guardar_fecha()"
+
+      # ====================================================
       # GUARDAR CAMBIOS
-      # ------------------------------------------------------
+      # ====================================================
 
       - name: Guardar cambios
         run: |
@@ -96,7 +91,8 @@ jobs:
 
           git add parques/*.csv
           git add controlados/*.csv
+          git add ultima_actualizacion.txt
 
-          git diff --staged --quiet || git commit -m "Bot: actualización CNRT y controles"
+          git diff --staged --quiet || git commit -m "Bot: actualización automática"
 
           git push

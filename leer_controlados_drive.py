@@ -1,21 +1,16 @@
 # ============================================================
 # LEER CONTROLADOS DESDE GOOGLE DRIVE
 # PARQUE MÓVIL FTR
-#
-# OBJETIVO:
-# - Leer diariamente las planillas de Google Drive.
-# - Detectar líneas individuales y múltiples.
-# - Extraer FECHA / DOMINIO / INTERNO.
-# - Mantener históricos.
-# - Agregar nuevos controles sin perder los anteriores.
-# - Evitar duplicados.
 # ============================================================
 
 from pathlib import Path
+
 import io
 import json
 import os
 import re
+
+from datetime import datetime, timezone
 
 import pandas as pd
 
@@ -32,7 +27,13 @@ from configuracion_lineas import LINEAS_EMPRESAS
 # CONFIGURACIÓN
 # ============================================================
 
-CARPETA_CONTROLADOS = Path("controlados")
+CARPETA_CONTROLADOS = Path(
+    "controlados"
+)
+
+ARCHIVO_FECHA_CONTROLADOS = Path(
+    "ultima_actualizacion_controlados.txt"
+)
 
 ID_CARPETA_DRIVE = (
     "1lS7Ybqr4Knej93BCdun4pDLVZX3ldv59"
@@ -47,12 +48,6 @@ SCOPES = [
 ]
 
 
-LINEAS_CONFIGURADAS = {
-    str(linea)
-    for linea in LINEAS_EMPRESAS.keys()
-}
-
-
 # ============================================================
 # NORMALIZAR TEXTO
 # ============================================================
@@ -63,20 +58,18 @@ def limpiar_texto(valor):
         return ""
 
     try:
+
         if pd.isna(valor):
             return ""
+
     except Exception:
         pass
 
-    texto = str(valor)
-
-    texto = re.sub(
+    return re.sub(
         r"\s+",
         " ",
-        texto
-    )
-
-    return texto.strip()
+        str(valor)
+    ).strip()
 
 
 # ============================================================
@@ -85,12 +78,19 @@ def limpiar_texto(valor):
 
 def normalizar_dominio(valor):
 
-    texto = limpiar_texto(valor)
+    texto = limpiar_texto(
+        valor
+    )
 
     if not texto:
         return ""
 
-    return texto.upper()
+    return (
+        texto
+        .upper()
+        .replace(" ", "")
+        .replace("-", "")
+    )
 
 
 # ============================================================
@@ -99,73 +99,12 @@ def normalizar_dominio(valor):
 
 def normalizar_interno(valor):
 
-    texto = limpiar_texto(valor)
+    texto = limpiar_texto(
+        valor
+    )
 
     if not texto:
         return ""
-
-    return texto
-
-
-# ============================================================
-# NORMALIZAR FECHA
-# ============================================================
-
-def normalizar_fecha(valor):
-
-    if valor is None:
-        return ""
-
-    # --------------------------------------------------------
-    # Fecha de Excel / Google Sheets
-    # --------------------------------------------------------
-
-    if hasattr(valor, "strftime"):
-
-        try:
-            return valor.strftime("%d/%m/%Y")
-        except Exception:
-            pass
-
-    texto = limpiar_texto(valor)
-
-    if not texto:
-        return ""
-
-    # --------------------------------------------------------
-    # Si viene como timestamp:
-    # 2026-08-21 00:00:00
-    # --------------------------------------------------------
-
-    match = re.match(
-        r"^(\d{4})-(\d{1,2})-(\d{1,2})",
-        texto
-    )
-
-    if match:
-
-        anio = match.group(1)
-        mes = match.group(2).zfill(2)
-        dia = match.group(3).zfill(2)
-
-        return f"{dia}/{mes}/{anio}"
-
-    # --------------------------------------------------------
-    # Si ya está DD/MM/YYYY
-    # --------------------------------------------------------
-
-    match = re.match(
-        r"^(\d{1,2})/(\d{1,2})/(\d{4})$",
-        texto
-    )
-
-    if match:
-
-        dia = match.group(1).zfill(2)
-        mes = match.group(2).zfill(2)
-        anio = match.group(3)
-
-        return f"{dia}/{mes}/{anio}"
 
     return texto
 
@@ -176,16 +115,19 @@ def normalizar_fecha(valor):
 
 def extraer_numeros_linea(texto):
 
-    texto = limpiar_texto(texto)
+    texto = limpiar_texto(
+        texto
+    )
 
     if not texto:
-        return []
+        return set()
 
-    encontrados = []
+    lineas_configuradas = {
+        str(linea)
+        for linea in LINEAS_EMPRESAS.keys()
+    }
 
-    # --------------------------------------------------------
-    # Buscar números completos
-    # --------------------------------------------------------
+    encontrados = set()
 
     numeros = re.findall(
         r"(?<!\d)(\d+)(?!\d)",
@@ -194,10 +136,11 @@ def extraer_numeros_linea(texto):
 
     for numero in numeros:
 
-        if numero in LINEAS_CONFIGURADAS:
+        if numero in lineas_configuradas:
 
-            if numero not in encontrados:
-                encontrados.append(numero)
+            encontrados.add(
+                numero
+            )
 
     return encontrados
 
@@ -208,109 +151,100 @@ def extraer_numeros_linea(texto):
 
 def detectar_lineas_en_celda(valor):
 
-    texto = limpiar_texto(valor)
+    texto = limpiar_texto(
+        valor
+    )
 
     if not texto:
-        return []
+        return set()
 
-    mayuscula = texto.upper()
+    texto_mayuscula = (
+        texto.upper()
+    )
 
     # --------------------------------------------------------
-    # Encabezados explícitos:
-    #
-    # LINEA 95
-    # LÍNEA 95
-    # LINEA 63/113
-    # LINEA 51/74/79/164/177
+    # ENCABEZADOS EXPLÍCITOS
     # --------------------------------------------------------
 
     if (
-        "LINEA" in mayuscula
-        or "LÍNEA" in mayuscula
+        "LINEA" in texto_mayuscula
+        or
+        "LÍNEA" in texto_mayuscula
     ):
 
-        return extraer_numeros_linea(texto)
+        return extraer_numeros_linea(
+            texto
+        )
 
     # --------------------------------------------------------
-    # También permitimos:
-    #
-    # 95
-    # 63
-    # 113
+    # NÚMERO SOLO
     # --------------------------------------------------------
 
-    if re.fullmatch(r"\d+", texto):
+    if re.fullmatch(
+        r"\d+",
+        texto
+    ):
 
-        if texto in LINEAS_CONFIGURADAS:
-            return [texto]
+        if texto in {
+            str(linea)
+            for linea in LINEAS_EMPRESAS.keys()
+        }:
 
-    return []
+            return {texto}
+
+    return set()
 
 
 # ============================================================
-# IDENTIFICAR COLUMNAS
+# IDENTIFICAR FECHA / DOMINIO / INTERNO
 # ============================================================
 
 def identificar_encabezados(
-    ws,
     fila,
-    columna_inicio,
-    columna_fin
+    columna_inicio=0
 ):
 
     resultado = {}
 
     for columna in range(
         columna_inicio,
-        columna_fin + 1
+        len(fila)
     ):
 
         valor = limpiar_texto(
-            ws.cell(
-                fila,
-                columna
-            ).value
+            fila[columna]
         ).lower()
 
         if not valor:
             continue
 
-        normalizado = (
+        valor_normalizado = (
             valor
             .replace("_", "")
             .replace("-", "")
             .replace(" ", "")
         )
 
-        # ----------------------------------------------------
-        # FECHA
-        # ----------------------------------------------------
-
         if (
-            "fecha" in normalizado
-            and "fecha" not in resultado
+            "fecha" in valor_normalizado
+            and
+            "fecha" not in resultado
         ):
 
             resultado["fecha"] = columna
 
-        # ----------------------------------------------------
-        # DOMINIO
-        # ----------------------------------------------------
-
         elif (
-            "dominio" in normalizado
-            and "dominio" not in resultado
+            "dominio" in valor_normalizado
+            and
+            "dominio" not in resultado
         ):
 
             resultado["dominio"] = columna
 
-        # ----------------------------------------------------
-        # INTERNO
-        # ----------------------------------------------------
-
         elif (
-            "interno" in normalizado
-            and "interno" not in resultado
+            "interno" in valor_normalizado
+            and
+            "interno" not in resultado
         ):
 
             resultado["interno"] = columna
@@ -319,47 +253,12 @@ def identificar_encabezados(
 
 
 # ============================================================
-# DETERMINAR LÍMITES DE UN BLOQUE HORIZONTAL
-# ============================================================
-
-def determinar_limites_bloque(
-    ws,
-    fila,
-    columna_linea
-):
-
-    # --------------------------------------------------------
-    # Buscar hasta 20 columnas hacia la derecha.
-    #
-    # Normalmente el bloque es:
-    #
-    # FECHA | DOMINIO | INTERNO
-    #
-    # y después hay una columna separadora.
-    # --------------------------------------------------------
-
-    inicio = columna_linea
-
-    fin = min(
-        ws.max_column,
-        columna_linea + 20
-    )
-
-    return inicio, fin
-
-
-# ============================================================
 # BUSCAR BLOQUES
 # ============================================================
 
-def encontrar_bloques(ws, nombre_archivo=""):
+def encontrar_bloques(ws):
 
-    candidatos = []
-
-    # ========================================================
-    # PASO 1
-    # Buscar todos los encabezados de línea.
-    # ========================================================
+    bloques = []
 
     for fila in range(
         1,
@@ -383,239 +282,108 @@ def encontrar_bloques(ws, nombre_archivo=""):
             if not lineas:
                 continue
 
-            candidatos.append(
-                {
-                    "fila": fila,
-                    "columna": columna,
-                    "lineas": lineas
-                }
-            )
-
-    # ========================================================
-    # PASO 2
-    # Buscar los encabezados FECHA / DOMINIO / INTERNO.
-    # ========================================================
-
-    bloques = []
-
-    for candidato in candidatos:
-
-        fila_linea = candidato["fila"]
-        columna_linea = candidato["columna"]
-        lineas = candidato["lineas"]
-
-        inicio_columna, fin_columna = (
-            determinar_limites_bloque(
-                ws,
-                fila_linea,
-                columna_linea
-            )
-        )
-
-        encabezados = None
-        fila_encabezados = None
-
-        # ----------------------------------------------------
-        # Buscar durante las siguientes 10 filas
-        # ----------------------------------------------------
-
-        for fila in range(
-            fila_linea + 1,
-            min(
-                ws.max_row + 1,
-                fila_linea + 11
-            )
-        ):
-
-            posibles = identificar_encabezados(
-                ws,
-                fila,
-                inicio_columna,
-                fin_columna
-            )
-
-            if (
-                "fecha" in posibles
-                and "dominio" in posibles
-                and "interno" in posibles
-            ):
-
-                encabezados = posibles
-                fila_encabezados = fila
-
-                break
-
-        if encabezados is None:
-            continue
-
-        # ====================================================
-        # Si hay varias líneas en un mismo encabezado:
-        #
-        # LINEA 63/113
-        #
-        # primero buscamos otros bloques independientes.
-        # ====================================================
-
-        if len(lineas) == 1:
-
-            bloques.append(
-                {
-                    "linea": lineas[0],
-                    "fila_linea": fila_linea,
-                    "columna_linea": columna_linea,
-                    "fila_encabezados": fila_encabezados,
-                    "col_fecha": encabezados["fecha"],
-                    "col_dominio": encabezados["dominio"],
-                    "col_interno": encabezados["interno"]
-                }
-            )
-
-        else:
+            encabezados = None
+            fila_encabezados = None
 
             # ------------------------------------------------
-            # Caso especial:
-            #
-            # LINEA 63/113
-            #
-            # Si existen varias líneas pero un único bloque
-            # horizontal, intentamos encontrar bloques
-            # adicionales desplazándonos hacia la derecha.
+            # Buscar FECHA / DOMINIO / INTERNO debajo
             # ------------------------------------------------
 
-            bloques_encontrados = []
-
-            columnas_usadas = set()
-
-            for posible_columna in range(
-                columna_linea,
-                ws.max_column + 1
+            for fila_siguiente in range(
+                fila + 1,
+                min(
+                    fila + 8,
+                    ws.max_row + 1
+                )
             ):
+
+                valores_fila = []
+
+                for col in range(
+                    1,
+                    ws.max_column + 1
+                ):
+
+                    valores_fila.append(
+                        ws.cell(
+                            fila_siguiente,
+                            col
+                        ).value
+                    )
 
                 posibles = identificar_encabezados(
-                    ws,
-                    fila_encabezados,
-                    posible_columna,
-                    min(
-                        ws.max_column,
-                        posible_columna + 4
+                    valores_fila,
+                    max(
+                        0,
+                        columna - 1
                     )
                 )
 
-                if not (
+                if (
                     "fecha" in posibles
-                    and "dominio" in posibles
-                    and "interno" in posibles
+                    and
+                    "dominio" in posibles
+                    and
+                    "interno" in posibles
                 ):
-                    continue
 
-                clave = (
-                    posibles["fecha"],
-                    posibles["dominio"],
-                    posibles["interno"]
-                )
+                    encabezados = posibles
 
-                if clave in columnas_usadas:
-                    continue
-
-                columnas_usadas.add(clave)
-
-                bloques_encontrados.append(
-                    {
-                        "fila_linea": fila_linea,
-                        "columna_linea": posible_columna,
-                        "fila_encabezados": fila_encabezados,
-                        "col_fecha": posibles["fecha"],
-                        "col_dominio": posibles["dominio"],
-                        "col_interno": posibles["interno"]
-                    }
-                )
-
-            # ------------------------------------------------
-            # Si encontramos varios bloques, asignarlos en
-            # el mismo orden de las líneas del encabezado.
-            # ------------------------------------------------
-
-            if len(bloques_encontrados) >= len(lineas):
-
-                bloques_encontrados.sort(
-                    key=lambda x: (
-                        x["fila_linea"],
-                        x["columna_linea"]
-                    )
-                )
-
-                for indice, linea in enumerate(lineas):
-
-                    bloque = bloques_encontrados[
-                        indice
-                    ]
-
-                    bloques.append(
-                        {
-                            "linea": linea,
-                            **bloque
-                        }
+                    fila_encabezados = (
+                        fila_siguiente
                     )
 
-            else:
+                    break
 
-                # ------------------------------------------------
-                # Si solamente existe un bloque y el encabezado
-                # contiene varias líneas, lo asociamos a la
-                # primera línea. Los demás bloques deberán tener
-                # su propio encabezado.
-                # ------------------------------------------------
+            if encabezados is None:
+                continue
+
+            # ------------------------------------------------
+            # Evitar duplicados
+            # ------------------------------------------------
+
+            for linea in sorted(
+                lineas,
+                key=lambda x: int(x)
+            ):
+
+                ya_existe = any(
+                    bloque["fila_linea"] == fila
+                    and
+                    bloque["columna_linea"] == columna
+                    and
+                    bloque["linea"] == linea
+                    for bloque in bloques
+                )
+
+                if ya_existe:
+                    continue
 
                 bloques.append(
                     {
-                        "linea": lineas[0],
-                        "fila_linea": fila_linea,
-                        "columna_linea": columna_linea,
-                        "fila_encabezados": fila_encabezados,
-                        "col_fecha": encabezados["fecha"],
-                        "col_dominio": encabezados["dominio"],
-                        "col_interno": encabezados["interno"]
+                        "linea": linea,
+                        "fila_linea": fila,
+                        "columna_linea": columna,
+                        "fila_encabezados":
+                            fila_encabezados,
+                        "col_fecha":
+                            encabezados["fecha"],
+                        "col_dominio":
+                            encabezados["dominio"],
+                        "col_interno":
+                            encabezados["interno"],
                     }
                 )
 
-    # ========================================================
-    # ELIMINAR DUPLICADOS
-    # ========================================================
-
-    unicos = []
-    claves = set()
-
-    for bloque in bloques:
-
-        clave = (
-            bloque["linea"],
+    bloques.sort(
+        key=lambda bloque: (
             bloque["fila_linea"],
             bloque["columna_linea"],
-            bloque["fila_encabezados"],
-            bloque["col_fecha"],
-            bloque["col_dominio"],
-            bloque["col_interno"]
-        )
-
-        if clave in claves:
-            continue
-
-        claves.add(clave)
-        unicos.append(bloque)
-
-    # ========================================================
-    # ORDENAR
-    # ========================================================
-
-    unicos.sort(
-        key=lambda x: (
-            int(x["linea"]),
-            x["fila_linea"],
-            x["columna_linea"]
+            int(bloque["linea"])
         )
     )
 
-    return unicos
+    return bloques
 
 
 # ============================================================
@@ -627,12 +395,11 @@ def extraer_datos_bloque(
     bloque
 ):
 
-    linea = str(
-        bloque["linea"]
-    )
+    linea = bloque["linea"]
 
     fila_inicio = (
-        bloque["fila_encabezados"] + 1
+        bloque["fila_encabezados"]
+        + 1
     )
 
     col_fecha = bloque["col_fecha"]
@@ -641,46 +408,40 @@ def extraer_datos_bloque(
 
     registros = []
 
-    filas_vacias = 0
+    fila = fila_inicio
 
-    # ========================================================
-    # LEER FILAS
-    # ========================================================
+    filas_vacias_consecutivas = 0
 
-    for fila in range(
-        fila_inicio,
-        ws.max_row + 1
-    ):
+    while fila <= ws.max_row:
 
         # ----------------------------------------------------
-        # Si encontramos un nuevo encabezado de línea
-        # en otra fila, termina el bloque.
+        # Detectar otro encabezado de línea
         # ----------------------------------------------------
 
-        encontro_otro_encabezado = False
+        otra_linea = False
 
-        if fila > fila_inicio:
+        for columna in range(
+            1,
+            ws.max_column + 1
+        ):
 
-            for columna in range(
-                1,
-                ws.max_column + 1
-            ):
+            valor = ws.cell(
+                fila,
+                columna
+            ).value
 
-                valor = ws.cell(
-                    fila,
-                    columna
-                ).value
+            lineas = detectar_lineas_en_celda(
+                valor
+            )
 
-                lineas = detectar_lineas_en_celda(
-                    valor
-                )
+            if lineas:
 
-                if lineas:
+                if fila > fila_inicio:
 
-                    encontro_otro_encabezado = True
+                    otra_linea = True
                     break
 
-        if encontro_otro_encabezado:
+        if otra_linea:
             break
 
         # ----------------------------------------------------
@@ -689,20 +450,20 @@ def extraer_datos_bloque(
 
         fecha = ws.cell(
             fila,
-            col_fecha
+            col_fecha + 1
         ).value
 
         dominio = ws.cell(
             fila,
-            col_dominio
+            col_dominio + 1
         ).value
 
         interno = ws.cell(
             fila,
-            col_interno
+            col_interno + 1
         ).value
 
-        fecha = normalizar_fecha(
+        fecha = limpiar_texto(
             fecha
         )
 
@@ -714,63 +475,61 @@ def extraer_datos_bloque(
             interno
         )
 
-        # ----------------------------------------------------
-        # Verificar si hay vehículo
-        # ----------------------------------------------------
+        tiene_datos = (
+            bool(dominio)
+            or
+            bool(interno)
+        )
 
-        if dominio or interno:
+        if tiene_datos:
 
             registros.append(
                 {
                     "linea": linea,
                     "fecha": fecha,
                     "dominio": dominio,
-                    "interno": interno
+                    "interno": interno,
                 }
             )
 
-            filas_vacias = 0
+            filas_vacias_consecutivas = 0
 
         else:
 
-            filas_vacias += 1
+            filas_vacias_consecutivas += 1
 
-            if filas_vacias >= 3:
+            if filas_vacias_consecutivas >= 3:
                 break
 
-    # ========================================================
-    # DATAFRAME
-    # ========================================================
-
-    columnas = [
-        "linea",
-        "fecha",
-        "dominio",
-        "interno"
-    ]
+        fila += 1
 
     if not registros:
 
         return pd.DataFrame(
-            columns=columnas
+            columns=[
+                "linea",
+                "fecha",
+                "dominio",
+                "interno"
+            ]
         )
 
     df = pd.DataFrame(
         registros
     )
 
-    # --------------------------------------------------------
-    # Eliminar filas sin datos
-    # --------------------------------------------------------
-
     df = df[
         (
-            df["dominio"].astype(str).str.strip()
+            df["dominio"]
+            .astype(str)
+            .str.strip()
             != ""
         )
         |
         (
-            df["interno"].astype(str).str.strip()
+            df["interno"]
+            .astype(str)
+            .str.strip()
             != ""
         )
     ].copy()
@@ -779,7 +538,7 @@ def extraer_datos_bloque(
 
 
 # ============================================================
-# CONECTAR CON GOOGLE DRIVE
+# CONECTAR GOOGLE DRIVE
 # ============================================================
 
 def conectar_drive():
@@ -826,7 +585,7 @@ def conectar_drive():
 
 
 # ============================================================
-# LISTAR TODOS LOS ARCHIVOS DE DRIVE
+# LISTAR ARCHIVOS DE DRIVE
 # ============================================================
 
 def listar_archivos_drive(
@@ -839,47 +598,26 @@ def listar_archivos_drive(
         "and trashed = false"
     )
 
-    archivos = []
-
-    page_token = None
-
-    while True:
-
-        respuesta = (
-            drive.files()
-            .list(
-                q=consulta,
-                fields=(
-                    "nextPageToken,"
-                    "files("
-                    "id,"
-                    "name,"
-                    "mimeType"
-                    ")"
-                ),
-                pageSize=1000,
-                pageToken=page_token
-            )
-            .execute()
+    respuesta = (
+        drive.files()
+        .list(
+            q=consulta,
+            fields=(
+                "files("
+                "id,"
+                "name,"
+                "mimeType"
+                ")"
+            ),
+            pageSize=1000
         )
+        .execute()
+    )
 
-        archivos.extend(
-            respuesta.get(
-                "files",
-                []
-            )
-        )
-
-        page_token = (
-            respuesta.get(
-                "nextPageToken"
-            )
-        )
-
-        if not page_token:
-            break
-
-    return archivos
+    return respuesta.get(
+        "files",
+        []
+    )
 
 
 # ============================================================
@@ -953,10 +691,7 @@ def procesar_archivo(
 ):
 
     nombre = limpiar_texto(
-        archivo.get(
-            "name",
-            ""
-        )
+        archivo["name"]
     )
 
     print()
@@ -965,10 +700,6 @@ def procesar_archivo(
         f"ARCHIVO DRIVE: {nombre}"
     )
     print("=" * 70)
-
-    # ========================================================
-    # DESCARGAR
-    # ========================================================
 
     try:
 
@@ -979,16 +710,10 @@ def procesar_archivo(
 
     except Exception as error:
 
-        print(
-            f"ERROR descargando "
-            f"{nombre}: {error}"
-        )
-
-        return {}
-
-    # ========================================================
-    # ABRIR EXCEL
-    # ========================================================
+        raise RuntimeError(
+            f"ERROR descargando {nombre}: "
+            f"{error}"
+        ) from error
 
     try:
 
@@ -999,18 +724,12 @@ def procesar_archivo(
 
     except Exception as error:
 
-        print(
-            f"ERROR abriendo "
-            f"{nombre}: {error}"
-        )
-
-        return {}
+        raise RuntimeError(
+            f"ERROR abriendo {nombre}: "
+            f"{error}"
+        ) from error
 
     resultados = {}
-
-    # ========================================================
-    # RECORRER HOJAS
-    # ========================================================
 
     for ws in wb.worksheets:
 
@@ -1020,8 +739,7 @@ def procesar_archivo(
         )
 
         bloques = encontrar_bloques(
-            ws,
-            nombre
+            ws
         )
 
         print(
@@ -1029,33 +747,13 @@ def procesar_archivo(
             f"{len(bloques)}"
         )
 
-        if not bloques:
-            continue
-
         for bloque in bloques:
 
-            linea = str(
-                bloque["linea"]
-            )
+            linea = bloque["linea"]
 
             print()
             print(
                 f"Procesando Línea {linea}..."
-            )
-
-            print(
-                f"  Fila encabezado: "
-                f"{bloque['fila_linea']}"
-            )
-
-            print(
-                f"  Columna bloque: "
-                f"{bloque['columna_linea']}"
-            )
-
-            print(
-                f"  Fila columnas: "
-                f"{bloque['fila_encabezados']}"
             )
 
             df = extraer_datos_bloque(
@@ -1063,17 +761,16 @@ def procesar_archivo(
                 bloque
             )
 
-            cantidad = len(df)
-
             print(
-                f"  Línea {linea}: "
-                f"{cantidad} registros encontrados."
+                f"Línea {linea}: "
+                f"{len(df)} controlados."
             )
 
             if df.empty:
                 continue
 
             if linea not in resultados:
+
                 resultados[linea] = []
 
             resultados[linea].append(
@@ -1084,121 +781,7 @@ def procesar_archivo(
 
 
 # ============================================================
-# LEER CSV ANTERIOR
-# ============================================================
-
-def leer_csv_anterior(
-    archivo
-):
-
-    if not archivo.exists():
-        return pd.DataFrame()
-
-    try:
-
-        df = pd.read_csv(
-            archivo,
-            dtype=str,
-            encoding="utf-8-sig"
-        )
-
-    except Exception as error:
-
-        print(
-            f"ADVERTENCIA leyendo "
-            f"{archivo}: {error}"
-        )
-
-        return pd.DataFrame()
-
-    return df
-
-
-# ============================================================
-# PREPARAR DATAFRAME
-# ============================================================
-
-def preparar_dataframe(
-    df
-):
-
-    columnas = [
-        "linea",
-        "fecha",
-        "dominio",
-        "interno"
-    ]
-
-    for columna in columnas:
-
-        if columna not in df.columns:
-            df[columna] = ""
-
-    df = df[
-        columnas
-    ].copy()
-
-    df["linea"] = (
-        df["linea"]
-        .astype(str)
-        .str.strip()
-    )
-
-    df["fecha"] = (
-        df["fecha"]
-        .astype(str)
-        .str.strip()
-    )
-
-    df["dominio"] = (
-        df["dominio"]
-        .astype(str)
-        .str.strip()
-        .str.upper()
-    )
-
-    df["interno"] = (
-        df["interno"]
-        .astype(str)
-        .str.strip()
-    )
-
-    # --------------------------------------------------------
-    # Quitar NaN convertidos a texto
-    # --------------------------------------------------------
-
-    for columna in columnas:
-
-        df.loc[
-            df[columna].isin(
-                [
-                    "nan",
-                    "None",
-                    "NaT"
-                ]
-            ),
-            columna
-        ] = ""
-
-    # --------------------------------------------------------
-    # Solo registros reales
-    # --------------------------------------------------------
-
-    df = df[
-        (
-            df["dominio"] != ""
-        )
-        |
-        (
-            df["interno"] != ""
-        )
-    ].copy()
-
-    return df
-
-
-# ============================================================
-# UNIR Y GUARDAR
+# GUARDAR RESULTADOS
 # ============================================================
 
 def guardar_resultados(
@@ -1210,24 +793,16 @@ def guardar_resultados(
         exist_ok=True
     )
 
-    for linea, dataframes in resultados.items():
-
-        linea = str(linea)
+    for linea, dataframes in (
+        resultados.items()
+    ):
 
         if not dataframes:
             continue
 
-        # ====================================================
-        # DATOS NUEVOS
-        # ====================================================
-
         df_nuevo = pd.concat(
             dataframes,
             ignore_index=True
-        )
-
-        df_nuevo = preparar_dataframe(
-            df_nuevo
         )
 
         if df_nuevo.empty:
@@ -1235,121 +810,190 @@ def guardar_resultados(
 
         archivo_salida = (
             CARPETA_CONTROLADOS
-            / f"linea{linea}.csv"
+            /
+            f"linea{linea}.csv"
         )
 
-        # ====================================================
-        # DATOS ANTERIORES
-        # ====================================================
+        # ----------------------------------------------------
+        # Cargar información anterior
+        # ----------------------------------------------------
 
-        df_anterior = leer_csv_anterior(
-            archivo_salida
+        if archivo_salida.exists():
+
+            try:
+
+                df_anterior = pd.read_csv(
+                    archivo_salida,
+                    dtype=str,
+                    encoding="utf-8-sig"
+                )
+
+            except Exception:
+
+                df_anterior = (
+                    pd.DataFrame()
+                )
+
+            if not df_anterior.empty:
+
+                for columna in [
+                    "linea",
+                    "fecha",
+                    "dominio",
+                    "interno"
+                ]:
+
+                    if columna not in (
+                        df_anterior.columns
+                    ):
+
+                        df_anterior[
+                            columna
+                        ] = ""
+
+                df_nuevo = pd.concat(
+                    [
+                        df_anterior,
+                        df_nuevo
+                    ],
+                    ignore_index=True
+                )
+
+        # ----------------------------------------------------
+        # Columnas definitivas
+        # ----------------------------------------------------
+
+        columnas_finales = [
+            "linea",
+            "fecha",
+            "dominio",
+            "interno"
+        ]
+
+        for columna in columnas_finales:
+
+            if columna not in (
+                df_nuevo.columns
+            ):
+
+                df_nuevo[
+                    columna
+                ] = ""
+
+        df_nuevo = df_nuevo[
+            columnas_finales
+        ]
+
+        # ----------------------------------------------------
+        # Normalización
+        # ----------------------------------------------------
+
+        df_nuevo["linea"] = (
+            df_nuevo["linea"]
+            .astype(str)
+            .str.strip()
         )
 
-        if not df_anterior.empty:
-
-            df_anterior = preparar_dataframe(
-                df_anterior
+        df_nuevo["dominio"] = (
+            df_nuevo["dominio"]
+            .astype(str)
+            .str.strip()
+            .str.upper()
+            .str.replace(
+                " ",
+                "",
+                regex=False
             )
-
-            df_nuevo = pd.concat(
-                [
-                    df_anterior,
-                    df_nuevo
-                ],
-                ignore_index=True
+            .str.replace(
+                "-",
+                "",
+                regex=False
             )
+        )
 
-        # ====================================================
-        # NORMALIZAR
-        # ====================================================
+        df_nuevo["interno"] = (
+            df_nuevo["interno"]
+            .astype(str)
+            .str.strip()
+        )
 
-        df_nuevo = preparar_dataframe(
+        df_nuevo["fecha"] = (
+            df_nuevo["fecha"]
+            .astype(str)
+            .str.strip()
+        )
+
+        # ----------------------------------------------------
+        # Eliminar duplicados
+        # ----------------------------------------------------
+
+        df_nuevo = (
             df_nuevo
-        )
-
-        # ====================================================
-        # DEDUPLICAR
-        #
-        # Si existe la misma patente varias veces,
-        # conservamos el último registro.
-        # ====================================================
-
-        df_con_dominio = df_nuevo[
-            df_nuevo["dominio"] != ""
-        ].copy()
-
-        df_sin_dominio = df_nuevo[
-            df_nuevo["dominio"] == ""
-        ].copy()
-
-        if not df_con_dominio.empty:
-
-            df_con_dominio = (
-                df_con_dominio
-                .drop_duplicates(
-                    subset=[
-                        "linea",
-                        "dominio"
-                    ],
-                    keep="last"
-                )
+            .drop_duplicates(
+                subset=[
+                    "linea",
+                    "dominio",
+                    "interno"
+                ],
+                keep="last"
             )
+        )
 
-        if not df_sin_dominio.empty:
+        # ----------------------------------------------------
+        # Eliminar filas completamente vacías
+        # ----------------------------------------------------
 
-            df_sin_dominio = (
-                df_sin_dominio
-                .drop_duplicates(
-                    subset=[
-                        "linea",
-                        "interno"
-                    ],
-                    keep="last"
-                )
+        df_nuevo = df_nuevo[
+            (
+                df_nuevo["dominio"] != ""
             )
+            |
+            (
+                df_nuevo["interno"] != ""
+            )
+        ]
 
-        df_final = pd.concat(
-            [
-                df_con_dominio,
-                df_sin_dominio
-            ],
-            ignore_index=True
-        )
+        # ----------------------------------------------------
+        # Guardar
+        # ----------------------------------------------------
 
-        # ====================================================
-        # ORDENAR
-        # ====================================================
-
-        df_final = df_final.sort_values(
-            by=[
-                "linea",
-                "interno",
-                "dominio"
-            ],
-            kind="stable"
-        )
-
-        # ====================================================
-        # GUARDAR
-        # ====================================================
-
-        df_final.to_csv(
+        df_nuevo.to_csv(
             archivo_salida,
             index=False,
             encoding="utf-8-sig"
         )
 
-        print()
         print(
             f"GUARDADO CONTROLADOS "
             f"LÍNEA {linea}: "
-            f"{len(df_final)} registros"
+            f"{len(df_nuevo)} registros"
         )
 
-        print(
-            f"Archivo: {archivo_salida}"
-        )
+
+# ============================================================
+# GUARDAR FECHA DE ACTUALIZACIÓN DRIVE
+# ============================================================
+
+def guardar_fecha_controlados():
+
+    ahora = datetime.now(
+        timezone.utc
+    )
+
+    ARCHIVO_FECHA_CONTROLADOS.write_text(
+        ahora.isoformat(),
+        encoding="utf-8"
+    )
+
+    print()
+    print(
+        "Fecha de actualización de "
+        "unidades controladas:"
+    )
+
+    print(
+        ahora.isoformat()
+    )
 
 
 # ============================================================
@@ -1370,11 +1014,9 @@ def main():
         f"{ID_CARPETA_DRIVE}"
     )
 
-    print()
-
-    # ========================================================
+    # --------------------------------------------------------
     # CONECTAR
-    # ========================================================
+    # --------------------------------------------------------
 
     drive = conectar_drive()
 
@@ -1382,9 +1024,9 @@ def main():
         "Conexión con Google Drive: OK"
     )
 
-    # ========================================================
+    # --------------------------------------------------------
     # LISTAR
-    # ========================================================
+    # --------------------------------------------------------
 
     archivos = listar_archivos_drive(
         drive
@@ -1395,9 +1037,9 @@ def main():
         f"{len(archivos)}"
     )
 
-    # ========================================================
+    # --------------------------------------------------------
     # PROCESAR
-    # ========================================================
+    # --------------------------------------------------------
 
     resultados_totales = {}
 
@@ -1426,8 +1068,11 @@ def main():
                 extensiones_validas
             )
             or
-            archivo.get("mimeType")
-            == (
+            archivo.get(
+                "mimeType"
+            )
+            ==
+            (
                 "application/vnd.google-apps.spreadsheet"
             )
         )
@@ -1440,7 +1085,9 @@ def main():
             archivo
         )
 
-        for linea, dataframes in resultados.items():
+        for linea, dataframes in (
+            resultados.items()
+        ):
 
             if linea not in resultados_totales:
 
@@ -1454,9 +1101,9 @@ def main():
                 dataframes
             )
 
-    # ========================================================
+    # --------------------------------------------------------
     # GUARDAR
-    # ========================================================
+    # --------------------------------------------------------
 
     print()
     print("=" * 70)
@@ -1469,14 +1116,22 @@ def main():
         resultados_totales
     )
 
-    # ========================================================
+    # --------------------------------------------------------
+    # FECHA DE ACTUALIZACIÓN
+    #
+    # Solo llegamos acá si Drive terminó correctamente.
+    # --------------------------------------------------------
+
+    guardar_fecha_controlados()
+
+    # --------------------------------------------------------
     # RESUMEN
-    # ========================================================
+    # --------------------------------------------------------
 
     print()
     print("=" * 70)
     print(
-        "RESUMEN DE LECTURA DE DRIVE"
+        "LECTURA DE DRIVE COMPLETADA"
     )
     print("=" * 70)
 
@@ -1487,20 +1142,18 @@ def main():
 
         cantidad = sum(
             len(df)
-            for df in resultados_totales[
-                linea
-            ]
+            for df in (
+                resultados_totales[
+                    linea
+                ]
+            )
         )
 
         print(
             f"Línea {linea}: "
-            f"{cantidad} registros leídos desde Drive"
+            f"{cantidad} registros leídos."
         )
 
-    print("=" * 70)
-    print(
-        "LECTURA DE DRIVE COMPLETADA"
-    )
     print("=" * 70)
 
 
@@ -1509,4 +1162,5 @@ def main():
 # ============================================================
 
 if __name__ == "__main__":
+
     main()

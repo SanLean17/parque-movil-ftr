@@ -98,8 +98,9 @@ jobs:
       #   siempre
       # ======================================================
 
-      - name: Comprobar actualización CNRT
+         - name: Comprobar actualización CNRT
         id: comprobar_cnrt
+        shell: bash
         run: |
 
           echo "=============================================="
@@ -115,35 +116,21 @@ jobs:
 
           else
 
-            python - <<'PY'
+            if python -c "from control_actualizacion import debe_actualizar; exit(0 if debe_actualizar() else 1)"; then
 
-          from control_actualizacion import debe_actualizar
+              echo "Han pasado 15 días o más."
+              echo "CNRT debe actualizarse."
 
-          if debe_actualizar():
+              echo "actualizar=true" >> "$GITHUB_OUTPUT"
 
-              print("Han pasado 15 días o más.")
-              print("CNRT debe actualizarse.")
+            else
 
-              with open(
-                  "${GITHUB_OUTPUT}",
-                  "a"
-              ) as f:
+              echo "Todavía no pasaron 15 días."
+              echo "CNRT NO se actualizará."
 
-                  f.write("actualizar=true\n")
+              echo "actualizar=false" >> "$GITHUB_OUTPUT"
 
-          else:
-
-              print("Todavía no pasaron 15 días.")
-              print("CNRT NO se actualizará.")
-
-              with open(
-                  "${GITHUB_OUTPUT}",
-                  "a"
-              ) as f:
-
-                  f.write("actualizar=false\n")
-
-          PY
+            fi
 
           fi
 

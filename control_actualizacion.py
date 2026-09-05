@@ -1,12 +1,46 @@
 # ============================================================
 # CONTROL DE ACTUALIZACIÓN CNRT
+# PARQUE MÓVIL FTR
 # ============================================================
 
 from pathlib import Path
 from datetime import datetime, timezone
 
 
-ARCHIVO_FECHA = Path("ultima_actualizacion.txt")
+# ============================================================
+# ARCHIVO NUEVO
+# ============================================================
+
+ARCHIVO_FECHA = Path(
+    "ultima_actualizacion_parque.txt"
+)
+
+
+# ============================================================
+# ARCHIVO ANTIGUO
+#
+# Se mantiene como compatibilidad para no perder
+# la fecha que ya tenía el sistema.
+# ============================================================
+
+ARCHIVO_FECHA_ANTIGUO = Path(
+    "ultima_actualizacion.txt"
+)
+
+
+# ============================================================
+# OBTENER ARCHIVO DE FECHA
+# ============================================================
+
+def obtener_archivo_fecha():
+
+    if ARCHIVO_FECHA.exists():
+        return ARCHIVO_FECHA
+
+    if ARCHIVO_FECHA_ANTIGUO.exists():
+        return ARCHIVO_FECHA_ANTIGUO
+
+    return ARCHIVO_FECHA
 
 
 # ============================================================
@@ -17,14 +51,21 @@ def debe_actualizar():
 
     ahora = datetime.now(timezone.utc)
 
+    archivo_fecha = obtener_archivo_fecha()
+
     # --------------------------------------------------------
     # SI NUNCA SE ACTUALIZÓ
     # --------------------------------------------------------
 
-    if not ARCHIVO_FECHA.exists():
+    if not archivo_fecha.exists():
 
-        print("No existe fecha anterior.")
-        print("Se realizará la primera actualización.")
+        print(
+            "No existe fecha anterior."
+        )
+
+        print(
+            "Se realizará la primera actualización CNRT."
+        )
 
         return True
 
@@ -32,25 +73,34 @@ def debe_actualizar():
     # LEER FECHA
     # --------------------------------------------------------
 
-    texto = ARCHIVO_FECHA.read_text(
+    texto = archivo_fecha.read_text(
         encoding="utf-8"
     ).strip()
 
     try:
 
-        ultima = datetime.fromisoformat(texto)
+        ultima = datetime.fromisoformat(
+            texto
+        )
 
-        # Compatibilidad por si existiera una fecha antigua
-        # sin información de zona horaria.
+        # Compatibilidad con fechas antiguas
+        # sin zona horaria.
+
         if ultima.tzinfo is None:
+
             ultima = ultima.replace(
                 tzinfo=timezone.utc
             )
 
     except Exception:
 
-        print("La fecha anterior no es válida.")
-        print("Se realizará una actualización.")
+        print(
+            "La fecha anterior no es válida."
+        )
+
+        print(
+            "Se realizará una actualización."
+        )
 
         return True
 
@@ -60,10 +110,14 @@ def debe_actualizar():
 
     diferencia = ahora - ultima
 
-    dias = diferencia.total_seconds() / 86400
+    dias = (
+        diferencia.total_seconds()
+        / 86400
+    )
 
     print(
-        f"Días desde última actualización: {dias:.2f}"
+        f"Días desde última actualización CNRT: "
+        f"{dias:.2f}"
     )
 
     # --------------------------------------------------------
@@ -72,13 +126,23 @@ def debe_actualizar():
 
     if dias >= 15:
 
-        print("Han pasado 15 días o más.")
-        print("Corresponde actualizar CNRT.")
+        print(
+            "Han pasado 15 días o más."
+        )
+
+        print(
+            "Corresponde actualizar CNRT."
+        )
 
         return True
 
-    print("Todavía no han pasado 15 días.")
-    print("No corresponde actualizar CNRT.")
+    print(
+        "Todavía no han pasado 15 días."
+    )
+
+    print(
+        "No corresponde actualizar CNRT."
+    )
 
     return False
 
@@ -89,7 +153,9 @@ def debe_actualizar():
 
 def guardar_fecha():
 
-    ahora = datetime.now(timezone.utc)
+    ahora = datetime.now(
+        timezone.utc
+    )
 
     ARCHIVO_FECHA.write_text(
         ahora.isoformat(),
@@ -97,8 +163,11 @@ def guardar_fecha():
     )
 
     print(
-        "Fecha de actualización guardada: "
-        f"{ahora.isoformat()}"
+        "Fecha de actualización Parque Móvil guardada:"
+    )
+
+    print(
+        ahora.isoformat()
     )
 
 
@@ -110,8 +179,12 @@ if __name__ == "__main__":
 
     if debe_actualizar():
 
-        print("ACTUALIZAR")
+        print(
+            "ACTUALIZAR"
+        )
 
     else:
 
-        print("ESPERAR")
+        print(
+            "ESPERAR"
+        )

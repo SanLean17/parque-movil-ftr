@@ -1,27 +1,22 @@
-name: Actualizador de Parque y Controles
+name: Actualizar Parque Móvil FTR
 
 on:
 
-  # ----------------------------------------------------------
-  # EJECUCIÓN AUTOMÁTICA
-  # ----------------------------------------------------------
+  # ==========================================================
+  # EJECUCIÓN AUTOMÁTICA DIARIA
+  # ==========================================================
 
   schedule:
-    # 06:00 UTC = 03:00 Argentina
-    - cron: '0 6 * * *'
+    - cron: "0 3 * * *"
 
-  # ----------------------------------------------------------
+  # ==========================================================
   # EJECUCIÓN MANUAL
-  # ----------------------------------------------------------
+  #
+  # Si lo ejecutás manualmente:
+  # DRIVE + CNRT SIEMPRE
+  # ==========================================================
 
   workflow_dispatch:
-    inputs:
-
-      forzar_cnrt:
-        description: "Actualizar CNRT aunque no hayan pasado 15 días"
-        required: true
-        default: false
-        type: boolean
 
 
 jobs:
@@ -33,163 +28,217 @@ jobs:
     steps:
 
       # ======================================================
-      # 1. DESCARGAR REPOSITORIO
+      # CHECKOUT
       # ======================================================
 
       - name: Descargar repositorio
-
         uses: actions/checkout@v4
 
 
       # ======================================================
-      # 2. CONFIGURAR PYTHON
+      # PYTHON
       # ======================================================
 
       - name: Configurar Python
-
         uses: actions/setup-python@v5
-
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
 
       # ======================================================
-      # 3. INSTALAR LIBRERÍAS
+      # INSTALAR DEPENDENCIAS
       # ======================================================
 
-      - name: Instalar librerías
-
+      - name: Instalar dependencias
         run: |
 
           python -m pip install --upgrade pip
 
-          pip install -r requirements.txt
+          pip install \
+            pandas \
+            openpyxl \
+            requests \
+            google-api-python-client \
+            google-auth \
+            google-auth-httplib2 \
+            google-auth-oauthlib \
+            playwright
+
+          playwright install chromium
+
+          playwright install-deps chromium
 
 
       # ======================================================
-      # 4. INSTALAR CHROMIUM
-      # ======================================================
-
-      - name: Instalar Chromium
-
-        run: |
-
-          python -m playwright install --with-deps chromium
-
-
-      # ======================================================
-      # 5. DRIVE
+      # LEER GOOGLE DRIVE
       #
-      # SE EJECUTA TODOS LOS DÍAS
+      # ESTO SE HACE TODOS LOS DÍAS
       # ======================================================
 
       - name: Actualizar controles desde Google Drive
-
         env:
-
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
 
         run: |
+
+          echo "=============================================="
+          echo "ACTUALIZANDO CONTROLADOS DESDE GOOGLE DRIVE"
+          echo "=============================================="
 
           python leer_controlados_drive.py
 
 
       # ======================================================
-      # 6. COMPROBAR CNRT
+      # DETERMINAR SI TOCA CNRT
+      #
+      # AUTOMÁTICO:
+      #   solo cada 15 días
+      #
+      # MANUAL:
+      #   siempre
       # ======================================================
 
-      - name: Comprobar si corresponde actualizar CNRT
-
-        id: control
-
-        env:
-
-          FORZAR_CNRT: ${{ inputs.forzar_cnrt }}
-
+      - name: Comprobar actualización CNRT
+        id: comprobar_cnrt
         run: |
 
-          if [ "$FORZAR_CNRT" = "true" ]; then
+          echo "=============================================="
+          echo "COMPROBANDO ACTUALIZACIÓN CNRT"
+          echo "=============================================="
 
-            echo "Actualización CNRT forzada manualmente."
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+
+            echo "Ejecución MANUAL detectada."
+            echo "CNRT se actualizará obligatoriamente."
 
             echo "actualizar=true" >> "$GITHUB_OUTPUT"
 
           else
 
-            python -c "from control_actualizacion import debe_actualizar; print('actualizar=' + str(debe_actualizar()).lower())" > estado.txt
+            python - <<'PY'
 
-            cat estado.txt
+          from control_actualizacion import debe_actualizar
 
-            if grep -q "actualizar=true" estado.txt; then
+          if debe_actualizar():
 
-              echo "actualizar=true" >> "$GITHUB_OUTPUT"
+              print("Han pasado 15 días o más.")
+              print("CNRT debe actualizarse.")
 
-            else
+              with open(
+                  "${GITHUB_OUTPUT}",
+                  "a"
+              ) as f:
 
-              echo "actualizar=false" >> "$GITHUB_OUTPUT"
+                  f.write("actualizar=true\n")
 
-            fi
+          else:
+
+              print("Todavía no pasaron 15 días.")
+              print("CNRT NO se actualizará.")
+
+              with open(
+                  "${GITHUB_OUTPUT}",
+                  "a"
+              ) as f:
+
+                  f.write("actualizar=false\n")
+
+          PY
 
           fi
 
 
       # ======================================================
-      # 7. DESCARGAR CNRT
+      # SCRAPER CNRT
       # ======================================================
 
-      - name: Descargar parques oficiales CNRT
-
-        if: steps.control.outputs.actualizar == 'true'
+      - name: Actualizar datos CNRT
+        if: steps.comprobar_cnrt.outputs.actualizar == 'true'
 
         run: |
+
+          echo "=============================================="
+          echo "ACTUALIZANDO DATOS CNRT"
+          echo "=============================================="
 
           python scraper.py
 
 
       # ======================================================
-      # 8. SEPARAR CNRT POR LÍNEA
+      # ACTUALIZAR PARQUES
       # ======================================================
 
-      - name: Filtrar y separar parques por línea
-
-        if: steps.control.outputs.actualizar == 'true'
+      - name: Generar parques por línea
+        if: steps.comprobar_cnrt.outputs.actualizar == 'true'
 
         run: |
+
+          echo "=============================================="
+          echo "GENERANDO PARQUES POR LÍNEA"
+          echo "=============================================="
 
           python actualizar_parques.py
 
 
       # ======================================================
-      # 9. GUARDAR FECHA CNRT
+      # GUARDAR FECHA CNRT
       # ======================================================
 
-      - name: Guardar fecha de actualización CNRT
-
-        if: steps.control.outputs.actualizar == 'true'
+      - name: Guardar fecha actualización CNRT
+        if: steps.comprobar_cnrt.outputs.actualizar == 'true'
 
         run: |
 
-          python -c "from control_actualizacion import guardar_fecha; guardar_fecha()"
+          python - <<'PY'
+
+          from control_actualizacion import guardar_fecha
+
+          guardar_fecha()
+
+          print(
+              "Fecha de actualización CNRT guardada."
+          )
+
+          PY
 
 
       # ======================================================
-      # 10. GUARDAR CAMBIOS EN GITHUB
+      # VERIFICAR CAMBIOS
       # ======================================================
 
-      - name: Guardar cambios
-
+      - name: Ver cambios
         run: |
 
-          git config --global user.name "github-actions[bot]"
+          echo "=============================================="
+          echo "CAMBIOS DETECTADOS"
+          echo "=============================================="
 
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git status --short
 
-          git add parques/*.csv
 
-          git add controlados/*.csv
+      # ======================================================
+      # COMMIT
+      # ======================================================
 
-          git add ultima_actualizacion.txt
+      - name: Guardar cambios en GitHub
+        run: |
 
-          git diff --staged --quiet || git commit -m "Bot: actualización automática"
+          git config user.name "github-actions[bot]"
 
-          git push
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+
+            echo "No hay cambios para guardar."
+
+          else
+
+            git commit \
+              -m "Actualización automática Parque Móvil FTR"
+
+            git push
+
+          fi

@@ -1,751 +1,385 @@
 <!DOCTYPE html>
 <html lang="es" class="light">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parque Móvil FTR</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Parque Móvil FTR
-    </title>
-
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-    >
-
-    <link
-        rel="preconnect"
-        href="https://fonts.googleapis.com"
-        crossorigin
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap"
-        rel="stylesheet"
-    >
+    <!-- Fuente JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
 
     <script>
-
         tailwind.config = {
-
             darkMode: 'class',
-
             theme: {
-
                 extend: {
-
                     fontFamily: {
-
-                        code: [
-                            '"JetBrains Mono"',
-                            'monospace'
-                        ]
-
+                        code: ['"JetBrains Mono"', 'monospace']
                     }
-
                 }
-
             }
-
         }
-
     </script>
 
-    <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        rel="stylesheet"
-    >
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-<body
-    class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200"
->
+    <!-- Header Centrado -->
+    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+            <a href="index.html"
+               class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-arrow-left text-base"></i>
+                <span class="hidden sm:inline">Volver</span>
+            </a>
+
+            <div class="text-center flex-grow mx-2">
+                <h1 class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight"
+                    id="lineaTitle">
+                    LÍNEA --
+                </h1>
+
+                <p class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block">
+                    Parque Móvil Oficial
+                </p>
+            </div>
+
+            <button onclick="toggleDarkMode()"
+                    class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
+                <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+                <span id="themeText" class="text-[10px] hidden sm:inline">Oscuro</span>
+            </button>
+
+        </div>
+    </header>
 
 
-<header
-    class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative"
->
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full">
 
-    <div
-        class="max-w-7xl mx-auto flex items-center justify-between"
-    >
+        <!-- Tarjetas de Filtro Rápido -->
+        <div class="grid grid-cols-3 gap-2 mb-3">
 
-        <a
-            href="index.html"
-            class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm"
-        >
+            <button onclick="setFilter('ALL')"
+                    id="btnFilterAll"
+                    class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-sky-500 ring-2 ring-sky-200 dark:ring-sky-900 text-center transition cursor-pointer">
 
-            <i
-                class="fa-solid fa-arrow-left text-base"
-            ></i>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
+                    Total
+                </p>
 
-            <span
-                class="hidden sm:inline"
-            >
-                Volver
-            </span>
+                <p class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300"
+                   id="countTotal">
+                    0
+                </p>
 
-        </a>
+            </button>
 
 
-        <div
-            class="text-center flex-grow mx-2"
-        >
+            <button onclick="setFilter('CONTROLADO')"
+                    id="btnFilterControlado"
+                    class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
 
-            <h1
-                class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight"
-                id="lineaTitle"
-            >
-                LÍNEA --
-            </h1>
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
+                    Controlados
+                </p>
 
-            <p
-                class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block"
-            >
-                Parque Móvil Oficial
-            </p>
+                <p class="text-base sm:text-lg font-black text-green-600 dark:text-green-400"
+                   id="countControlados">
+                    0
+                </p>
+
+            </button>
+
+
+            <button onclick="setFilter('PENDIENTE')"
+                    id="btnFilterPendiente"
+                    class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
+
+                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
+                    Pendientes
+                </p>
+
+                <p class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300"
+                   id="countPendientes">
+                    0
+                </p>
+
+            </button>
 
         </div>
 
 
-        <button
-            onclick="toggleDarkMode()"
-            class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1"
-        >
+        <!-- Buscador + Copiar -->
+        <div class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-2 justify-between items-center">
 
-            <i
-                id="themeIcon"
-                class="fa-solid fa-moon text-sm"
-            ></i>
+            <div class="relative w-full sm:w-80">
 
-            <span
-                id="themeText"
-                class="text-[10px] hidden sm:inline"
-            >
-                Oscuro
-            </span>
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </span>
 
-        </button>
+                <input type="text"
+                       id="searchInput"
+                       onkeyup="applyFilters()"
+                       placeholder="Buscar por Interno o Patente..."
+                       class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code">
 
-    </div>
-
-</header>
+            </div>
 
 
-<main
-    class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full"
->
+            <button onclick="copyMissing()"
+                    class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm">
 
+                <i class="fa-regular fa-copy"></i>
 
-    <div
-        class="grid grid-cols-3 gap-2 mb-3"
-    >
+                <span>
+                    Copiar Faltantes
+                </span>
 
-        <button
-            onclick="setFilter('ALL')"
-            id="btnFilterAll"
-            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-sky-500 ring-2 ring-sky-200 dark:ring-sky-900 text-center transition cursor-pointer"
-        >
-
-            <p
-                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
-            >
-                Total
-            </p>
-
-            <p
-                class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300"
-                id="countTotal"
-            >
-                0
-            </p>
-
-        </button>
-
-
-        <button
-            onclick="setFilter('CONTROLADO')"
-            id="btnFilterControlado"
-            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer"
-        >
-
-            <p
-                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
-            >
-                Controlados
-            </p>
-
-            <p
-                class="text-base sm:text-lg font-black text-green-600 dark:text-green-400"
-                id="countControlados"
-            >
-                0
-            </p>
-
-        </button>
-
-
-        <button
-            onclick="setFilter('PENDIENTE')"
-            id="btnFilterPendiente"
-            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer"
-        >
-
-            <p
-                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
-            >
-                Pendientes
-            </p>
-
-            <p
-                class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300"
-                id="countPendientes"
-            >
-                0
-            </p>
-
-        </button>
-
-    </div>
-
-
-    <div
-        class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-2 justify-between items-center"
-    >
-
-        <div
-            class="relative w-full sm:w-80"
-        >
-
-            <span
-                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"
-            >
-
-                <i
-                    class="fa-solid fa-magnifying-glass text-xs"
-                ></i>
-
-            </span>
-
-
-            <input
-                type="text"
-                id="searchInput"
-                onkeyup="applyFilters()"
-                placeholder="Buscar por Interno o Patente..."
-                class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code"
-            >
+            </button>
 
         </div>
 
 
-        <button
-            onclick="copyMissing()"
-            class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm"
-        >
+        <!-- Tabla -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
 
-            <i
-                class="fa-regular fa-copy"
-            ></i>
+            <div class="overflow-x-auto">
 
-            <span>
-                Copiar Faltantes
-            </span>
+                <table class="w-full text-left border-collapse" id="fleetTable">
 
-        </button>
+                    <thead>
 
-    </div>
+                        <tr class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700">
 
+                            <th class="py-2.5 px-2 font-semibold">
+                                DOMINIO
+                            </th>
 
-    <div
-        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700"
-    >
+                            <th class="py-2.5 px-2 font-semibold">
+                                INTERNO
+                            </th>
 
-        <div
-            class="overflow-x-auto"
-        >
+                            <th class="py-2.5 px-2 font-semibold">
+                                MODELO (AÑO)
+                            </th>
 
-            <table
-                class="w-full text-left border-collapse"
-                id="fleetTable"
-            >
+                            <th class="py-2.5 px-2 font-semibold">
+                                HABILITADO HASTA
+                            </th>
 
-                <thead>
+                            <th class="py-2.5 px-2 font-semibold">
+                                TÉCNICA VIGENTE HASTA
+                            </th>
 
-                    <tr
-                        class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700"
-                    >
+                            <th class="py-2.5 px-2 font-semibold">
+                                N° TÉCNICA
+                            </th>
 
-                        <th class="py-2.5 px-2 font-semibold">
-                            DOMINIO
-                        </th>
+                            <th class="py-2.5 px-2 font-semibold">
+                                ÚLTIMA FISCALIZACIÓN
+                            </th>
 
-                        <th class="py-2.5 px-2 font-semibold">
-                            INTERNO
-                        </th>
+                            <th class="py-2.5 px-2 font-semibold">
+                                ESTADO
+                            </th>
 
-                        <th class="py-2.5 px-2 font-semibold">
-                            MODELO (AÑO)
-                        </th>
+                        </tr>
 
-                        <th class="py-2.5 px-2 font-semibold">
-                            HABILITADO HASTA
-                        </th>
-
-                        <th class="py-2.5 px-2 font-semibold">
-                            TÉCNICA VIGENTE HASTA
-                        </th>
-
-                        <th class="py-2.5 px-2 font-semibold">
-                            N° TÉCNICA
-                        </th>
-
-                        <th class="py-2.5 px-2 font-semibold">
-                            ÚLTIMA FISCALIZACIÓN
-                        </th>
-
-                        <th class="py-2.5 px-2 font-semibold">
-                            ESTADO
-                        </th>
-
-                    </tr>
-
-                </thead>
+                    </thead>
 
 
-                <tbody
-                    class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium"
-                    id="fleetTbody"
-                >
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium"
+                           id="fleetTbody">
 
-                    <tr>
+                        <tr>
 
-                        <td
-                            colspan="8"
-                            class="py-6 text-center text-gray-500"
-                        >
-                            Cargando datos...
-                        </td>
+                            <td colspan="8"
+                                class="py-6 text-center text-gray-500">
+                                Cargando datos...
+                            </td>
 
-                    </tr>
+                        </tr>
 
-                </tbody>
+                    </tbody>
 
-            </table>
+                </table>
+
+            </div>
 
         </div>
 
-    </div>
+    </main>
 
 
-</main>
+    <!-- Footer -->
+    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700">
+        Parque Móvil FTR &copy; 2026
+    </footer>
 
 
-<footer
-    class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700"
->
+    <!-- Script de cruce automático -->
+    <script>
 
-    Parque Móvil FTR &copy; 2026
+        const urlParams = new URLSearchParams(window.location.search);
 
-</footer>
+        const lineaId = urlParams.get('id') || '22';
 
-
-<script>
-
-    const urlParams =
-        new URLSearchParams(
-            window.location.search
-        );
+        document.getElementById("lineaTitle").textContent = `LÍNEA ${lineaId}`;
 
 
-    const lineaId =
-        urlParams.get('id') ||
-        '22';
+        let mapControlados = {};
+
+        let currentStatusFilter = 'ALL';
 
 
-    document.getElementById(
-        "lineaTitle"
-    ).textContent =
-        `LÍNEA ${lineaId}`;
+        // ============================================================
+        // FORMATEAR FECHA DE FISCALIZACIÓN
+        // ============================================================
+        // Convierte:
+        //
+        // 2026-04-09 00:00:00
+        //
+        // en:
+        //
+        // 09/04/2026
+        //
+        // La hora se elimina completamente.
+        // ============================================================
 
+        function formatearFechaFiscalizacion(fechaStr) {
 
-    let mapControlados = {};
+            if (!fechaStr) return '';
 
-    let currentStatusFilter =
-        'ALL';
+            let texto = String(fechaStr).trim();
 
+            if (!texto || texto === '-') return '';
 
-    // ========================================================
-    // NORMALIZAR DOMINIO
-    // ========================================================
+            // --------------------------------------------------------
+            // Formato YYYY-MM-DD HH:MM:SS
+            // --------------------------------------------------------
 
-    function normalizarDominio(
-        valor
-    ) {
+            let match = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
 
-        if (!valor)
-            return '';
+            if (match) {
 
-        return String(valor)
-            .trim()
-            .toUpperCase()
-            .replace(
-                /\s+/g,
-                ''
-            )
-            .replace(
-                /-/g,
-                ''
-            );
+                const año = match[1];
+                const mes = match[2];
+                const dia = match[3];
 
-    }
-
-
-    // ========================================================
-    // NORMALIZAR CLAVE
-    // ========================================================
-
-    function normalizarClave(
-        valor
-    ) {
-
-        return String(
-            valor || ''
-        )
-        .replace(
-            /^\ufeff/,
-            ''
-        )
-        .normalize(
-            "NFD"
-        )
-        .replace(
-            /[\u0300-\u036f]/g,
-            ''
-        )
-        .toLowerCase()
-        .replace(
-            /[^a-z0-9]/g,
-            ''
-        );
-
-    }
-
-
-    // ========================================================
-    // OBTENER PROPIEDAD
-    // ========================================================
-
-    function getProp(
-        obj,
-        names
-    ) {
-
-        if (!obj)
-            return '';
-
-
-        const objetivos =
-            names.map(
-                normalizarClave
-            );
-
-
-        for (
-            const key of Object.keys(obj)
-        ) {
-
-            const clave =
-                normalizarClave(
-                    key
-                );
-
-
-            if (
-                objetivos.includes(
-                    clave
-                )
-            ) {
-
-                const valor =
-                    String(
-                        obj[key] ?? ''
-                    ).trim();
-
-
-                if (valor)
-                    return valor;
-
+                return `${dia}/${mes}/${año}`;
             }
 
-        }
 
-        return '';
+            // --------------------------------------------------------
+            // Formato YYYY-MM-DD
+            // --------------------------------------------------------
 
-    }
+            match = texto.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
+            if (match) {
 
-    // ========================================================
-    // FECHAS
-    // ========================================================
+                const año = match[1];
+                const mes = match[2];
+                const dia = match[3];
 
-    function parseFecha(
-        fechaStr
-    ) {
-
-        if (
-            !fechaStr ||
-            fechaStr === '-'
-        ) {
-
-            return null;
-
-        }
-
-
-        fechaStr =
-            String(
-                fechaStr
-            ).trim();
-
-
-        if (
-            fechaStr.includes('/')
-        ) {
-
-            const parts =
-                fechaStr.split('/');
-
-
-            if (
-                parts.length === 3
-            ) {
-
-                return new Date(
-                    parseInt(
-                        parts[2],
-                        10
-                    ),
-                    parseInt(
-                        parts[1],
-                        10
-                    ) - 1,
-                    parseInt(
-                        parts[0],
-                        10
-                    )
-                );
-
+                return `${dia}/${mes}/${año}`;
             }
 
-        }
 
+            // --------------------------------------------------------
+            // Formato DD/MM/YYYY
+            // --------------------------------------------------------
 
-        if (
-            fechaStr.includes('-')
-        ) {
+            match = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
 
-            const parts =
-                fechaStr.split('-');
+            if (match) {
 
+                const dia = match[1];
+                const mes = match[2];
+                const año = match[3];
 
-            if (
-                parts.length === 3
-            ) {
-
-                if (
-                    parts[0].length === 4
-                ) {
-
-                    return new Date(
-                        parseInt(
-                            parts[0],
-                            10
-                        ),
-                        parseInt(
-                            parts[1],
-                            10
-                        ) - 1,
-                        parseInt(
-                            parts[2],
-                            10
-                        )
-                    );
-
-                }
-
-
-                return new Date(
-                    parseInt(
-                        parts[2],
-                        10
-                    ),
-                    parseInt(
-                        parts[1],
-                        10
-                    ) - 1,
-                    parseInt(
-                        parts[0],
-                        10
-                    )
-                );
-
+                return `${dia}/${mes}/${año}`;
             }
 
+
+            // --------------------------------------------------------
+            // Si no reconoce el formato, elimina solamente la hora
+            // como medida de seguridad.
+            // --------------------------------------------------------
+
+            return texto.split(' ')[0];
         }
 
 
-        const d =
-            new Date(
-                fechaStr
-            );
+        // 1. Cargar archivo de controlados con detección automática de separador
 
-
-        return isNaN(
-            d.getTime()
-        )
-            ? null
-            : d;
-
-    }
-
-
-    // ========================================================
-    // CARGAR CONTROLADOS
-    //
-    // IMPORTANTE:
-    // header: true
-    //
-    // El CSV tiene:
-    // linea,fecha,dominio,interno
-    // ========================================================
-
-    Papa.parse(
-        `controlados/linea${lineaId}.csv?t=${new Date().getTime()}`,
-        {
+        Papa.parse(`controlados/linea${lineaId}.csv`, {
 
             download: true,
 
-            header: true,
+            header: false,
 
             skipEmptyLines: true,
 
-            complete: function(
-                results
-            ) {
+            complete: function(results) {
 
-                mapControlados = {};
+                if (results && results.data) {
 
+                    results.data.forEach(row => {
 
-                if (
-                    results &&
-                    results.data
-                ) {
+                        let lineStr = Array.isArray(row)
+                            ? row.join(" ")
+                            : String(row);
 
-                    results.data.forEach(
-                        row => {
+                        let parts = lineStr.trim().split(/\s+/);
 
-                            const linea =
-                                getProp(
-                                    row,
-                                    [
-                                        'linea'
-                                    ]
-                                );
+                        if (parts.length >= 2) {
 
+                            let fecha = parts[0];
 
-                            if (
-                                linea &&
-                                linea !==
-                                    String(
-                                        lineaId
-                                    )
-                            ) {
+                            let dominio = parts[1].toUpperCase();
 
-                                return;
-
-                            }
-
-
-                            const dominio =
-                                normalizarDominio(
-                                    getProp(
-                                        row,
-                                        [
-                                            'dominio',
-                                            'patente',
-                                            'dominio_vehiculo'
-                                        ]
-                                    )
-                                );
-
-
-                            if (!dominio)
-                                return;
-
-
-                            const fecha =
-                                getProp(
-                                    row,
-                                    [
-                                        'fecha',
-                                        'ultima_fiscalizacion',
-                                        'fecha_fiscalizacion',
-                                        'fecha_control',
-                                        'fecha_visita',
-                                        'fecha_inspeccion'
-                                    ]
-                                );
-
-
-                            mapControlados[
-                                dominio
-                            ] = fecha || '-';
+                            // Guardamos la fecha original para el cruce.
+                            mapControlados[dominio] = fecha;
 
                         }
-                    );
+
+                    });
 
                 }
-
 
                 cargarParqueOficial();
 
             },
 
-
             error: function() {
-
-                mapControlados = {};
 
                 cargarParqueOficial();
 
             }
 
-        }
-    );
+        });
 
 
-    // ========================================================
-    // CARGAR PARQUE OFICIAL
-    // ========================================================
+        // 2. Cargar parque oficial sin forzar un delimitador único
+        // Auto-detecta ; o ,
 
-    function cargarParqueOficial() {
+        function cargarParqueOficial() {
 
-        Papa.parse(
-            `parques/linea${lineaId}.csv?t=${new Date().getTime()}`,
-            {
+            Papa.parse(`parques/linea${lineaId}.csv`, {
 
                 download: true,
 
@@ -755,275 +389,207 @@
 
                 skipEmptyLines: true,
 
-                complete: function(
-                    results
-                ) {
+                complete: function(results) {
 
-                    if (
-                        results &&
+                    if (results &&
                         results.data &&
-                        results.data.length > 0
-                    ) {
+                        results.data.length > 0) {
 
-                        renderFleet(
-                            results.data
-                        );
+                        renderFleet(results.data);
 
-                    }
-                    else {
+                    } else {
 
-                        document.getElementById(
-                            "fleetTbody"
-                        ).innerHTML =
-                            `
-                            <tr>
-                                <td
-                                    colspan="8"
-                                    class="py-6 text-center text-red-500 font-bold"
-                                >
-                                    El archivo
-                                    'parques/linea${lineaId}.csv'
-                                    está vacío.
+                        document.getElementById("fleetTbody").innerHTML =
+                            `<tr>
+                                <td colspan="8"
+                                    class="py-6 text-center text-red-500 font-bold">
+                                    El archivo 'parques/linea${lineaId}.csv' está vacío.
                                 </td>
-                            </tr>
-                            `;
+                            </tr>`;
 
                     }
 
                 },
 
+                error: function(err) {
 
-                error: function() {
-
-                    document.getElementById(
-                        "fleetTbody"
-                    ).innerHTML =
-                        `
-                        <tr>
-                            <td
-                                colspan="8"
-                                class="py-6 text-center text-red-500 font-bold"
-                            >
-                                No se pudo cargar
-                                'parques/linea${lineaId}.csv'.
+                    document.getElementById("fleetTbody").innerHTML =
+                        `<tr>
+                            <td colspan="8"
+                                class="py-6 text-center text-red-500 font-bold">
+                                No se pudo cargar 'parques/linea${lineaId}.csv'.
+                                Verifica que el archivo exista en la carpeta.
                             </td>
-                        </tr>
-                        `;
+                        </tr>`;
+
+                }
+
+            });
+
+        }
+
+
+        // Helper para buscar nombres de propiedades
+        // sin importar mayúsculas o minúsculas
+
+        function getProp(obj, names) {
+
+            const keys = Object.keys(obj);
+
+            for (let name of names) {
+
+                const found = keys.find(
+                    k => k.trim().toLowerCase() === name.toLowerCase()
+                );
+
+                if (found &&
+                    obj[found] !== null &&
+                    obj[found] !== undefined) {
+
+                    return String(obj[found]).trim();
 
                 }
 
             }
-        );
 
-    }
+            return '';
+
+        }
 
 
-    // ========================================================
-    // RENDER PARQUE
-    // ========================================================
+        function renderFleet(data) {
 
-    function renderFleet(
-        data
-    ) {
+            data.sort((a, b) => {
 
-        data.sort(
-            (a, b) => {
-
-                const intA =
+                let intA =
                     parseInt(
-                        getProp(
-                            a,
-                            [
-                                'interno',
-                                'int',
-                                'unidad'
-                            ]
-                        )
+                        getProp(a, ['interno', 'int', 'unidad'])
                     ) || 0;
 
-
-                const intB =
+                let intB =
                     parseInt(
-                        getProp(
-                            b,
-                            [
-                                'interno',
-                                'int',
-                                'unidad'
-                            ]
-                        )
+                        getProp(b, ['interno', 'int', 'unidad'])
                     ) || 0;
-
 
                 return intA - intB;
 
-            }
-        );
+            });
 
 
-        const tbody =
-            document.getElementById(
-                "fleetTbody"
-            );
+            let tbody =
+                document.getElementById("fleetTbody");
+
+            tbody.innerHTML = "";
 
 
-        tbody.innerHTML = "";
+            let total = 0;
+
+            let countControlados = 0;
+
+            let countPendientes = 0;
 
 
-        let total = 0;
-
-        let countControlados = 0;
-
-        let countPendientes = 0;
+            const hoy =
+                new Date().toISOString().split('T')[0];
 
 
-        const hoy =
-            new Date()
-                .toISOString()
-                .split('T')[0];
+            data.forEach(item => {
 
-
-        data.forEach(
-            item => {
-
-                const dominioCSV =
-                    normalizarDominio(
-                        getProp(
-                            item,
-                            [
-                                'dominio',
-                                'patente',
-                                'dominio_vehiculo'
-                            ]
-                        )
-                    );
-
-
-                const internoVal =
+                let dominioCSV =
                     getProp(
                         item,
-                        [
-                            'interno',
-                            'int',
-                            'unidad'
-                        ]
+                        ['dominio', 'patente', 'dominio_vehiculo']
+                    ).toUpperCase();
+
+
+                let internoVal =
+                    getProp(
+                        item,
+                        ['interno', 'int', 'unidad']
                     );
 
 
-                if (
-                    !dominioCSV &&
-                    !internoVal
-                ) {
-
-                    return;
-
-                }
+                if (!dominioCSV && !internoVal) return;
 
 
                 total++;
 
 
-                const fechaFiscalizacion =
-                    mapControlados[
-                        dominioCSV
-                    ] || null;
+                // Fecha original para determinar si está controlado
+
+                let fechaFiscalizacion =
+                    mapControlados[dominioCSV] || null;
 
 
-                const isControlado =
+                let isControlado =
                     !!fechaFiscalizacion;
 
 
-                if (
-                    isControlado
-                ) {
+                if (isControlado)
 
                     countControlados++;
 
-                }
-                else {
+                else
 
                     countPendientes++;
 
-                }
 
-
-                const statusText =
+                let statusText =
                     isControlado
                         ? "CONTROLADO"
                         : "PENDIENTE";
 
 
-                const rowBg =
+                let rowBg =
                     isControlado
                         ? ""
                         : "bg-slate-50 dark:bg-gray-800/60";
 
 
-                const marca =
+                let marca =
                     getProp(
                         item,
-                        [
-                            'chasismarca',
-                            'marca'
-                        ]
+                        ['chasismarca', 'marca']
                     );
 
 
-                const modelo =
+                let modelo =
                     getProp(
                         item,
-                        [
-                            'chasismodelo',
-                            'modelo'
-                        ]
+                        ['chasismodelo', 'modelo']
                     );
 
 
-                const anio =
+                let anio =
                     getProp(
                         item,
-                        [
-                            'aniomodelo',
-                            'anio',
-                            'año'
-                        ]
+                        ['aniomodelo', 'anio', 'año']
                     );
 
 
                 let modeloText =
-                    `${marca} ${modelo} (${anio})`
-                        .trim();
+                    `${marca} ${modelo} (${anio})`.trim();
 
 
-                if (
-                    modeloText === "()"
-                ) {
+                if (modeloText === "()")
 
                     modeloText = "-";
-
-                }
 
 
                 let habHasta =
                     getProp(
                         item,
-                        [
-                            'vigenciahasta',
-                            'habilitacion'
-                        ]
+                        ['vigenciahasta', 'habilitacion']
                     );
 
 
                 habHasta =
                     habHasta
-                        ? habHasta.replace(
-                            "UC:",
-                            ""
-                        )
+                        ? habHasta.replace("UC:", "")
                         : "-";
 
 
-                const tecFecha =
+                let tecFecha =
                     getProp(
                         item,
                         [
@@ -1038,31 +604,24 @@
                     "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
 
 
-                if (
-                    tecFecha !== "-"
-                ) {
+                if (tecFecha !== "-") {
 
-                    const parts =
+                    let parts =
                         tecFecha.split("/");
 
 
-                    if (
-                        parts.length === 3
-                    ) {
+                    if (parts.length === 3) {
 
-                        const formattedFecha =
+                        let formattedFecha =
                             `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
 
 
-                        if (
-                            formattedFecha < hoy
-                        ) {
+                        if (formattedFecha < hoy) {
 
                             tecBadgeClass =
                                 "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300";
 
-                        }
-                        else {
+                        } else {
 
                             tecBadgeClass =
                                 "bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300";
@@ -1074,21 +633,26 @@
                 }
 
 
-                const tecNro =
+                let tecNro =
                     getProp(
                         item,
-                        [
-                            'tecnicanro',
-                            'nrotecnica',
-                            'nro_tecnica'
-                        ]
+                        ['tecnicanro', 'nrotecnica', 'nro_tecnica']
                     ) || "-";
 
 
-                const tr =
-                    document.createElement(
-                        "tr"
+                // ====================================================
+                // CAMBIO:
+                // La fecha se muestra solamente como DD/MM/YYYY.
+                // ====================================================
+
+                let fechaFiscalizacionMostrar =
+                    formatearFechaFiscalizacion(
+                        fechaFiscalizacion
                     );
+
+
+                let tr =
+                    document.createElement("tr");
 
 
                 tr.className =
@@ -1120,13 +684,9 @@
                     </td>
 
                     <td class="py-2.5 px-2">
-
-                        <span
-                            class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code"
-                        >
+                        <span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code">
                             ${tecFecha}
                         </span>
-
                     </td>
 
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
@@ -1135,22 +695,22 @@
 
                     <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200 font-code">
                         ${
-                            fechaFiscalizacion
-                            ||
-                            '<span class="text-gray-400 font-normal italic font-sans">-</span>'
+                            fechaFiscalizacionMostrar
+                                ? fechaFiscalizacionMostrar
+                                : '<span class="text-gray-400 font-normal italic font-sans">-</span>'
                         }
                     </td>
 
                     <td class="py-2.5 px-2">
 
-                        <span
-                            class="${
-                                isControlado
+                        <span class="${
+                            isControlado
                                 ? 'bg-green-600 text-white'
                                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                            } px-2 py-0.5 rounded-full font-bold text-[10px]"
-                        >
+                        } px-2 py-0.5 rounded-full font-bold text-[10px]">
+
                             ${statusText}
+
                         </span>
 
                     </td>
@@ -1158,261 +718,185 @@
                 `;
 
 
-                tbody.appendChild(
-                    tr
-                );
+                tbody.appendChild(tr);
 
-            }
-        );
+            });
 
 
-        document.getElementById(
-            "countTotal"
-        ).textContent =
-            total;
+            document.getElementById("countTotal").textContent =
+                total;
 
+            document.getElementById("countControlados").textContent =
+                countControlados;
 
-        document.getElementById(
-            "countControlados"
-        ).textContent =
-            countControlados;
-
-
-        document.getElementById(
-            "countPendientes"
-        ).textContent =
-            countPendientes;
-
-    }
-
-
-    // ========================================================
-    // FILTROS
-    // ========================================================
-
-    function setFilter(
-        status
-    ) {
-
-        currentStatusFilter =
-            status;
-
-
-        const btnAll =
-            document.getElementById(
-                'btnFilterAll'
-            );
-
-
-        const btnCtrl =
-            document.getElementById(
-                'btnFilterControlado'
-            );
-
-
-        const btnPend =
-            document.getElementById(
-                'btnFilterPendiente'
-            );
-
-
-        const activeClasses = [
-            'border-2',
-            'border-sky-500',
-            'ring-2',
-            'ring-sky-200',
-            'dark:ring-sky-900'
-        ];
-
-
-        const inactiveClasses = [
-            'border',
-            'border-gray-200',
-            'dark:border-gray-700'
-        ];
-
-
-        [
-            btnAll,
-            btnCtrl,
-            btnPend
-        ].forEach(
-            btn => {
-
-                btn.classList.remove(
-                    ...activeClasses
-                );
-
-                btn.classList.add(
-                    ...inactiveClasses
-                );
-
-            }
-        );
-
-
-        let activeBtn =
-            btnAll;
-
-
-        if (
-            status === 'CONTROLADO'
-        ) {
-
-            activeBtn =
-                btnCtrl;
+            document.getElementById("countPendientes").textContent =
+                countPendientes;
 
         }
 
 
-        if (
-            status === 'PENDIENTE'
-        ) {
+        function setFilter(status) {
 
-            activeBtn =
-                btnPend;
+            currentStatusFilter = status;
+
+
+            const btnAll =
+                document.getElementById('btnFilterAll');
+
+            const btnCtrl =
+                document.getElementById('btnFilterControlado');
+
+            const btnPend =
+                document.getElementById('btnFilterPendiente');
+
+
+            const activeClasses = [
+                'border-2',
+                'border-sky-500',
+                'ring-2',
+                'ring-sky-200',
+                'dark:ring-sky-900'
+            ];
+
+
+            const inactiveClasses = [
+                'border',
+                'border-gray-200',
+                'dark:border-gray-700'
+            ];
+
+
+            // Limpiar todas las tarjetas
+
+            [btnAll, btnCtrl, btnPend].forEach(btn => {
+
+                btn.classList.remove(...activeClasses);
+
+                btn.classList.add(...inactiveClasses);
+
+            });
+
+
+            // Resaltar la tarjeta activa
+
+            let activeBtn = btnAll;
+
+
+            if (status === 'CONTROLADO')
+
+                activeBtn = btnCtrl;
+
+
+            if (status === 'PENDIENTE')
+
+                activeBtn = btnPend;
+
+
+            activeBtn.classList.remove(
+                ...inactiveClasses
+            );
+
+
+            activeBtn.classList.add(
+                ...activeClasses
+            );
+
+
+            applyFilters();
 
         }
 
 
-        activeBtn.classList.remove(
-            ...inactiveClasses
-        );
+        function applyFilters() {
+
+            let searchInput =
+                document.getElementById("searchInput")
+                .value
+                .toUpperCase();
 
 
-        activeBtn.classList.add(
-            ...activeClasses
-        );
+            let tr =
+                document.querySelectorAll(
+                    "#fleetTbody tr"
+                );
 
 
-        applyFilters();
+            tr.forEach(row => {
 
-    }
-
-
-    function applyFilters() {
-
-        const searchInput =
-            document.getElementById(
-                "searchInput"
-            )
-            .value
-            .toUpperCase();
+                let status =
+                    row.getAttribute('data-status');
 
 
-        const tr =
-            document.querySelectorAll(
-                "#fleetTbody tr"
-            );
+                if (!status) return;
 
 
-        tr.forEach(
-            row => {
-
-                const status =
-                    row.getAttribute(
-                        'data-status'
-                    );
-
-
-                if (!status)
-                    return;
-
-
-                const dominio =
+                let dominio =
                     row
-                        .getElementsByTagName(
-                            "td"
-                        )[0]
+                        .getElementsByTagName("td")[0]
                         .textContent
                         .toUpperCase();
 
 
-                const interno =
+                let interno =
                     row
-                        .getElementsByTagName(
-                            "td"
-                        )[1]
+                        .getElementsByTagName("td")[1]
                         .textContent
                         .toUpperCase();
 
 
-                const matchesSearch =
+                let matchesSearch =
                     (
-                        dominio.indexOf(
-                            searchInput
-                        ) > -1
-                        ||
-                        interno.indexOf(
-                            searchInput
-                        ) > -1
+                        dominio.indexOf(searchInput) > -1 ||
+                        interno.indexOf(searchInput) > -1
                     );
 
 
-                const matchesStatus =
+                let matchesStatus =
                     (
-                        currentStatusFilter ===
-                            'ALL'
-                        ||
-                        status ===
-                            currentStatusFilter
+                        currentStatusFilter === 'ALL' ||
+                        status === currentStatusFilter
                     );
 
 
                 if (
                     matchesSearch &&
                     matchesStatus
-                ) {
+                )
 
-                    row.style.display =
-                        "";
+                    row.style.display = "";
 
-                }
-                else {
+                else
 
-                    row.style.display =
-                        "none";
+                    row.style.display = "none";
 
-                }
+            });
 
-            }
-        );
-
-    }
+        }
 
 
-    // ========================================================
-    // COPIAR PENDIENTES
-    // ========================================================
+        function copyMissing() {
 
-    function copyMissing() {
-
-        const missingInternos = [];
+            let missingInternos = [];
 
 
-        const tr =
-            document.querySelectorAll(
-                "#fleetTbody tr[data-status='PENDIENTE']"
-            );
+            let tr =
+                document.querySelectorAll(
+                    "#fleetTbody tr[data-status='PENDIENTE']"
+                );
 
 
-        tr.forEach(
-            row => {
+            tr.forEach(row => {
 
-                const interno =
+                let interno =
                     row
-                        .getElementsByTagName(
-                            "td"
-                        )[1]
+                        .getElementsByTagName("td")[1]
                         .textContent
                         .trim();
 
 
-                const dominio =
+                let dominio =
                     row
-                        .getElementsByTagName(
-                            "td"
-                        )[0]
+                        .getElementsByTagName("td")[0]
                         .textContent
                         .trim();
 
@@ -1421,37 +905,30 @@
                     `• Int. ${interno} (${dominio})`
                 );
 
+            });
+
+
+            if (missingInternos.length === 0) {
+
+                alert(
+                    "¡Excelente! No hay colectivos pendientes de control en esta línea."
+                );
+
+                return;
+
             }
-        );
 
 
-        if (
-            missingInternos.length === 0
-        ) {
-
-            alert(
-                "¡Excelente! No hay colectivos pendientes de control en esta línea."
-            );
-
-            return;
-
-        }
+            let textToCopy =
+                `*LÍNEA ${lineaId} - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n`
+                +
+                missingInternos.join("\n");
 
 
-        const textToCopy =
-            `*LÍNEA ${lineaId} - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n`
-            +
-            missingInternos.join(
-                "\n"
-            );
+            navigator.clipboard
+                .writeText(textToCopy)
 
-
-        navigator.clipboard
-            .writeText(
-                textToCopy
-            )
-            .then(
-                () => {
+                .then(() => {
 
                     alert(
                         "¡Copiado al portapapeles!\n\n"
@@ -1459,10 +936,9 @@
                         textToCopy
                     );
 
-                }
-            )
-            .catch(
-                err => {
+                })
+
+                .catch(err => {
 
                     alert(
                         "Error al copiar: "
@@ -1470,122 +946,101 @@
                         err
                     );
 
-                }
-            );
+                });
 
-    }
-
-
-    // ========================================================
-    // MODO OSCURO
-    // ========================================================
-
-    function toggleDarkMode() {
-
-        const html =
-            document.documentElement;
+        }
 
 
-        const themeIcon =
-            document.getElementById(
-                'themeIcon'
-            );
+        function toggleDarkMode() {
+
+            const html =
+                document.documentElement;
 
 
-        const themeText =
-            document.getElementById(
-                'themeText'
-            );
+            const themeIcon =
+                document.getElementById(
+                    'themeIcon'
+                );
+
+
+            const themeText =
+                document.getElementById(
+                    'themeText'
+                );
+
+
+            if (html.classList.contains('dark')) {
+
+                html.classList.remove('dark');
+
+
+                themeIcon.className =
+                    'fa-solid fa-moon text-sm';
+
+
+                themeText.textContent =
+                    'Oscuro';
+
+
+                localStorage.setItem(
+                    'theme',
+                    'light'
+                );
+
+            } else {
+
+                html.classList.add('dark');
+
+
+                themeIcon.className =
+                    'fa-solid fa-sun text-sm';
+
+
+                themeText.textContent =
+                    'Claro';
+
+
+                localStorage.setItem(
+                    'theme',
+                    'dark'
+                );
+
+            }
+
+        }
 
 
         if (
-            html.classList.contains(
-                'dark'
+            localStorage.getItem('theme') === 'dark'
+            ||
+            (
+                !('theme' in localStorage)
+                &&
+                window.matchMedia(
+                    '(prefers-color-scheme: dark)'
+                ).matches
             )
         ) {
 
-            html.classList.remove(
+            document.documentElement.classList.add(
                 'dark'
             );
 
 
-            themeIcon.className =
-                'fa-solid fa-moon text-sm';
-
-
-            themeText.textContent =
-                'Oscuro';
-
-
-            localStorage.setItem(
-                'theme',
-                'light'
-            );
-
-        }
-        else {
-
-            html.classList.add(
-                'dark'
-            );
-
-
-            themeIcon.className =
+            document.getElementById(
+                'themeIcon'
+            ).className =
                 'fa-solid fa-sun text-sm';
 
 
-            themeText.textContent =
+            document.getElementById(
+                'themeText'
+            ).textContent =
                 'Claro';
-
-
-            localStorage.setItem(
-                'theme',
-                'dark'
-            );
 
         }
 
-    }
-
-
-    if (
-        localStorage.getItem(
-            'theme'
-        ) === 'dark'
-        ||
-        (
-            !(
-                'theme'
-                in localStorage
-            )
-            &&
-            window.matchMedia(
-                '(prefers-color-scheme: dark)'
-            ).matches
-        )
-    ) {
-
-        document.documentElement
-            .classList
-            .add('dark');
-
-
-        document.getElementById(
-            'themeIcon'
-        ).className =
-            'fa-solid fa-sun text-sm';
-
-
-        document.getElementById(
-            'themeText'
-        ).textContent =
-            'Claro';
-
-    }
-
-</script>
-
+    </script>
 
 </body>
-
 </html>

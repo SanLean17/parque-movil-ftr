@@ -12,11 +12,19 @@ on:
   # ==========================================================
   # EJECUCIÓN MANUAL
   #
-  # Si lo ejecutás manualmente:
-  # DRIVE + CNRT SIEMPRE
+  # Manual = Drive + CNRT + Parque Móvil
+  # siempre.
   # ==========================================================
 
   workflow_dispatch:
+
+
+# ============================================================
+# PERMISOS
+# ============================================================
+
+permissions:
+  contents: write
 
 
 jobs:
@@ -32,7 +40,7 @@ jobs:
       # ======================================================
 
       - name: Descargar repositorio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
 
       # ======================================================
@@ -40,7 +48,7 @@ jobs:
       # ======================================================
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
@@ -92,7 +100,7 @@ jobs:
       # DETERMINAR SI TOCA CNRT
       #
       # AUTOMÁTICO:
-      #   solo cada 15 días
+      #   cada 15 días
       #
       # MANUAL:
       #   siempre
@@ -117,7 +125,10 @@ jobs:
 
             python - <<'PY'
 
+          import os
+
           from control_actualizacion import debe_actualizar
+
 
           if debe_actualizar():
 
@@ -125,8 +136,9 @@ jobs:
               print("CNRT debe actualizarse.")
 
               with open(
-                  "${GITHUB_OUTPUT}",
-                  "a"
+                  os.environ["GITHUB_OUTPUT"],
+                  "a",
+                  encoding="utf-8"
               ) as f:
 
                   f.write("actualizar=true\n")
@@ -137,8 +149,9 @@ jobs:
               print("CNRT NO se actualizará.")
 
               with open(
-                  "${GITHUB_OUTPUT}",
-                  "a"
+                  os.environ["GITHUB_OUTPUT"],
+                  "a",
+                  encoding="utf-8"
               ) as f:
 
                   f.write("actualizar=false\n")
@@ -181,10 +194,10 @@ jobs:
 
 
       # ======================================================
-      # GUARDAR FECHA CNRT
+      # GUARDAR FECHA DE ACTUALIZACIÓN CNRT
       # ======================================================
 
-      - name: Guardar fecha actualización CNRT
+      - name: Guardar fecha actualización Parque Móvil
         if: steps.comprobar_cnrt.outputs.actualizar == 'true'
 
         run: |
@@ -195,15 +208,11 @@ jobs:
 
           guardar_fecha()
 
-          print(
-              "Fecha de actualización CNRT guardada."
-          )
-
           PY
 
 
       # ======================================================
-      # VERIFICAR CAMBIOS
+      # VER CAMBIOS
       # ======================================================
 
       - name: Ver cambios

@@ -1,378 +1,653 @@
 <!DOCTYPE html>
 <html lang="es" class="light">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parque Móvil FTR</title>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Parque Móvil FTR
+    </title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
 
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap" rel="stylesheet">
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700;800&display=swap"
+        rel="stylesheet"
+    >
 
     <script>
+
         tailwind.config = {
+
             darkMode: 'class',
+
             theme: {
+
                 extend: {
+
                     fontFamily: {
-                        code: ['"JetBrains Mono"', 'monospace']
+
+                        code: [
+                            '"JetBrains Mono"',
+                            'monospace'
+                        ]
+
                     }
+
                 }
+
             }
+
         }
+
     </script>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet"
+    >
+
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
-    <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
-
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-
-            <a href="index.html"
-               class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm">
-
-                <i class="fa-solid fa-arrow-left text-base"></i>
-
-                <span class="hidden sm:inline">
-                    Volver
-                </span>
-
-            </a>
-
-            <div class="text-center flex-grow mx-2">
-
-                <h1
-                    class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight"
-                    id="lineaTitle">
-                    LÍNEA --
-                </h1>
-
-                <p class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block">
-                    Parque Móvil Oficial
-                </p>
-
-            </div>
-
-            <button
-                onclick="toggleDarkMode()"
-                class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1">
-
-                <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
-
-                <span id="themeText" class="text-[10px] hidden sm:inline">
-                    Oscuro
-                </span>
-
-            </button>
-
-        </div>
-
-    </header>
+<body
+    class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 min-h-screen flex flex-col font-sans transition-colors duration-200"
+>
 
 
-    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full">
+<header
+    class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative"
+>
 
-        <div class="grid grid-cols-3 gap-2 mb-3">
+    <div
+        class="max-w-7xl mx-auto flex items-center justify-between"
+    >
 
-            <button
-                onclick="setFilter('ALL')"
-                id="btnFilterAll"
-                class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-sky-500 ring-2 ring-sky-200 dark:ring-sky-900 text-center transition cursor-pointer">
+        <a
+            href="index.html"
+            class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm"
+        >
 
-                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
-                    Total
-                </p>
+            <i
+                class="fa-solid fa-arrow-left text-base"
+            ></i>
 
-                <p
-                    class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300"
-                    id="countTotal">
-                    0
-                </p>
+            <span
+                class="hidden sm:inline"
+            >
+                Volver
+            </span>
 
-            </button>
-
-
-            <button
-                onclick="setFilter('CONTROLADO')"
-                id="btnFilterControlado"
-                class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
-
-                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
-                    Controlados
-                </p>
-
-                <p
-                    class="text-base sm:text-lg font-black text-green-600 dark:text-green-400"
-                    id="countControlados">
-                    0
-                </p>
-
-            </button>
+        </a>
 
 
-            <button
-                onclick="setFilter('PENDIENTE')"
-                id="btnFilterPendiente"
-                class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer">
+        <div
+            class="text-center flex-grow mx-2"
+        >
 
-                <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">
-                    Pendientes
-                </p>
+            <h1
+                class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight"
+                id="lineaTitle"
+            >
+                LÍNEA --
+            </h1>
 
-                <p
-                    class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300"
-                    id="countPendientes">
-                    0
-                </p>
-
-            </button>
+            <p
+                class="text-blue-200 dark:text-gray-400 text-[11px] hidden sm:block"
+            >
+                Parque Móvil Oficial
+            </p>
 
         </div>
 
 
-        <div class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-2 justify-between items-center">
+        <button
+            onclick="toggleDarkMode()"
+            class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1"
+        >
 
-            <div class="relative w-full sm:w-80">
+            <i
+                id="themeIcon"
+                class="fa-solid fa-moon text-sm"
+            ></i>
 
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+            <span
+                id="themeText"
+                class="text-[10px] hidden sm:inline"
+            >
+                Oscuro
+            </span>
 
-                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+        </button>
 
-                </span>
+    </div>
 
-                <input
-                    type="text"
-                    id="searchInput"
-                    onkeyup="applyFilters()"
-                    placeholder="Buscar por Interno o Patente..."
-                    class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code">
-
-            </div>
+</header>
 
 
-            <button
-                onclick="copyMissing()"
-                class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1">
+<main
+    class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-grow w-full"
+>
 
-                <i class="fa-regular fa-copy"></i>
 
-                <span>
-                    Copiar Faltantes
-                </span>
+    <div
+        class="grid grid-cols-3 gap-2 mb-3"
+    >
 
-            </button>
+        <button
+            onclick="setFilter('ALL')"
+            id="btnFilterAll"
+            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border-2 border-sky-500 ring-2 ring-sky-200 dark:ring-sky-900 text-center transition cursor-pointer"
+        >
+
+            <p
+                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
+            >
+                Total
+            </p>
+
+            <p
+                class="text-base sm:text-lg font-black text-blue-900 dark:text-blue-300"
+                id="countTotal"
+            >
+                0
+            </p>
+
+        </button>
+
+
+        <button
+            onclick="setFilter('CONTROLADO')"
+            id="btnFilterControlado"
+            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer"
+        >
+
+            <p
+                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
+            >
+                Controlados
+            </p>
+
+            <p
+                class="text-base sm:text-lg font-black text-green-600 dark:text-green-400"
+                id="countControlados"
+            >
+                0
+            </p>
+
+        </button>
+
+
+        <button
+            onclick="setFilter('PENDIENTE')"
+            id="btnFilterPendiente"
+            class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 text-center transition cursor-pointer"
+        >
+
+            <p
+                class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold"
+            >
+                Pendientes
+            </p>
+
+            <p
+                class="text-base sm:text-lg font-black text-gray-600 dark:text-gray-300"
+                id="countPendientes"
+            >
+                0
+            </p>
+
+        </button>
+
+    </div>
+
+
+    <div
+        class="mb-3 bg-white dark:bg-gray-800 p-2.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-2 justify-between items-center"
+    >
+
+        <div
+            class="relative w-full sm:w-80"
+        >
+
+            <span
+                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400"
+            >
+
+                <i
+                    class="fa-solid fa-magnifying-glass text-xs"
+                ></i>
+
+            </span>
+
+
+            <input
+                type="text"
+                id="searchInput"
+                onkeyup="applyFilters()"
+                placeholder="Buscar por Interno o Patente..."
+                class="w-full pl-9 pr-3 py-1.5 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 text-xs font-code"
+            >
 
         </div>
 
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
+        <button
+            onclick="copyMissing()"
+            class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm"
+        >
 
-            <div class="overflow-x-auto">
+            <i
+                class="fa-regular fa-copy"
+            ></i>
 
-                <table
-                    class="w-full text-left border-collapse"
-                    id="fleetTable">
+            <span>
+                Copiar Faltantes
+            </span>
 
-                    <thead>
+        </button>
 
-                        <tr class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700">
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                DOMINIO
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                INTERNO
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                MODELO (AÑO)
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                HABILITADO HASTA
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                TÉCNICA VIGENTE HASTA
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                N° TÉCNICA
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                ÚLTIMA FISCALIZACIÓN
-                            </th>
-
-                            <th class="py-2.5 px-2 font-semibold">
-                                ESTADO
-                            </th>
-
-                        </tr>
-
-                    </thead>
+    </div>
 
 
-                    <tbody
-                        class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium"
-                        id="fleetTbody">
+    <div
+        class="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700"
+    >
 
-                        <tr>
+        <div
+            class="overflow-x-auto"
+        >
 
-                            <td
-                                colspan="8"
-                                class="py-6 text-center text-gray-500">
+            <table
+                class="w-full text-left border-collapse"
+                id="fleetTable"
+            >
 
-                                Cargando datos...
+                <thead>
 
-                            </td>
+                    <tr
+                        class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700"
+                    >
 
-                        </tr>
+                        <th class="py-2.5 px-2 font-semibold">
+                            DOMINIO
+                        </th>
 
-                    </tbody>
+                        <th class="py-2.5 px-2 font-semibold">
+                            INTERNO
+                        </th>
 
-                </table>
+                        <th class="py-2.5 px-2 font-semibold">
+                            MODELO (AÑO)
+                        </th>
 
-            </div>
+                        <th class="py-2.5 px-2 font-semibold">
+                            HABILITADO HASTA
+                        </th>
+
+                        <th class="py-2.5 px-2 font-semibold">
+                            TÉCNICA VIGENTE HASTA
+                        </th>
+
+                        <th class="py-2.5 px-2 font-semibold">
+                            N° TÉCNICA
+                        </th>
+
+                        <th class="py-2.5 px-2 font-semibold">
+                            ÚLTIMA FISCALIZACIÓN
+                        </th>
+
+                        <th class="py-2.5 px-2 font-semibold">
+                            ESTADO
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody
+                    class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium"
+                    id="fleetTbody"
+                >
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="py-6 text-center text-gray-500"
+                        >
+                            Cargando datos...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
 
         </div>
 
-    </main>
+    </div>
 
 
-    <footer class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700">
+</main>
 
-        Parque Móvil FTR &copy; 2026
 
-    </footer>
+<footer
+    class="bg-gray-800 dark:bg-gray-950 text-gray-400 py-2.5 text-center text-[10px] mt-auto border-t border-gray-700"
+>
+
+    Parque Móvil FTR &copy; 2026
+
+</footer>
 
 
 <script>
 
-const urlParams = new URLSearchParams(
-    window.location.search
-);
-
-const lineaId =
-    urlParams.get('id') || '22';
-
-document.getElementById(
-    "lineaTitle"
-).textContent =
-    `LÍNEA ${lineaId}`;
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
 
 
-let mapControlados = {};
-
-let currentStatusFilter = 'ALL';
-
-
-/* ============================================================
-   NORMALIZAR DOMINIO
-   ============================================================ */
-
-function normalizarDominio(valor) {
-
-    if (
-        valor === null ||
-        valor === undefined
-    ) {
-        return "";
-    }
-
-    return String(valor)
-        .trim()
-        .toUpperCase();
-
-}
+    const lineaId =
+        urlParams.get('id') ||
+        '22';
 
 
-/* ============================================================
-   PROPIEDAD
-   ============================================================ */
+    document.getElementById(
+        "lineaTitle"
+    ).textContent =
+        `LÍNEA ${lineaId}`;
 
-function getProp(
-    obj,
-    names
-) {
 
-    const keys = Object.keys(obj);
+    let mapControlados = {};
 
-    for (
-        let name of names
+    let currentStatusFilter =
+        'ALL';
+
+
+    // ========================================================
+    // NORMALIZAR DOMINIO
+    // ========================================================
+
+    function normalizarDominio(
+        valor
     ) {
 
-        const found =
-            keys.find(
-                k =>
-                    k.trim()
-                    .toLowerCase()
-                    ===
-                    name.toLowerCase()
+        if (!valor)
+            return '';
+
+        return String(valor)
+            .trim()
+            .toUpperCase()
+            .replace(
+                /\s+/g,
+                ''
+            )
+            .replace(
+                /-/g,
+                ''
             );
 
-        if (
-            found &&
-            obj[found] !== null &&
-            obj[found] !== undefined
+    }
+
+
+    // ========================================================
+    // NORMALIZAR CLAVE
+    // ========================================================
+
+    function normalizarClave(
+        valor
+    ) {
+
+        return String(
+            valor || ''
+        )
+        .replace(
+            /^\ufeff/,
+            ''
+        )
+        .normalize(
+            "NFD"
+        )
+        .replace(
+            /[\u0300-\u036f]/g,
+            ''
+        )
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9]/g,
+            ''
+        );
+
+    }
+
+
+    // ========================================================
+    // OBTENER PROPIEDAD
+    // ========================================================
+
+    function getProp(
+        obj,
+        names
+    ) {
+
+        if (!obj)
+            return '';
+
+
+        const objetivos =
+            names.map(
+                normalizarClave
+            );
+
+
+        for (
+            const key of Object.keys(obj)
         ) {
 
-            return String(
-                obj[found]
-            ).trim();
+            const clave =
+                normalizarClave(
+                    key
+                );
+
+
+            if (
+                objetivos.includes(
+                    clave
+                )
+            ) {
+
+                const valor =
+                    String(
+                        obj[key] ?? ''
+                    ).trim();
+
+
+                if (valor)
+                    return valor;
+
+            }
 
         }
 
+        return '';
+
     }
 
-    return '';
 
-}
+    // ========================================================
+    // FECHAS
+    // ========================================================
+
+    function parseFecha(
+        fechaStr
+    ) {
+
+        if (
+            !fechaStr ||
+            fechaStr === '-'
+        ) {
+
+            return null;
+
+        }
 
 
-/* ============================================================
-   1. CARGAR CONTROLADOS
-   ============================================================ */
+        fechaStr =
+            String(
+                fechaStr
+            ).trim();
 
-function cargarControlados() {
 
-    const url =
-        `controlados/linea${lineaId}.csv?t=${Date.now()}`;
+        if (
+            fechaStr.includes('/')
+        ) {
+
+            const parts =
+                fechaStr.split('/');
+
+
+            if (
+                parts.length === 3
+            ) {
+
+                return new Date(
+                    parseInt(
+                        parts[2],
+                        10
+                    ),
+                    parseInt(
+                        parts[1],
+                        10
+                    ) - 1,
+                    parseInt(
+                        parts[0],
+                        10
+                    )
+                );
+
+            }
+
+        }
+
+
+        if (
+            fechaStr.includes('-')
+        ) {
+
+            const parts =
+                fechaStr.split('-');
+
+
+            if (
+                parts.length === 3
+            ) {
+
+                if (
+                    parts[0].length === 4
+                ) {
+
+                    return new Date(
+                        parseInt(
+                            parts[0],
+                            10
+                        ),
+                        parseInt(
+                            parts[1],
+                            10
+                        ) - 1,
+                        parseInt(
+                            parts[2],
+                            10
+                        )
+                    );
+
+                }
+
+
+                return new Date(
+                    parseInt(
+                        parts[2],
+                        10
+                    ),
+                    parseInt(
+                        parts[1],
+                        10
+                    ) - 1,
+                    parseInt(
+                        parts[0],
+                        10
+                    )
+                );
+
+            }
+
+        }
+
+
+        const d =
+            new Date(
+                fechaStr
+            );
+
+
+        return isNaN(
+            d.getTime()
+        )
+            ? null
+            : d;
+
+    }
+
+
+    // ========================================================
+    // CARGAR CONTROLADOS
+    //
+    // IMPORTANTE:
+    // header: true
+    //
+    // El CSV tiene:
+    // linea,fecha,dominio,interno
+    // ========================================================
 
     Papa.parse(
-        url,
+        `controlados/linea${lineaId}.csv?t=${new Date().getTime()}`,
         {
 
             download: true,
-
-            /*
-             * IMPORTANTE:
-             *
-             * El CSV tiene:
-             *
-             * linea,fecha,dominio,interno
-             *
-             * Por eso usamos header:true.
-             */
 
             header: true,
 
             skipEmptyLines: true,
 
-            dynamicTyping: false,
-
-            complete: function(results) {
+            complete: function(
+                results
+            ) {
 
                 mapControlados = {};
+
 
                 if (
                     results &&
@@ -381,6 +656,28 @@ function cargarControlados() {
 
                     results.data.forEach(
                         row => {
+
+                            const linea =
+                                getProp(
+                                    row,
+                                    [
+                                        'linea'
+                                    ]
+                                );
+
+
+                            if (
+                                linea &&
+                                linea !==
+                                    String(
+                                        lineaId
+                                    )
+                            ) {
+
+                                return;
+
+                            }
+
 
                             const dominio =
                                 normalizarDominio(
@@ -394,43 +691,41 @@ function cargarControlados() {
                                     )
                                 );
 
+
+                            if (!dominio)
+                                return;
+
+
                             const fecha =
                                 getProp(
                                     row,
                                     [
                                         'fecha',
+                                        'ultima_fiscalizacion',
+                                        'fecha_fiscalizacion',
                                         'fecha_control',
-                                        'fiscalizacion'
+                                        'fecha_visita',
+                                        'fecha_inspeccion'
                                     ]
                                 );
 
-                            if (dominio) {
 
-                                mapControlados[
-                                    dominio
-                                ] = fecha || "CONTROLADO";
-
-                            }
+                            mapControlados[
+                                dominio
+                            ] = fecha || '-';
 
                         }
                     );
 
                 }
 
-                console.log(
-                    `Línea ${lineaId}: ${Object.keys(mapControlados).length} controlados cargados.`
-                );
 
                 cargarParqueOficial();
 
             },
 
-            error: function(error) {
 
-                console.error(
-                    "Error leyendo controlados:",
-                    error
-                );
+            error: function() {
 
                 mapControlados = {};
 
@@ -441,874 +736,856 @@ function cargarControlados() {
         }
     );
 
-}
 
+    // ========================================================
+    // CARGAR PARQUE OFICIAL
+    // ========================================================
 
-/* ============================================================
-   2. CARGAR PARQUE OFICIAL
-   ============================================================ */
+    function cargarParqueOficial() {
 
-function cargarParqueOficial() {
+        Papa.parse(
+            `parques/linea${lineaId}.csv?t=${new Date().getTime()}`,
+            {
 
-    const url =
-        `parques/linea${lineaId}.csv?t=${Date.now()}`;
+                download: true,
 
-    Papa.parse(
-        url,
-        {
+                header: true,
 
-            download: true,
+                dynamicTyping: true,
 
-            header: true,
+                skipEmptyLines: true,
 
-            dynamicTyping: false,
-
-            skipEmptyLines: true,
-
-            complete: function(results) {
-
-                if (
-                    results &&
-                    results.data &&
-                    results.data.length > 0
+                complete: function(
+                    results
                 ) {
-
-                    renderFleet(
-                        results.data
-                    );
-
-                }
-                else {
-
-                    document.getElementById(
-                        "fleetTbody"
-                    ).innerHTML = `
-
-                        <tr>
-
-                            <td
-                                colspan="8"
-                                class="py-6 text-center text-red-500 font-bold">
-
-                                El archivo
-                                'parques/linea${lineaId}.csv'
-                                está vacío.
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-
-            },
-
-            error: function(error) {
-
-                console.error(
-                    error
-                );
-
-                document.getElementById(
-                    "fleetTbody"
-                ).innerHTML = `
-
-                    <tr>
-
-                        <td
-                            colspan="8"
-                            class="py-6 text-center text-red-500 font-bold">
-
-                            No se pudo cargar
-                            'parques/linea${lineaId}.csv'.
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   RENDER PARQUE
-   ============================================================ */
-
-function renderFleet(data) {
-
-    data.sort(
-        (a, b) => {
-
-            let intA =
-                parseInt(
-                    getProp(
-                        a,
-                        [
-                            'interno',
-                            'int',
-                            'unidad'
-                        ]
-                    )
-                ) || 0;
-
-            let intB =
-                parseInt(
-                    getProp(
-                        b,
-                        [
-                            'interno',
-                            'int',
-                            'unidad'
-                        ]
-                    )
-                ) || 0;
-
-            return intA - intB;
-
-        }
-    );
-
-
-    const tbody =
-        document.getElementById(
-            "fleetTbody"
-        );
-
-    tbody.innerHTML = "";
-
-
-    let total = 0;
-
-    let countControlados = 0;
-
-    let countPendientes = 0;
-
-
-    const hoy =
-        new Date()
-        .toISOString()
-        .split('T')[0];
-
-
-    data.forEach(
-        item => {
-
-            const dominioCSV =
-                normalizarDominio(
-                    getProp(
-                        item,
-                        [
-                            'dominio',
-                            'patente',
-                            'dominio_vehiculo'
-                        ]
-                    )
-                );
-
-
-            const internoVal =
-                getProp(
-                    item,
-                    [
-                        'interno',
-                        'int',
-                        'unidad'
-                    ]
-                );
-
-
-            if (
-                !dominioCSV &&
-                !internoVal
-            ) {
-                return;
-            }
-
-
-            total++;
-
-
-            /*
-             * CRUCE REAL:
-             *
-             * DOMINIO CNRT
-             *       ↓
-             * DOMINIO CONTROLADO
-             */
-
-            const fechaFiscalizacion =
-                mapControlados[
-                    dominioCSV
-                ] || null;
-
-
-            const isControlado =
-                !!fechaFiscalizacion;
-
-
-            if (isControlado) {
-
-                countControlados++;
-
-            }
-            else {
-
-                countPendientes++;
-
-            }
-
-
-            const statusText =
-                isControlado
-                    ? "CONTROLADO"
-                    : "PENDIENTE";
-
-
-            const rowBg =
-                isControlado
-                    ? ""
-                    : "bg-slate-50 dark:bg-gray-800/60";
-
-
-            const marca =
-                getProp(
-                    item,
-                    [
-                        'chasismarca',
-                        'marca'
-                    ]
-                );
-
-
-            const modelo =
-                getProp(
-                    item,
-                    [
-                        'chasismodelo',
-                        'modelo'
-                    ]
-                );
-
-
-            const anio =
-                getProp(
-                    item,
-                    [
-                        'aniomodelo',
-                        'anio',
-                        'año'
-                    ]
-                );
-
-
-            let modeloText =
-                `${marca} ${modelo} (${anio})`
-                    .trim();
-
-
-            if (
-                modeloText === "()"
-            ) {
-
-                modeloText = "-";
-
-            }
-
-
-            let habHasta =
-                getProp(
-                    item,
-                    [
-                        'vigenciahasta',
-                        'habilitacion'
-                    ]
-                );
-
-
-            habHasta =
-                habHasta
-                    ? habHasta.replace(
-                        "UC:",
-                        ""
-                    )
-                    : "-";
-
-
-            const tecFecha =
-                getProp(
-                    item,
-                    [
-                        'vigenciahastainspecciontecnica',
-                        'tecnica',
-                        'vvt'
-                    ]
-                ) || "-";
-
-
-            let tecBadgeClass =
-                "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-
-
-            if (
-                tecFecha !== "-"
-            ) {
-
-                const parts =
-                    tecFecha.split("/");
-
-
-                if (
-                    parts.length === 3
-                ) {
-
-                    const formattedFecha =
-                        `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-
 
                     if (
-                        formattedFecha < hoy
+                        results &&
+                        results.data &&
+                        results.data.length > 0
                     ) {
 
-                        tecBadgeClass =
-                            "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300";
+                        renderFleet(
+                            results.data
+                        );
 
                     }
                     else {
 
-                        tecBadgeClass =
-                            "bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300";
+                        document.getElementById(
+                            "fleetTbody"
+                        ).innerHTML =
+                            `
+                            <tr>
+                                <td
+                                    colspan="8"
+                                    class="py-6 text-center text-red-500 font-bold"
+                                >
+                                    El archivo
+                                    'parques/linea${lineaId}.csv'
+                                    está vacío.
+                                </td>
+                            </tr>
+                            `;
+
+                    }
+
+                },
+
+
+                error: function() {
+
+                    document.getElementById(
+                        "fleetTbody"
+                    ).innerHTML =
+                        `
+                        <tr>
+                            <td
+                                colspan="8"
+                                class="py-6 text-center text-red-500 font-bold"
+                            >
+                                No se pudo cargar
+                                'parques/linea${lineaId}.csv'.
+                            </td>
+                        </tr>
+                        `;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // RENDER PARQUE
+    // ========================================================
+
+    function renderFleet(
+        data
+    ) {
+
+        data.sort(
+            (a, b) => {
+
+                const intA =
+                    parseInt(
+                        getProp(
+                            a,
+                            [
+                                'interno',
+                                'int',
+                                'unidad'
+                            ]
+                        )
+                    ) || 0;
+
+
+                const intB =
+                    parseInt(
+                        getProp(
+                            b,
+                            [
+                                'interno',
+                                'int',
+                                'unidad'
+                            ]
+                        )
+                    ) || 0;
+
+
+                return intA - intB;
+
+            }
+        );
+
+
+        const tbody =
+            document.getElementById(
+                "fleetTbody"
+            );
+
+
+        tbody.innerHTML = "";
+
+
+        let total = 0;
+
+        let countControlados = 0;
+
+        let countPendientes = 0;
+
+
+        const hoy =
+            new Date()
+                .toISOString()
+                .split('T')[0];
+
+
+        data.forEach(
+            item => {
+
+                const dominioCSV =
+                    normalizarDominio(
+                        getProp(
+                            item,
+                            [
+                                'dominio',
+                                'patente',
+                                'dominio_vehiculo'
+                            ]
+                        )
+                    );
+
+
+                const internoVal =
+                    getProp(
+                        item,
+                        [
+                            'interno',
+                            'int',
+                            'unidad'
+                        ]
+                    );
+
+
+                if (
+                    !dominioCSV &&
+                    !internoVal
+                ) {
+
+                    return;
+
+                }
+
+
+                total++;
+
+
+                const fechaFiscalizacion =
+                    mapControlados[
+                        dominioCSV
+                    ] || null;
+
+
+                const isControlado =
+                    !!fechaFiscalizacion;
+
+
+                if (
+                    isControlado
+                ) {
+
+                    countControlados++;
+
+                }
+                else {
+
+                    countPendientes++;
+
+                }
+
+
+                const statusText =
+                    isControlado
+                        ? "CONTROLADO"
+                        : "PENDIENTE";
+
+
+                const rowBg =
+                    isControlado
+                        ? ""
+                        : "bg-slate-50 dark:bg-gray-800/60";
+
+
+                const marca =
+                    getProp(
+                        item,
+                        [
+                            'chasismarca',
+                            'marca'
+                        ]
+                    );
+
+
+                const modelo =
+                    getProp(
+                        item,
+                        [
+                            'chasismodelo',
+                            'modelo'
+                        ]
+                    );
+
+
+                const anio =
+                    getProp(
+                        item,
+                        [
+                            'aniomodelo',
+                            'anio',
+                            'año'
+                        ]
+                    );
+
+
+                let modeloText =
+                    `${marca} ${modelo} (${anio})`
+                        .trim();
+
+
+                if (
+                    modeloText === "()"
+                ) {
+
+                    modeloText = "-";
+
+                }
+
+
+                let habHasta =
+                    getProp(
+                        item,
+                        [
+                            'vigenciahasta',
+                            'habilitacion'
+                        ]
+                    );
+
+
+                habHasta =
+                    habHasta
+                        ? habHasta.replace(
+                            "UC:",
+                            ""
+                        )
+                        : "-";
+
+
+                const tecFecha =
+                    getProp(
+                        item,
+                        [
+                            'vigenciahastainspecciontecnica',
+                            'tecnica',
+                            'vvt'
+                        ]
+                    ) || "-";
+
+
+                let tecBadgeClass =
+                    "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+
+
+                if (
+                    tecFecha !== "-"
+                ) {
+
+                    const parts =
+                        tecFecha.split("/");
+
+
+                    if (
+                        parts.length === 3
+                    ) {
+
+                        const formattedFecha =
+                            `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+
+
+                        if (
+                            formattedFecha < hoy
+                        ) {
+
+                            tecBadgeClass =
+                                "bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-300";
+
+                        }
+                        else {
+
+                            tecBadgeClass =
+                                "bg-green-100 text-green-800 dark:bg-green-900/60 dark:text-green-300";
+
+                        }
 
                     }
 
                 }
 
-            }
+
+                const tecNro =
+                    getProp(
+                        item,
+                        [
+                            'tecnicanro',
+                            'nrotecnica',
+                            'nro_tecnica'
+                        ]
+                    ) || "-";
 
 
-            const tecNro =
-                getProp(
-                    item,
-                    [
-                        'tecnicanro',
-                        'nrotecnica',
-                        'nro_tecnica'
-                    ]
-                ) || "-";
+                const tr =
+                    document.createElement(
+                        "tr"
+                    );
 
 
-            const tr =
-                document.createElement(
-                    "tr"
+                tr.className =
+                    `hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center ${rowBg}`;
+
+
+                tr.setAttribute(
+                    "data-status",
+                    statusText
                 );
 
 
-            tr.className =
-                `hover:bg-blue-50 dark:hover:bg-gray-700 transition divide-x divide-gray-200 dark:divide-gray-700 text-center ${rowBg}`;
+                tr.innerHTML = `
 
+                    <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 font-code text-sm tracking-wider">
+                        ${dominioCSV || '-'}
+                    </td>
 
-            tr.setAttribute(
-                "data-status",
-                statusText
-            );
+                    <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">
+                        ${internoVal || '-'}
+                    </td>
 
+                    <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">
+                        ${modeloText}
+                    </td>
 
-            tr.innerHTML = `
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
+                        ${habHasta}
+                    </td>
 
-                <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 font-code text-sm tracking-wider">
-                    ${dominioCSV || '-'}
-                </td>
+                    <td class="py-2.5 px-2">
 
-                <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">
-                    ${internoVal || '-'}
-                </td>
+                        <span
+                            class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code"
+                        >
+                            ${tecFecha}
+                        </span>
 
-                <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">
-                    ${modeloText}
-                </td>
+                    </td>
 
-                <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
-                    ${habHasta}
-                </td>
+                    <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
+                        ${tecNro}
+                    </td>
 
-                <td class="py-2.5 px-2">
-                    <span class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code">
-                        ${tecFecha}
-                    </span>
-                </td>
+                    <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200 font-code">
+                        ${
+                            fechaFiscalizacion
+                            ||
+                            '<span class="text-gray-400 font-normal italic font-sans">-</span>'
+                        }
+                    </td>
 
-                <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
-                    ${tecNro}
-                </td>
+                    <td class="py-2.5 px-2">
 
-                <td class="py-2.5 px-2 font-bold text-gray-800 dark:text-gray-200 font-code">
-                    ${
-                        fechaFiscalizacion
-                            ? fechaFiscalizacion
-                            : '<span class="text-gray-400 font-normal italic font-sans">-</span>'
-                    }
-                </td>
-
-                <td class="py-2.5 px-2">
-
-                    <span
-                        class="${
-                            isControlado
+                        <span
+                            class="${
+                                isControlado
                                 ? 'bg-green-600 text-white'
                                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                        } px-2 py-0.5 rounded-full font-bold text-[10px]">
+                            } px-2 py-0.5 rounded-full font-bold text-[10px]"
+                        >
+                            ${statusText}
+                        </span>
 
-                        ${statusText}
+                    </td>
 
-                    </span>
-
-                </td>
-
-            `;
-
-
-            tbody.appendChild(
-                tr
-            );
-
-        }
-    );
+                `;
 
 
-    document.getElementById(
-        "countTotal"
-    ).textContent =
-        total;
+                tbody.appendChild(
+                    tr
+                );
 
-
-    document.getElementById(
-        "countControlados"
-    ).textContent =
-        countControlados;
-
-
-    document.getElementById(
-        "countPendientes"
-    ).textContent =
-        countPendientes;
-
-}
-
-
-/* ============================================================
-   FILTROS
-   ============================================================ */
-
-function setFilter(status) {
-
-    currentStatusFilter =
-        status;
-
-
-    const btnAll =
-        document.getElementById(
-            'btnFilterAll'
-        );
-
-    const btnCtrl =
-        document.getElementById(
-            'btnFilterControlado'
-        );
-
-    const btnPend =
-        document.getElementById(
-            'btnFilterPendiente'
+            }
         );
 
 
-    const activeClasses = [
-        'border-2',
-        'border-sky-500',
-        'ring-2',
-        'ring-sky-200',
-        'dark:ring-sky-900'
-    ];
+        document.getElementById(
+            "countTotal"
+        ).textContent =
+            total;
 
 
-    const inactiveClasses = [
-        'border',
-        'border-gray-200',
-        'dark:border-gray-700'
-    ];
+        document.getElementById(
+            "countControlados"
+        ).textContent =
+            countControlados;
 
 
-    [
-        btnAll,
-        btnCtrl,
-        btnPend
-    ].forEach(
-        btn => {
+        document.getElementById(
+            "countPendientes"
+        ).textContent =
+            countPendientes;
 
-            btn.classList.remove(
-                ...activeClasses
-            );
-
-            btn.classList.add(
-                ...inactiveClasses
-            );
-
-        }
-    );
+    }
 
 
-    let activeBtn =
-        btnAll;
+    // ========================================================
+    // FILTROS
+    // ========================================================
 
-
-    if (
-        status === 'CONTROLADO'
+    function setFilter(
+        status
     ) {
 
-        activeBtn =
-            btnCtrl;
+        currentStatusFilter =
+            status;
+
+
+        const btnAll =
+            document.getElementById(
+                'btnFilterAll'
+            );
+
+
+        const btnCtrl =
+            document.getElementById(
+                'btnFilterControlado'
+            );
+
+
+        const btnPend =
+            document.getElementById(
+                'btnFilterPendiente'
+            );
+
+
+        const activeClasses = [
+            'border-2',
+            'border-sky-500',
+            'ring-2',
+            'ring-sky-200',
+            'dark:ring-sky-900'
+        ];
+
+
+        const inactiveClasses = [
+            'border',
+            'border-gray-200',
+            'dark:border-gray-700'
+        ];
+
+
+        [
+            btnAll,
+            btnCtrl,
+            btnPend
+        ].forEach(
+            btn => {
+
+                btn.classList.remove(
+                    ...activeClasses
+                );
+
+                btn.classList.add(
+                    ...inactiveClasses
+                );
+
+            }
+        );
+
+
+        let activeBtn =
+            btnAll;
+
+
+        if (
+            status === 'CONTROLADO'
+        ) {
+
+            activeBtn =
+                btnCtrl;
+
+        }
+
+
+        if (
+            status === 'PENDIENTE'
+        ) {
+
+            activeBtn =
+                btnPend;
+
+        }
+
+
+        activeBtn.classList.remove(
+            ...inactiveClasses
+        );
+
+
+        activeBtn.classList.add(
+            ...activeClasses
+        );
+
+
+        applyFilters();
+
+    }
+
+
+    function applyFilters() {
+
+        const searchInput =
+            document.getElementById(
+                "searchInput"
+            )
+            .value
+            .toUpperCase();
+
+
+        const tr =
+            document.querySelectorAll(
+                "#fleetTbody tr"
+            );
+
+
+        tr.forEach(
+            row => {
+
+                const status =
+                    row.getAttribute(
+                        'data-status'
+                    );
+
+
+                if (!status)
+                    return;
+
+
+                const dominio =
+                    row
+                        .getElementsByTagName(
+                            "td"
+                        )[0]
+                        .textContent
+                        .toUpperCase();
+
+
+                const interno =
+                    row
+                        .getElementsByTagName(
+                            "td"
+                        )[1]
+                        .textContent
+                        .toUpperCase();
+
+
+                const matchesSearch =
+                    (
+                        dominio.indexOf(
+                            searchInput
+                        ) > -1
+                        ||
+                        interno.indexOf(
+                            searchInput
+                        ) > -1
+                    );
+
+
+                const matchesStatus =
+                    (
+                        currentStatusFilter ===
+                            'ALL'
+                        ||
+                        status ===
+                            currentStatusFilter
+                    );
+
+
+                if (
+                    matchesSearch &&
+                    matchesStatus
+                ) {
+
+                    row.style.display =
+                        "";
+
+                }
+                else {
+
+                    row.style.display =
+                        "none";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // COPIAR PENDIENTES
+    // ========================================================
+
+    function copyMissing() {
+
+        const missingInternos = [];
+
+
+        const tr =
+            document.querySelectorAll(
+                "#fleetTbody tr[data-status='PENDIENTE']"
+            );
+
+
+        tr.forEach(
+            row => {
+
+                const interno =
+                    row
+                        .getElementsByTagName(
+                            "td"
+                        )[1]
+                        .textContent
+                        .trim();
+
+
+                const dominio =
+                    row
+                        .getElementsByTagName(
+                            "td"
+                        )[0]
+                        .textContent
+                        .trim();
+
+
+                missingInternos.push(
+                    `• Int. ${interno} (${dominio})`
+                );
+
+            }
+        );
+
+
+        if (
+            missingInternos.length === 0
+        ) {
+
+            alert(
+                "¡Excelente! No hay colectivos pendientes de control en esta línea."
+            );
+
+            return;
+
+        }
+
+
+        const textToCopy =
+            `*LÍNEA ${lineaId} - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n`
+            +
+            missingInternos.join(
+                "\n"
+            );
+
+
+        navigator.clipboard
+            .writeText(
+                textToCopy
+            )
+            .then(
+                () => {
+
+                    alert(
+                        "¡Copiado al portapapeles!\n\n"
+                        +
+                        textToCopy
+                    );
+
+                }
+            )
+            .catch(
+                err => {
+
+                    alert(
+                        "Error al copiar: "
+                        +
+                        err
+                    );
+
+                }
+            );
+
+    }
+
+
+    // ========================================================
+    // MODO OSCURO
+    // ========================================================
+
+    function toggleDarkMode() {
+
+        const html =
+            document.documentElement;
+
+
+        const themeIcon =
+            document.getElementById(
+                'themeIcon'
+            );
+
+
+        const themeText =
+            document.getElementById(
+                'themeText'
+            );
+
+
+        if (
+            html.classList.contains(
+                'dark'
+            )
+        ) {
+
+            html.classList.remove(
+                'dark'
+            );
+
+
+            themeIcon.className =
+                'fa-solid fa-moon text-sm';
+
+
+            themeText.textContent =
+                'Oscuro';
+
+
+            localStorage.setItem(
+                'theme',
+                'light'
+            );
+
+        }
+        else {
+
+            html.classList.add(
+                'dark'
+            );
+
+
+            themeIcon.className =
+                'fa-solid fa-sun text-sm';
+
+
+            themeText.textContent =
+                'Claro';
+
+
+            localStorage.setItem(
+                'theme',
+                'dark'
+            );
+
+        }
 
     }
 
 
     if (
-        status === 'PENDIENTE'
+        localStorage.getItem(
+            'theme'
+        ) === 'dark'
+        ||
+        (
+            !(
+                'theme'
+                in localStorage
+            )
+            &&
+            window.matchMedia(
+                '(prefers-color-scheme: dark)'
+            ).matches
+        )
     ) {
 
-        activeBtn =
-            btnPend;
+        document.documentElement
+            .classList
+            .add('dark');
 
-    }
 
-
-    activeBtn.classList.remove(
-        ...inactiveClasses
-    );
-
-    activeBtn.classList.add(
-        ...activeClasses
-    );
-
-
-    applyFilters();
-
-}
-
-
-/* ============================================================
-   APLICAR FILTROS
-   ============================================================ */
-
-function applyFilters() {
-
-    const searchInput =
-        document.getElementById(
-            "searchInput"
-        )
-        .value
-        .toUpperCase();
-
-
-    const tr =
-        document.querySelectorAll(
-            "#fleetTbody tr"
-        );
-
-
-    tr.forEach(
-        row => {
-
-            const status =
-                row.getAttribute(
-                    'data-status'
-                );
-
-
-            if (!status) {
-                return;
-            }
-
-
-            const dominio =
-                row
-                .getElementsByTagName(
-                    "td"
-                )[0]
-                .textContent
-                .toUpperCase();
-
-
-            const interno =
-                row
-                .getElementsByTagName(
-                    "td"
-                )[1]
-                .textContent
-                .toUpperCase();
-
-
-            const matchesSearch =
-                (
-                    dominio.indexOf(
-                        searchInput
-                    ) > -1
-                )
-                ||
-                (
-                    interno.indexOf(
-                        searchInput
-                    ) > -1
-                );
-
-
-            const matchesStatus =
-                (
-                    currentStatusFilter
-                    ===
-                    'ALL'
-                )
-                ||
-                (
-                    status
-                    ===
-                    currentStatusFilter
-                );
-
-
-            if (
-                matchesSearch &&
-                matchesStatus
-            ) {
-
-                row.style.display =
-                    "";
-
-            }
-            else {
-
-                row.style.display =
-                    "none";
-
-            }
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   COPIAR PENDIENTES
-   ============================================================ */
-
-function copyMissing() {
-
-    const missingInternos = [];
-
-
-    const tr =
-        document.querySelectorAll(
-            "#fleetTbody tr[data-status='PENDIENTE']"
-        );
-
-
-    tr.forEach(
-        row => {
-
-            const interno =
-                row
-                .getElementsByTagName(
-                    "td"
-                )[1]
-                .textContent
-                .trim();
-
-
-            const dominio =
-                row
-                .getElementsByTagName(
-                    "td"
-                )[0]
-                .textContent
-                .trim();
-
-
-            missingInternos.push(
-                `• Int. ${interno} (${dominio})`
-            );
-
-        }
-    );
-
-
-    if (
-        missingInternos.length === 0
-    ) {
-
-        alert(
-            "¡Excelente! No hay colectivos pendientes de control en esta línea."
-        );
-
-        return;
-
-    }
-
-
-    const textToCopy =
-        `*LÍNEA ${lineaId} - PENDIENTES DE CONTROL (${missingInternos.length} unidades):*\n`
-        +
-        missingInternos.join(
-            "\n"
-        );
-
-
-    navigator.clipboard
-        .writeText(
-            textToCopy
-        )
-        .then(
-            () => {
-
-                alert(
-                    "¡Copiado al portapapeles!\n\n"
-                    +
-                    textToCopy
-                );
-
-            }
-        )
-        .catch(
-            err => {
-
-                alert(
-                    "Error al copiar: "
-                    +
-                    err
-                );
-
-            }
-        );
-
-}
-
-
-/* ============================================================
-   MODO OSCURO
-   ============================================================ */
-
-function toggleDarkMode() {
-
-    const html =
-        document.documentElement;
-
-    const themeIcon =
         document.getElementById(
             'themeIcon'
-        );
-
-    const themeText =
-        document.getElementById(
-            'themeText'
-        );
-
-
-    if (
-        html.classList.contains(
-            'dark'
-        )
-    ) {
-
-        html.classList.remove(
-            'dark'
-        );
-
-        themeIcon.className =
-            'fa-solid fa-moon text-sm';
-
-        themeText.textContent =
-            'Oscuro';
-
-        localStorage.setItem(
-            'theme',
-            'light'
-        );
-
-    }
-    else {
-
-        html.classList.add(
-            'dark'
-        );
-
-        themeIcon.className =
+        ).className =
             'fa-solid fa-sun text-sm';
 
-        themeText.textContent =
+
+        document.getElementById(
+            'themeText'
+        ).textContent =
             'Claro';
 
-        localStorage.setItem(
-            'theme',
-            'dark'
-        );
-
     }
-
-}
-
-
-/* ============================================================
-   INICIO
-   ============================================================ */
-
-if (
-    localStorage.getItem(
-        'theme'
-    ) === 'dark'
-    ||
-    (
-        !(
-            'theme'
-            in
-            localStorage
-        )
-        &&
-        window.matchMedia(
-            '(prefers-color-scheme: dark)'
-        ).matches
-    )
-) {
-
-    document.documentElement
-        .classList
-        .add(
-            'dark'
-        );
-
-    document.getElementById(
-        'themeIcon'
-    ).className =
-        'fa-solid fa-sun text-sm';
-
-    document.getElementById(
-        'themeText'
-    ).textContent =
-        'Claro';
-
-}
-
-
-/* ============================================================
-   ARRANCAR
-   ============================================================ */
-
-cargarControlados();
 
 </script>
 
+
 </body>
+
 </html>

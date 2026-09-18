@@ -124,10 +124,10 @@ def debe_actualizar():
     # 15 DÍAS
     # --------------------------------------------------------
 
-    if dias >= 15:
+    if dias >= 5:
 
         print(
-            "Han pasado 15 días o más."
+            "Han pasado 5 días o más."
         )
 
         print(
@@ -137,7 +137,7 @@ def debe_actualizar():
         return True
 
     print(
-        "Todavía no han pasado 15 días."
+        "Todavía no han pasado 5 días."
     )
 
     print(

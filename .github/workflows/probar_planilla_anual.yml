@@ -1,0 +1,76 @@
+name: FTR - Prueba de planilla anual (sin publicar)
+
+# No se ejecuta en main, no tiene agenda y no sustituye ningún bot.
+on:
+  push:
+    branches:
+      - ftr/prueba-planilla-anual
+    paths:
+      - _ftr_pruebas/**
+      - .github/workflows/probar_planilla_anual.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ftr-prueba-planilla-anual
+  cancel-in-progress: true
+
+jobs:
+  comprobar:
+    if: github.repository == 'SanLean17/parque-movil-ftr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - name: Leer la rama de prueba
+        id: checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Preparar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Pruebas con datos ficticios (sin Google)
+        run: python -m unittest discover -s _ftr_pruebas -p 'test_*.py' -v
+
+      - name: Instalar dependencias de lectura
+        run: python -m pip install --disable-pip-version-check -r _ftr_pruebas/requirements.txt
+
+      - name: Leer la planilla anual sin modificarla
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          FTR_SHEET_URL: https://docs.google.com/spreadsheets/d/1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk/edit
+          FTR_PERIODO: '2026'
+          FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-prueba-planilla
+        run: python _ftr_pruebas/planilla_anual.py
+
+      - name: Comprobar que ningún archivo del repositorio cambió
+        if: always() && steps.checkout.outcome == 'success'
+        shell: bash
+        run: |
+          git diff --exit-code HEAD -- .
+          if [ -n "$(git status --porcelain)" ]; then
+            echo 'La prueba dejó cambios inesperados en la copia temporal. No se publicará nada.'
+            git status --short
+            exit 1
+          fi
+          echo 'Ningún CSV, HTML, bot o archivo de fechas fue modificado por la prueba.'
+
+      - name: Conservar solamente el resumen sin datos personales
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-prueba-resumen
+          path: |
+            ${{ runner.temp }}/ftr-prueba-planilla/resumen.json
+            ${{ runner.temp }}/ftr-prueba-planilla/resumen.md
+          if-no-files-found: ignore
+          retention-days: 7

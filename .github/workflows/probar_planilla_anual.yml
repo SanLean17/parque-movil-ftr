@@ -55,7 +55,7 @@ jobs:
           FTR_SHEET_URL: https://docs.google.com/spreadsheets/d/1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk/edit
           FTR_PERIODO: '2026'
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-prueba-planilla
-        run: python _ftr_admin/diagnostico_administrativo.py
+        run: python _ftr_admin/estadisticas_periodo.py
 
       - name: Comprobar que ningún archivo del repositorio cambió
         if: always() && steps.checkout.outcome == 'success'

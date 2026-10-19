@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict');const m=require('./modelo_panel05.js');let passed=0;
+function test(name,fn){fn();passed++;console.log('OK '+name)}
+const error={linea:80,fecha_control:'2026-02-11',dominio_ingresado:'ABC1234',interno:'47',pestana:'Línea 80',fila:6,celda:'C6',codigo:'DOMINIO_INVALIDO',candidatos_mismo_interno:[{dominio:'ABC123',interno:'47'}]};
+test('copy keeps original and suggests without correcting',()=>{let before=JSON.stringify(error),s=m.incidentReference(error);assert(s.includes('Dominio cargado en la planilla: ABC1234'));assert(s.includes('Posible solución: ABC123'));assert(s.includes('Fila: 6'));assert(s.includes('11/02/2026'));assert(s.includes('Verificar antes de corregir'));assert.equal(JSON.stringify(error),before)});
+test('ambiguous references all retained',()=>{let s=m.possibleSolution({...error,candidatos_mismo_interno:[...error.candidatos_mismo_interno,{dominio:'DEF456',interno:'47'}]});assert(s.includes('ABC123, DEF456'));assert(s.includes('No se puede elegir'))});
+test('missing reference not invented',()=>assert(m.possibleSolution({...error,candidatos_mismo_interno:[]}).includes('no hay una referencia')));
+test('different internal not used',()=>assert(m.possibleSolution({...error,candidatos_mismo_interno:[{dominio:'ABC123',interno:'48'}]}).includes('no hay una referencia')));
+test('leading zero internal matched',()=>assert(m.possibleSolution({...error,interno:'047'}).includes('ABC123')));
+test('invalid plate candidate ignored',()=>assert(m.possibleSolution({...error,candidatos_mismo_interno:[{dominio:'ABÑ123',interno:'47'}]}).includes('no hay una referencia')));
+test('duplicate candidate removed',()=>assert(!m.possibleSolution({...error,candidatos_mismo_interno:[...error.candidatos_mismo_interno,...error.candidatos_mismo_interno]}).includes('varias')));
+test('information not described as error',()=>{let s=m.incidentReference({...error,codigo:'NO_EN_PARQUE',mensaje:'No encontrado. No confirma baja.'});assert(!s.includes('no cumple'));assert(!s.includes('Posible solución:'));assert(s.includes('No confirma baja'))});
+test('bad date no plate repair',()=>assert(m.incidentReference({...error,codigo:'FECHA_INVALIDA',mensaje:'Fecha inválida'}).includes('verificar y completar la fecha real')));
+test('rank includes ties',()=>assert.deepEqual(m.lineLeaders([{linea:2,pestana_encontrada:true,f:5},{linea:17,pestana_encontrada:true,f:5}], 'f').lineas,[2,17]));
+test('zero ranking not invented',()=>assert.deepEqual(m.lineLeaders([{linea:2,pestana_encontrada:true,f:0}], 'f').lineas,[]));
+test('missing ignored',()=>assert.equal(m.lineLeaders([{linea:2,pestana_encontrada:true,f:null}], 'f').disponible,false));
+test('missing sheet ignored',()=>assert.equal(m.lineLeaders([{linea:2,pestana_encontrada:false,f:8}], 'f').disponible,false));
+test('rank re-computes on new values',()=>{let r=[{linea:2,pestana_encontrada:true,f:4},{linea:17,pestana_encontrada:true,f:5}];assert.deepEqual(m.lineLeaders(r,'f').lineas,[17]);r[0].f=6;assert.deepEqual(m.lineLeaders(r,'f').lineas,[2])});
+const groups={repetidos:[{linea:2,dominio:'ABC123',veces:3,controles:[{fecha:'2026-01-01',interno:'1'},{fecha:'2026-02-01',interno:'2'},{fecha:'2026-02-01',interno:'3'}]},{linea:17,dominio:'DEF456',veces:3,controles:[]}]};
+test('unit ties visible',()=>assert.equal(m.unitLeaders({},groups).unidades.length,2));
+test('unit internals latest all retained',()=>assert.deepEqual(m.unitLeaders({},groups).unidades[0].internos,['2','3']));
+test('no private no pretend rank',()=>assert.equal(m.unitLeaders({},null).disponible,false));
+test('all one control counts but no invented names',()=>{const r=m.unitLeaders({totales_estadisticas:{unidades_unicas_por_linea:70}},{repetidos:[]});assert.equal(r.cantidad,1);assert.equal(r.total,70);assert.equal(r.unidades.length,0)});
+test('empty period no leader',()=>assert.equal(m.unitLeaders({totales_estadisticas:{unidades_unicas_por_linea:0}},{repetidos:[]}).cantidad,0));
+test('summary schedule plain',()=>assert.equal(m.schedule({enabled:true,days:1,time:'17:00'}),'Se actualiza cada 1 día a las 17:00 h'));
+test('schedule plural',()=>assert(m.schedule({enabled:true,days:5,time:'22:00'}).includes('cada 5 días a las 22:00 h')));
+test('disabled schedule',()=>assert.equal(m.schedule({enabled:false}),'Actualización automática pausada'));
+console.log(passed+' pruebas OK');

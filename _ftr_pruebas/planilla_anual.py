@@ -5,7 +5,6 @@ memoria. Los informes contienen cantidades y posiciones de errores, no patentes,
 novedades, personas, direcciones ni el contenido de las credenciales.
 """
 from __future__ import annotations
-
 import ast
 import csv
 import io
@@ -56,8 +55,10 @@ def line_number(value):
 
 def title_lines(value):
     value = "".join(c for c in unicodedata.normalize("NFD", text(value).upper()) if not unicodedata.combining(c))
-    match = re.search(r"\bLINEAS?\s*[:#-]?\s*(\d+(?:\s*[/,;-]\s*\d+)*)", value)
-    return set(map(int, re.findall(r"\d+", match.group(1)))) if match else set()
+    value = re.sub(r"[‐‑‒–—−]", "-", value)
+    # No convertir títulos exportados como 517479164177 en una línea inventada.
+    match = re.search(r"\bLINEAS?\s*[:#-]?\s*(\d{1,4}(?!\d)(?:[\s/,;|\-]+\d{1,4}(?!\d))*)", value)
+    return {int(n) for n in re.findall(r"\d+", match.group(1)) if int(n) > 0} if match else set()
 
 
 def parse_date(value, epoch1904=False):
@@ -214,7 +215,6 @@ def blocks(sheet):
                 continue
             end_col = max(columns.values())
             identities = set()
-            # Encabezado más cercano, acotado a las columnas de este bloque.
             for rr in range(r - 1, max(0, r - 20), -1):
                 ids = set()
                 for c in range(left, end_col + 1):
@@ -234,15 +234,20 @@ def analyze(sheets, configured, year, today=None):
     today = today or datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).date()
     records = defaultdict(dict)
     occurrences = Counter()
-    present = set()
-    unknown = set()
-    issues = []
-    counts = Counter()
-    details = []
-    def issue(code, tab, row=0):
+    present, unknown = set(), set()
+    issues, details = [], []
+    counts, notes = Counter(), Counter()
+
+    def issue(code, tab, row=0, line=None, reason=None):
         counts[code] += 1
         if len(issues) < 100:
-            issues.append({"codigo": code, "pestana_posicion": tab, "fila": row})
+            item = {"codigo": code, "pestana_posicion": tab, "fila": row}
+            if line is not None:
+                item["linea"] = line
+            if reason:
+                item["campo_a_revisar"] = reason
+            issues.append(item)
+
     for tab, sheet in enumerate(sheets, 1):
         if norm(sheet.name) == "tablerodecontrol":
             details.append({"posicion": tab, "tipo": "tablero_ignorado"})
@@ -254,33 +259,42 @@ def analyze(sheets, configured, year, today=None):
                 issue("ENCABEZADOS_NO_ENCONTRADOS", tab)
             details.append({"posicion": tab, "tipo": "sin_tabla", "lineas": sorted(ids)})
             continue
-        valid = 0
+        valid, counted_blocks = 0, 0
+        sheet_lines = set()
         for block in found:
-            expected = block["ids"]
+            expected, cols = block["ids"], block["cols"]
+            by_row = "linea" in cols
+            if not by_row and len(expected) != 1:
+                if expected:
+                    issue("BLOQUE_MULTIPLE_SIN_COLUMNA_LINEA", tab, block["row"])
+                else:
+                    notes["TABLA_SIN_IDENTIDAD_OMITIDA"] += 1
+                continue
+            if block["conflict"]:
+                if by_row:
+                    # La identidad de cada fiscalización la define su columna LÍNEA.
+                    notes["TITULO_PESTANA_DIFIERE_USA_COLUMNA_LINEA"] += 1
+                else:
+                    issue("TITULO_Y_PESTANA_NO_COINCIDEN", tab, block["row"])
+                    continue
+            counted_blocks += 1
             present |= expected & set(configured)
             unknown |= expected - set(configured)
-            cols = block["cols"]
-            if block["conflict"]:
-                issue("TITULO_Y_PESTANA_NO_COINCIDEN", tab, block["row"])
-                continue
-            if "linea" not in cols and len(expected) != 1:
-                issue("BLOQUE_MULTIPLE_SIN_COLUMNA_LINEA", tab, block["row"])
-                continue
+            sheet_lines |= expected
             end = min((b["row"] for b in found if b["row"] > block["row"] and b["left"] <= block["right"] and b["right"] >= block["left"]), default=max((r for r, _ in sheet.cells), default=0) + 1)
             for row in range(block["row"] + 1, end):
                 values = {k: sheet.get(row, c) for k, c in cols.items()}
                 if not any(text(values.get(k)) for k in ("fecha", "dominio", "interno")):
                     continue
-                # Un título vertical nuevo cierra solamente este bloque.
                 if any(title_lines(sheet.cells.get((row, c))) for c in range(block["left"], block["right"] + 1)) and not plate(values.get("dominio")):
                     break
-                number = line_number(values.get("linea")) if "linea" in cols else next(iter(expected))
+                number = line_number(values.get("linea")) if by_row else next(iter(expected))
                 if number is None:
                     issue("FILA_SIN_LINEA", tab, row)
                     continue
-                if expected and number not in expected:
-                    issue("LINEA_FUERA_DEL_TITULO", tab, row)
-                    continue
+                if by_row and expected and number not in expected:
+                    notes["LINEA_EXPLICITA_DIFIERE_DEL_TITULO"] += 1
+                sheet_lines.add(number)
                 if number not in configured:
                     unknown.add(number)
                     counts["REGISTROS_LINEA_NO_HABILITADA"] += 1
@@ -289,32 +303,32 @@ def analyze(sheets, configured, year, today=None):
                 parsed_date = parse_date(values.get("fecha"), sheet.epoch1904)
                 domain = plate(values.get("dominio"))
                 if parsed_date is None or not domain:
-                    issue("FECHA_O_DOMINIO_INVALIDO", tab, row)
+                    issue("FECHA_O_DOMINIO_INVALIDO", tab, row, number, "fecha" if parsed_date is None else "dominio")
                     continue
                 if parsed_date.year != year:
                     counts["REGISTROS_OTRO_ANIO"] += 1
                     continue
                 if parsed_date > today:
-                    issue("FECHA_FUTURA", tab, row)
+                    issue("FECHA_FUTURA", tab, row, number, "fecha")
                     continue
                 internal = text(values.get("interno"))
                 if not internal:
-                    issue("INTERNO_AUSENTE", tab, row)
+                    issue("INTERNO_AUSENTE", tab, row, number, "interno")
                 occurrences[number] += 1
                 valid += 1
                 prior = records[number].get(domain)
                 if prior is None or parsed_date > prior[0]:
                     records[number][domain] = (parsed_date, internal)
-        details.append({"posicion": tab, "tipo": "tabla_control", "bloques": len(found), "lineas": sorted(set().union(*(b["ids"] for b in found))), "registros_validos": valid})
-    if not any(d["tipo"] == "tabla_control" for d in details):
+        details.append({"posicion": tab, "tipo": "tabla_control" if counted_blocks else "tabla_sin_identidad_omitida", "bloques": counted_blocks, "lineas": sorted(sheet_lines), "registros_validos": valid})
+    if not any("bloques" in d for d in details):
         raise DiagnosisError("No se reconoció ninguna tabla de fiscalizaciones; no se interpreta como cero controles.")
     result = {
         "modo": "DIAGNOSTICO_SIN_PUBLICAR", "periodo": year,
         "pestanas_totales": len(sheets), "pestanas": details,
         "lineas_habilitadas_no_encontradas": sorted(set(configured) - present),
         "lineas_detectadas_no_habilitadas": sorted(unknown),
-        "avisos_por_tipo": dict(counts), "ubicaciones_a_revisar": issues,
-        "lineas": [],
+        "avisos_por_tipo": dict(counts), "notas_de_formato": dict(notes),
+        "ubicaciones_a_revisar": issues, "lineas": [],
     }
     for number in sorted(configured):
         values = records.get(number, {})
@@ -394,7 +408,6 @@ def spreadsheet_id(value):
 
 
 def export_sheet(identifier):
-    # Imports tardíos: las pruebas unitarias no necesitan credenciales ni red.
     from google.oauth2 import service_account
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaIoBaseDownload
@@ -454,6 +467,8 @@ def markdown(report):
         s.append(f"| {tab['posicion']} | {tab['tipo']} | {', '.join(map(str, tab.get('lineas', []))) or '—'} | {tab.get('bloques', '—')} | {tab.get('registros_validos', '—')} |")
     for key, label in [("lineas_habilitadas_no_encontradas", "Líneas habilitadas sin tabla reconocida"), ("lineas_detectadas_no_habilitadas", "Líneas detectadas aún no habilitadas")]:
         s += ["", f"**{label}:** " + (", ".join(map(str, report[key])) or "ninguna")]
+    if report.get("notas_de_formato"):
+        s += ["", "## Notas de interpretación", "```json", json.dumps(report["notas_de_formato"], ensure_ascii=False, indent=2), "```"]
     if report["avisos_por_tipo"]:
         s += ["", "## Avisos", "```json", json.dumps(report["avisos_por_tipo"], ensure_ascii=False, indent=2), "```"]
     if report["ubicaciones_a_revisar"]:
@@ -468,8 +483,7 @@ def main():
     report = {}
     failed = False
     try:
-        raw_year = os.environ.get("FTR_PERIODO", "2026")
-        year = int(raw_year)
+        year = int(os.environ.get("FTR_PERIODO", "2026"))
         if not 2000 <= year <= 2100:
             raise DiagnosisError("El período está fuera del rango admitido.")
         identifier = spreadsheet_id(os.environ.get("FTR_SHEET_URL", ""))
@@ -481,7 +495,6 @@ def main():
         report = {"modo": "DIAGNOSTICO_SIN_PUBLICAR", "estado": "ERROR", "error": str(exc)}
         failed = True
     except Exception as exc:
-        # No imprimir excepciones externas: pueden incluir datos de la planilla.
         report = {"modo": "DIAGNOSTICO_SIN_PUBLICAR", "estado": "ERROR", "error": f"No se completó la prueba ({type(exc).__name__}). No se modificó producción."}
         failed = True
     report["inicio_lectura_utc"] = started

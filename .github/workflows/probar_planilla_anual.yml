@@ -1,12 +1,13 @@
 name: FTR - Prueba de planilla anual (sin publicar)
 
-# No se ejecuta en main, no tiene agenda y no sustituye ningún bot.
+# Solo pruebas en esta rama. Sin agenda, sin sustituir bots ni publicar CSV.
 on:
   push:
     branches:
       - ftr/prueba-planilla-anual
     paths:
       - _ftr_pruebas/**
+      - _ftr_admin/**
       - .github/workflows/probar_planilla_anual.yml
 
 permissions:
@@ -38,19 +39,23 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Instalar dependencias de lectura y protección del informe
+        run: |
+          python -m pip install --disable-pip-version-check -r _ftr_pruebas/requirements.txt
+          python -m pip install --disable-pip-version-check 'cryptography>=44,<49'
+
       - name: Pruebas con datos ficticios (sin Google)
-        run: python -m unittest discover -s _ftr_pruebas -p 'test_*.py' -v
+        run: |
+          python -m unittest discover -s _ftr_pruebas -p 'test_*.py' -v
+          python -m unittest discover -s _ftr_admin -p 'test_*.py' -v
 
-      - name: Instalar dependencias de lectura
-        run: python -m pip install --disable-pip-version-check -r _ftr_pruebas/requirements.txt
-
-      - name: Leer la planilla anual sin modificarla
+      - name: Leer planilla y generar diagnóstico protegido
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           FTR_SHEET_URL: https://docs.google.com/spreadsheets/d/1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk/edit
           FTR_PERIODO: '2026'
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-prueba-planilla
-        run: python _ftr_pruebas/planilla_anual.py
+        run: python _ftr_admin/diagnostico_administrativo.py
 
       - name: Comprobar que ningún archivo del repositorio cambió
         if: always() && steps.checkout.outcome == 'success'
@@ -64,7 +69,7 @@ jobs:
           fi
           echo 'Ningún CSV, HTML, bot o archivo de fechas fue modificado por la prueba.'
 
-      - name: Conservar solamente el resumen sin datos personales
+      - name: Conservar resumen y detalle cifrado para el administrador
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
@@ -72,5 +77,6 @@ jobs:
           path: |
             ${{ runner.temp }}/ftr-prueba-planilla/resumen.json
             ${{ runner.temp }}/ftr-prueba-planilla/resumen.md
+            ${{ runner.temp }}/ftr-prueba-planilla/detalle_admin.enc.json
           if-no-files-found: ignore
           retention-days: 7

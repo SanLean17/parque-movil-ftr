@@ -60,7 +60,7 @@ class ConfigTests(unittest.TestCase):
         self.assertFalse(due(self.c,{},'cnrt',datetime(2026,10,20,0,tzinfo=timezone.utc)))
     def test_paused_manual_still_works(self):
         c=copy.deepcopy(self.c);c['drive']['enabled']=False;t=datetime.now(timezone.utc)
-        self.assertFalse(due(c,{},'drive',t));self.assertEqual(selected(c,c,{},'drive',t),['drive'])
+        self.assertFalse(due(c,{},'drive',t));self.assertEqual(selected(c,self.c,{},'drive',t),['drive'])
     def test_one_hour_retry_cooldown(self):
         t=datetime(2026,10,20,21,tzinfo=timezone.utc)
         self.assertFalse(due(self.c,{'drive':{'attempt_utc':t.isoformat()}},'drive',t))
@@ -76,18 +76,18 @@ class WebTests(unittest.TestCase):
         update_public(self.root,self.c)
         self.assertEqual(a,(self.root/'index.html').read_bytes());self.assertEqual(b,(self.root/'linea.html').read_bytes())
     def test_no_reader_regression(self):
-        update_public(self.root,self.c);s=(self.root/'linea.html').read_text()
+        update_public(self.root,self.c);s=(self.root/'linea.html').read_text(encoding='utf-8')
         self.assertNotIn('header: false',s);self.assertIn('header: true',s)
         self.assertIn('copyControlled()',s);self.assertIn('Copiar pendientes',s);self.assertIn('ftr-publica.js',s)
     def test_new_line_rendered(self):
         self.c['lines'].append(dict(line=36,company=9999,enabled=True));update_public(self.root,self.c)
         import re
-        nums=json.loads(re.search(r'const lineas = (\[.*?\]);',(self.root/'index.html').read_text())[1])
+        nums=json.loads(re.search(r'const lineas = (\[.*?\]);',(self.root/'index.html').read_text(encoding='utf-8'))[1])
         self.assertIn(36,nums);self.assertIn(168,nums);self.assertNotIn(75,nums)
     def test_not_unrelated_file(self):
-        (self.root/'test.txt').write_text('untouched');update_public(self.root,self.c);self.assertEqual((self.root/'test.txt').read_text(),'untouched')
+        (self.root/'test.txt').write_text('untouched',encoding='utf-8');update_public(self.root,self.c);self.assertEqual((self.root/'test.txt').read_text(encoding='utf-8'),'untouched')
     def test_reject_unrecognized_html(self):
-        (self.root/'index.html').write_text('<html></html>')
+        (self.root/'index.html').write_text('<html></html>',encoding='utf-8')
         with self.assertRaises(ValueError):update_public(self.root,self.c)
 
 if __name__=='__main__':unittest.main()

@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -37,6 +38,7 @@ def test_executable(browser):
         context=browser.new_context()
         try:
             for index in range(2):
+                print('Prueba de inicio de instancia',index+1)
                 p,url=launch(DIST/'FTR_Administracion.exe',Path(tmp)/f'bootstrap{index}.json')
                 processes.append(p)
                 page=context.new_page()
@@ -47,7 +49,7 @@ def test_executable(browser):
                 assert page.locator('#status').inner_text()=='Inicio correcto 06.1'
                 result=page.evaluate("async()=>({noCsrf:(await fetch('/api/status')).status, foreign:(await fetch('/api/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status})")
                 assert result=={'noCsrf':403,'foreign':403}
-            # En el mismo navegador, las dos instancias conservan su propia sesión.
+                print('Navegación y API de instancia',index+1,'OK')
             ports={page.url for page in context.pages}
             assert len(ports)==2
             for page in context.pages:
@@ -60,6 +62,7 @@ def test_executable(browser):
             for page in context.pages:
                 status=page.evaluate("async()=> (await fetch('/api/quit',{method:'POST',headers:{'X-FTR-CSRF':window.csrf,'Content-Type':'application/json'},body:'{}'})).status")
                 assert status==200
+            print('Sesiones independientes y cierre OK')
         finally:
             context.close()
             for p in processes:
@@ -79,6 +82,7 @@ Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:
     html=html.replace('<head>','<head>'+fixture).replace('</body>','<script>'+extension+'</script></body>')
     for width in (1440,390):
         for dark in (False,True):
+            print('Prueba web',width,'oscuro' if dark else 'claro')
             context=browser.new_context(viewport={'width':width,'height':900})
             context.route('**/*',lambda route: route.fulfill(status=200,content_type='text/html',body=html) if route.request.resource_type=='document' else route.abort())
             page=context.new_page();dialogs=[]
@@ -120,8 +124,9 @@ def main():
         (DIST/'COMPROBACION_NAVEGADOR.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
         print('Inicio HTTP del ejecutable y sesión en Chromium: OK. Avisos y orden de botones (4 vistas): OK. Sin credenciales ni lectura de fuentes.')
     except Exception as exc:
-        # Los errores del navegador pueden contener el enlace efímero: no publicarlo.
-        print('La prueba no se completó: '+type(exc).__name__+'. Sin exponer enlaces de sesión.')
+        positions=[f'{Path(f.filename).name}:{f.lineno}' for f in traceback.extract_tb(exc.__traceback__) if Path(f.filename).name=='browser_smoke061.py']
+        categories=re.findall(r'(?:net::ERR_[A-Z_]+|SyntaxError|TypeError|ReferenceError|SecurityError)',str(exc))
+        print('Prueba no completada:',type(exc).__name__,'posiciones',','.join(positions),'categorias',','.join(categories))
         raise SystemExit(1) from None
 
 if __name__=='__main__':main()

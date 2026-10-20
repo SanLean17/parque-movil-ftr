@@ -4,56 +4,256 @@
   "sheetUrl": "https://docs.google.com/spreadsheets/d/1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk/edit",
   "anchor": "2026-10-19",
   "timezone": "America/Argentina/Buenos_Aires",
-  "drive": {"days": 1, "time": "17:00", "enabled": true},
-  "cnrt": {"days": 5, "time": "22:00", "enabled": true},
+  "drive": {
+    "days": 1,
+    "time": "19:00",
+    "enabled": true
+  },
+  "cnrt": {
+    "days": 5,
+    "time": "22:00",
+    "enabled": true
+  },
   "lines": [
-    {"line":2,"company":2058,"enabled":true},
-    {"line":9,"company":2062,"enabled":true},
-    {"line":10,"company":2008,"enabled":true},
-    {"line":15,"company":67,"enabled":true},
-    {"line":17,"company":2024,"enabled":true},
-    {"line":22,"company":2022,"enabled":true},
-    {"line":24,"company":2005,"enabled":true},
-    {"line":29,"company":2064,"enabled":true},
-    {"line":32,"company":2048,"enabled":true},
-    {"line":33,"company":972,"enabled":true},
-    {"line":37,"company":2067,"enabled":true},
-    {"line":45,"company":2068,"enabled":true},
-    {"line":51,"company":2079,"enabled":true},
-    {"line":53,"company":2054,"enabled":true},
-    {"line":56,"company":2013,"enabled":true},
-    {"line":60,"company":2075,"enabled":true},
-    {"line":63,"company":2037,"enabled":true},
-    {"line":70,"company":2080,"enabled":true},
-    {"line":74,"company":2079,"enabled":true},
-    {"line":79,"company":2079,"enabled":true},
-    {"line":80,"company":2015,"enabled":true},
-    {"line":85,"company":359,"enabled":true},
-    {"line":91,"company":2013,"enabled":true},
-    {"line":92,"company":2023,"enabled":true},
-    {"line":95,"company":2003,"enabled":true},
-    {"line":98,"company":2021,"enabled":true},
-    {"line":100,"company":2042,"enabled":true},
-    {"line":113,"company":2037,"enabled":true},
-    {"line":119,"company":2068,"enabled":true},
-    {"line":126,"company":2119,"enabled":true},
-    {"line":128,"company":2048,"enabled":true},
-    {"line":129,"company":2033,"enabled":true},
-    {"line":133,"company":2010,"enabled":true},
-    {"line":134,"company":2042,"enabled":true},
-    {"line":135,"company":2013,"enabled":true},
-    {"line":148,"company":2033,"enabled":true},
-    {"line":154,"company":2068,"enabled":true},
-    {"line":158,"company":2048,"enabled":true},
-    {"line":159,"company":2100,"enabled":true},
-    {"line":160,"company":2101,"enabled":true},
-    {"line":164,"company":2062,"enabled":true},
-    {"line":168,"company":2105,"enabled":true},
-    {"line":177,"company":2079,"enabled":true},
-    {"line":178,"company":2111,"enabled":true},
-    {"line":179,"company":9085,"enabled":true},
-    {"line":180,"company":2099,"enabled":true},
-    {"line":195,"company":2077,"enabled":true},
-    {"line":197,"company":2033,"enabled":true}
+    {
+      "line": 2,
+      "company": 2058,
+      "enabled": true
+    },
+    {
+      "line": 9,
+      "company": 2062,
+      "enabled": true
+    },
+    {
+      "line": 10,
+      "company": 2008,
+      "enabled": true
+    },
+    {
+      "line": 15,
+      "company": 67,
+      "enabled": true
+    },
+    {
+      "line": 17,
+      "company": 2024,
+      "enabled": true
+    },
+    {
+      "line": 22,
+      "company": 2022,
+      "enabled": true
+    },
+    {
+      "line": 24,
+      "company": 2005,
+      "enabled": true
+    },
+    {
+      "line": 29,
+      "company": 2064,
+      "enabled": true
+    },
+    {
+      "line": 32,
+      "company": 2048,
+      "enabled": true
+    },
+    {
+      "line": 33,
+      "company": 972,
+      "enabled": true
+    },
+    {
+      "line": 37,
+      "company": 2067,
+      "enabled": true
+    },
+    {
+      "line": 45,
+      "company": 2068,
+      "enabled": true
+    },
+    {
+      "line": 51,
+      "company": 2079,
+      "enabled": true
+    },
+    {
+      "line": 53,
+      "company": 2054,
+      "enabled": true
+    },
+    {
+      "line": 56,
+      "company": 2013,
+      "enabled": true
+    },
+    {
+      "line": 60,
+      "company": 2075,
+      "enabled": true
+    },
+    {
+      "line": 63,
+      "company": 2037,
+      "enabled": true
+    },
+    {
+      "line": 70,
+      "company": 2080,
+      "enabled": true
+    },
+    {
+      "line": 74,
+      "company": 2079,
+      "enabled": true
+    },
+    {
+      "line": 79,
+      "company": 2079,
+      "enabled": true
+    },
+    {
+      "line": 80,
+      "company": 2015,
+      "enabled": true
+    },
+    {
+      "line": 85,
+      "company": 359,
+      "enabled": true
+    },
+    {
+      "line": 91,
+      "company": 2013,
+      "enabled": true
+    },
+    {
+      "line": 92,
+      "company": 2023,
+      "enabled": true
+    },
+    {
+      "line": 95,
+      "company": 2003,
+      "enabled": true
+    },
+    {
+      "line": 98,
+      "company": 2021,
+      "enabled": true
+    },
+    {
+      "line": 100,
+      "company": 2042,
+      "enabled": true
+    },
+    {
+      "line": 113,
+      "company": 2037,
+      "enabled": true
+    },
+    {
+      "line": 119,
+      "company": 2068,
+      "enabled": true
+    },
+    {
+      "line": 126,
+      "company": 2119,
+      "enabled": true
+    },
+    {
+      "line": 128,
+      "company": 2048,
+      "enabled": true
+    },
+    {
+      "line": 129,
+      "company": 2033,
+      "enabled": true
+    },
+    {
+      "line": 133,
+      "company": 2010,
+      "enabled": true
+    },
+    {
+      "line": 134,
+      "company": 2042,
+      "enabled": true
+    },
+    {
+      "line": 135,
+      "company": 2013,
+      "enabled": true
+    },
+    {
+      "line": 148,
+      "company": 2033,
+      "enabled": true
+    },
+    {
+      "line": 154,
+      "company": 2068,
+      "enabled": true
+    },
+    {
+      "line": 158,
+      "company": 2048,
+      "enabled": true
+    },
+    {
+      "line": 159,
+      "company": 2100,
+      "enabled": true
+    },
+    {
+      "line": 160,
+      "company": 2101,
+      "enabled": true
+    },
+    {
+      "line": 164,
+      "company": 2062,
+      "enabled": true
+    },
+    {
+      "line": 168,
+      "company": 2105,
+      "enabled": true
+    },
+    {
+      "line": 177,
+      "company": 2079,
+      "enabled": true
+    },
+    {
+      "line": 178,
+      "company": 2111,
+      "enabled": true
+    },
+    {
+      "line": 179,
+      "company": 9085,
+      "enabled": true
+    },
+    {
+      "line": 180,
+      "company": 2099,
+      "enabled": true
+    },
+    {
+      "line": 195,
+      "company": 2077,
+      "enabled": true
+    },
+    {
+      "line": 197,
+      "company": 2033,
+      "enabled": true
+    }
   ]
 }

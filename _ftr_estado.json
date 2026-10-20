@@ -10,12 +10,13 @@
     "status": "success",
     "run_id": "39358939273",
     "served_slot": "a826b7f608ea:2026-10-19T17:00:00-03:00",
-    "error": null
+    "error": null,
+    "schedule_effective_from_utc": "2026-10-20T21:38:53.508880+00:00"
   },
   "version": 2,
-  "config_digest": "3819cb72da178af3d2548a42649e47c41d285087615d682817b1f35583a97d55",
-  "updated_utc": "2026-10-20T02:27:08.436233+00:00",
-  "run_id": "39358939273",
+  "config_digest": "67ac24c403671562a73a624995581a04bf58e0e651af61a24b80d8112b99d36f",
+  "updated_utc": "2026-10-20T21:38:53.586868+00:00",
+  "run_id": "39502006929",
   "cnrt": {
     "attempt_utc": "2026-10-20T01:38:31.860489+00:00",
     "read_utc": "2026-10-20T01:38:31.860499+00:00",

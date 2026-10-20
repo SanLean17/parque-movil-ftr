@@ -1,12 +1,9 @@
 name: FTR - Sincronizar
 run-name: FTR · ${{ inputs.action || github.event_name }} · ${{ inputs.request_id || 'automático' }}
 on:
-  # Nueva expresión para registrar nuevamente la agenda con GitHub.
-  # Evita :00/:15/:30/:45. La hora efectiva de cada fuente sigue en _ftr_config.json.
-  # GitHub puede demorar el inicio: el coordinador recupera el turno pendiente.
-  schedule:
-    - cron: '7,22,37,52 * * * *'
-  # No ejecutar por push: aplicar código o guardar horarios NO debe leer fuentes.
+  # La programación vive en actualizar_parques.yml, el workflow original.
+  # Este archivo conserva las órdenes del panel y la ejecución reutilizable.
+  # No se lee ninguna fuente por cambiar código o por arrancar el panel.
   workflow_dispatch:
     inputs:
       action:
@@ -90,6 +87,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
+          FTR_PLANNED_SOURCES: ${{ steps.plan.outputs.sources }}
         run: python _ftr_tools/ejecutar.py
       - name: Conservar informe administrativo protegido
         if: always() && steps.plan.outputs.work == 'true'

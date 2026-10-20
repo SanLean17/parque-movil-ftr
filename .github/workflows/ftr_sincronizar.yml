@@ -64,7 +64,6 @@ jobs:
       FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'all' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
-      FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
     steps:
       - uses: actions/checkout@v6
         with:
@@ -90,6 +89,7 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
         run: python _ftr_runtime/worker.py
       - name: Conservar informe administrativo protegido
         if: always() && steps.plan.outputs.work == 'true'

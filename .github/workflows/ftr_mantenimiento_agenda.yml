@@ -1,0 +1,49 @@
+name: FTR - Mantenimiento de agenda (sin leer fuentes)
+on:
+  push:
+    branches: [ftr/mantenimiento-agenda]
+    paths:
+      - .github/workflows/ftr_mantenimiento_agenda.yml
+      - _ftr_tools/mantenimiento_agenda.py
+
+# Permisos temporales solo para revisar estados y habilitar/deshabilitar workflows.
+# Sin escritura de archivos, sin Pages, sin credencial de Google.
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: ftr-mantenimiento-agenda
+  cancel-in-progress: false
+jobs:
+  mantener:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/ftr/mantenimiento-agenda'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Auditar, deshabilitar pruebas antiguas y reactivar el sincronizador
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 _ftr_tools/mantenimiento_agenda.py
+      - name: Conservar auditoría sin datos privados
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-auditoria-agenda
+          path: ${{ runner.temp }}/ftr-auditoria-agenda.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Deshabilitar también esta tarea de mantenimiento puntual
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, '_ftr_tools')
+          import mantenimiento_agenda as maintenance
+          maintenance.api('PUT', 'actions/workflows/' + maintenance.SELF + '/disable')
+          print('Mantenimiento puntual deshabilitado. No se ejecutó ninguna fuente de datos.')
+          PY

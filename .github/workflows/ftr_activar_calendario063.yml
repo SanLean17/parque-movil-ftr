@@ -1,0 +1,76 @@
+name: FTR - Activar calendario reparado 06.3 (sin leer fuentes)
+on:
+  push:
+    branches: [ftr/activar-calendario-063]
+    paths: [.github/workflows/ftr_activar_calendario063.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  activar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verificar código fusionado y habilitar solo las entradas necesarias
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUT: ${{ runner.temp }}/ftr-activacion063
+        run: |
+          python - <<'PY'
+          import base64, json, os, urllib.request
+          from pathlib import Path
+          from datetime import datetime, timezone
+          base='https://api.github.com/repos/SanLean17/parque-movil-ftr/'
+          def api(path,method='GET'):
+              req=urllib.request.Request(base+path,method=method,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as r:
+                  data=r.read();return json.loads(data) if data else None
+          def content(name):
+              raw=api('contents/'+name+'?ref=main')
+              return raw['sha'],base64.b64decode(raw['content']).decode('utf-8-sig')
+          parent=content('.github/workflows/actualizar_parques.yml')[1]
+          child=content('.github/workflows/ftr_sincronizar.yml')[1]
+          assert 'schedule:' in parent and "cron: '0 3 * * *'" in parent
+          assert "&& 'scheduled' || 'all'" in parent
+          assert 'schedule:' not in child and 'FTR_PLANNED_SOURCES' in child
+          protected=['_ftr_config.json','_ftr_estado.json','ultima_actualizacion_controlados.txt','ultima_actualizacion_parque.txt']
+          result={'started_utc':datetime.now(timezone.utc).isoformat(),'sources_requested':False,'manual_dispatch':False,'before':{n:content(n)[0] for n in protected},'enabled':[],'retired':[]}
+          for name in ('actualizar_parques.yml','ftr_sincronizar.yml'):
+              row=api('actions/workflows/'+name)
+              prior=row['state']
+              if prior!='active':api('actions/workflows/'+name+'/enable','PUT')
+              after=api('actions/workflows/'+name)
+              assert after['state']=='active'
+              result['enabled'].append({'file':name,'before':prior,'after':after['state'],'id':after['id']})
+          names={'probar_planilla_anual.yml','ftr_integracion_pruebas.yml','ftr_correccion061.yml','ftr_agenda_pruebas062.yml','ftr_mantenimiento_agenda.yml','ftr_auditoria_integral063.yml','ftr_reparacion063_pruebas.yml'}
+          for row in api('actions/workflows?per_page=100')['workflows']:
+              name=row['path'].split('/')[-1]
+              if name in names:
+                  if row['state']=='active':api('actions/workflows/'+str(row['id'])+'/disable','PUT')
+                  after=api('actions/workflows/'+str(row['id']))
+                  result['retired'].append({'file':name,'state':after['state']})
+          result['after']={n:content(n)[0] for n in protected}
+          result['files_unchanged']=result['before']==result['after']
+          result['finished_utc']=datetime.now(timezone.utc).isoformat()
+          out=Path(os.environ['OUT']);out.mkdir(parents=True,exist_ok=True)
+          (out/'activacion.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          print('Calendario original habilitado. No se enviaron dispatches ni se ejecutaron lectores de Google/CNRT.')
+          PY
+      - name: Conservar comprobante de activación
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-activacion-calendario063
+          path: ${{ runner.temp }}/ftr-activacion063/activacion.json
+          if-no-files-found: error
+          retention-days: 7
+      - name: Deshabilitar esta operación puntual de mantenimiento
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import os, urllib.request
+          url='https://api.github.com/repos/SanLean17/parque-movil-ftr/actions/workflows/ftr_activar_calendario063.yml/disable'
+          req=urllib.request.Request(url,method='PUT',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+          with urllib.request.urlopen(req,timeout=30) as r:print('Mantenimiento terminado y deshabilitado:',r.status)
+          PY

@@ -1,0 +1,94 @@
+name: FTR - Reparación automática 06.3 (pruebas sin fuentes)
+on:
+  push:
+    branches: [ftr/reparacion-automatica-063]
+    paths: [.github/workflows/ftr_reparacion063_pruebas.yml]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 18
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Dependencias de pruebas sin autorización de fuentes
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests pandas 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7' playwright pyyaml -r _ftr_pruebas/requirements.txt
+      - name: Todas las pruebas de lector, estadísticas, agenda y programa local
+        shell: pwsh
+        run: |
+          foreach ($folder in @('_ftr_pruebas','_ftr_admin','_ftr_runtime','_ftr_app')) {
+            python -m unittest discover -s $folder -p 'test_*.py' -v
+            if ($LASTEXITCODE -ne 0) { throw "Fallaron pruebas en $folder" }
+          }
+          node --test _ftr_panel/test_modelo_panel05.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas del modelo del panel.' }
+      - name: Validar único calendario y ausencia de lecturas por push
+        shell: pwsh
+        run: |
+          @'
+          import ast
+          from pathlib import Path
+          import yaml
+          def load(n): return yaml.load(Path('.github/workflows',n).read_text(encoding='utf-8'),Loader=yaml.BaseLoader)
+          parent=load('actualizar_parques.yml'); child=load('ftr_sincronizar.yml')
+          scheduled=[p.name for p in Path('.github/workflows').glob('*.yml') if 'schedule' in load(p.name).get('on',{})]
+          assert scheduled==['actualizar_parques.yml'],scheduled
+          assert 'push' not in parent['on'] and 'push' not in child['on']
+          assert any(s['cron']=='0 3 * * *' for s in parent['on']['schedule'])
+          assert 'scheduled' in parent['jobs']['actualizar']['with']['action']
+          assert parent['jobs']['actualizar']['uses']=='./.github/workflows/ftr_sincronizar.yml'
+          assert 'concurrency' not in parent and 'concurrency' not in parent['jobs']['actualizar']
+          assert child['concurrency']['cancel-in-progress']=='false'
+          steps=child['jobs']['actualizar']['steps']
+          processing=next(s for s in steps if s.get('name')=='Procesar, validar, guardar y publicar')
+          assert processing['env']['FTR_PLANNED_SOURCES']=='$'+'{{ steps.plan.outputs.sources }}'
+          files=list(Path('.').rglob('*.py'))
+          for p in files:ast.parse(p.read_text(encoding='utf-8-sig'),filename=str(p))
+          print('Un único calendario, lector anual conservado, sin push de fuentes y sintaxis Python válida.')
+          '@ | python -
+      - name: Instalar navegador de prueba
+        run: python -m playwright install chromium
+      - name: Compilar aplicación 06.3
+        run: python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --name FTR_Administracion _ftr_app/agenda_bridge.py
+      - name: Probar programa compilado por HTTP local y DPAPI
+        shell: pwsh
+        run: |
+          '<html><body>Prueba interna __FTR_CSRF__</body></html>' | Set-Content -Encoding utf8 dist/panel.html
+          $p = Start-Process -FilePath ./dist/FTR_Administracion.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path ./dist/self-test-ok.txt)) { throw 'Falló el inicio del ejecutable.' }
+      - name: Navegador real y botones públicos con datos ficticios
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          p=Path('_ftr_app/browser_smoke061.py').resolve()
+          source=p.read_text(encoding='utf-8').replace('06.1','06.3')
+          exec(compile(source,str(p),'exec'),{'__file__':str(p),'__name__':'__main__'})
+          '@ | python -
+      - name: Guardar comprobantes y fuentes reproducibles
+        shell: pwsh
+        run: |
+          Remove-Item ./dist/panel.html -ErrorAction SilentlyContinue
+          git archive --format=zip -o dist/ftr-fuentes-063.zip HEAD _ftr_app _ftr_runtime _ftr_tools _ftr_config.json .github/workflows/actualizar_parques.yml .github/workflows/ftr_sincronizar.yml
+          'Pruebas con datos ficticios. No se ejecutaron Google, CNRT ni publicación de controles. La entrega efectiva de eventos schedule debe comprobarse por separado.' | Set-Content -Encoding utf8 dist/ALCANCE_PRUEBA.txt
+      - name: Conservar programa y resultados
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-programa-windows-063
+          path: |
+            dist/FTR_Administracion.exe
+            dist/self-test-ok.txt
+            dist/COMPROBACION_NAVEGADOR.json
+            dist/ALCANCE_PRUEBA.txt
+            dist/ftr-fuentes-063.zip
+          if-no-files-found: error
+          retention-days: 7

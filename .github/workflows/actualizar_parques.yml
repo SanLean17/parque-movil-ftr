@@ -1,18 +1,25 @@
 name: Actualizar Parque Móvil FTR
+run-name: FTR · ${{ github.event_name == 'schedule' && 'schedule' || 'all' }} · ${{ github.event_name == 'schedule' && 'automático' || 'manual' }}
 
-# Se conserva el acceso manual habitual. La agenda vive únicamente en
-# ftr_sincronizar.yml para que el lector de carpeta anterior no sobrescriba
-# los controles obtenidos de la planilla anual activa.
+# ÚNICA entrada de calendario. Se recupera el workflow que tenía el historial
+# de ejecución diaria; usa el lector ANUAL nuevo, no el lector de carpetas.
 on:
+  schedule:
+    # Se conserva también la comprobación diaria original de las 03:00 UTC.
+    - cron: '0 3 * * *'
+    # Comprobaciones del horario configurado desde el panel. No son lecturas.
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
   pages: write
 
+# La exclusión mutua está SOLO en el workflow llamado. Evita dos publicaciones
+# simultáneas sin hacer que el padre espere el bloqueo que él mismo mantiene.
 jobs:
   actualizar:
     uses: ./.github/workflows/ftr_sincronizar.yml
     with:
-      action: all
+      action: ${{ github.event_name == 'schedule' && 'scheduled' || 'all' }}
     secrets: inherit

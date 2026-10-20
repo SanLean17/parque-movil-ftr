@@ -1,0 +1,72 @@
+name: FTR - Auditoría integral 06.3 (solo lectura)
+on:
+  push:
+    branches: [ftr/auditoria-integral-063]
+    paths: [.github/workflows/ftr_auditoria_integral063.yml]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  auditar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Reunir código y metadatos; no ejecutar lectores ni coordinador
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUT: ${{ runner.temp }}/ftr-auditoria063
+        shell: bash
+        run: |
+          mkdir -p "$OUT"
+          python - <<'PY'
+          import ast, hashlib, json, os, subprocess, urllib.request
+          from pathlib import Path
+          out=Path(os.environ['OUT'])
+          current='e319b5a8a918b0bc50d580e1e27e0166c598f833'
+          previous='69088bd844df11865cf5f5790dd18e13b251674e'
+          base='https://api.github.com/repos/SanLean17/parque-movil-ftr/'
+          def git(*args):
+              return subprocess.check_output(['git',*args])
+          def get(suffix):
+              req=urllib.request.Request(base+suffix,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as r:return json.load(r)
+          inventory=[]
+          for ref,label in [(current,'actual'),(previous,'anterior')]:
+              subprocess.run(['git','archive','--format=zip','--output='+str(out/(label+'.zip')),ref],check=True)
+              for raw in git('ls-tree','-r',ref).decode().splitlines():
+                  meta,path=raw.split('\t',1)
+                  content=git('show',ref+':'+path)
+                  row={'revision':label,'path':path,'blob':meta.split()[-1],'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest()}
+                  if path.endswith('.py'):
+                      try:
+                          tree=ast.parse(content.decode('utf-8-sig'),filename=path)
+                          row['syntax']='ok';row['functions']=[n.name for n in ast.walk(tree) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))]
+                      except (SyntaxError,UnicodeError) as e:row['syntax']=type(e).__name__
+                  inventory.append(row)
+          workflows=get('actions/workflows?per_page=100')['workflows']
+          report={'current':current,'previous':previous,'workflows':[{k:x.get(k) for k in ('id','name','path','state','created_at','updated_at')} for x in workflows], 'inventory':inventory,'scheduled':[],'latest':[],'jobs':{}}
+          keys=('id','name','event','status','conclusion','created_at','run_started_at','updated_at','head_sha','path','run_number')
+          for event,label in [('schedule','scheduled'),('', 'latest')]:
+              response=get('actions/runs?branch=main&per_page=100'+('&event='+event if event else ''))
+              report[label]=[{k:r.get(k) for k in keys} for r in response['workflow_runs']]
+          ids=[r['id'] for r in report['scheduled'][:6]]
+          ids.extend([39515148094,39502006929,39351534215,39223175621])
+          for rid in dict.fromkeys(ids):
+              js=get(f'actions/runs/{rid}/jobs?per_page=100')['jobs']
+              report['jobs'][str(rid)]=[{'name':j.get('name'),'status':j['status'],'conclusion':j.get('conclusion'),'started_at':j.get('started_at'),'completed_at':j.get('completed_at'),'steps':j.get('steps',[])} for j in js]
+          (out/'auditoria.json').write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
+          (out/'diferencias.txt').write_bytes(git('diff','--stat',previous,current))
+          (out/'historial.txt').write_bytes(git('log','--format=%h %cI %s','-70',current))
+          print('Inventario de',len(inventory),'entradas de dos revisiones; código exportado y API de Actions consultada en modo lectura.')
+          print('No se ejecutaron Drive/CNRT, no se modificaron datos ni configuraciones, no se usaron credenciales de Google.')
+          PY
+      - name: Conservar auditoría y código público para revisión
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-auditoria-integral063
+          path: ${{ runner.temp }}/ftr-auditoria063/
+          retention-days: 7

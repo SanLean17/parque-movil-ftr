@@ -104,7 +104,9 @@ def due(config, state, key, now):
     if slot is None or state.get(key, {}).get('served_slot') == slot:
         return False
     last = state.get(key, {}).get('attempt_utc')
-    if last:
+    # La espera de reintento corresponde a errores, no a una lectura exitosa.
+    # Una lectura manual anterior al turno no debe retrasar ese turno.
+    if last and state.get(key, {}).get('status') != 'success':
         try:
             if now - datetime.fromisoformat(last) < timedelta(hours=1):
                 return False

@@ -169,7 +169,16 @@ def main():
         if os.environ.get('FTR_PHASE')=='check':
             public_output('work', bool(jobs) or mode=='config')
             public_output('cnrt', 'cnrt' in jobs)
+            public_output('sources', ','.join(jobs))
             return 0
+        prepared = os.environ.get('FTR_PLANNED_SOURCES')
+        if prepared is not None:
+            allowed = set(filter(None, prepared.split(',')))
+            if not allowed <= {'cnrt', 'drive'}:
+                raise ValueError('El plan de fuentes de esta ejecución no es válido.')
+            # No agregar CNRT si su hora llegó durante la instalación y no se
+            # preparó Chromium. El turno queda para la siguiente comprobación.
+            jobs = [key for key in jobs if key in allowed]
         dry=os.environ.get('FTR_DRY_RUN')=='true' or mode=='diagnostic'
         if not dry and (os.environ.get('GITHUB_REF')!='refs/heads/main' or os.environ.get('GITHUB_REPOSITORY')!='SanLean17/parque-movil-ftr'):
             raise ValueError('La publicación real solo se permite desde main de este repositorio.')
@@ -185,7 +194,8 @@ def main():
                 state.setdefault(key,{})['attempt_utc']=utc()
                 try:
                     data=cnrt_snapshot(stage,config) if key=='cnrt' else google_snapshot(stage,config)
-                    state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),served_slot=current_slot(config,key,now()),error=None)
+                    read_at = datetime.fromisoformat(data['read_utc'])
+                    state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),served_slot=current_slot(config,key,read_at),error=None)
                     results[key]=data
                 except Exception as exc:
                     message=str(exc) if isinstance(exc,ValueError) else 'La fuente no pudo procesarse ('+type(exc).__name__+'); se conserva su último resultado válido.'

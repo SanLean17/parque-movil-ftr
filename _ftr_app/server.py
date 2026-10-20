@@ -1,0 +1,300 @@
+"""Administración local FTR. Solo loopback; no distribuye la clave de Google.
+El token de GitHub se protege con DPAPI en Windows. Nunca se incorpora al HTML.
+"""
+from __future__ import annotations
+import base64
+import io
+import json
+import logging
+import os
+import secrets
+import sys
+import threading
+import webbrowser
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+import requests
+from flask import Flask, abort, jsonify, make_response, request
+from werkzeug.serving import make_server
+from _ftr_runtime.config import clean_config,digest,encoded
+
+REPO='SanLean17/parque-movil-ftr'
+WORKFLOW='ftr_sincronizar.yml'
+BASE='https://api.github.com/repos/'+REPO+'/'
+VERSION='06'
+PORT=58641
+SESSION=secrets.token_urlsafe(40)
+BOOT=secrets.token_urlsafe(32)
+CSRF=secrets.token_urlsafe(40)
+ORIGIN=f'http://127.0.0.1:{PORT}'
+DATA=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'FTR_Administracion'
+DATA.mkdir(parents=True,exist_ok=True)
+BUNDLE=Path(sys.executable).parent if getattr(sys,'frozen',False) else Path(__file__).parent
+RESOURCE=BUNDLE
+app=Flask(__name__)
+app.config['MAX_CONTENT_LENGTH']=2*1024*1024
+logging.getLogger('werkzeug').disabled=True
+_lock=threading.Lock()
+_token=None
+
+
+def protect(data,decrypt=False):
+    if os.name!='nt':raise ValueError('El guardado seguro de credenciales requiere Windows.')
+    import ctypes
+    from ctypes import wintypes
+    class Blob(ctypes.Structure):
+        _fields_=[('cbData',wintypes.DWORD),('pbData',ctypes.POINTER(ctypes.c_ubyte))]
+    buffer=ctypes.create_string_buffer(data)
+    original=Blob(len(data),ctypes.cast(buffer,ctypes.POINTER(ctypes.c_ubyte)))
+    output=Blob()
+    function=ctypes.windll.crypt32.CryptUnprotectData if decrypt else ctypes.windll.crypt32.CryptProtectData
+    if not function(ctypes.byref(original),None,None,None,None,1,ctypes.byref(output)):
+        raise ValueError('Windows no pudo proteger la credencial. No se guardó en texto plano.')
+    try:return ctypes.string_at(output.pbData,output.cbData)
+    finally:
+        free=ctypes.windll.kernel32.LocalFree
+        free.argtypes=[ctypes.c_void_p];free.restype=ctypes.c_void_p
+        free(ctypes.cast(output.pbData,ctypes.c_void_p))
+
+
+def token():
+    global _token
+    if _token is None and os.name=='nt' and (DATA/'github.dpapi').exists():
+        try:_token=protect((DATA/'github.dpapi').read_bytes(),True).decode()
+        except Exception:raise ValueError('No se pudo abrir la autorización de este equipo. Conectá GitHub de nuevo.') from None
+    if not _token:raise ValueError('Conectá GitHub en la sección Conexiones de este equipo.')
+    return _token
+
+
+def api(method,suffix,payload=None,auth=None):
+    # No se acepta una URL del cliente. La autorización solo se envía a este repositorio.
+    r=requests.request(method,BASE+suffix,headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
+    if r.status_code==401:raise ValueError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
+    if r.status_code==403:raise ValueError('GitHub no permitió la operación. Revisá Actions con lectura y escritura y acceso a este repositorio.')
+    if r.status_code==404:raise ValueError('GitHub no encontró el recurso autorizado. Revisá el repositorio y que la integración esté activada.')
+    if not r.ok:raise ValueError('No se completó la operación con GitHub (HTTP '+str(r.status_code)+'). Revisá su estado antes de repetirla.')
+    return r.json() if r.content else {}
+
+
+def json_file(name):
+    value=api('GET','contents/'+name+'?ref=main')
+    return json.loads(base64.b64decode(value['content']))
+
+
+def remote():
+    c=clean_config(json_file('_ftr_config.json'))
+    result={'config':c,'digest':digest(c)}
+    (DATA/'config_remota.json').write_text(json.dumps(result),encoding='utf-8')
+    return result
+
+
+def cached(name,default):
+    try:return json.loads((DATA/name).read_text(encoding='utf-8'))
+    except (OSError,ValueError):return default
+
+
+def last_runs():
+    rows=api('GET','actions/workflows/'+WORKFLOW+'/runs?per_page=6').get('workflow_runs',[])
+    return [{'id':r['id'],'title':r.get('display_title',r.get('name','Actualización')),'status':r['status'],'conclusion':r.get('conclusion'),'url':r['html_url'],'created_at':r['created_at']} for r in rows]
+
+
+def unseal(value):
+    from cryptography.hazmat.primitives import serialization,hashes
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    if value.get('format')!='FTR-DIAGNOSTICO-3':raise ValueError('El informe cifrado tiene un formato no reconocido.')
+    key_path=DATA/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
+    if not key_path.exists():
+        shipped=BUNDLE/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
+        if shipped.exists():key_path.write_bytes(shipped.read_bytes())
+        else:return None
+    key=serialization.load_pem_private_key(key_path.read_bytes(),password=None)
+    b=lambda field:base64.b64decode(value[field],validate=True)
+    symmetric=key.decrypt(b('wrapped_key'),padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+    return json.loads(AESGCM(symmetric).decrypt(b('nonce'),b('ciphertext'),b'FTR-DIAGNOSTICO-3'))
+
+
+def report_for_run(run_id):
+    if type(run_id) is not int or run_id<=0:raise ValueError('La ejecución no es válida.')
+    items=api('GET',f'actions/runs/{run_id}/artifacts?per_page=100').get('artifacts',[])
+    artifact=next((x for x in items if x['name']=='ftr-informe-administrativo' and not x.get('expired')),None)
+    if not artifact:return None
+    response=requests.get(BASE+f"actions/artifacts/{artifact['id']}/zip",headers={'Authorization':'Bearer '+token(),'Accept':'application/vnd.github+json'},timeout=30,allow_redirects=False)
+    if response.status_code!=302:raise ValueError('El informe todavía no está disponible para descargar.')
+    location=response.headers.get('Location','')
+    if urlparse(location).scheme!='https':raise ValueError('La descarga del informe no tiene una dirección segura.')
+    # La URL firmada no recibe el token de GitHub y no se registra ni se guarda.
+    r=requests.get(location,timeout=60,stream=True)
+    r.raise_for_status()
+    data=bytearray()
+    for chunk in r.iter_content(65536):
+        data.extend(chunk)
+        if len(data)>25000000:raise ValueError('El informe supera el tamaño permitido.')
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        if sum(i.file_size for i in z.infolist())>50000000:raise ValueError('El informe descomprimido es demasiado grande.')
+        report=json.loads(z.read('resumen.json')) if 'resumen.json' in z.namelist() else None
+        detail=unseal(json.loads(z.read('detalle_admin.enc.json'))) if 'detalle_admin.enc.json' in z.namelist() else None
+        error=json.loads(z.read('operacion.json')) if 'operacion.json' in z.namelist() else None
+    if report and detail and (report.get('periodo'),report.get('revision_repositorio'),report.get('inicio_lectura_utc'))!=(detail.get('periodo'),detail.get('revision_repositorio'),detail.get('detectado_utc')):
+        raise ValueError('El detalle y el resumen corresponden a ejecuciones distintas.')
+    result={'report':report,'details':detail,'operation':error,'run_id':run_id}
+    (DATA/'informe.json').write_text(json.dumps(result,ensure_ascii=False),encoding='utf-8')
+    return result
+
+
+@app.before_request
+def secure():
+    if request.host!=f'127.0.0.1:{PORT}':abort(403)
+    if request.path=='/iniciar/'+BOOT:return
+    if not secrets.compare_digest(request.cookies.get('ftr',''),SESSION):abort(403)
+    if request.path.startswith('/api/'):
+        if not secrets.compare_digest(request.headers.get('X-FTR-CSRF',''),CSRF):abort(403)
+        if request.method!='GET' and request.headers.get('Origin')!=ORIGIN:abort(403)
+
+
+@app.after_request
+def headers(response):
+    response.headers['Cache-Control']='no-store'
+    response.headers['X-Content-Type-Options']='nosniff'
+    response.headers['X-Frame-Options']='DENY'
+    response.headers['Referrer-Policy']='no-referrer'
+    response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+    return response
+
+
+@app.errorhandler(Exception)
+def errors(exc):
+    from werkzeug.exceptions import HTTPException
+    if isinstance(exc,HTTPException):return jsonify(error='La solicitud no está autorizada o excede el tamaño permitido.'),exc.code
+    if isinstance(exc,ValueError):return jsonify(error=str(exc)),400
+    if isinstance(exc,requests.RequestException):return jsonify(error='No se pudo conectar a GitHub. El borrador sigue en tu equipo; revisá Internet y reintentá.'),503
+    return jsonify(error='No se completó la operación. Revisá la última ejecución antes de repetirla.'),500
+
+
+@app.get('/iniciar/<bootstrap>')
+def start(bootstrap):
+    if not secrets.compare_digest(bootstrap,BOOT):abort(403)
+    response=make_response('',302);response.headers['Location']='/'
+    response.set_cookie('ftr',SESSION,httponly=True,samesite='Strict')
+    return response
+
+
+@app.get('/')
+def index():
+    return (RESOURCE/'panel.html').read_text(encoding='utf-8').replace('__FTR_CSRF__',CSRF)
+
+
+@app.get('/api/bootstrap')
+def bootstrap():
+    connected=True
+    try:token()
+    except ValueError:connected=False
+    diag=cached('informe.json',None)
+    if diag is None and (BUNDLE/'resumen.json').exists():
+        summary=json.loads((BUNDLE/'resumen.json').read_text(encoding='utf-8'))
+        detail=unseal(json.loads((BUNDLE/'detalle_admin.enc.json').read_text(encoding='utf-8'))) if (BUNDLE/'detalle_admin.enc.json').exists() else None
+        diag={'report':summary,'details':detail,'run_id':None}
+    return jsonify(version=VERSION,connected=connected,draft=cached('borrador.json',None),remote=cached('config_remota.json',None),diagnostic=diag)
+
+
+@app.post('/api/draft')
+def draft():
+    content=request.get_json()
+    c=clean_config(content['config'])
+    value={'config':c,'expected':content.get('expected'),'saved_at':datetime.now(timezone.utc).isoformat()}
+    (DATA/'borrador.json').write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8')
+    return jsonify(ok=True)
+
+
+@app.post('/api/reset-draft')
+def reset_draft():
+    (DATA/'borrador.json').unlink(missing_ok=True)
+    return jsonify(ok=True)
+
+
+@app.post('/api/connect')
+def connect():
+    global _token
+    value=request.get_json().get('token','').strip()
+    if not 20<=len(value)<=300 or any(c.isspace() for c in value):raise ValueError('La autorización de GitHub no tiene el formato esperado.')
+    info=api('GET','actions/workflows/'+WORKFLOW,auth=value)
+    if not info.get('id'):raise ValueError('No se encontró la automatización FTR.')
+    with _lock:
+        if os.name=='nt':(DATA/'github.dpapi').write_bytes(protect(value.encode()))
+        _token=value
+    return jsonify(ok=True,persistent=os.name=='nt')
+
+
+@app.post('/api/disconnect')
+def disconnect():
+    global _token
+    with _lock:
+        _token=None
+        (DATA/'github.dpapi').unlink(missing_ok=True)
+    return jsonify(ok=True)
+
+
+@app.get('/api/status')
+def status():
+    result=remote()
+    try:result['state']=json_file('_ftr_estado.json')
+    except ValueError:result['state']={}
+    result['runs']=last_runs()
+    return jsonify(result)
+
+
+@app.post('/api/submit')
+def submit():
+    data=request.get_json();action=data.get('action')
+    if action not in ('drive','cnrt','all','config','diagnostic'):raise ValueError('Acción no permitida.')
+    with _lock:
+        r=remote();jobs=last_runs()
+        if any(x['status'] in ('queued','in_progress','waiting','pending') for x in jobs):
+            raise ValueError('Ya hay una actualización en espera o en ejecución. Esperá a que termine para no duplicarla.')
+        cfg='';expected=''
+        if action in ('config','diagnostic'):
+            candidate=clean_config(data.get('config'));cfg=encoded(candidate).decode()
+            if len(cfg.encode())>60000:raise ValueError('La configuración excede el límite de la solicitud.')
+            if action=='config':
+                if data.get('expected')!=r['digest']:raise ValueError('Otra computadora publicó una configuración diferente. Recargá la configuración y revisá tu borrador.')
+                expected=r['digest']
+        identifier=secrets.token_hex(8)
+        api('POST','actions/workflows/'+WORKFLOW+'/dispatches',{'ref':'main','inputs':{'action':action,'config_json':cfg,'expected':expected,'request_id':identifier}})
+    return jsonify(ok=True,request_id=identifier,message='Solicitud enviada. Falta que GitHub ejecute y publique el resultado.')
+
+
+@app.post('/api/report')
+def report():return jsonify(report_for_run(request.get_json().get('run_id')))
+
+
+@app.post('/api/quit')
+def quit_panel():
+    callback=app.config.get('SHUTDOWN')
+    if callback:threading.Timer(0.3,callback).start()
+    return jsonify(ok=True)
+
+
+def main():
+    if '--self-test' in sys.argv:
+        if os.name=='nt':
+            sample=b'FTR_PRUEBA_SIN_CREDENCIAL'
+            assert protect(protect(sample),True)==sample
+        assert (RESOURCE/'panel.html').exists()
+        (RESOURCE/'self-test-ok.txt').write_text('DPAPI y carga de recursos: OK',encoding='utf-8')
+        return
+    try:server=make_server('127.0.0.1',PORT,app,threaded=True)
+    except (OSError,SystemExit):
+        if os.name=='nt':
+            import ctypes
+            ctypes.windll.user32.MessageBoxW(None,'El panel ya está abierto o el puerto está ocupado. Cerrá la instancia anterior desde Conexiones y volvé a abrirlo.','Administración FTR',0)
+        return
+    app.config['SHUTDOWN']=server.shutdown
+    webbrowser.open(ORIGIN+'/iniciar/'+BOOT)
+    server.serve_forever()
+
+
+if __name__=='__main__':main()

@@ -1,0 +1,24 @@
+name: FTR - Integración y paquete local
+on:
+  push:
+    branches: [ftr/integracion-panel]
+    paths: [.github/workflows/ftr_integracion_pruebas.yml]
+permissions:
+  contents: read
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Preparar copia de trabajo del código versionado
+        shell: bash
+        run: |
+          git archive --format=zip HEAD > "$RUNNER_TEMP/ftr-codigo.zip"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-codigo-integracion
+          path: ${{ runner.temp }}/ftr-codigo.zip
+          retention-days: 1

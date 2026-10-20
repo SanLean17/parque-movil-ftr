@@ -1,7 +1,7 @@
 """Agenda observable, sin lecturas de Google/CNRT ni escrituras en repositorio.
 
-Un cambio de horario entra en vigencia al guardarse: no recupera turnos del
-horario anterior ni marca como leídos datos que no se consultaron.
+Un cambio de horario no recupera días anteriores a su vigencia. El turno del
+mismo día sigue pendiente si todavía no se leyó; guardar nunca equivale a leer.
 """
 from __future__ import annotations
 from datetime import date, datetime, timedelta, timezone
@@ -26,15 +26,31 @@ def eligible_slot(config, state, key, now):
     slot = current_slot(config, key, now)
     effective = _instant(state.get(key, {}).get('schedule_effective_from_utc'))
     if slot and effective and slot_time(slot) < effective:
-        return None
+        # Una hora pasada del MISMO día no borra una lectura que sigue pendiente.
+        # Una hora futura tampoco recupera el turno de AYER de la agenda nueva.
+        zone = ZoneInfo(ZONE)
+        if slot_time(slot).astimezone(zone).date() < effective.astimezone(zone).date():
+            return None
     return slot
+
+
+def slot_satisfied(state, key, slot):
+    """Cuenta solo lecturas reales, incluso después de un cambio de horario."""
+    if not slot:
+        return False
+    row = state.get(key, {})
+    if row.get("served_slot") == slot:
+        return True
+    read = _instant(row.get("read_utc"))
+    return bool(row.get("status") == "success" and read and read >= slot_time(slot))
 
 
 def select_jobs(config, old, state, mode, now):
     jobs = selected(config, old, state, mode, now)
     if mode != 'scheduled':
         return jobs
-    return [key for key in jobs if eligible_slot(config, state, key, now)]
+    return [key for key in jobs if (slot := eligible_slot(config, state, key, now))
+            and not slot_satisfied(state, key, slot)]
 
 
 def activate_changed_schedules(old, config, state, now):
@@ -63,7 +79,7 @@ def describe(config, state, now):
     for key in ('drive', 'cnrt'):
         row = state.get(key, {})
         slot = eligible_slot(config, state, key, now)
-        pending = bool(config[key]['enabled'] and slot and slot != row.get('served_slot'))
+        pending = bool(config[key]['enabled'] and slot and not slot_satisfied(state, key, slot))
         late = max(0, int((now - slot_time(slot)).total_seconds() // 60)) if pending else 0
         state_name = ('disabled' if not config[key]['enabled'] else
                       'error' if pending and row.get('status') == 'error' else

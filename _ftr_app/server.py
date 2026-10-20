@@ -9,12 +9,18 @@ import logging
 import os
 import secrets
 import sys
+import tempfile
 import threading
 import webbrowser
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
+
+# PyInstaller --noconsole no proporciona stdout/stderr en Windows.
+for stream in ('stdout', 'stderr'):
+    if getattr(sys, stream) is None:
+        setattr(sys, stream, open(os.devnull, 'w', encoding='utf-8'))
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import requests
@@ -25,11 +31,13 @@ from _ftr_runtime.config import clean_config,digest,encoded
 REPO='SanLean17/parque-movil-ftr'
 WORKFLOW='ftr_sincronizar.yml'
 BASE='https://api.github.com/repos/'+REPO+'/'
-VERSION='06'
+VERSION='06.1'
 PORT=58641
 SESSION=secrets.token_urlsafe(40)
 BOOT=secrets.token_urlsafe(32)
 CSRF=secrets.token_urlsafe(40)
+# Las cookies no se separan por puerto: cada instancia tiene un nombre propio.
+COOKIE_NAME='ftr_'+secrets.token_hex(8)
 ORIGIN=f'http://127.0.0.1:{PORT}'
 DATA=Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'FTR_Administracion'
 DATA.mkdir(parents=True,exist_ok=True)
@@ -146,13 +154,21 @@ def report_for_run(run_id):
     return result
 
 
+def matches(value, expected):
+    return isinstance(value,str) and value.isascii() and secrets.compare_digest(value,expected)
+
+
 @app.before_request
 def secure():
     if request.host!=f'127.0.0.1:{PORT}':abort(403)
-    if request.path=='/iniciar/'+BOOT:return
-    if not secrets.compare_digest(request.cookies.get('ftr',''),SESSION):abort(403)
+    if request.path=='/iniciar/'+BOOT:
+        if request.method!='GET':abort(405)
+        if request.headers.get('Origin') not in (None,ORIGIN):abort(403)
+        if request.headers.get('Sec-Fetch-Site')=='cross-site':abort(403)
+        return
+    if not matches(request.cookies.get(COOKIE_NAME,''),SESSION):abort(403)
     if request.path.startswith('/api/'):
-        if not secrets.compare_digest(request.headers.get('X-FTR-CSRF',''),CSRF):abort(403)
+        if not matches(request.headers.get('X-FTR-CSRF',''),CSRF):abort(403)
         if request.method!='GET' and request.headers.get('Origin')!=ORIGIN:abort(403)
 
 
@@ -169,7 +185,18 @@ def headers(response):
 @app.errorhandler(Exception)
 def errors(exc):
     from werkzeug.exceptions import HTTPException
-    if isinstance(exc,HTTPException):return jsonify(error='La solicitud no está autorizada o excede el tamaño permitido.'),exc.code
+    if isinstance(exc,HTTPException):
+        messages={403:'El enlace de inicio o la sesión de este panel no es válido. Cerrá esta pestaña y abrí FTR_Administracion.exe desde la carpeta extraída.',
+                  404:'No se encontró esta pantalla del panel. Abrí el programa desde la carpeta extraída, no desde un enlace anterior.',
+                  405:'Esta operación no está permitida desde ese enlace. Utilizá los botones del panel.',
+                  413:'El archivo o la solicitud supera el tamaño permitido.'}
+        message=messages.get(exc.code,'La solicitud no se pudo procesar. Volvé a abrir el programa.')
+        if not request.path.startswith('/api/') and 'text/html' in request.headers.get('Accept',''):
+            from html import escape
+            response=make_response('<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administración FTR — Inicio</title><body style="font:16px system-ui;max-width:620px;margin:12vh auto;padding:24px;line-height:1.6"><h1>No se pudo abrir el panel</h1><p>'+escape(message)+'</p><p>Esto corresponde al inicio local; no cambies los permisos de Google Drive ni de GitHub.</p><small>Referencia: inicio local '+str(exc.code)+'</small></body></html>',exc.code)
+            response.headers['Content-Type']='text/html; charset=utf-8'
+            return response
+        return jsonify(error=message,code=exc.code),exc.code
     if isinstance(exc,ValueError):return jsonify(error=str(exc)),400
     if isinstance(exc,requests.RequestException):return jsonify(error='No se pudo conectar a GitHub. El borrador sigue en tu equipo; revisá Internet y reintentá.'),503
     return jsonify(error='No se completó la operación. Revisá la última ejecución antes de repetirla.'),500
@@ -177,9 +204,9 @@ def errors(exc):
 
 @app.get('/iniciar/<bootstrap>')
 def start(bootstrap):
-    if not secrets.compare_digest(bootstrap,BOOT):abort(403)
+    if not matches(bootstrap,BOOT):abort(403)
     response=make_response('',302);response.headers['Location']='/'
-    response.set_cookie('ftr',SESSION,httponly=True,samesite='Strict')
+    response.set_cookie(COOKIE_NAME,SESSION,httponly=True,samesite='Strict',path='/')
     return response
 
 
@@ -278,23 +305,81 @@ def quit_panel():
     return jsonify(ok=True)
 
 
+def check_resources():
+    path=RESOURCE/'panel.html'
+    if not path.is_file():
+        raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
+    if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
+        raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
+
+
+def local_server():
+    global PORT,ORIGIN
+    # El SO asigna un puerto libre: una instancia anterior no atiende este inicio.
+    srv=make_server('127.0.0.1',0,app,threaded=True)
+    PORT=srv.server_port
+    ORIGIN=f'http://127.0.0.1:{PORT}'
+    app.config['SHUTDOWN']=srv.shutdown
+    thread=threading.Thread(target=srv.serve_forever,daemon=True)
+    thread.start()
+    return srv,thread
+
+
+def verify_local_http():
+    # Solo loopback, sin proxies del equipo, sin token GitHub ni acceso a Google.
+    with requests.Session() as client:
+        client.trust_env=False
+        r=client.get(ORIGIN+'/iniciar/'+BOOT,timeout=8,allow_redirects=False)
+        if r.status_code!=302 or not client.cookies.get(COOKIE_NAME):
+            raise ValueError('No se pudo iniciar la sesión local del panel. Cerrá las ventanas anteriores y volvé a abrir el programa extraído.')
+        r=client.get(ORIGIN+'/',timeout=8)
+        if r.status_code!=200 or '__FTR_CSRF__' in r.text:
+            raise ValueError('El panel no pudo cargar sus archivos. Extraé el paquete completo en una carpeta nueva.')
+
+
+def notify_start_error(message):
+    if os.name=='nt':
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(None,message,'Administración FTR — Inicio',0x10)
+    else:print(message,file=sys.stderr)
+
+
 def main():
-    if '--self-test' in sys.argv:
-        if os.name=='nt':
-            sample=b'FTR_PRUEBA_SIN_CREDENCIAL'
-            assert protect(protect(sample),True)==sample
-        assert (RESOURCE/'panel.html').exists()
-        (RESOURCE/'self-test-ok.txt').write_text('DPAPI y carga de recursos: OK',encoding='utf-8')
-        return
-    try:server=make_server('127.0.0.1',PORT,app,threaded=True)
-    except (OSError,SystemExit):
-        if os.name=='nt':
-            import ctypes
-            ctypes.windll.user32.MessageBoxW(None,'El panel ya está abierto o el puerto está ocupado. Cerrá la instancia anterior desde Conexiones y volvé a abrirlo.','Administración FTR',0)
-        return
-    app.config['SHUTDOWN']=server.shutdown
-    webbrowser.open(ORIGIN+'/iniciar/'+BOOT)
-    server.serve_forever()
+    global DATA,BUNDLE,_token
+    testing='--self-test' in sys.argv or '--browser-test' in sys.argv
+    test_dir=tempfile.TemporaryDirectory(prefix='ftr-inicio-test-') if testing else None
+    if test_dir:
+        DATA=Path(test_dir.name);_token=None
+    srv=None;thread=None
+    try:
+        check_resources()
+        srv,thread=local_server()
+        verify_local_http()
+        if '--self-test' in sys.argv:
+            if os.name=='nt':
+                sample=b'FTR_PRUEBA_SIN_CREDENCIAL'
+                assert protect(protect(sample),True)==sample
+            (RESOURCE/'self-test-ok.txt').write_text('06.1: recursos, sesión, redirección y HTML sobre HTTP loopback; DPAPI Windows: OK. Sin conexión a GitHub o Google.',encoding='utf-8')
+            return
+        if '--browser-test' in sys.argv:
+            # Intercambio local exclusivo de CI; nunca se sube ni imprime este archivo.
+            target=Path(sys.argv[sys.argv.index('--browser-test')+1])
+            target.write_text(json.dumps({'url':ORIGIN+'/iniciar/'+BOOT,'version':VERSION}),encoding='utf-8')
+            threading.Timer(90,srv.shutdown).start()
+        else:
+            webbrowser.open(ORIGIN+'/iniciar/'+BOOT)
+        thread.join()
+    except Exception as exc:
+        message=str(exc) if isinstance(exc,ValueError) else 'No se pudo iniciar el servidor local. Extraé todo el paquete, cerrá el panel anterior y volvé a abrir FTR_Administracion.exe.'
+        if testing:
+            (RESOURCE/'self-test-error.txt').write_text(message,encoding='utf-8')
+            raise SystemExit(1) from None
+        notify_start_error(message)
+    finally:
+        if srv:
+            srv.shutdown();srv.server_close()
+        if thread:thread.join(timeout=3)
+        if test_dir:test_dir.cleanup()
 
 
 if __name__=='__main__':main()

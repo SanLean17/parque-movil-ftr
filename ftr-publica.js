@@ -1,4 +1,4 @@
-/* Extensión FTR 06. No cambia conteos ni escribe CSV o datos de Google. */
+/* Extensión FTR 06.1. No cambia conteos ni escribe CSV o datos de Google. */
 (function () {
   'use strict';
   const style = document.createElement('style');
@@ -15,6 +15,12 @@
       body.dataset.view = value;
       if (typeof original === 'function') original(value);
     };
+    // Cambia el orden real del documento: izquierda/arriba y también teclado.
+    const controlledButton = document.querySelector('button[onclick="copyControlled()"]');
+    const pendingButton = document.querySelector('button[onclick="copyMissing()"]');
+    if (controlledButton && pendingButton && controlledButton.parentElement === pendingButton.parentElement) {
+      pendingButton.parentElement.insertBefore(controlledButton, pendingButton);
+    }
   }
   window.copyControlled = async function () {
     const rows = Array.from(document.querySelectorAll('#fleetTbody tr[data-status="CONTROLADO"]'));
@@ -25,8 +31,13 @@
       return '• Int. '+cells[1].textContent.trim()+' ('+cells[0].textContent.trim()+') — '+cells[6].textContent.trim();
     });
     const text = '*LÍNEA '+id+' - CONTROLADOS ('+rows.length+' unidades):*\n'+lines.join('\n');
-    try { await navigator.clipboard.writeText(text); alert('Controlados copiados al portapapeles.'); }
-    catch (_) { window.prompt('Copiá la lista de controlados:', text); }
+    try {
+      await navigator.clipboard.writeText(text);
+      // Mismo aviso nativo que Copiar pendientes, con el texto que se copió.
+      alert('¡Copiado al portapapeles!\n\n'+text);
+    } catch (_) {
+      window.prompt('Copiá la lista de controlados:', text);
+    }
   };
   function dateTime(raw) {
     const date = new Date(String(raw).trim());

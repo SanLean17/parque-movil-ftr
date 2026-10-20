@@ -107,7 +107,7 @@ Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:
             assert page.locator('#fleetTbody').get_attribute('data-view')=='CONTROLADO'
             page.evaluate("setFilter('ALL')")
             assert page.locator('#fleetTbody').get_attribute('data-view')=='ALL'
-            page.evaluate("navigator.clipboard.writeText=async()=>{throw new Error('prueba');}")
+            page.evaluate("()=>{navigator.clipboard.writeText=async()=>{throw new Error('prueba');};}")
             page.locator('button[onclick="copyControlled()"]').click()
             assert dialogs[-1]['type']=='prompt'
             context.close()

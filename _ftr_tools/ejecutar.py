@@ -1,4 +1,4 @@
-"""Entrada del coordinador con errores de Git identificables y sin secretos."""
+"""Coordinador: agenda auditable y publicación con errores de Git identificables."""
 from pathlib import Path
 import os
 import re
@@ -7,6 +7,7 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from _ftr_runtime import worker
+from _ftr_runtime import agenda
 
 
 def commit_validated(root, paths):
@@ -30,6 +31,28 @@ def commit_validated(root, paths):
     return git('rev-parse','HEAD')
 
 
-if __name__=='__main__':
-    worker.commit=commit_validated
-    sys.exit(worker.main())
+_original_plan = worker.plan
+
+def audited_plan():
+    mode, config, state, jobs = _original_plan()
+    moment = worker.now()
+    if mode == 'config':
+        agenda.activate_changed_schedules(worker.load(worker.ROOT), config, state, moment)
+    if os.environ.get('FTR_PHASE') == 'check':
+        text = agenda.explain(config, state, moment, jobs, mode)
+        print(text)
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:
+                f.write(text)
+    return mode, config, state, jobs
+
+
+def main():
+    worker.commit = commit_validated
+    worker.selected = agenda.select_jobs
+    worker.plan = audited_plan
+    return worker.main()
+
+
+if __name__ == '__main__':
+    sys.exit(main())

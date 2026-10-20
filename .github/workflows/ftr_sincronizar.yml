@@ -1,16 +1,12 @@
 name: FTR - Sincronizar
 run-name: FTR · ${{ inputs.action || github.event_name }} · ${{ inputs.request_id || 'automático' }}
 on:
+  # Nueva expresión para registrar nuevamente la agenda con GitHub.
+  # Evita :00/:15/:30/:45. La hora efectiva de cada fuente sigue en _ftr_config.json.
+  # GitHub puede demorar el inicio: el coordinador recupera el turno pendiente.
   schedule:
-    - cron: '*/15 * * * *'
-  push:
-    branches: [main]
-    paths:
-      - _ftr_runtime/**
-      - _ftr_tools/**
-      - _ftr_config.json
-      - ftr-publica.js
-      - .github/workflows/ftr_sincronizar.yml
+    - cron: '7,22,37,52 * * * *'
+  # No ejecutar por push: aplicar código o guardar horarios NO debe leer fuentes.
   workflow_dispatch:
     inputs:
       action:
@@ -62,7 +58,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUNBUFFERED: '1'
-      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'drive' }}
+      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'scheduled' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
     steps:
@@ -77,6 +73,9 @@ jobs:
         env:
           FTR_PHASE: check
         run: python _ftr_tools/ejecutar.py
+      - name: Agenda comprobada sin lectura de fuentes
+        if: steps.plan.outputs.work == 'false'
+        run: echo 'No correspondía una actualización. No se leyó Drive, no se consultó CNRT y no se cambió la web.'
       - name: Instalar dependencias
         if: steps.plan.outputs.work == 'true'
         run: python -m pip install --disable-pip-version-check pandas requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt

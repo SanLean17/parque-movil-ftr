@@ -1,0 +1,59 @@
+name: FTR - Corrección de inicio 06.1
+on:
+  push:
+    branches: [ftr/correccion-arranque-061]
+    paths:
+      - _ftr_app/**
+      - ftr-publica.js
+      - .github/workflows/ftr_correccion061.yml
+permissions:
+  contents: read
+concurrency:
+  group: ftr-inicio-061-pruebas
+  cancel-in-progress: true
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Dependencias de aplicación y pruebas
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7' playwright
+      - name: Instalar navegador de prueba
+        run: python -m playwright install chromium
+      - name: Pruebas de seguridad y arranque local
+        run: python -m unittest discover -s _ftr_app -p 'test_*.py' -v
+      - name: Compilar programa Windows sin consola
+        run: python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --name FTR_Administracion _ftr_app/server.py
+      - name: Probar ejecutable por HTTP local y DPAPI
+        shell: pwsh
+        run: |
+          '<html><body>Prueba interna __FTR_CSRF__</body></html>' | Set-Content -Encoding utf8 dist/panel.html
+          $p = Start-Process -FilePath ./dist/FTR_Administracion.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path ./dist/self-test-ok.txt)) { throw 'Falló el inicio HTTP del programa compilado.' }
+      - name: Probar sesión del ejecutable en Chromium y botones de la web
+        run: python _ftr_app/browser_smoke061.py
+      - name: Guardar código reproducible y evitar plantilla de prueba en entrega
+        shell: pwsh
+        run: |
+          Remove-Item ./dist/panel.html
+          git archive --format=zip --output=dist/ftr-fuentes-061.zip HEAD _ftr_app _ftr_runtime _ftr_config.json ftr-publica.js linea.html index.html
+          git diff --exit-code HEAD -- .
+      - name: Conservar ejecutable probado y comprobantes
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-programa-windows-061
+          path: |
+            dist/FTR_Administracion.exe
+            dist/self-test-ok.txt
+            dist/COMPROBACION_NAVEGADOR.json
+            dist/ftr-fuentes-061.zip
+          retention-days: 7

@@ -1,0 +1,105 @@
+name: FTR - Sincronizar
+run-name: FTR · ${{ inputs.action || github.event_name }} · ${{ inputs.request_id || 'automático' }}
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - _ftr_runtime/**
+      - _ftr_config.json
+      - ftr-publica.js
+      - .github/workflows/ftr_sincronizar.yml
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Proceso que se ejecutará
+        type: choice
+        options: [all, drive, cnrt, diagnostic, config]
+        default: all
+        required: true
+      config_json:
+        description: Configuración propuesta por el panel; vacío usa la publicada
+        type: string
+        default: ''
+      expected:
+        description: Huella de la configuración que revisó el administrador
+        type: string
+        default: ''
+      request_id:
+        description: Identificador de la solicitud del panel
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      action:
+        type: string
+        default: all
+      config_json:
+        type: string
+        default: ''
+      expected:
+        type: string
+        default: ''
+      request_id:
+        type: string
+        default: ''
+    secrets:
+      GOOGLE_SERVICE_ACCOUNT_JSON:
+        required: true
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: ftr-publicacion-validada
+  cancel-in-progress: false
+jobs:
+  actualizar:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'all' }}
+      FTR_CONFIG: ${{ inputs.config_json || '' }}
+      FTR_EXPECTED: ${{ inputs.expected || '' }}
+      FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Comprobar agenda o solicitud
+        id: plan
+        env:
+          FTR_PHASE: check
+        run: python _ftr_runtime/worker.py
+      - name: Instalar dependencias
+        if: steps.plan.outputs.work == 'true'
+        run: python -m pip install --disable-pip-version-check pandas requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt
+      - name: Preparar navegador solo si se consultará CNRT
+        if: steps.plan.outputs.cnrt == 'true'
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+      - name: Procesar, validar, guardar y publicar
+        if: steps.plan.outputs.work == 'true'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python _ftr_runtime/worker.py
+      - name: Conservar informe administrativo protegido
+        if: always() && steps.plan.outputs.work == 'true'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-informe-administrativo
+          path: |
+            ${{ runner.temp }}/ftr-informe/resumen.json
+            ${{ runner.temp }}/ftr-informe/resumen.md
+            ${{ runner.temp }}/ftr-informe/detalle_admin.enc.json
+            ${{ runner.temp }}/ftr-informe/operacion.json
+          if-no-files-found: ignore
+          retention-days: 30

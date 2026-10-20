@@ -1,4 +1,4 @@
-"""Panel 06.2: diferencia comprobación, guardado y actualización de datos.
+"""Panel 06.3: diferencia comprobación, guardado y actualización de datos.
 No ejecuta procesos al arrancar o al consultar su estado.
 """
 from __future__ import annotations
@@ -36,7 +36,13 @@ def classify_run(run, jobs):
 
 
 def last_runs():
-    rows = server.api('GET', 'actions/workflows/'+server.WORKFLOW+'/runs?per_page=6').get('workflow_runs', [])
+    rows_by_id = {}
+    # Un calendario y una entrada manual comparten el mismo coordinador.
+    # El panel debe ver también las ejecuciones del calendario original.
+    for workflow in (server.WORKFLOW, 'actualizar_parques.yml'):
+        for row in server.api('GET', 'actions/workflows/'+workflow+'/runs?branch=main&per_page=6').get('workflow_runs', []):
+            rows_by_id[row['id']] = row
+    rows = sorted(rows_by_id.values(), key=lambda r: (r['created_at'], r['id']), reverse=True)[:6]
     result = []
     for r in rows:
         key = (r['id'], r.get('run_attempt', 1), r.get('updated_at'), r['status'], r.get('conclusion'))
@@ -68,7 +74,7 @@ def status():
 
 
 def install():
-    server.VERSION = '06.2'
+    server.VERSION = '06.3'
     server.last_runs = last_runs
     server.app.view_functions['status'] = status
 

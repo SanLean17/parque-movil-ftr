@@ -12,6 +12,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUNBUFFERED: '1'
+      PYTHONUTF8: '1'
     steps:
       - uses: actions/checkout@v6
         with:

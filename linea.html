@@ -209,7 +209,7 @@
 
 
 
-            <button
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto"><button
                 onclick="copyMissing()"
                 class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm"
             >
@@ -217,10 +217,21 @@
                 <i class="fa-regular fa-copy"></i>
 
                 <span>
-                    Copiar Faltantes
+                    Copiar pendientes
                 </span>
 
-            </button>
+            </button><button
+                onclick="copyControlled()"
+                class="w-full sm:w-auto bg-blue-800 hover:bg-blue-900 text-white text-xs px-3 py-2 rounded-md font-semibold transition flex items-center justify-center space-x-1 shadow-sm"
+            >
+
+                <i class="fa-regular fa-copy"></i>
+
+                <span>
+                    Copiar controlados
+                </span>
+
+            </button></div>
 
         </div>
 
@@ -1644,5 +1655,6 @@
 
     </script>
 
+<script src="ftr-publica.js?v=6"></script>
 </body>
 </html>

@@ -1,0 +1,19 @@
+{
+  "drive": {
+    "attempt_utc": "2026-10-20T01:33:03.953723+00:00",
+    "read_utc": "2026-10-20T01:33:04.028443+00:00",
+    "completed_utc": "2026-10-20T01:33:09.744362+00:00",
+    "period": 2026,
+    "source_id": "1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk",
+    "records": 1900,
+    "unique": 1846,
+    "status": "success",
+    "run_id": "39354022692",
+    "served_slot": "a826b7f608ea:2026-10-19T17:00:00-03:00",
+    "error": null
+  },
+  "version": 2,
+  "config_digest": "3819cb72da178af3d2548a42649e47c41d285087615d682817b1f35583a97d55",
+  "updated_utc": "2026-10-20T01:33:09.757489+00:00",
+  "run_id": "39354022692"
+}

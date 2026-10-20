@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - _ftr_runtime/**
+      - _ftr_tools/**
       - _ftr_config.json
       - ftr-publica.js
       - .github/workflows/ftr_sincronizar.yml
@@ -61,7 +62,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUNBUFFERED: '1'
-      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'all' }}
+      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'drive' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
     steps:
@@ -75,7 +76,7 @@ jobs:
         id: plan
         env:
           FTR_PHASE: check
-        run: python _ftr_runtime/worker.py
+        run: python _ftr_tools/ejecutar.py
       - name: Instalar dependencias
         if: steps.plan.outputs.work == 'true'
         run: python -m pip install --disable-pip-version-check pandas requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt
@@ -90,7 +91,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
-        run: python _ftr_runtime/worker.py
+        run: python _ftr_tools/ejecutar.py
       - name: Conservar informe administrativo protegido
         if: always() && steps.plan.outputs.work == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f

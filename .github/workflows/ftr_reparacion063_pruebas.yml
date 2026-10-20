@@ -50,7 +50,7 @@ jobs:
           assert child['concurrency']['cancel-in-progress']=='false'
           steps=child['jobs']['actualizar']['steps']
           processing=next(s for s in steps if s.get('name')=='Procesar, validar, guardar y publicar')
-          assert processing['env']['FTR_PLANNED_SOURCES']=='${{ steps.plan.outputs.sources }}'
+          assert processing['env']['FTR_PLANNED_SOURCES']=='$'+'{{ steps.plan.outputs.sources }}'
           files=list(Path('.').rglob('*.py'))
           for p in files:ast.parse(p.read_text(encoding='utf-8-sig'),filename=str(p))
           print('Un único calendario, lector anual conservado, sin push de fuentes y sintaxis Python válida.')

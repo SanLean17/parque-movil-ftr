@@ -8,17 +8,76 @@ permissions:
 jobs:
   verificar:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Preparar copia de trabajo del código versionado
-        shell: bash
-        run: |
-          git archive --format=zip HEAD > "$RUNNER_TEMP/ftr-codigo.zip"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+      - uses: actions/setup-python@v6
         with:
-          name: ftr-codigo-integracion
-          path: ${{ runner.temp }}/ftr-codigo.zip
-          retention-days: 1
+          python-version: '3.11'
+      - name: Dependencias de prueba
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests pandas 'cryptography>=44,<49' tzdata -r _ftr_pruebas/requirements.txt
+      - name: Pruebas del lector y diagnóstico
+        run: |
+          python -m unittest discover -s _ftr_pruebas -p 'test_*.py' -v
+          python -m unittest discover -s _ftr_admin -p 'test_*.py' -v
+      - name: Pruebas de agendas, publicación y seguridad local
+        run: |
+          python -m unittest discover -s _ftr_runtime -p 'test_*.py' -v
+          python -m unittest discover -s _ftr_app -p 'test_*.py' -v
+      - name: Validar planilla anual con el coordinador, sin publicar
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          FTR_ACTION: drive
+          FTR_DRY_RUN: 'true'
+          FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
+        run: python _ftr_runtime/worker.py
+      - name: Verificar que producción no fue modificada
+        run: |
+          git diff --exit-code HEAD -- .
+          test -z "$(git status --porcelain)"
+      - name: Guardar informe protegido de validación
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-validacion-integracion
+          path: ${{ runner.temp }}/ftr-informe/
+          if-no-files-found: ignore
+          retention-days: 7
+  windows:
+    needs: verificar
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Preparar compilación de Windows
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7'
+      - name: Probar seguridad del servidor en Windows
+        run: python -m unittest discover -s _ftr_app -p 'test_*.py' -v
+      - name: Compilar programa local
+        run: python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --name FTR_Administracion _ftr_app/server.py
+      - name: Comprobar DPAPI y recursos en el ejecutable compilado
+        shell: pwsh
+        run: |
+          '<html><body>Prueba interna de recursos, sin datos.</body></html>' | Set-Content -Encoding utf8 dist/panel.html
+          $p = Start-Process -FilePath ./dist/FTR_Administracion.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path ./dist/self-test-ok.txt)) { throw 'Falló la prueba del ejecutable de Windows.' }
+          Remove-Item ./dist/panel.html
+      - name: Conservar ejecutable y comprobante de prueba
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-programa-windows
+          path: |
+            dist/FTR_Administracion.exe
+            dist/self-test-ok.txt
+          retention-days: 7

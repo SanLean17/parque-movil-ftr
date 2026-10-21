@@ -20,7 +20,9 @@ FUNCIONAMIENTO
 6. Si corresponde trabajo y no hay un coordinador activo, solicita únicamente
    la acción recovery del coordinador existente. Allí se vuelve a verificar
    la agenda bajo el bloqueo ftr-publicacion-validada, sin cancelación.
-7. Al terminar la espera o el coordinador, se prepara la siguiente espera.
+7. Un job final del propio reloj solicita directamente el siguiente ciclo
+   mediante workflow_dispatch, sin esperar un evento workflow_run del reloj.
+   La finalización del coordinador puede reemplazar la espera vigente.
    Si ambos calendarios están desactivados y no hay citas o mantenimiento
    pendientes, termina y cancela solo las esperas del reloj real.
 
@@ -29,6 +31,8 @@ tiene schedule ni push; la renovación no escucha CI ni Pages. Los calendarios
 cron anteriores quedan como respaldo y comparten la misma deduplicación.
 Las llamadas de renovación son deliberadas y espaciadas por esperas reales;
 no hay un runner en un bucle infinito ni un proceso permanente en Windows.
+La exclusión mutua está en el job de espera, no en el workflow completo:
+solicitar el próximo ciclo no cancela al job que lo está solicitando.
 
 ACTIVACIÓN Y DETENCIÓN
 
@@ -64,8 +68,8 @@ solicitar ejecuciones o cancelar esperas obsoletas. Nunca cancelan al lector.
 No se utiliza Administration:write ni se crea, lee o almacena una credencial
 administrativa. GOOGLE_SERVICE_ACCOUNT_JSON no se transmite al reloj.
 
-La renovación acepta solo finalizaciones de los workflows explícitos de
-producción o del reloj, en main y en el mismo repositorio. Rechaza forks,
+La renovación externa acepta solo finalizaciones de los workflows explícitos
+de producción, en main y en el mismo repositorio. Rechaza forks,
 pull requests, CI y eventos push. Siempre ejecuta el código de main, nunca
 la revisión ni artefactos de una ejecución recibida.
 
@@ -95,17 +99,22 @@ fallida, reclamos interrumpidos, aprobación inesperada, espera omitida,
 permisos/eventos no permitidos y límite de reintentos.
 
 El modo prueba usa cuatro esperas de un minuto y se detiene. Cada renovación
-se solicita desde el workflow anterior mediante el token temporal. Nunca
+se solicita en el job final del ciclo anterior mediante el token temporal. Nunca
 puede solicitar ftr_sincronizar. Debe verificarse en GitHub antes de activar
 el modo real, incluyendo que la cuarta espera comienza sin intervención.
 Los resultados reales de instalación y los enlaces se guardan en el PR.
+La prueba inicial de instalación completó dos esperas (39694921377 y
+39695069744), pero GitHub no entregó otro workflow_run para la segunda.
+Por eso el reloj se renueva directamente y no depende de esa notificación.
+Los avisos externos se conservan para responder a cambios de configuración;
+un aviso tardío del propio reloj se ignora para evitar cadenas duplicadas.
 
 LÍMITES
 
 La espera tiene resolución de minutos y se añaden las colas, el arranque del
 runner y la preparación de las fuentes. No se garantiza el segundo ni el
 minuto exacto. El diseño evita depender de schedule como único disparador,
-pero sigue requiriendo que GitHub entregue workflow_dispatch/workflow_run y
+pero sigue requiriendo que GitHub entregue workflow_dispatch y
 ejecute jobs. Una indisponibilidad total de GitHub no puede repararse desde
 GitHub. No se declara una lectura exitosa sin su registro y publicación.
 

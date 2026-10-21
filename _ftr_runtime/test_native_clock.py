@@ -186,7 +186,7 @@ class NativeClockTests(unittest.TestCase):
             self.clock += timedelta(minutes=1, seconds=8)
             result = self.wake(prepared, 'prueba', step)
             self.assertEqual(result['status'], 'proof_complete')
-            result = clock.rearm(self.root, self.event(mode='prueba', step=step), self.clock, False, self.api)
+            result = clock.renew(self.root, self.clock, 'prueba', step, 0, False, 'success', 'success', self.api)
             self.assertEqual(result['status'], 'next_wait_requested' if step < 3 else 'no_rearm')
         self.assertEqual(self.reads, [])
         self.assertEqual(len([x for x in self.calls if x[0] == 'POST']), 3)
@@ -204,18 +204,18 @@ class NativeClockTests(unittest.TestCase):
                 clock.validate_wait(lambda *args: dict(protection_rules=rules), 1)
 
     def test_foreign_repo_branch_pr_ci_and_replaced_waits_cannot_rearm(self):
-        event = self.event()
+        event = self.event(clock.COORDINATOR)
         variants = []
         for key, value in [('head_branch', 'feature'), ('head_repository', {'full_name': 'other/fork'}),
                            ('event', 'pull_request'), ('event', 'push'), ('path', '.github/workflows/ftr_auditoria_ci.yml'),
-                           ('conclusion', 'cancelled')]:
+                           ('path', '.github/workflows/ftr_reloj_nativo.yml')]:
             row = copy.deepcopy(event); row['workflow_run'][key] = value; variants.append(row)
         for row in variants:
             self.assertIsNone(clock.follow_up(row))
 
     def test_failed_wait_retries_are_bounded_and_have_backoff(self):
         for retry, delay in enumerate((0, 5, 15, 60)):
-            follow = clock.follow_up(self.event(retry=retry, conclusion='failure'))
+            follow = clock.next_cycle('real', 0, retry, 'failure')
             self.assertEqual(follow['retry'] if follow else None, str(retry+1) if retry < 3 else None)
             self.assertEqual(clock.choose_wait(self.clock, self.clock, retry), delay or 1)
 
@@ -232,21 +232,50 @@ class NativeClockTests(unittest.TestCase):
 
     def test_webhook_without_path_uses_verified_run_not_a_guessed_workflow(self):
         self.setup_api()
-        event = self.event(mode='prueba')
+        event = self.event(clock.COORDINATOR)
         verified = dict(event['workflow_run'], status='completed', id=555)
         event['workflow_run'].pop('path'); event['workflow_run']['id'] = 555
         def call(method, path, payload=None):
             if path == 'actions/runs/555': return verified
             return self.api(method, path, payload)
-        self.assertEqual(clock.rearm(self.root, event, self.clock, False, call)['status'], 'next_wait_requested')
+        self.assertEqual(clock.rearm(self.root, event, self.clock, True, call)['status'], 'next_wait_requested')
         verified['status'] = 'in_progress'
         self.assertEqual(clock.rearm(self.root, event, self.clock, False, call)['status'], 'event_not_completed')
+
+    def test_direct_renewal_ignores_replaced_idle_and_disabled_cycles(self):
+        self.setup_api()
+        for preparation, awakening in [('success', 'cancelled'), ('cancelled', 'skipped'),
+                                        ('success', 'skipped'), ('skipped', 'skipped')]:
+            self.assertEqual(clock.renew(self.root, self.clock, 'real', 0, 0, True,
+                             preparation, awakening, self.api)['status'], 'no_rearm')
+        self.assertEqual(clock.renew(self.root, self.clock, 'real', 0, 0, False,
+                         'success', 'success', self.api)['status'], 'disabled')
+        self.assertFalse(self.calls)
+
+    def test_direct_renewal_retries_a_failed_cycle_and_stops_at_limit(self):
+        self.setup_api()
+        result = clock.renew(self.root, self.clock, 'real', 0, 0, True, 'failure', 'skipped', self.api)
+        self.assertEqual(result['retry'], '1')
+        self.assertEqual(clock.renew(self.root, self.clock, 'real', 0, 3, True,
+                         'success', 'failure', self.api)['status'], 'no_rearm')
+        self.assertEqual(clock.renew(self.root, self.clock, 'prueba', 0, 0, False,
+                         'success', 'failure', self.api)['status'], 'no_rearm')
+
+    def test_late_clock_completion_webhook_cannot_create_a_second_chain(self):
+        self.setup_api()
+        self.assertEqual(clock.rearm(self.root, self.event(), self.clock, True, self.api)['status'], 'no_rearm')
+        self.assertFalse(self.calls)
 
     def test_native_workflows_have_no_sources_push_or_schedule_and_main_only(self):
         docs = {name: yaml.load((ROOT / '.github/workflows' / name).read_text(encoding='utf-8'), Loader=yaml.BaseLoader)
                 for name in (clock.CLOCK, clock.REARM)}
         self.assertEqual(set(docs[clock.CLOCK]['on']), {'workflow_dispatch'})
         self.assertEqual(set(docs[clock.REARM]['on']), {'workflow_run'})
+        self.assertNotIn('FTR - Reloj automático', docs[clock.REARM]['on']['workflow_run']['workflows'])
+        self.assertNotIn('concurrency', docs[clock.CLOCK])
+        self.assertEqual(docs[clock.CLOCK]['jobs']['despertar']['concurrency']['cancel-in-progress'], 'true')
+        self.assertNotIn('concurrency', docs[clock.CLOCK]['jobs']['renovar'])
+        self.assertEqual(docs[clock.CLOCK]['jobs']['renovar']['needs'], ['preparar', 'despertar'])
         self.assertEqual(docs[clock.CLOCK]['jobs']['despertar']['environment']['deployment'], 'false')
         for doc in docs.values():
             self.assertEqual(doc['permissions']['contents'], 'read')

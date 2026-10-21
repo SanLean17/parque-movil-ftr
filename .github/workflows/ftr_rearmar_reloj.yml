@@ -2,7 +2,6 @@ name: FTR - Renovar reloj automático
 on:
   workflow_run:
     workflows:
-      - FTR - Reloj automático
       - FTR - Sincronizar
       - Actualizar Parque Móvil FTR
       - FTR - Recuperar turnos pendientes

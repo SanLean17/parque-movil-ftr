@@ -1,0 +1,57 @@
+name: FTR - Validar calendario nativo (sin fuentes)
+on:
+  push:
+    branches: [ftr/calendario-nativo]
+    paths: [.github/workflows/ftr_calendario_nativo_pruebas.yml]
+permissions:
+  contents: read
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Dependencias de validación, sin secretos de fuentes
+        run: python -m pip install --disable-pip-version-check pyyaml
+      - name: Cron, permiso mínimo, commit conjunto y agenda existente
+        run: python -m unittest _ftr_runtime.test_native_schedule _ftr_runtime.test_agenda063 -v
+      - name: Contrato real del calendario y sintaxis
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          import yaml
+          from _ftr_runtime.config import load
+          from _ftr_runtime.native_schedule import PATH, render
+          root = Path('.')
+          assert (root / PATH).read_text(encoding='utf-8') == render(load(root)), 'El calendario no coincide con la configuración publicada.'
+          def parsed(name):
+              return yaml.load((root / '.github/workflows' / name).read_text(encoding='utf-8'), Loader=yaml.BaseLoader)
+          parent = parsed('actualizar_parques.yml')
+          child = parsed('ftr_sincronizar.yml')
+          assert 'push' not in parent['on'] and 'push' not in child['on']
+          assert 'schedule' in parent['on'] and 'schedule' not in child['on']
+          assert 'concurrency' not in parent
+          assert child['concurrency']['cancel-in-progress'] == 'false'
+          assert child['on']['workflow_call']['secrets']['FTR_SCHEDULE_TOKEN']['required'] == 'false'
+          for path in (root / '_ftr_runtime').glob('*.py'):
+              ast.parse(path.read_text(encoding='utf-8-sig'), filename=str(path))
+          ast.parse((root / '_ftr_tools/ejecutar.py').read_text(encoding='utf-8'))
+          print('Calendario nativo coincide con configuración; única entrada programada; sin fuentes por push.')
+          PY
+      - name: Verificar que las pruebas no modificaron datos
+        run: |
+          git diff --exit-code HEAD -- .
+          if [ -n "$(git status --porcelain)" ]; then
+            echo 'La validación dejó cambios no esperados.'
+            exit 1
+          fi
+          echo 'Sin cambios en configuración, estados, CSV ni web.'

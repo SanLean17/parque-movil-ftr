@@ -6,6 +6,10 @@ run-name: FTR · diagnóstico de disparador · ${{ github.event_name }}
 on:
   schedule:
     - cron: '4,14,24,34,44,54 * * * *'
+    # Contraprueba puntual: hora local directa, sin conversión UTC de FTR.
+    # 21/10/2026 19:58 Argentina = 21/10/2026 22:58 UTC.
+    - cron: '58 19 21 10 *'
+      timezone: 'America/Argentina/Buenos_Aires'
 permissions: {}
 jobs:
   observar:
@@ -28,6 +32,8 @@ jobs:
           evidence = {
               'event': os.environ['OBSERVED_EVENT'],
               'cron': os.environ['OBSERVED_CRON'],
+              'calendar_variant': ('buenos_aires_direct'
+                  if os.environ['OBSERVED_CRON'] == '58 19 21 10 *' else 'utc'),
               'revision': os.environ['OBSERVED_SHA'],
               'run_id': os.environ['OBSERVED_RUN'],
               'observed_utc': datetime.now(timezone.utc).isoformat(),

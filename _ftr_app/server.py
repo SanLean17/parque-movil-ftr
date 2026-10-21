@@ -393,7 +393,9 @@ def main():
             # Intercambio local exclusivo de CI; nunca se sube ni imprime este archivo.
             target=Path(sys.argv[sys.argv.index('--browser-test')+1])
             target.write_text(json.dumps({'url':ORIGIN+'/iniciar/'+BOOT,'version':VERSION}),encoding='utf-8')
-            threading.Timer(90,srv.shutdown).start()
+            timeout=threading.Timer(90,srv.shutdown)
+            timeout.daemon=True
+            timeout.start()
         else:
             webbrowser.open(ORIGIN+'/iniciar/'+BOOT)
         thread.join()

@@ -1,8 +1,11 @@
 name: FTR - Validar calendario nativo (sin fuentes)
 on:
   push:
-    branches: [ftr/calendario-nativo]
-    paths: [.github/workflows/ftr_calendario_nativo_pruebas.yml]
+    branches: [ftr/lectura-en-arranques]
+    paths:
+      - .github/workflows/ftr_calendario_nativo_pruebas.yml
+      - _ftr_tools/ejecutar.py
+      - _ftr_runtime/test_schedule_reads.py
 permissions:
   contents: read
 jobs:
@@ -21,8 +24,8 @@ jobs:
           python-version: '3.11'
       - name: Dependencias de validación, sin secretos de fuentes
         run: python -m pip install --disable-pip-version-check pyyaml
-      - name: Cron, permiso mínimo, commit conjunto y agenda existente
-        run: python -m unittest _ftr_runtime.test_native_schedule _ftr_runtime.test_agenda063 -v
+      - name: Calendario, lectura extra y turno principal con fuentes simuladas
+        run: python -m unittest _ftr_runtime.test_native_schedule _ftr_runtime.test_agenda063 _ftr_runtime.test_agenda_entry062 _ftr_runtime.test_schedule_reads -v
       - name: Contrato real del calendario y sintaxis
         run: |
           python - <<'PY'

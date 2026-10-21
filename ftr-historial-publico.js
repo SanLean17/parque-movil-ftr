@@ -19,7 +19,7 @@
       button.setAttribute('aria-controls',detailId);button.setAttribute('aria-expanded',String(open.has(row.dominio)));td.append(button);tr.append(td);body.append(tr);
       const detail=element('tr');detail.id=detailId;detail.hidden=!open.has(row.dominio);
       const cell=element('td',undefined,'py-3 px-3 text-xs text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-900');cell.colSpan=5;
-      const content=element('div',undefined,'space-y-2 break-words');FTRHistory.renderDetail(content,row);cell.append(content);detail.append(cell);body.append(detail);
+      const content=element('div',undefined,'space-y-2 break-words');FTRHistory.renderDetail(content,row,{publicOnly:true});cell.append(content);detail.append(cell);body.append(detail);
       button.onclick=()=>{if(open.has(row.dominio))open.delete(row.dominio);else open.add(row.dominio);detail.hidden=!open.has(row.dominio);button.setAttribute('aria-expanded',String(!detail.hidden));button.textContent=detail.hidden?'VER DETALLE':'CERRAR DETALLE';};
       if(!detail.hidden)button.textContent='CERRAR DETALLE';
     }

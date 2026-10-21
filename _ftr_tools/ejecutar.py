@@ -10,14 +10,16 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from _ftr_runtime import worker
 from _ftr_runtime import agenda
 from _ftr_runtime import native_schedule
+from _ftr_runtime import oneoff
 
 
 def commit_validated(root, paths):
     paths = list(paths)
-    calendar_changed = False
+    calendar_changed = oneoff.WORKFLOW in paths
     if os.environ.get('FTR_ACTION') == 'config':
-        calendar_changed = native_schedule.stage(root, worker.load(root))
-        if calendar_changed and native_schedule.PATH not in paths:
+        recurrent_changed = native_schedule.stage(root, worker.load(root))
+        calendar_changed = calendar_changed or recurrent_changed
+        if recurrent_changed and native_schedule.PATH not in paths:
             paths.append(native_schedule.PATH)
     def git(*args):
         result=subprocess.run(['git',*args],cwd=root,text=True,encoding='utf-8',errors='replace',capture_output=True)
@@ -35,6 +37,7 @@ def commit_validated(root, paths):
     if not git('diff','--cached','--name-only'):
         return git('rev-parse','HEAD')
     message = 'FTR: configuración y calendario guardados' if os.environ.get('FTR_ACTION') == 'config' else 'FTR: resultados de fuentes y estado de ejecución'
+    if os.environ.get('FTR_ACTION') in ('oneoff-set','oneoff-cancel'):message='FTR: programación extraordinaria guardada sin leer fuentes'
     git('commit','-m',message)
     if calendar_changed:
         native_schedule.push(root)

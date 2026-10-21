@@ -39,6 +39,7 @@ def slot_satisfied(state, key, slot):
     if not slot:
         return False
     row = state.get(key, {})
+    row = row.get('recurrence', row)
     if row.get("served_slot") == slot:
         return True
     read = _instant(row.get("read_utc"))
@@ -82,7 +83,7 @@ def describe(config, state, now):
         pending = bool(config[key]['enabled'] and slot and not slot_satisfied(state, key, slot))
         late = max(0, int((now - slot_time(slot)).total_seconds() // 60)) if pending else 0
         state_name = ('disabled' if not config[key]['enabled'] else
-                      'error' if pending and row.get('status') == 'error' else
+                      'error' if pending and row.get('recurrence',row).get('status') == 'error' else
                       'overdue' if pending and late >= 30 else 'pending' if pending else
                       'saved' if row.get('read_utc') else 'waiting')
         nxt = slot_time(slot) if pending else next_slot_time(config, key, now)

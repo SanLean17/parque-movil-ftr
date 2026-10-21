@@ -1,0 +1,14 @@
+# FTR-ONEOFF-V1 — generado; fecha completa y consumo único en _ftr_extraordinarias.json
+name: FTR - Actualización extraordinaria
+run-name: FTR · oneoff · PROGRAMADA MANUALMENTE
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+jobs:
+  actualizar:
+    uses: ./.github/workflows/ftr_sincronizar.yml
+    with:
+      action: oneoff
+    secrets: inherit

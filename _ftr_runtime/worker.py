@@ -238,11 +238,20 @@ def main():
         operation['cron_utc'] = cron
     try:
         mode, config, state, jobs=plan()
+        from _ftr_runtime import oneoff
+        payload = json.loads(os.environ.get('FTR_CONFIG') or '{}') if mode in (*oneoff.ACTIONS,'drive','cnrt','all') else {}
+        if not isinstance(payload,dict):raise ValueError('La solicitud no es válida.')
+        execution = oneoff.resolve(ROOT,mode,config,state,jobs,now(),payload,request_id,cron)
+        jobs = execution['jobs']
         operation.update(action=mode, config_digest=digest(config))
         if os.environ.get('FTR_PHASE')=='check':
-            public_output('work', bool(jobs) or mode=='config')
+            if mode in ('oneoff-set','oneoff-cancel'):
+                oneoff.command(payload,now(),mode=='oneoff-cancel',True)
+                oneoff.native_schedule.authorization()
+            public_output('work', bool(jobs) or mode in ('config','oneoff-set','oneoff-cancel') or bool(execution['expired'] or execution['shared']))
             public_output('cnrt', 'cnrt' in jobs)
             public_output('sources', ','.join(jobs))
+            public_output('coalesced',bool(execution['shared']) and not jobs)
             operation_event(operation, 'agenda_checked', sources=jobs, read=False)
             return 0
         prepared = os.environ.get('FTR_PLANNED_SOURCES')
@@ -253,10 +262,21 @@ def main():
             # No agregar CNRT si su hora llegó durante la instalación y no se
             # preparó Chromium. El turno queda para la siguiente comprobación.
             jobs = [key for key in jobs if key in allowed]
+            execution['jobs']=jobs
         dry=os.environ.get('FTR_DRY_RUN')=='true' or mode=='diagnostic'
         if not dry and (os.environ.get('GITHUB_REF')!='refs/heads/main' or os.environ.get('GITHUB_REPOSITORY')!='SanLean17/parque-movil-ftr'):
             raise ValueError('La publicación real solo se permite desde main de este repositorio.')
-        if not jobs and mode!='config': return 0
+        if mode in ('oneoff-set','oneoff-cancel'):
+            revision=oneoff.apply_command(ROOT,mode,payload,request_id,now(),commit)
+            operation_event(operation,'oneoff_saved',revision=revision,read=False,source=payload['source'])
+            return 0
+        if not dry:oneoff.claim(ROOT,execution,now(),os.environ.get('GITHUB_RUN_ID'),commit)
+        if not jobs and mode!='config':
+            if execution['expired']:
+                operation_event(operation,'error',read=False,message='La programación extraordinaria venció sin ejecutarse. Reprogramala.')
+                return 1
+            if execution['shared']:operation_event(operation,'request_coalesced',read=False,sources=list(execution['shared']))
+            return 0
         with tempfile.TemporaryDirectory(prefix='ftr-validacion-') as tmp:
             stage=Path(tmp)
             for name in ('parques','controlados'):
@@ -265,13 +285,21 @@ def main():
                 shutil.copytree(ROOT/'historial',stage/'historial')
             for name in ('ultima_actualizacion_parque.txt','ultima_actualizacion_controlados.txt','index.html','linea.html'):
                 if (ROOT/name).exists():shutil.copy2(ROOT/name,stage/name)
-            paths=[]; errors=[]; results={}
+            paths=[]; errors=['Una programación extraordinaria venció sin ejecutarse. Reprogramala.'] if execution['expired'] else []; results={}
             for key in jobs:
                 from _ftr_runtime.agenda import eligible_slot, slot_satisfied
                 slot = eligible_slot(config, state, key, now())
                 kind = ('additional' if mode == 'scheduled' and operation['event'] == 'schedule'
                         and (not slot or slot_satisfied(state, key, slot)) else
                         'scheduled' if mode == 'scheduled' else 'configuration' if mode == 'config' else 'manual')
+                if key in execution['pure']:
+                    oneoff.preserve_calendar(state,key)
+                    kind='oneoff'
+                elif key in execution['due']:
+                    kind='oneoff_and_recurrent' if mode in ('oneoff','scheduled') else 'oneoff_and_manual'
+                    if not dry:state.setdefault(key,{}).pop('recurrence',None)
+                elif not dry:
+                    state.setdefault(key,{}).pop('recurrence',None)
                 state.setdefault(key,{})['attempt_utc']=utc()
                 operation_event(operation, 'reading_started', source=key,
                                 configured_time=config[key]['time'], interval_days=config[key]['days'],
@@ -279,13 +307,16 @@ def main():
                 try:
                     data=cnrt_snapshot(stage,config) if key=='cnrt' else google_snapshot(stage,config)
                     read_at = datetime.fromisoformat(data['read_utc'])
-                    state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),served_slot=current_slot(config,key,read_at),error=None)
+                    state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),error=None)
+                    if key not in execution['pure']:state[key]['served_slot']=current_slot(config,key,read_at)
                     results[key]=data
+                    if not dry:oneoff.finish(ROOT,execution,key,now(),True)
                     operation_event(operation, 'reading_finished', source=key,
                                     read_utc=data['read_utc'], completed_utc=data['completed_utc'])
                 except Exception as exc:
                     message=str(exc) if isinstance(exc,ValueError) else 'La fuente no pudo procesarse ('+type(exc).__name__+'); se conserva su último resultado válido.'
                     errors.append(message);state[key].update(status='error',error=message)
+                    if not dry:oneoff.finish(ROOT,execution,key,now(),False,message)
                     operation_event(operation, 'source_error', source=key, message=message)
             if mode=='config' and errors:
                 raise ValueError('No se aplicó la configuración. '+' '.join(errors))
@@ -313,6 +344,7 @@ def main():
             (ROOT/STATE).write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');paths.append(STATE)
             manifest=dict(version=state['updated_utc'],period=state.get('drive',{}).get('period',config['period']),config_digest=digest(config),run_id=os.environ.get('GITHUB_RUN_ID'),lines=sorted(enabled(config)),files_sha256=public_hashes(ROOT,config))
             (ROOT/'ftr_publicacion.json').write_text(json.dumps(manifest)+'\n',encoding='utf-8');paths.append('ftr_publicacion.json')
+            oneoff.stage_finish(ROOT,execution,paths)
             revision=commit(ROOT,paths)
             operation_event(operation, 'configuration_saved' if mode=='config' else 'data_saved' if results else 'state_saved', revision=revision, sources=list(results))
             operation_event(operation, 'publication_pending', revision=revision)

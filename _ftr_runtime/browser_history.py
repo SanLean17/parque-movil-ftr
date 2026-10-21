@@ -62,7 +62,11 @@ def main():
                     if 'NWS705' in outside:
                         page.locator('tr[data-domain="NWS705"] button').click()
                         detail=page.locator('#history-154-NWS705');assert detail.is_visible()
-                        assert '20/01/2026' in detail.inner_text()
+                        assert detail.locator('p').count()==3
+                        assert 'DOMINIO FISCALIZADO' not in detail.inner_text()
+                        assert 'HISTORIAL DE CONTROLES' not in detail.inner_text()
+                        assert 'PROCEDENCIA' not in detail.inner_text()
+                        assert '20/01/2026' not in detail.inner_text()
                         for r in fleet:
                             if r['interno']=='95':assert r['dominio'] in detail.inner_text()
                         assert 'No se encuentra confirmada' in detail.inner_text()
@@ -79,7 +83,7 @@ def main():
                           controles=[dict(dominio=d,interno=i,fecha=f) for d,i,f in [('AA111AA','1','2026-03-20'),('CC333CC','2','2026-01-20'),('CC333CC','2','2026-05-12')]])
                 files['historial/linea154.json']=json.dumps(side).encode();seal();open_line(2);counts((2,1,1));view('CONTROLADO')
                 page.wait_for_selector('tr[data-domain="CC333CC"]');page.locator('tr[data-domain="CC333CC"] button').click()
-                detail=page.locator('#history-154-CC333CC');assert detail.locator('li').count()==2
+                detail=page.locator('#history-154-CC333CC');assert detail.locator('li').count()==0 and detail.locator('p').count()==3
                 assert 'BB222BB' in detail.inner_text()
                 page.evaluate('navigator.clipboard.writeText=async t=>{window.copied=t}')
                 page.get_by_role('button',name='Copiar controlados').click()
@@ -93,7 +97,8 @@ def main():
                 page.wait_for_selector('tr[data-domain="CC333CC"]');assert page.locator('#historyTbody tr[data-domain]').count()==2
                 files['controlados/linea154.csv']=b'linea,fecha,dominio,interno\n154,,CC333CC,\n';files.pop('historial/linea154.json');seal();open_line(0);view('CONTROLADO')
                 page.wait_for_selector('tr[data-domain="CC333CC"]');page.locator('tr[data-domain="CC333CC"] button').click()
-                assert 'Información no disponible' in page.locator('#history-154-CC333CC').inner_text()
+                assert 'REFERENCIA ACTUAL DEL INTERNO: No disponible.' in page.locator('#history-154-CC333CC').inner_text()
+                assert 'Información no disponible' in page.locator('tr[data-domain="CC333CC"]').inner_text()
                 assert not errors,errors
                 context.close()
         finally:browser.close()

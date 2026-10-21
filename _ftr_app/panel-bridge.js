@@ -6,9 +6,12 @@
   let submitting = false, localDraft = false, lastReportRun = null, remoteRuns = [], orders = [];
   let lastRefresh = 0, queueError = null;
   const checkedReports = new Set();
+  let publishedOneoffs=null;
+  const editingOneoff={drive:false,cnrt:false};
   const openStates = ['pending', 'authorization', 'sending', 'unknown', 'sent', 'conflict'];
   const captions = {config:'Guardar y publicar configuración', diagnostic:'Probar lectura sin publicar',
-    drive:'Actualizar planilla anual FTR', cnrt:'Actualizar parque móvil', all:'Actualizar ambos procesos'};
+    drive:'Actualizar planilla anual FTR', cnrt:'Actualizar parque móvil', all:'Actualizar ambos procesos',
+    'oneoff-set':'Programar actualización única','oneoff-cancel':'Cancelar actualización programada'};
   async function api(path, body) {
     const options = {method:body === undefined ? 'GET' : 'POST', headers:{'X-FTR-CSRF':csrf}, cache:'no-store'};
     if (body instanceof FormData) options.body = body;
@@ -25,6 +28,7 @@
     cnrt:state.cnrt, lines:state.lines, anchor:state.anchor, timezone:state.timezone}; }
   function fromRemote(c) { state={...initial(), ...c, events:state.events}; dirty=false; populate(); }
   function locks() {
+    $$('[data-oneoff-submit],[data-oneoff-cancel]').forEach(b=>b.disabled=!remoteDigest||!publishedOneoffs||submitting);
     $$('[data-run],#previewSend,#testSheet,#sourceForm button[type="submit"],#schedulesForm button[type="submit"]')
       .forEach(b=>b.disabled=!remoteDigest || submitting);
     $('#connectionBadge').textContent=online?'CONECTADO':authorized?'SIN CONEXIÓN':'SIN AUTORIZACIÓN';
@@ -42,7 +46,7 @@
     const visible=[...orders.filter(r=>openStates.includes(r.status)), ...orders.filter(r=>!openStates.includes(r.status)).slice(-4).reverse()];
     for (const row of visible) {
       const p=el('p'); p.dataset.orderId=row.id;
-      p.append(el('strong', (captions[row.action]||row.action)+' · '+(row.label||row.message)));
+      p.append(el('strong', (captions[row.action]||row.action)+(row.oneoff?' · '+row.oneoff.source.toUpperCase():'')+' · '+(row.label||row.message)));
       p.append(document.createElement('br'), el('span',localTime(row.created_at)+' · '+row.message,'small'));
       if (row.depends_on && openStates.includes(row.status)) p.append(document.createElement('br'),el('span','Depende de la configuración confirmada anterior.','small'));
       if (['pending','authorization','conflict'].includes(row.status)) {
@@ -68,6 +72,7 @@
     }
     if(!visible.length&&!remoteRuns.length&&!queueError)box.textContent='No hay órdenes locales. Conectá GitHub para consultar las ejecuciones.';
     locks();
+    renderOneoffs();
   }
   async function refreshOrders() {
     try { const data=await api('orders'); orders=data.orders; queueError=data.error; }
@@ -88,6 +93,8 @@
     catch(e) { checkedReports.delete(runId); notify(e.message); }
   }
   function showReadState(data) {
+    if(data.oneoffs)publishedOneoffs=data.oneoffs;
+    renderOneoffs();
     for(const key of ['drive','cnrt']) {
       const row=data.state?.[key]||{}, timing=data.schedule?.[key];
       $('#'+key+'Last').textContent=row.read_utc?localTime(row.read_utc):'Todavía sin lectura publicada por esta integración.';
@@ -97,7 +104,7 @@
       badge.className='badge '+(current==='error'?'error':current==='saved'?'good':current==='disabled'?'':'wait');
       $('#'+key+'AgendaNote').textContent=timing ? timing.pending ?
         'Lectura pendiente desde '+localTime(timing.next_due_utc)+'. La última lectura de arriba todavía no se reemplazó.' :
-        timing.next_due_utc?'Próximo horario guardado: '+localTime(timing.next_due_utc)+'.':'La actualización automática está desactivada.' :
+        timing.next_due_utc?'Próximo horario recurrente: '+localTime(timing.next_due_utc)+'.':'La actualización automática está desactivada.' :
         'Último estado guardado en este equipo. Conectá GitHub para comprobar la agenda.';
     }
   }
@@ -113,7 +120,7 @@
       if(data.outbox) {orders=data.outbox.orders;queueError=data.outbox.error;}
       showActivity();
       const latest=remoteRuns.find(r=>r.status==='completed');
-      if(latest&&!['agenda_only','configuration'].includes(latest.effect))await loadReport(latest.id);
+      if(latest&&!['agenda_only','configuration','oneoff_saved','coalesced'].includes(latest.effect))await loadReport(latest.id);
       const driveRun=Number(data.state?.drive?.run_id);
       if(driveRun&&(!lastReportRun||Date.parse(data.state.drive.read_utc||'1970-01-01')>Date.parse(diagnosticReport?.inicio_lectura_utc||'1970-01-01')))await loadReport(driveRun);
       if(data.digest!==remoteDigest)$('#savedState').textContent='La configuración de GitHub cambió. Recargala y revisá tu borrador antes de confirmar otra orden.';
@@ -148,6 +155,72 @@
         addEvent(captions[action]+': '+data.message);notify(data.message);await refreshOrders();showView('schedules');
       } catch(e) {notify(e.message);} finally {submitting=false;locks();}
     });
+  }
+  function baParts(value=new Date()) {
+    return Object.fromEntries(new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(value).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+  }
+  function oneoffFields(key,row) {
+    const p=baParts(new Date(row.at));$('#'+key+'OneoffDate').value=p.year+'-'+p.month+'-'+p.day;$('#'+key+'OneoffTime').value=p.hour+':'+p.minute;
+  }
+  function renderOneoffs() {
+    for(const key of ['drive','cnrt']) {
+      const box=$('#'+key+'OneoffStatus');if(!box)continue;box.replaceChildren();
+      const row=publishedOneoffs?.pending?.[key];
+      $('#'+key+'OneoffFields').hidden=!!row&&!editingOneoff[key];
+      if(row) {
+        box.append(el('strong','Actualización programada'),el('p',localTime(row.at)),el('p',online?'Guardada en GitHub. La PC puede estar apagada.':'Según la última consulta a GitHub. Actualizá el estado para comprobar cambios.','small'));
+        const actions=el('div',undefined,'actions'),change=el('button','CAMBIAR','text-btn'),cancel=el('button','CANCELAR','text-btn');
+        change.type=cancel.type='button';cancel.dataset.oneoffCancel=key;
+        change.onclick=()=>{editingOneoff[key]=true;oneoffFields(key,row);renderOneoffs();$('#'+key+'OneoffDate').focus()};
+        cancel.onclick=()=>submitOneoff(key,true);cancel.disabled=!remoteDigest||submitting;
+        actions.append(change,cancel);box.append(actions);
+      } else box.append(el('p',publishedOneoffs?'Sin actualización extraordinaria pendiente.':'Conectá GitHub para consultar la programación extraordinaria.','small'));
+      for(const order of orders.filter(r=>r.oneoff?.source===key&&openStates.includes(r.status)))box.append(el('p',(order.label||'Pendiente de envío')+' · '+order.message,'small'));
+      const history=(publishedOneoffs?.history||[]).filter(r=>r.source===key).slice(-5).reverse();
+      if(history.length) {
+        const detail=el('details',undefined,'repeat-item');detail.append(el('summary','Historial de actualizaciones programadas'));
+        for(const item of history) {
+          const run=remoteRuns.find(r=>String(r.id)===String(item.run_id));
+          const labels={success:'Lectura guardada',error:'ERROR',cancelled:'Cancelada',replaced:'Reemplazada',running:run?.status==='completed'?'ERROR: resultado sin confirmar':'En ejecución'};
+          detail.append(el('p','PROGRAMADA MANUALMENTE · '+localTime(item.at)+' · '+(labels[item.status]||'Revisar estado'),'small'));
+          if(item.error)detail.append(el('p',item.error,'small'));
+          if(item.run_id&&/^\d+$/.test(String(item.run_id))) {const link=el('a','Ver resultado y publicación','text-btn');link.href='https://github.com/SanLean17/parque-movil-ftr/actions/runs/'+item.run_id;link.target='_blank';link.rel='noopener noreferrer';detail.append(link);}
+        }box.append(detail);
+      }
+    }
+  }
+  async function submitOneoff(key,cancel=false) {
+    const error=$('#'+key+'OneoffError');error.hidden=true;
+    if(!remoteDigest||!publishedOneoffs){error.textContent='Consultá una vez el estado de GitHub antes de programar.';error.hidden=false;return;}
+    const row=publishedOneoffs.pending?.[key];
+    const extra={source:key,expected_id:row?.id||null};
+    if(!cancel) {
+      extra.date=$('#'+key+'OneoffDate').value;extra.time=$('#'+key+'OneoffTime').value;
+      const n=baParts(),now=n.year+'-'+n.month+'-'+n.day+'T'+n.hour+':'+n.minute+':'+n.second;
+      if(!extra.date||!extra.time){error.textContent='Completá una fecha y un horario válidos.';error.hidden=false;return;}
+      if(extra.date+'T'+extra.time+':00'<=now){error.textContent='La fecha y hora deben ser posteriores al momento actual.';error.hidden=false;return;}
+    }
+    const action=cancel?'oneoff-cancel':'oneoff-set';
+    const description=cancel?'Se cancelará solamente esta actualización extraordinaria. No se leerán fuentes.':
+      'Se programará una sola lectura de '+(key==='drive'?'Drive':'CNRT')+' para '+extra.date.split('-').reverse().join('/')+' a las '+extra.time+' hs de Buenos Aires. GitHub puede iniciar con demora.';
+    openDialog(captions[action],description+' El calendario recurrente no cambia. La orden queda Pendiente de envío hasta publicarse en GitHub.','Confirmar orden',async()=>{
+      if(submitting)return;submitting=true;locks();
+      try {const data=await api('submit',{action,expected:remoteDigest,oneoff:extra});editingOneoff[key]=false;notify(data.message);await refreshOrders();}
+      catch(e){error.textContent=e.message;error.hidden=false;}finally{submitting=false;locks();}
+    });
+  }
+  for(const key of ['drive','cnrt']) {
+    const section=el('section');section.setAttribute('aria-label','Actualización programada '+key);
+    section.append(el('hr',undefined,'rule'),el('h3','ACTUALIZACIÓN PROGRAMADA'));
+    const fields=el('div');fields.id=key+'OneoffFields';const form=el('div',undefined,'forms');
+    for(const [suffix,label,type] of [['Date','Fecha','date'],['Time','Horario','time']]) {
+      const field=el('div',undefined,'field'),caption=el('label',label),input=el('input');input.type=type;input.id=key+'Oneoff'+suffix;caption.htmlFor=input.id;input.setAttribute('aria-describedby',key+'OneoffError');field.append(caption,input);form.append(field);
+    }
+    const actions=el('div',undefined,'actions end'),button=el('button','PROGRAMAR ACTUALIZACIÓN','btn secondary');button.type='button';button.dataset.oneoffSubmit=key;button.onclick=()=>submitOneoff(key);actions.append(button);fields.append(form,actions);
+    const error=el('p',undefined,'error');error.id=key+'OneoffError';error.setAttribute('role','alert');error.hidden=true;
+    const status=el('div',undefined,'inline-note');status.id=key+'OneoffStatus';status.setAttribute('aria-live','polite');
+    section.append(fields,error,el('p','Una sola vez, en horario de Buenos Aires. No cambia la frecuencia habitual.','small'),status);
+    $('#'+key+'AgendaNote').after(section);
   }
   $$('[data-run]').forEach(b=>b.onclick=()=>submit(b.dataset.run));
   $('#previewSend').onclick=()=>submit('config');

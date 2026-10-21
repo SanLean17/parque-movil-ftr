@@ -1,4 +1,4 @@
-"""UI 06.3.2 real y cola real con GitHub ficticio, sin lecturas de producción."""
+"""UI 06.3.3 real y cola real con GitHub ficticio, sin lecturas de producción."""
 import copy
 import json
 import os
@@ -25,7 +25,7 @@ def main():
         data=Path(temporary)
         def snapshot():
             if not network['online']:raise requests.ConnectionError('Ficticio: sin Internet')
-            result=dict(config=copy.deepcopy(network['config']),digest=digest(network['config']),state={},revision='a'*40)
+            result=dict(config=copy.deepcopy(network['config']),digest=digest(network['config']),state={},revision='a'*40,oneoffs={'version':1,'pending':{},'history':[]})
             write_json(data/'config_remota.json',result);return result
         def dispatch(row):network['sent'].append(copy.deepcopy(row))
         queue=Outbox(lambda:data,snapshot,lambda since:network['runs'],dispatch)
@@ -36,7 +36,7 @@ def main():
         stack.enter_context(patch.object(main0631,'snapshot',snapshot))
         stack.enter_context(patch.object(main0631,'outbox',queue))
         stack.enter_context(patch.object(main0631.agenda_bridge,'last_runs',return_value=[]))
-        write_json(data/'config_remota.json',dict(config=network['config'],digest=digest(network['config']),state={}))
+        write_json(data/'config_remota.json',dict(config=network['config'],digest=digest(network['config']),state={},oneoffs={'version':1,'pending':{},'history':[]}))
         main0631.install()
         srv,thread=server.local_server()
         try:
@@ -102,6 +102,8 @@ def main():
                 saved=(data/'borrador.json').read_bytes();network['online']=False
                 view(page,'connections');confirm(page,'#resetDemo');page.wait_for_timeout(250)
                 assert (data/'borrador.json').read_bytes()==saved
+                from oneoff_browser_checks import check_oneoff_ui
+                check_oneoff_ui(page)
                 screenshots=os.environ.get('FTR_SCREENSHOTS')
                 for width in (390,1280):
                     page.set_viewport_size({'width':width,'height':950})
@@ -116,7 +118,7 @@ def main():
                 assert not failures,failures
                 assert not external,external
                 context.close();browser.close()
-                print('Panel 06.3.2: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
+                print('Panel 06.3.3: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
         finally:
             srv.shutdown();srv.server_close();thread.join(timeout=3)
 

@@ -27,11 +27,16 @@ def classify_run(run, jobs):
         return {'effect': 'agenda_only', 'label': 'Agenda comprobada', 'detail': 'Sin lectura de fuentes; no correspondía actualizar.'}
     if process and process.get('conclusion') == 'success':
         title = run.get('display_title', '')
+        if any(s.get('name')=='Solicitud cubierta por una ejecución coincidente' and s.get('conclusion')=='success' for s in steps):
+            return {'effect':'coalesced','label':'Coincidió con otra actualización','detail':'Se comparte su resultado confirmado; no se volvió a leer la fuente.'}
+        if '· oneoff-set ·' in title or '· oneoff-cancel ·' in title:
+            return {'effect':'oneoff_saved','label':'Programación extraordinaria guardada','detail':'Cambio publicado en GitHub, sin leer fuentes ni modificar el calendario recurrente.'}
         if '· config ·' in title:
             return {'effect': 'configuration', 'label': 'Configuración guardada', 'detail': 'La fecha de última lectura indica si también se consultaron las fuentes.'}
         if '· diagnostic ·' in title:
             return {'effect': 'diagnostic', 'label': 'Diagnóstico realizado', 'detail': 'Prueba de lectura sin publicar datos.'}
-        return {'effect': 'updated', 'label': 'Actualización completada', 'detail': 'Procesamiento y publicación finalizados correctamente.'}
+        origin='PROGRAMADA MANUALMENTE' if '· oneoff ·' in title else 'Automática recurrente' if run.get('event')=='schedule' else 'Actualizar todo' if '· all ·' in title else 'Actualizar ahora'
+        return {'effect': 'updated', 'label': 'Actualización completada', 'detail': origin+'. Procesamiento y publicación finalizados correctamente.'}
     return {'effect': 'unknown', 'label': 'Ejecución finalizada', 'detail': 'No se pudo comprobar si hubo una lectura nueva.'}
 
 
@@ -39,7 +44,7 @@ def last_runs():
     rows_by_id = {}
     # Un calendario y una entrada manual comparten el mismo coordinador.
     # El panel debe ver también las ejecuciones del calendario original.
-    for workflow in (server.WORKFLOW, 'actualizar_parques.yml'):
+    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml'):
         for row in server.api('GET', 'actions/workflows/'+workflow+'/runs?branch=main&per_page=6').get('workflow_runs', []):
             rows_by_id[row['id']] = row
     rows = sorted(rows_by_id.values(), key=lambda r: (r['created_at'], r['id']), reverse=True)[:6]

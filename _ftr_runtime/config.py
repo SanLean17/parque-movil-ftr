@@ -103,10 +103,12 @@ def due(config, state, key, now):
     slot = current_slot(config, key, now)
     if slot is None or state.get(key, {}).get('served_slot') == slot:
         return False
-    last = state.get(key, {}).get('attempt_utc')
+    row = state.get(key, {})
+    row = row.get('recurrence', row)
+    last = row.get('attempt_utc')
     # La espera de reintento corresponde a errores, no a una lectura exitosa.
     # Una lectura manual anterior al turno no debe retrasar ese turno.
-    if last and state.get(key, {}).get('status') != 'success':
+    if last and row.get('status') != 'success':
         try:
             if now - datetime.fromisoformat(last) < timedelta(hours=1):
                 return False
@@ -116,6 +118,8 @@ def due(config, state, key, now):
 
 
 def selected(config, old, state, mode, now):
+    if mode in ('oneoff-set','oneoff-cancel','oneoff'):
+        return []
     if mode == 'scheduled':
         return [key for key in ('cnrt', 'drive') if due(config, state, key, now)]
     if mode in ('drive', 'cnrt'):

@@ -179,6 +179,15 @@ class NativeClockTests(unittest.TestCase):
         prepared = self.prepare(); self.clock += timedelta(minutes=1, seconds=5); self.wake(prepared)
         self.assertEqual(self.reads, ['drive'])
 
+    def test_active_claim_rechecks_in_five_minutes_without_completion_webhook(self):
+        self.setup_api(); self.pending_drive(); self.clock = at('2026-10-21T17:00')
+        plan = oneoff.resolve(self.root, 'recovery', self.config, self.state, ['drive'], self.clock)
+        oneoff.claim(self.root, plan, self.clock, '101', self.commit)
+        self.active_rows = [dict(path='.github/workflows/ftr_sincronizar.yml', status='in_progress')]
+        self.assertEqual(self.prepare()['minutes'], 5)
+        self.active_rows = []
+        self.assertEqual(self.prepare()['minutes'], 60)
+
     def test_proof_four_cycles_rearms_and_stops_without_any_source_dispatch(self):
         self.setup_api()
         for step in range(4):

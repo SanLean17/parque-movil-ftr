@@ -170,7 +170,9 @@ def prepare(root, moment, mode, step, retry, enabled, call=api):
     if plan is None:
         return dict(armed=False, status='idle', sources_read=[])
     target = instant(plan['next_due_utc'])
-    if mode == 'real' and target <= moment and busy(call):
+    if mode == 'real' and busy(call):
+        # Los avisos workflow_run de ejecuciones iniciadas por GITHUB_TOKEN
+        # pueden no llegar: volver a comprobar mientras trabaja el lector.
         target = moment + timedelta(minutes=5)
     minutes = choose_wait(target, moment, retry)
     validate_wait(call, minutes)

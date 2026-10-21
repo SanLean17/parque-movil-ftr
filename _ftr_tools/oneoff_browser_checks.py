@@ -19,9 +19,17 @@ def check_oneoff_ui(page):
         page.locator('[data-order-id="'+identifier+'"] button').click();page.locator('#dialogConfirm').click()
         page.wait_for_function('(id)=>document.querySelector(`[data-order-id="${id}"]`).textContent.includes("Cancelada antes del envío")',arg=identifier)
     def confirm_order():
-        previous=[r['id'] for r in api('orders')['orders']]
-        page.locator('#dialogConfirm').click()
-        page.wait_for_function('''async ids=>{const r=await fetch('/api/orders',{headers:{'X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content}});return (await r.json()).orders.some(x=>!ids.includes(x.id))}''',arg=previous)
+        # Esperar la respuesta de ESTA confirmación y su fila visible. Una fila
+        # anterior con el mismo título no prueba que haya terminado esta orden.
+        with page.expect_response(lambda r:r.url.endswith('/api/submit') and r.request.method=='POST') as pending:
+            page.locator('#dialogConfirm').click()
+        response=pending.value;value=response.json()
+        assert response.ok and value.get('queued'),value
+        identifier=value['request_id']
+        page.wait_for_function('''id=>{const row=document.querySelector(`[data-order-id="${id}"]`);return row&&row.textContent.includes('Pendiente de envío')}''',arg=identifier)
+        order=next(row for row in api('orders')['orders'] if row['id']==identifier)
+        assert order['status']=='pending',order
+        return order
     try:
         page.evaluate("showView('schedules')");refresh()
         initial=[page.locator('#'+k).input_value() for k in ('driveDays','driveTime','cnrtDays','cnrtTime')]
@@ -30,9 +38,8 @@ def check_oneoff_ui(page):
             page.locator('[data-oneoff-submit="'+key+'"]').click()
             assert page.locator('#'+key+'OneoffError').inner_text()=='La fecha y hora deben ser posteriores al momento actual.'
             page.locator('#'+key+'OneoffDate').fill(date);page.locator('#'+key+'OneoffTime').fill(clock)
-            page.locator('[data-oneoff-submit="'+key+'"]').click();confirm_order()
-            page.wait_for_function('() => document.querySelector("#cloudActivity").textContent.includes("Programar actualización única")')
-            order=api('orders')['orders'][-1];assert order['status']=='pending' and order['oneoff']['source']==key
+            page.locator('[data-oneoff-submit="'+key+'"]').click();order=confirm_order()
+            assert order['oneoff']['source']==key,order
             assert page.locator('#'+key+'OneoffStatus').inner_text().startswith('Sin actualización extraordinaria pendiente.')
             cancel_local(order['id'])
         remote['oneoffs']['pending']['cnrt']=dict(id='a'*32,source='cnrt',at=at,status='pending')
@@ -40,12 +47,11 @@ def check_oneoff_ui(page):
         assert page.locator('#cnrtOneoffFields').is_hidden()
         page.locator('#cnrtOneoffStatus').get_by_role('button',name='CAMBIAR').click()
         assert page.locator('#cnrtOneoffDate').input_value()==date
-        page.locator('#cnrtOneoffTime').fill('19:30');page.locator('[data-oneoff-submit="cnrt"]').click();confirm_order()
+        page.locator('#cnrtOneoffTime').fill('19:30');page.locator('[data-oneoff-submit="cnrt"]').click();order=confirm_order()
         page.wait_for_function('() => document.querySelector("#cnrtOneoffStatus").textContent.includes("Pendiente de envío")')
-        order=api('orders')['orders'][-1];assert order['oneoff']['expected_id']=='a'*32 and order['oneoff']['time']=='19:30';cancel_local(order['id'])
-        page.locator('[data-oneoff-cancel="cnrt"]').click();confirm_order()
-        page.wait_for_function('() => document.querySelector("#cloudActivity").textContent.includes("Cancelar actualización programada")')
-        order=api('orders')['orders'][-1];assert order['action']=='oneoff-cancel';cancel_local(order['id'])
+        assert order['oneoff']['expected_id']=='a'*32 and order['oneoff']['time']=='19:30',order;cancel_local(order['id'])
+        page.locator('[data-oneoff-cancel="cnrt"]').click();order=confirm_order()
+        assert order['action']=='oneoff-cancel',order;cancel_local(order['id'])
         for width in (390,1280):
             page.set_viewport_size(dict(width=width,height=950))
             for theme in ('light','dark'):

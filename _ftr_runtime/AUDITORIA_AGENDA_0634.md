@@ -67,7 +67,7 @@ Coordinación: `_ftr_runtime/{agenda,config,native_schedule,oneoff,worker}.py`, 
 
 Cliente: `_ftr_app/{main0631,agenda_bridge,outbox,server}.py`, `panel-bridge.js`, `panel.html`, `LEEME_0631.txt`. Se conserva el diseño y la recuperación local de informes privados. Paquete estable 06.3.4.
 
-Pruebas/empaquetado: `test_recovery.py`, `test_config_transaction.py`, `test_schedule_reads.py`, `test_agenda_bridge.py`, `recovery_browser_checks.py`, `check_panel.py`, `check_client_build.py`, `package_client.py`, `validar_repositorio.py`; este informe y su evidencia JSON.
+Pruebas/empaquetado: `test_recovery.py`, `test_config_transaction.py`, `test_schedule_reads.py`, `test_agenda_bridge.py`, `recovery_browser_checks.py`, `oneoff_browser_checks.py`, `check_panel.py`, `check_client_build.py`, `package_client.py`, `validar_repositorio.py`; este informe y su evidencia JSON.
 
 El PR no cambia `_ftr_config.json`, `_ftr_estado.json`, `_ftr_extraordinarias.json`, planilla, período, anchor, líneas, parques, controles, historial público ni fechas reales. En el calendario principal conserva las expresiones cron y solo añade el permiso de lectura de Actions requerido por la observabilidad. Los tests usan datos simulados. Un evento automático futuro podrá producir los cambios legítimos de datos habituales.
 
@@ -93,6 +93,8 @@ Los 26 casos nuevos de `test_recovery.py`, junto a la suite previa de agenda y e
 | Regresión adicional | Lectura 16:58–17:03 no satisface el turno 17:00, aun si su evento llegó durante esa lectura |
 
 Las pruebas de concurrencia validan el contrato YAML y las intercalaciones simuladas; no simulan la infraestructura interna de colas de GitHub. CI valida de nuevo y prueba el ejecutable Windows empaquetado. Las pruebas simuladas no son evidencia de una lectura real automática.
+
+La primera corrida del PR detectó un resultado intermitente en la comprobación Windows de la cita única (la corrida de rama pasó). Se reforzó la sincronización de esa prueba: espera la respuesta POST concreta y su identificador visible, en vez de inferir la orden a partir del último elemento y de un título que podía pertenecer a otra fila. Conserva las mismas aserciones de fuente y estado pendiente. El ejecutable descargado de CI pasó localmente con esa comprobación; la entrega exige además nuevas corridas verdes del PR y main.
 
 ## G–H. Programación conservada
 

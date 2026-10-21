@@ -47,6 +47,7 @@ def slot_satisfied(state, key, slot):
 
 
 def select_jobs(config, old, state, mode, now):
+    if mode=='recovery':mode='scheduled'
     jobs = selected(config, old, state, mode, now)
     if mode != 'scheduled':
         return jobs

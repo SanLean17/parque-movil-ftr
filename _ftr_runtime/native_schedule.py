@@ -15,8 +15,32 @@ from zoneinfo import ZoneInfo
 from .config import ZONE, clean_config
 
 PATH = '.github/workflows/actualizar_parques.yml'
+RECOVERY_PATH = '.github/workflows/ftr_recuperar_turnos.yml'
 TOKEN_NAME = 'FTR_SCHEDULE_TOKEN'
 REPO_URL = 'https://github.com/SanLean17/parque-movil-ftr.git'
+
+
+def render_recovery() -> str:
+    """Respaldo estable: comprueba pendientes, no agrega lecturas por cada evento."""
+    return """name: FTR - Recuperar turnos pendientes
+run-name: FTR · recovery · comprobación automática
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  actions: read
+# Una comprobación sin trabajo no consulta fuentes ni escribe archivos.
+# Solo el coordinador compartido posee el bloqueo de publicación.
+jobs:
+  comprobar:
+    uses: ./.github/workflows/ftr_sincronizar.yml
+    with:
+      action: recovery
+    secrets: inherit
+"""
 
 
 def render(config: dict) -> str:
@@ -59,6 +83,7 @@ def render(config: dict) -> str:
         'permissions:',
         '  contents: write',
         '  pages: write',
+        '  actions: read',
         '# Exclusión mutua solo en el workflow llamado, nunca también en este padre.',
         'jobs:',
         '  actualizar:',

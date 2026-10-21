@@ -118,6 +118,7 @@ def due(config, state, key, now):
 
 
 def selected(config, old, state, mode, now):
+    if mode=='recovery':mode='scheduled'
     if mode in ('oneoff-set','oneoff-cancel','oneoff'):
         return []
     if mode == 'scheduled':

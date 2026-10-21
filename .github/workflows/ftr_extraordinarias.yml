@@ -6,6 +6,7 @@ on:
 permissions:
   contents: write
   pages: write
+  actions: read
 jobs:
   actualizar:
     uses: ./.github/workflows/ftr_sincronizar.yml

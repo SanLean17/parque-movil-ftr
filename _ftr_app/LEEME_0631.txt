@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.3 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.4 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -25,6 +25,21 @@ USO SIN INTERNET
 
 ACTUALIZAR ESTADO solo consulta. Los botones Actualizar ahora y Probar lectura
 requieren confirmación y sí solicitan lecturas reales a GitHub.
+
+HORARIOS Y RECUPERACIÓN AUTOMÁTICA
+El panel comprueba el horario publicado, la rama principal y si los workflows
+están habilitados. Si no puede comprobarlo, muestra estado sin verificar.
+La hora principal se conserva. GitHub tiene además una comprobación de
+pendientes a los minutos 07, 22, 37 y 52 de cada hora. Si no hay trabajo, no
+lee Drive ni CNRT. Si faltó un turno, lo recupera y registra hora prevista,
+hora real y demora; no lo presenta como una ejecución puntual.
+A los 30 minutos de atraso, el panel muestra ACTUALIZACIÓN ATRASADA.
+Si una lectura se guardó pero la publicación falló, se reintenta publicar
+esos mismos datos, sin repetir la lectura. Hasta verificarla, el panel
+indica PUBLICACIÓN PENDIENTE. Un error de fuente conserva los datos válidos.
+Estos controles funcionan dentro de GitHub con la PC apagada. Dependen de
+que GitHub entregue un evento: los 15 minutos son una cadencia solicitada,
+no un plazo garantizado. No se instala ningún temporizador en Windows.
 
 PROGRAMAR UNA ACTUALIZACIÓN ÚNICA
 En Actualizaciones, cada tarjeta tiene ACTUALIZACIÓN PROGRAMADA. Elegir fecha

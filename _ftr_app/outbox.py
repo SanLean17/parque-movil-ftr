@@ -160,7 +160,7 @@ class Outbox:
                         row['run_id'] = found['id']
                         row['url'] = found.get('url')
                         if found['status'] == 'completed':
-                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic','oneoff_saved','coalesced') and found.get('conclusion') == 'success'
+                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic','oneoff_saved','coalesced','publication') and found.get('conclusion') == 'success'
                             row.update(status='completed' if ok else 'failed', message=found.get('detail') or LABELS['completed' if ok else 'failed'])
                         else:
                             row.update(status='sent', message=LABELS['sent'])

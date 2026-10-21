@@ -98,7 +98,7 @@
     for(const key of ['drive','cnrt']) {
       const row=data.state?.[key]||{}, timing=data.schedule?.[key];
       $('#'+key+'Last').textContent=row.read_utc?localTime(row.read_utc):'Todavía sin lectura publicada por esta integración.';
-      const labels={disabled:'DESACTIVADA',error:'REVISAR',overdue:'ATRASADA',pending:'PENDIENTE',saved:'DATOS GUARDADOS',waiting:'PROGRAMADA'};
+      const labels={disabled:'DESACTIVADA',error:'REVISAR',overdue:'ACTUALIZACIÓN ATRASADA',pending:'PENDIENTE',saved:'DATOS GUARDADOS',waiting:'PROGRAMADA'};
       const current=timing?.status||(row.status==='error'?'error':row.read_utc?'saved':'waiting');
       const badge=$('#'+key+'CloudState');badge.textContent=labels[current]||'COMPROBAR ESTADO';
       badge.className='badge '+(current==='error'?'error':current==='saved'?'good':current==='disabled'?'':'wait');
@@ -106,6 +106,19 @@
         'Lectura pendiente desde '+localTime(timing.next_due_utc)+'. La última lectura de arriba todavía no se reemplazó.' :
         timing.next_due_utc?'Próximo horario recurrente: '+localTime(timing.next_due_utc)+'.':'La actualización automática está desactivada.' :
         'Último estado guardado en este equipo. Conectá GitHub para comprobar la agenda.';
+      const note=$('#'+key+'AgendaNote'),health=data.schedule_health;
+      const healthLabels={active:'Workflow activo; horario publicado comprobado.',disabled:'WORKFLOW DESHABILITADO. La programación no está completamente activa.',mismatch:'PROGRAMACIÓN INCONSISTENTE. Revisá la rama y los horarios publicados.',unknown:'Estado del workflow sin verificar. No se confirma que la programación esté activa.'};
+      note.append(el('p',healthLabels[health?.status]||healthLabels.unknown,'small'));
+      const event=health?.last_scheduled;
+      if(event?.created_at)note.append(el('p','Último evento automático en GitHub: '+localTime(event.created_at)+'.','small'));
+      const trace=(data.oneoffs?.execution_history||[]).filter(r=>r.source===key&&r.expected_utc).at(-1);
+      if(trace) {
+        const kinds={recovered:'RECUPERADA',delayed:'DEMORADA',scheduled:'PROGRAMADA'};
+        note.append(el('p','Último turno: '+localTime(trace.expected_utc)+' · '+(kinds[trace.kind]||trace.kind)+' · '+(trace.status==='error'?'ERROR':trace.status==='running'?'En ejecución':'Lectura guardada')+'.','small'));
+        if(trace.read_utc)note.append(el('p','Lectura real: '+localTime(trace.read_utc)+'.','small'));
+        if(trace.error)note.append(el('p',trace.error,'small'));
+      }
+      if(['pending','error'].includes(data.state?.publication?.status))note.append(el('p','PUBLICACIÓN PENDIENTE: los datos guardados todavía no quedaron verificados en la web. GitHub reintentará publicarlos.','small'));
     }
   }
   async function refresh(reload=false) {
@@ -120,7 +133,7 @@
       if(data.outbox) {orders=data.outbox.orders;queueError=data.outbox.error;}
       showActivity();
       const latest=remoteRuns.find(r=>r.status==='completed');
-      if(latest&&!['agenda_only','configuration','oneoff_saved','coalesced'].includes(latest.effect))await loadReport(latest.id);
+      if(latest&&!['agenda_only','configuration','oneoff_saved','coalesced','publication'].includes(latest.effect))await loadReport(latest.id);
       const driveRun=Number(data.state?.drive?.run_id);
       if(driveRun&&(!lastReportRun||Date.parse(data.state.drive.read_utc||'1970-01-01')>Date.parse(diagnosticReport?.inicio_lectura_utc||'1970-01-01')))await loadReport(driveRun);
       if(data.digest!==remoteDigest)$('#savedState').textContent='La configuración de GitHub cambió. Recargala y revisá tu borrador antes de confirmar otra orden.';

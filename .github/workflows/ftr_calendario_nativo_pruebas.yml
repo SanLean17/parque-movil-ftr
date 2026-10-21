@@ -5,6 +5,9 @@ on:
     paths: [.github/workflows/ftr_calendario_nativo_pruebas.yml]
 permissions:
   contents: read
+concurrency:
+  group: ftr-verificar-permiso-calendario
+  cancel-in-progress: false
 jobs:
   comprobar:
     runs-on: ubuntu-latest
@@ -45,6 +48,7 @@ jobs:
           for path in (root / '_ftr_runtime').glob('*.py'):
               ast.parse(path.read_text(encoding='utf-8-sig'), filename=str(path))
           ast.parse((root / '_ftr_tools/ejecutar.py').read_text(encoding='utf-8'))
+          ast.parse((root / '_ftr_tools/verificar_permiso_calendario.py').read_text(encoding='utf-8'))
           print('Calendario nativo coincide con configuración; única entrada programada; sin fuentes por push.')
           PY
       - name: Verificar que las pruebas no modificaron datos
@@ -55,3 +59,22 @@ jobs:
             exit 1
           fi
           echo 'Sin cambios en configuración, estados, CSV ni web.'
+  verificar_permiso:
+    needs: comprobar
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/ftr/calendario-nativo'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Comprobar Contents y Workflows en rama de prueba y restaurar sus bytes
+        env:
+          FTR_SCHEDULE_TOKEN: ${{ secrets.FTR_SCHEDULE_TOKEN }}
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTHONUNBUFFERED: '1'
+        run: python _ftr_tools/verificar_permiso_calendario.py

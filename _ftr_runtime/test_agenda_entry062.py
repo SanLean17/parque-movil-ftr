@@ -47,7 +47,7 @@ class EntryTests(unittest.TestCase):
     def test_saving_only_hour_does_not_fetch(self):
         c=copy.deepcopy(self.config);c['drive']['time']='19:00'
         env={'FTR_ACTION':'config','FTR_CONFIG':json.dumps(c),'FTR_EXPECTED':digest(self.config),
-             'GITHUB_REF':'refs/heads/main','GITHUB_REPOSITORY':'SanLean17/parque-movil-ftr'}
+             'FTR_SCHEDULE_TOKEN':'UNIT_TEST_NOT_A_REAL_CREDENTIAL','GITHUB_REF':'refs/heads/main','GITHUB_REPOSITORY':'SanLean17/parque-movil-ftr'}
         with self.context(env,'2026-10-20T18:20:00'):
             self.assertEqual(entry.main(),0)
             self.google.assert_not_called();self.cnrt.assert_not_called()

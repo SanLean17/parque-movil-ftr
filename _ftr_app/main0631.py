@@ -42,7 +42,7 @@ def snapshot():
 
 def pending_runs(since):
     found = {}
-    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml'):
+    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml','ftr_recuperar_turnos.yml'):
         # El rango limita consultas y permite recuperar más de seis ejecuciones.
         for page in range(1, 4):
             rows = server.api('GET', 'actions/workflows/' + workflow +
@@ -94,6 +94,8 @@ def submit():
 
 def status():
     result = snapshot()
+    from _ftr_runtime import schedule_health
+    result['schedule_health']=schedule_health.inspect(result['config'],result['oneoffs'],result['revision'],lambda path:server.api('GET',path))
     result['runs'] = agenda_bridge.last_runs()
     result['schedule'] = agenda_bridge.describe(result['config'], result['state'], agenda_bridge.datetime.now(agenda_bridge.timezone.utc))
     result['outbox'] = outbox.status()
@@ -102,7 +104,7 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.3'
+    server.VERSION = '06.3.4'
     server.app.view_functions['submit'] = submit
     server.app.view_functions['status'] = status
     original_connect = server.app.view_functions['connect']

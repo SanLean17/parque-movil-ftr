@@ -72,7 +72,7 @@ def render(data):
            'name: FTR - Actualización extraordinaria',
            'run-name: FTR · oneoff · PROGRAMADA MANUALMENTE','on:']
     if crons:lines+=['  schedule:']+[f"    - cron: '{c}'" for c in sorted(crons)]
-    lines+=['  workflow_dispatch:','permissions:','  contents: write','  pages: write','jobs:',
+    lines+=['  workflow_dispatch:','permissions:','  contents: write','  pages: write','  actions: read','jobs:',
             '  actualizar:','    uses: ./.github/workflows/ftr_sincronizar.yml','    with:',
             '      action: oneoff','    secrets: inherit','']
     return '\n'.join(lines)
@@ -108,27 +108,33 @@ def apply_command(root,action,payload,identifier,moment,commit):
 def recover_interrupted(data,moment):
     # El coordinador tiene timeout de 90 minutos. Se deja margen antes de
     # diagnosticar un reclamo cuyo resultado nunca llegó a publicarse.
-    for row in [*data.get('history',[]),*data.get('last_execution',{}).values()]:
+    for row in [*data.get('history',[]),*data.get('execution_history',[]),*data.get('last_execution',{}).values()]:
         if row.get('status')=='running' and row.get('started_utc') and moment-instant(row['started_utc'])>timedelta(minutes=95):
             row.update(status='error',finished_utc=(instant(row['started_utc'])+timedelta(minutes=90)).isoformat(),error='La ejecución terminó o se interrumpió sin publicar un resultado confirmado. Revisá su ejecución en GitHub y reprogramá si hace falta.')
 
 
-def resolve(root,mode,config,state,jobs,moment,payload=None,identifier='',cron=''):
+def resolve(root,mode,config,state,jobs,moment,payload=None,identifier='',cron='',event_created=None,run_id=None):
     enabled=(Path(root)/FILE).exists() or mode in ACTIONS
     data=load(root) if enabled else empty();recover_interrupted(data,moment);normal=list(jobs);due={};expired=[]
-    if mode in ('scheduled','oneoff','drive','cnrt','all'):
+    if mode in ('scheduled','recovery','oneoff','drive','cnrt','all'):
         for key,row in data['pending'].items():
-            if instant(row['at'])<=moment and (mode in ('scheduled','oneoff','all') or key==mode):
+            if instant(row['at'])<=moment and (mode in ('scheduled','recovery','oneoff','all') or key==mode):
                 if moment-instant(row['at'])>timedelta(days=1):expired.append(key)
                 else:due[key]=row
     jobs=list(dict.fromkeys([*jobs,*due]));shared={}
     requested=(payload or {}).get('requested_utc') if mode in ('drive','cnrt','all') else None
+    if mode in ('scheduled','recovery','oneoff'):requested=event_created
     receipt=data['receipts'].get(identifier) if identifier else None
     for key in list(jobs):
         last=data['last_execution'].get(key,{})
-        if receipt and mode in ('drive','cnrt','all'):
+        from .agenda import eligible_slot,slot_satisfied
+        slot=eligible_slot(config,state,key,moment)
+        calendar_pending=mode in ('scheduled','recovery') and key in normal and slot and not slot_satisfied(state,key,slot)
+        if run_id and mode in ('scheduled','recovery','oneoff') and str(last.get('run_id'))==str(run_id):
+            shared[key]=last;jobs.remove(key)
+        elif receipt and mode in ('drive','cnrt','all'):
             shared[key]=receipt;jobs.remove(key)
-        elif requested and last.get('finished_utc') and instant(last['finished_utc'])>=instant(requested):
+        elif requested and not calendar_pending and last.get('finished_utc') and instant(last['finished_utc'])>=max(instant(requested),instant(due[key]['at']) if key in due else instant(requested)):
             shared[key]=last;jobs.remove(key)
         elif requested and last.get('status')=='running' and last.get('started_utc') and instant(last['started_utc'])<=instant(requested):
             shared[key]=last;jobs.remove(key)
@@ -150,7 +156,12 @@ def resolve(root,mode,config,state,jobs,moment,payload=None,identifier='',cron='
             exact=bool(config[key]['enabled'] and slot and instant(slot.split(':',1)[1])==instant(due[key]['at']))
             if not exact:pure.append(key)
             elif key not in normal:normal.append(key)
-    return dict(enabled=enabled,data=data,jobs=jobs,normal=normal,due=due,expired=expired,shared=shared,pure=pure,identifier=identifier)
+    from .agenda import eligible_slot,slot_satisfied,slot_time
+    expected={}
+    for key in jobs:
+        slot=eligible_slot(config,state,key,moment)
+        if key not in pure and slot and not slot_satisfied(state,key,slot):expected[key]=slot_time(slot).astimezone(timezone.utc).isoformat()
+    return dict(enabled=enabled,data=data,jobs=jobs,normal=normal,due=due,expired=expired,shared=shared,pure=pure,identifier=identifier,expected=expected,mode=mode,cron=cron,event_created=event_created)
 
 
 def claim(root,plan,moment,run_id,commit):
@@ -160,10 +171,21 @@ def claim(root,plan,moment,run_id,commit):
         raise ValueError('La ejecución coincidente terminó con error o no tiene resultado confirmado. No se vuelve a ejecutar automáticamente; revisá el historial.')
     for key in plan['expired']:
         row=data['pending'].pop(key);data['history'].append(dict(row,status='error',finished_utc=stamp,error='GitHub no inició esta cita dentro de las 24 horas siguientes. Reprogramala.'))
+    for key,last in plan['shared'].items():
+        if key in plan['due']:
+            row=data['pending'].pop(key);data['history'].append(dict(row,status='success',started_utc=last.get('started_utc'),finished_utc=last.get('finished_utc'),run_id=last.get('run_id'),reasons=['PROGRAMADA MANUALMENTE','resultado compartido']))
     for key in plan['jobs']:
         reasons=['PROGRAMADA MANUALMENTE'] if key in plan['due'] else []
         if key in plan['normal']:reasons.append('actualización solicitada o recurrente')
         data['last_execution'][key]=dict(source=key,started_utc=stamp,status='running',run_id=run_id,reasons=reasons)
+        expected=plan['expected'].get(key)
+        delay=max(0,int((moment-instant(expected)).total_seconds())) if expected else None
+        kind=('recovered' if expected and (plan['mode']=='recovery' or delay>=1800) else
+              'delayed' if expected and delay>60 else 'scheduled' if expected else
+              'oneoff' if key in plan['due'] else 'additional' if plan['mode']=='scheduled' else 'manual')
+        trace=dict(data['last_execution'][key],expected_utc=expected,delay_seconds=delay,kind=kind,action=plan['mode'],cron_utc=plan['cron'],event_created_utc=plan['event_created'])
+        data['last_execution'][key]=trace
+        history=data.setdefault('execution_history',[]);history.append(dict(trace));data['execution_history']=history[-200:]
         if key in plan['due']:
             row=data['pending'].pop(key);data['history'].append(dict(row,status='running',started_utc=stamp,run_id=run_id,reasons=reasons))
     if plan['identifier'] and (plan['jobs'] or plan['shared']):
@@ -171,10 +193,18 @@ def claim(root,plan,moment,run_id,commit):
     if plan['jobs'] or plan['expired'] or plan['shared']:save(root,data,commit)
 
 
-def finish(root,plan,key,moment,success,error=None):
+def finish(root,plan,key,moment,success,error=None,read_utc=None):
     if not plan['enabled']:return
     data=plan['data'];status='success' if success else 'error';stamp=moment.isoformat()
     last=data['last_execution'][key];last.update(status=status,finished_utc=stamp,error=error)
+    if read_utc:
+        last['read_utc']=read_utc
+        expected=plan['expected'].get(key)
+        if expected:
+            delay=max(0,int((instant(read_utc)-instant(expected)).total_seconds()))
+            last.update(expected_utc=expected,delay_seconds=delay,kind='recovered' if plan['mode']=='recovery' or delay>=1800 else 'delayed' if delay>60 else 'scheduled')
+    for row in data.get('execution_history',[]):
+        if row['source']==key and row.get('status')=='running' and row.get('run_id')==last['run_id']:row.update(last)
     # Una cita vencida mientras esta misma fuente estaba leyendo comparte el resultado.
     pending=data['pending'].get(key)
     if pending and instant(last['started_utc'])<=instant(pending['at'])<=moment:

@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT))
 import yaml
 import configuracion_lineas
 from _ftr_runtime.config import load, enabled, digest
-from _ftr_runtime.native_schedule import PATH, render
+from _ftr_runtime.native_schedule import PATH, render, RECOVERY_PATH, render_recovery
 from _ftr_runtime import oneoff
 
 
@@ -23,11 +23,17 @@ def main():
     assert configuracion_lineas.LINEAS_EMPRESAS == mapping
     assert configuracion_lineas.EMPRESAS_CNRT == sorted(set(mapping.values()))
     assert (ROOT/PATH).read_text(encoding='utf-8-sig') == render(config)
+    assert (ROOT/RECOVERY_PATH).read_text(encoding='utf-8-sig') == render_recovery()
     assert (ROOT/oneoff.WORKFLOW).read_text(encoding='utf-8-sig') == oneoff.render(oneoff.load(ROOT))
     def workflow(name):
         return yaml.load((ROOT/'.github/workflows'/name).read_text(encoding='utf-8-sig'), Loader=yaml.BaseLoader)
     parent, child = workflow('actualizar_parques.yml'), workflow('ftr_sincronizar.yml')
     extraordinary=workflow('ftr_extraordinarias.yml')
+    recovery=workflow('ftr_recuperar_turnos.yml')
+    assert recovery['on']['schedule']==[{'cron':'7,22,37,52 * * * *'}]
+    assert 'push' not in recovery['on'] and 'concurrency' not in recovery
+    assert recovery['jobs']['comprobar']['with']['action']=='recovery'
+    assert child['permissions']['actions']=='read'
     assert 'push' not in extraordinary['on'] and 'concurrency' not in extraordinary
     assert extraordinary['jobs']['actualizar']['with']['action']=='oneoff'
     assert child['jobs']['actualizar']['env']['FTR_ACTION']=="${{ inputs.action || 'scheduled' }}"

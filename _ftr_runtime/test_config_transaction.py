@@ -85,8 +85,9 @@ class ConfigTransactionTests(unittest.TestCase):
         manifest=json.loads((self.root/'ftr_publicacion.json').read_text())
         for name in ('historial/linea998.json','historial/linea36.json','ftr-historial.js','ftr-historial-publico.js'):
             self.assertIn(name,manifest['files_sha256'])
-        self.assertIn('historial/linea998.json',self.commit.call_args.args[1])
-        self.commit.assert_called_once();self.pages.assert_called_once()
+        self.assertIn('historial/linea998.json',self.commit.call_args_list[0].args[1])
+        self.assertEqual(self.commit.call_count,2);self.pages.assert_called_once()
+        self.assertEqual(self.commit.call_args.args[1],['_ftr_estado.json'])
 
     def test_shared_company_downloaded_once(self):
         candidate=copy.deepcopy(self.config)

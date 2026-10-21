@@ -1,0 +1,18 @@
+name: FTR - Recuperar turnos pendientes
+run-name: FTR · recovery · comprobación automática
+on:
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  actions: read
+# Una comprobación sin trabajo no consulta fuentes ni escribe archivos.
+# Solo el coordinador compartido posee el bloqueo de publicación.
+jobs:
+  comprobar:
+    uses: ./.github/workflows/ftr_sincronizar.yml
+    with:
+      action: recovery
+    secrets: inherit

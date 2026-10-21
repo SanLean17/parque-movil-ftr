@@ -1,0 +1,2225 @@
+{
+  "observed_utc": "2026-10-21T20:36:28.764475+00:00",
+  "baseline": "872cbc8b13618f79c9ca6061296847285adc3471",
+  "repository": {
+    "full_name": "SanLean17/parque-movil-ftr",
+    "default_branch": "main",
+    "private": false,
+    "archived": false,
+    "disabled": false
+  },
+  "actions_permissions": {
+    "actions/permissions": {
+      "status": 200,
+      "data": {
+        "enabled": true,
+        "allowed_actions": "all",
+        "sha_pinning_required": false
+      }
+    },
+    "actions/permissions/workflow": {
+      "status": 200,
+      "data": {
+        "default_workflow_permissions": "write",
+        "can_approve_pull_request_reviews": false
+      }
+    }
+  },
+  "latest_schedule": {
+    "id": 39567554012,
+    "name": "FTR · schedule · automático",
+    "path": ".github/workflows/actualizar_parques.yml",
+    "event": "schedule",
+    "created_at": "2026-10-21T08:12:40Z",
+    "run_started_at": "2026-10-21T08:12:40Z",
+    "updated_at": "2026-10-21T08:12:49Z",
+    "head_sha": "d23bebc0e85c773642d3d3b5e65260a9cc78cb82",
+    "status": "completed",
+    "conclusion": "success",
+    "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39567554012"
+  },
+  "workflows_before": [
+    {
+      "id": 348657175,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "state": "active",
+      "created_at": "2026-09-02T17:56:51.000Z",
+      "updated_at": "2026-10-20T23:54:28.000Z",
+      "triggers": {
+        "schedule": [
+          {
+            "cron": "0 20 * * *"
+          },
+          {
+            "cron": "0 1 * * *"
+          },
+          {
+            "cron": "0 3 * * *"
+          }
+        ],
+        "workflow_dispatch": ""
+      }
+    },
+    {
+      "id": 391134281,
+      "name": "FTR - Activar calendario reparado 06.3 (sin leer fuentes)",
+      "path": ".github/workflows/ftr_activar_calendario063.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T23:54:23.000Z",
+      "updated_at": "2026-10-20T23:54:31.000Z"
+    },
+    {
+      "id": 391030057,
+      "name": "FTR - Pruebas agenda 06.2 (sin actualizar datos)",
+      "path": ".github/workflows/ftr_agenda_pruebas062.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T21:15:02.000Z",
+      "updated_at": "2026-10-20T22:58:22.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/correccion-agenda-062"
+          ],
+          "paths": [
+            "_ftr_app/**",
+            "_ftr_runtime/**",
+            "_ftr_tools/**",
+            ".github/workflows/ftr_sincronizar.yml",
+            ".github/workflows/ftr_agenda_pruebas062.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 391881538,
+      "name": "FTR - Validación integral sin fuentes",
+      "path": ".github/workflows/ftr_auditoria_ci.yml",
+      "state": "active",
+      "created_at": "2026-10-21T15:37:26.000Z",
+      "updated_at": "2026-10-21T15:40:47.000Z",
+      "triggers": {
+        "pull_request": {
+          "branches": [
+            "main"
+          ]
+        },
+        "push": {
+          "branches": [
+            "main",
+            "ftr/auditoria-work-20261021",
+            "ftr/verificacion-integral-063",
+            "ftr/cliente-0631-completo",
+            "ftr/historial-fuera-parque",
+            "ftr/actualizacion-unica"
+          ],
+          "paths": [
+            "**.py",
+            "**.js",
+            "**.cjs",
+            "**.html",
+            ".github/workflows/**",
+            "!.github/workflows/ftr_extraordinarias.yml",
+            "_ftr_config.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": 391122212,
+      "name": "FTR - Auditoría integral 06.3 (solo lectura)",
+      "path": ".github/workflows/ftr_auditoria_integral063.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T23:32:48.000Z",
+      "updated_at": "2026-10-20T23:54:29.000Z"
+    },
+    {
+      "id": 391214040,
+      "name": "FTR - Validar calendario nativo (sin fuentes)",
+      "path": ".github/workflows/ftr_calendario_nativo_pruebas.yml",
+      "state": "active",
+      "created_at": "2026-10-21T02:11:54.000Z",
+      "updated_at": "2026-10-21T02:18:07.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/lectura-en-arranques"
+          ],
+          "paths": [
+            ".github/workflows/ftr_calendario_nativo_pruebas.yml",
+            "_ftr_tools/ejecutar.py",
+            "_ftr_runtime/test_schedule_reads.py"
+          ]
+        }
+      }
+    },
+    {
+      "id": 390061111,
+      "name": "FTR - Corrección de inicio 06.1",
+      "path": ".github/workflows/ftr_correccion061.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T02:14:23.000Z",
+      "updated_at": "2026-10-20T22:58:22.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/correccion-arranque-061"
+          ],
+          "paths": [
+            "_ftr_app/**",
+            "ftr-publica.js",
+            ".github/workflows/ftr_correccion061.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 392087991,
+      "name": "FTR - Actualización extraordinaria",
+      "path": ".github/workflows/ftr_extraordinarias.yml",
+      "state": "active",
+      "created_at": "2026-10-21T19:20:40.000Z",
+      "updated_at": "2026-10-21T19:20:40.000Z",
+      "triggers": {
+        "workflow_dispatch": ""
+      }
+    },
+    {
+      "id": 389993028,
+      "name": "FTR - Integración y paquete local",
+      "path": ".github/workflows/ftr_integracion_pruebas.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T00:11:32.000Z",
+      "updated_at": "2026-10-20T22:58:21.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/integracion-panel"
+          ],
+          "paths": [
+            ".github/workflows/ftr_integracion_pruebas.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 391101886,
+      "name": "FTR - Mantenimiento de agenda (sin leer fuentes)",
+      "path": ".github/workflows/ftr_mantenimiento_agenda.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T22:58:14.000Z",
+      "updated_at": "2026-10-20T22:58:25.000Z"
+    },
+    {
+      "id": 391235091,
+      "name": "FTR - Recuperación puntual solicitada de la planilla",
+      "path": ".github/workflows/ftr_recuperar_planilla_solicitada.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-21T02:47:10.000Z",
+      "updated_at": "2026-10-21T02:47:21.000Z"
+    },
+    {
+      "id": 391130161,
+      "name": "FTR - Reparación automática 06.3 (pruebas sin fuentes)",
+      "path": ".github/workflows/ftr_reparacion063_pruebas.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-20T23:46:37.000Z",
+      "updated_at": "2026-10-20T23:54:29.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/reparacion-automatica-063"
+          ],
+          "paths": [
+            ".github/workflows/ftr_reparacion063_pruebas.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 391192069,
+      "name": "FTR - Respaldo PC 06.4 (pruebas sin fuentes)",
+      "path": ".github/workflows/ftr_respaldo064_pruebas.yml",
+      "state": "active",
+      "created_at": "2026-10-21T01:36:58.000Z",
+      "updated_at": "2026-10-21T01:46:54.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/respaldo-pc-064"
+          ],
+          "paths": [
+            ".github/workflows/ftr_respaldo064_pruebas.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 390012181,
+      "name": "FTR - Sincronizar",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "state": "active",
+      "created_at": "2026-10-20T00:47:04.000Z",
+      "updated_at": "2026-10-20T22:58:23.000Z",
+      "triggers": {
+        "workflow_dispatch": {
+          "inputs": {
+            "action": {
+              "description": "Proceso que se ejecutará",
+              "type": "choice",
+              "options": [
+                "all",
+                "drive",
+                "cnrt",
+                "diagnostic",
+                "config",
+                "scheduled",
+                "oneoff-set",
+                "oneoff-cancel",
+                "oneoff"
+              ],
+              "default": "all",
+              "required": "true"
+            },
+            "config_json": {
+              "description": "Configuración propuesta por el panel; vacío usa la publicada",
+              "type": "string",
+              "default": ""
+            },
+            "expected": {
+              "description": "Huella de la configuración que revisó el administrador",
+              "type": "string",
+              "default": ""
+            },
+            "request_id": {
+              "description": "Identificador de la solicitud del panel",
+              "type": "string",
+              "default": ""
+            }
+          }
+        },
+        "workflow_call": {
+          "inputs": {
+            "action": {
+              "type": "string",
+              "default": "all"
+            },
+            "config_json": {
+              "type": "string",
+              "default": ""
+            },
+            "expected": {
+              "type": "string",
+              "default": ""
+            },
+            "request_id": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          "secrets": {
+            "GOOGLE_SERVICE_ACCOUNT_JSON": {
+              "required": "true"
+            },
+            "FTR_SCHEDULE_TOKEN": {
+              "required": "false"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": 389807894,
+      "name": "FTR - Prueba de planilla anual (sin publicar)",
+      "path": ".github/workflows/probar_planilla_anual.yml",
+      "state": "disabled_manually",
+      "created_at": "2026-10-19T19:56:08.000Z",
+      "updated_at": "2026-10-20T22:58:21.000Z",
+      "triggers": {
+        "push": {
+          "branches": [
+            "ftr/prueba-planilla-anual"
+          ],
+          "paths": [
+            "_ftr_pruebas/**",
+            "_ftr_admin/**",
+            ".github/workflows/probar_planilla_anual.yml"
+          ]
+        }
+      }
+    },
+    {
+      "id": 347738573,
+      "name": "pages-build-deployment",
+      "path": "dynamic/pages/pages-build-deployment",
+      "state": "active",
+      "created_at": "2026-09-01T17:43:03.000Z",
+      "updated_at": "2026-09-01T17:43:03.000Z"
+    }
+  ],
+  "relevant_runs": [
+    {
+      "id": 39013983359,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-17T07:31:59Z",
+      "run_started_at": "2026-10-17T07:31:59Z",
+      "updated_at": "2026-10-17T07:34:02Z",
+      "head_sha": "f913e2ad09d48cbd0db6d07322438e14ab7dfdc0",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39013983359",
+      "jobs": [
+        {
+          "id": 117342160909,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-17T07:32:02Z",
+          "completed_at": "2026-10-17T07:34:01Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:32:03Z",
+              "completed_at": "2026-10-17T07:32:04Z"
+            },
+            {
+              "name": "Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:32:04Z",
+              "completed_at": "2026-10-17T07:32:05Z"
+            },
+            {
+              "name": "Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:32:05Z",
+              "completed_at": "2026-10-17T07:32:06Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:32:06Z",
+              "completed_at": "2026-10-17T07:32:40Z"
+            },
+            {
+              "name": "Actualizar controles desde Google Drive",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:32:40Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Comprobar actualización CNRT",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Actualizar datos CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Generar parques por línea",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Guardar fecha actualización Parque Móvil",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Ver cambios",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:56Z"
+            },
+            {
+              "name": "Guardar cambios en GitHub",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:56Z",
+              "completed_at": "2026-10-17T07:33:58Z"
+            },
+            {
+              "name": "Post Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:58Z",
+              "completed_at": "2026-10-17T07:33:58Z"
+            },
+            {
+              "name": "Post Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:58Z",
+              "completed_at": "2026-10-17T07:33:58Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-17T07:33:58Z",
+              "completed_at": "2026-10-17T07:33:58Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39108956459,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-18T07:46:56Z",
+      "run_started_at": "2026-10-18T07:46:56Z",
+      "updated_at": "2026-10-18T07:55:43Z",
+      "head_sha": "3149ce3a5df75e076fe4f106ff8a38f4de47ae3e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39108956459",
+      "jobs": [
+        {
+          "id": 117620745243,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-18T07:46:59Z",
+          "completed_at": "2026-10-18T07:55:42Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:47:00Z",
+              "completed_at": "2026-10-18T07:47:00Z"
+            },
+            {
+              "name": "Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:47:00Z",
+              "completed_at": "2026-10-18T07:47:02Z"
+            },
+            {
+              "name": "Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:47:02Z",
+              "completed_at": "2026-10-18T07:47:02Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:47:02Z",
+              "completed_at": "2026-10-18T07:47:42Z"
+            },
+            {
+              "name": "Actualizar controles desde Google Drive",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:47:42Z",
+              "completed_at": "2026-10-18T07:48:45Z"
+            },
+            {
+              "name": "Comprobar actualización CNRT",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:48:45Z",
+              "completed_at": "2026-10-18T07:48:45Z"
+            },
+            {
+              "name": "Actualizar datos CNRT",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:48:45Z",
+              "completed_at": "2026-10-18T07:55:36Z"
+            },
+            {
+              "name": "Generar parques por línea",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:36Z",
+              "completed_at": "2026-10-18T07:55:37Z"
+            },
+            {
+              "name": "Guardar fecha actualización Parque Móvil",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:37Z",
+              "completed_at": "2026-10-18T07:55:37Z"
+            },
+            {
+              "name": "Ver cambios",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:37Z",
+              "completed_at": "2026-10-18T07:55:37Z"
+            },
+            {
+              "name": "Guardar cambios en GitHub",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:37Z",
+              "completed_at": "2026-10-18T07:55:39Z"
+            },
+            {
+              "name": "Post Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:39Z",
+              "completed_at": "2026-10-18T07:55:39Z"
+            },
+            {
+              "name": "Post Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:39Z",
+              "completed_at": "2026-10-18T07:55:39Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-18T07:55:39Z",
+              "completed_at": "2026-10-18T07:55:39Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39223175621,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-19T08:29:54Z",
+      "run_started_at": "2026-10-19T08:29:54Z",
+      "updated_at": "2026-10-19T08:32:06Z",
+      "head_sha": "cf454336386b1808b9222dea61038b62fceabe4f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39223175621",
+      "jobs": [
+        {
+          "id": 117963069192,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T08:29:57Z",
+          "completed_at": "2026-10-19T08:32:05Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:29:58Z",
+              "completed_at": "2026-10-19T08:29:58Z"
+            },
+            {
+              "name": "Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:29:58Z",
+              "completed_at": "2026-10-19T08:30:00Z"
+            },
+            {
+              "name": "Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:30:00Z",
+              "completed_at": "2026-10-19T08:30:00Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:30:00Z",
+              "completed_at": "2026-10-19T08:30:35Z"
+            },
+            {
+              "name": "Actualizar controles desde Google Drive",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:30:35Z",
+              "completed_at": "2026-10-19T08:32:01Z"
+            },
+            {
+              "name": "Comprobar actualización CNRT",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:01Z",
+              "completed_at": "2026-10-19T08:32:02Z"
+            },
+            {
+              "name": "Actualizar datos CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-19T08:32:02Z",
+              "completed_at": "2026-10-19T08:32:02Z"
+            },
+            {
+              "name": "Generar parques por línea",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-19T08:32:02Z",
+              "completed_at": "2026-10-19T08:32:02Z"
+            },
+            {
+              "name": "Guardar fecha actualización Parque Móvil",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-19T08:32:02Z",
+              "completed_at": "2026-10-19T08:32:02Z"
+            },
+            {
+              "name": "Ver cambios",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:02Z",
+              "completed_at": "2026-10-19T08:32:02Z"
+            },
+            {
+              "name": "Guardar cambios en GitHub",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:02Z",
+              "completed_at": "2026-10-19T08:32:03Z"
+            },
+            {
+              "name": "Post Configurar Python",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:03Z",
+              "completed_at": "2026-10-19T08:32:03Z"
+            },
+            {
+              "name": "Post Descargar repositorio",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:03Z",
+              "completed_at": "2026-10-19T08:32:03Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-19T08:32:03Z",
+              "completed_at": "2026-10-19T08:32:03Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39351534215,
+      "name": "FTR · push · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "push",
+      "created_at": "2026-10-20T01:06:07Z",
+      "run_started_at": "2026-10-20T01:37:55Z",
+      "updated_at": "2026-10-20T01:46:11Z",
+      "head_sha": "059b8c01403c547be4aac420d8591d94a1d7edaa",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39351534215",
+      "jobs": [
+        {
+          "id": 118406098352,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-20T01:37:59Z",
+          "completed_at": "2026-10-20T01:46:10Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:00Z",
+              "completed_at": "2026-10-20T01:38:01Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:01Z",
+              "completed_at": "2026-10-20T01:38:02Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:02Z",
+              "completed_at": "2026-10-20T01:38:02Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:02Z",
+              "completed_at": "2026-10-20T01:38:03Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:03Z",
+              "completed_at": "2026-10-20T01:38:11Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:11Z",
+              "completed_at": "2026-10-20T01:38:31Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:38:31Z",
+              "completed_at": "2026-10-20T01:46:07Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:46:07Z",
+              "completed_at": "2026-10-20T01:46:08Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:46:08Z",
+              "completed_at": "2026-10-20T01:46:08Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:46:08Z",
+              "completed_at": "2026-10-20T01:46:08Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T01:46:08Z",
+              "completed_at": "2026-10-20T01:46:08Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39377807130,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T05:59:07Z",
+      "run_started_at": "2026-10-20T05:59:07Z",
+      "updated_at": "2026-10-20T05:59:15Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39377807130",
+      "jobs": [
+        {
+          "id": 118479793681,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-20T05:59:09Z",
+          "completed_at": "2026-10-20T05:59:14Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:10Z",
+              "completed_at": "2026-10-20T05:59:11Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:11Z",
+              "completed_at": "2026-10-20T05:59:12Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:12Z",
+              "completed_at": "2026-10-20T05:59:12Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:12Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T05:59:13Z",
+              "completed_at": "2026-10-20T05:59:13Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39412478671,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T11:05:22Z",
+      "run_started_at": "2026-10-20T11:05:22Z",
+      "updated_at": "2026-10-20T11:05:34Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39412478671",
+      "jobs": [
+        {
+          "id": 118593371881,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-20T11:05:26Z",
+          "completed_at": "2026-10-20T11:05:33Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:26Z",
+              "completed_at": "2026-10-20T11:05:27Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:27Z",
+              "completed_at": "2026-10-20T11:05:29Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:29Z",
+              "completed_at": "2026-10-20T11:05:29Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:29Z",
+              "completed_at": "2026-10-20T11:05:30Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T11:05:30Z",
+              "completed_at": "2026-10-20T11:05:30Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T11:05:30Z",
+              "completed_at": "2026-10-20T11:05:30Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T11:05:30Z",
+              "completed_at": "2026-10-20T11:05:30Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T11:05:30Z",
+              "completed_at": "2026-10-20T11:05:30Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:30Z",
+              "completed_at": "2026-10-20T11:05:31Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:31Z",
+              "completed_at": "2026-10-20T11:05:31Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T11:05:31Z",
+              "completed_at": "2026-10-20T11:05:31Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39450292231,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T15:38:31Z",
+      "run_started_at": "2026-10-20T15:38:31Z",
+      "updated_at": "2026-10-20T15:38:44Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39450292231",
+      "jobs": [
+        {
+          "id": 118722992827,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-20T15:38:34Z",
+          "completed_at": "2026-10-20T15:38:42Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:35Z",
+              "completed_at": "2026-10-20T15:38:36Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:36Z",
+              "completed_at": "2026-10-20T15:38:38Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:38Z",
+              "completed_at": "2026-10-20T15:38:38Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:38Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:39Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T15:38:39Z",
+              "completed_at": "2026-10-20T15:38:40Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39484547772,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T19:34:00Z",
+      "run_started_at": "2026-10-20T19:34:00Z",
+      "updated_at": "2026-10-20T19:34:11Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39484547772",
+      "jobs": [
+        {
+          "id": 118841447935,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-20T19:34:04Z",
+          "completed_at": "2026-10-20T19:34:10Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:04Z",
+              "completed_at": "2026-10-20T19:34:05Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:05Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:07Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:07Z",
+              "completed_at": "2026-10-20T19:34:08Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-20T19:34:08Z",
+              "completed_at": "2026-10-20T19:34:08Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39534950424,
+      "name": "FTR · drive · recuperacion-planilla-39534939131",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "workflow_dispatch",
+      "created_at": "2026-10-21T02:47:17Z",
+      "run_started_at": "2026-10-21T02:47:17Z",
+      "updated_at": "2026-10-21T02:48:28Z",
+      "head_sha": "3e8f2578c31cdc0dc38eaf2ff0fed44f23045bcd",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39534950424",
+      "jobs": [
+        {
+          "id": 119009336940,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T02:47:20Z",
+          "completed_at": "2026-10-21T02:48:28Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:21Z",
+              "completed_at": "2026-10-21T02:47:21Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:21Z",
+              "completed_at": "2026-10-21T02:47:23Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:23Z",
+              "completed_at": "2026-10-21T02:47:23Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:23Z",
+              "completed_at": "2026-10-21T02:47:24Z"
+            },
+            {
+              "name": "Agenda comprobada sin lectura de fuentes",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T02:47:24Z",
+              "completed_at": "2026-10-21T02:47:24Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:24Z",
+              "completed_at": "2026-10-21T02:47:36Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T02:47:36Z",
+              "completed_at": "2026-10-21T02:47:36Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:47:36Z",
+              "completed_at": "2026-10-21T02:48:25Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:48:25Z",
+              "completed_at": "2026-10-21T02:48:26Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:48:26Z",
+              "completed_at": "2026-10-21T02:48:26Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:48:26Z",
+              "completed_at": "2026-10-21T02:48:26Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T02:48:26Z",
+              "completed_at": "2026-10-21T02:48:26Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39543314459,
+      "name": "FTR · config · 5e88d726e74e4b49",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "workflow_dispatch",
+      "created_at": "2026-10-21T04:18:29Z",
+      "run_started_at": "2026-10-21T04:18:29Z",
+      "updated_at": "2026-10-21T04:19:32Z",
+      "head_sha": "e964e7353685290aad3bf2150135bbb03f7ea8bf",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39543314459",
+      "jobs": [
+        {
+          "id": 119035772614,
+          "name": "actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T04:18:33Z",
+          "completed_at": "2026-10-21T04:19:31Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:33Z",
+              "completed_at": "2026-10-21T04:18:34Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:34Z",
+              "completed_at": "2026-10-21T04:18:35Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:35Z",
+              "completed_at": "2026-10-21T04:18:35Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:35Z",
+              "completed_at": "2026-10-21T04:18:35Z"
+            },
+            {
+              "name": "Agenda comprobada sin lectura de fuentes",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T04:18:35Z",
+              "completed_at": "2026-10-21T04:18:35Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:35Z",
+              "completed_at": "2026-10-21T04:18:44Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T04:18:44Z",
+              "completed_at": "2026-10-21T04:18:44Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:18:44Z",
+              "completed_at": "2026-10-21T04:19:29Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:19:29Z",
+              "completed_at": "2026-10-21T04:19:29Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:19:29Z",
+              "completed_at": "2026-10-21T04:19:29Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:19:29Z",
+              "completed_at": "2026-10-21T04:19:29Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T04:19:29Z",
+              "completed_at": "2026-10-21T04:19:29Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 39567554012,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-21T08:12:40Z",
+      "run_started_at": "2026-10-21T08:12:40Z",
+      "updated_at": "2026-10-21T08:12:49Z",
+      "head_sha": "d23bebc0e85c773642d3d3b5e65260a9cc78cb82",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39567554012",
+      "jobs": [
+        {
+          "id": 119113399631,
+          "name": "actualizar / actualizar",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-21T08:12:43Z",
+          "completed_at": "2026-10-21T08:12:48Z",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:43Z",
+              "completed_at": "2026-10-21T08:12:44Z"
+            },
+            {
+              "name": "Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:44Z",
+              "completed_at": "2026-10-21T08:12:45Z"
+            },
+            {
+              "name": "Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:45Z",
+              "completed_at": "2026-10-21T08:12:45Z"
+            },
+            {
+              "name": "Comprobar agenda o solicitud",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:45Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Agenda comprobada sin lectura de fuentes",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Instalar dependencias",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Preparar navegador solo si se consultará CNRT",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Procesar, validar, guardar y publicar",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Conservar informe administrativo protegido",
+              "status": "completed",
+              "conclusion": "skipped",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Post Run actions/setup-python@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:46Z"
+            },
+            {
+              "name": "Post Run actions/checkout@v6",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:46Z",
+              "completed_at": "2026-10-21T08:12:47Z"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "started_at": "2026-10-21T08:12:47Z",
+              "completed_at": "2026-10-21T08:12:47Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "schedule_history": [
+    {
+      "id": 33952499530,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-05T07:25:12Z",
+      "run_started_at": "2026-09-05T07:25:12Z",
+      "updated_at": "2026-09-05T07:27:48Z",
+      "head_sha": "53c5aee8b54946a7c753f2602db7da8698cd7476",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/33952499530"
+    },
+    {
+      "id": 34019712751,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-06T07:38:53Z",
+      "run_started_at": "2026-09-06T07:38:53Z",
+      "updated_at": "2026-09-06T07:40:56Z",
+      "head_sha": "8c90eb3398b399ac1fd9804dc398b201e94bf265",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34019712751"
+    },
+    {
+      "id": 34097988161,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-07T07:56:37Z",
+      "run_started_at": "2026-09-07T07:56:37Z",
+      "updated_at": "2026-09-07T07:58:49Z",
+      "head_sha": "31969e2ae3a8f4018c4c861e89e87df962a6ae3d",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34097988161"
+    },
+    {
+      "id": 34201308006,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-08T07:49:51Z",
+      "run_started_at": "2026-09-08T07:49:51Z",
+      "updated_at": "2026-09-08T07:51:52Z",
+      "head_sha": "91e277735ee21de9c1662222c128d1e62f24f498",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34201308006"
+    },
+    {
+      "id": 34326131394,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-09T07:52:59Z",
+      "run_started_at": "2026-09-09T07:52:59Z",
+      "updated_at": "2026-09-09T07:55:02Z",
+      "head_sha": "85a4c420c7e4ebf46cb5859ac5ec215649b18faa",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34326131394"
+    },
+    {
+      "id": 34452144775,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-10T07:52:14Z",
+      "run_started_at": "2026-09-10T07:52:14Z",
+      "updated_at": "2026-09-10T07:54:07Z",
+      "head_sha": "0bc32a3d72f7e54a98947d0154bec5b48a6301b3",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34452144775"
+    },
+    {
+      "id": 34576125029,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-11T07:48:32Z",
+      "run_started_at": "2026-09-11T07:48:32Z",
+      "updated_at": "2026-09-11T07:50:51Z",
+      "head_sha": "040830c5cebb818b209ac4550da5c213ef4c135f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34576125029"
+    },
+    {
+      "id": 34681381907,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-12T07:41:22Z",
+      "run_started_at": "2026-09-12T07:41:22Z",
+      "updated_at": "2026-09-12T07:43:12Z",
+      "head_sha": "42d2268b745d9c49ad9c0976eadf2ed16dc56c09",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34681381907"
+    },
+    {
+      "id": 34746576615,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-13T07:59:57Z",
+      "run_started_at": "2026-09-13T07:59:57Z",
+      "updated_at": "2026-09-13T08:01:48Z",
+      "head_sha": "3230d1d1381295b3dc3ba323dd0310d0e0398298",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34746576615"
+    },
+    {
+      "id": 34823346725,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-14T08:33:41Z",
+      "run_started_at": "2026-09-14T08:33:41Z",
+      "updated_at": "2026-09-14T08:35:36Z",
+      "head_sha": "aa5541a5e072c9b8d3595f74e340d493208e2cc3",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34823346725"
+    },
+    {
+      "id": 34946678590,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-15T08:23:19Z",
+      "run_started_at": "2026-09-15T08:23:19Z",
+      "updated_at": "2026-09-15T08:25:22Z",
+      "head_sha": "07abf8e76a9edd294be2947774e0614a4108cdc2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/34946678590"
+    },
+    {
+      "id": 35072926882,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-16T08:16:59Z",
+      "run_started_at": "2026-09-16T08:16:59Z",
+      "updated_at": "2026-09-16T08:18:53Z",
+      "head_sha": "89c9c153388d03fe743cdbc44fe127f61dc6809b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35072926882"
+    },
+    {
+      "id": 35199428688,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-17T08:23:42Z",
+      "run_started_at": "2026-09-17T08:23:42Z",
+      "updated_at": "2026-09-17T08:25:42Z",
+      "head_sha": "9f9a5d10784d95c5774e4012194e8807632d1a0d",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35199428688"
+    },
+    {
+      "id": 35321996012,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-18T07:58:11Z",
+      "run_started_at": "2026-09-18T07:58:11Z",
+      "updated_at": "2026-09-18T07:59:59Z",
+      "head_sha": "0e4d1d7ec20b79cdf2b2470d8fa013923a2a382f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35321996012"
+    },
+    {
+      "id": 35430338416,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-19T07:48:49Z",
+      "run_started_at": "2026-09-19T07:48:49Z",
+      "updated_at": "2026-09-19T07:50:40Z",
+      "head_sha": "09fe27574b5f0f1b85745d1b96d7128d10b68ddf",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35430338416"
+    },
+    {
+      "id": 35499158511,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-20T08:17:36Z",
+      "run_started_at": "2026-09-20T08:17:36Z",
+      "updated_at": "2026-09-20T08:19:16Z",
+      "head_sha": "665a75c2e15ff5da5138d55ad4c60aaa803729a3",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35499158511"
+    },
+    {
+      "id": 35578671231,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-21T08:35:12Z",
+      "run_started_at": "2026-09-21T08:35:12Z",
+      "updated_at": "2026-09-21T08:37:23Z",
+      "head_sha": "5eb8c5fb803f759b020065f67d05febe6854f729",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35578671231"
+    },
+    {
+      "id": 35703793054,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-22T08:15:08Z",
+      "run_started_at": "2026-09-22T08:15:08Z",
+      "updated_at": "2026-09-22T08:17:03Z",
+      "head_sha": "5ab1c596515898e8280ae7822cd39f71d50adc30",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35703793054"
+    },
+    {
+      "id": 35836272707,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-23T08:17:18Z",
+      "run_started_at": "2026-09-23T08:17:18Z",
+      "updated_at": "2026-09-23T08:26:13Z",
+      "head_sha": "390fe8c33fc3f53f15f634b014cb29bb70bf473f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35836272707"
+    },
+    {
+      "id": 35973521995,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-24T08:08:39Z",
+      "run_started_at": "2026-09-24T08:08:39Z",
+      "updated_at": "2026-09-24T08:10:48Z",
+      "head_sha": "011f0720ffc854377cc9aeb7681b21fab5c104db",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/35973521995"
+    },
+    {
+      "id": 36113450953,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-25T08:32:09Z",
+      "run_started_at": "2026-09-25T08:32:09Z",
+      "updated_at": "2026-09-25T08:34:04Z",
+      "head_sha": "53656695c131b5562b5c25a7d8a7597309ea6a81",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36113450953"
+    },
+    {
+      "id": 36229418592,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-26T08:19:11Z",
+      "run_started_at": "2026-09-26T08:19:11Z",
+      "updated_at": "2026-09-26T08:21:01Z",
+      "head_sha": "b70d4015df957ed0c0fdc20bab3a559da18be778",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36229418592"
+    },
+    {
+      "id": 36307799138,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-27T08:56:48Z",
+      "run_started_at": "2026-09-27T08:56:48Z",
+      "updated_at": "2026-09-27T08:58:46Z",
+      "head_sha": "6f714a05b2e1a3e377f5ce4a45bd57b8893bc2d2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36307799138"
+    },
+    {
+      "id": 36403082727,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-28T09:22:30Z",
+      "run_started_at": "2026-09-28T09:22:30Z",
+      "updated_at": "2026-09-28T09:31:12Z",
+      "head_sha": "5e992da3ba85d45e2eb486e4509b581a285f3e73",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36403082727"
+    },
+    {
+      "id": 36549395066,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-29T09:28:26Z",
+      "run_started_at": "2026-09-29T09:28:26Z",
+      "updated_at": "2026-09-29T09:30:30Z",
+      "head_sha": "4cdaf16c13e7f6c856120e9e5436c5eef9acac3f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36549395066"
+    },
+    {
+      "id": 36695397136,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-09-30T09:19:38Z",
+      "run_started_at": "2026-09-30T09:19:38Z",
+      "updated_at": "2026-09-30T09:22:39Z",
+      "head_sha": "c47c9c5eba9395b2d9080c85548e59a18198a80c",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36695397136"
+    },
+    {
+      "id": 36844924157,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-01T09:46:47Z",
+      "run_started_at": "2026-10-01T09:46:47Z",
+      "updated_at": "2026-10-01T09:48:32Z",
+      "head_sha": "ae31d55089ea1888b4b10855c9f9919f6e78de41",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36844924157"
+    },
+    {
+      "id": 36989410452,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-02T09:22:34Z",
+      "run_started_at": "2026-10-02T09:22:34Z",
+      "updated_at": "2026-10-02T09:24:33Z",
+      "head_sha": "25797cf09aa6c884ef118fd30f37eb14b14d296b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/36989410452"
+    },
+    {
+      "id": 37111135670,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-03T08:52:14Z",
+      "run_started_at": "2026-10-03T08:52:14Z",
+      "updated_at": "2026-10-03T08:54:16Z",
+      "head_sha": "59f6cf5fa44c0b3cc66b9980471ad7f6ca6c4889",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37111135670"
+    },
+    {
+      "id": 37191881277,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-04T09:21:17Z",
+      "run_started_at": "2026-10-04T09:21:17Z",
+      "updated_at": "2026-10-04T09:22:58Z",
+      "head_sha": "e481f9d980afcfa83329737987a59e30ff25f305",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37191881277"
+    },
+    {
+      "id": 37293848720,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-05T10:01:21Z",
+      "run_started_at": "2026-10-05T10:01:21Z",
+      "updated_at": "2026-10-05T10:03:22Z",
+      "head_sha": "989e4e3d909d482181e30ca1a22ef49827933665",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37293848720"
+    },
+    {
+      "id": 37445321345,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-06T09:46:53Z",
+      "run_started_at": "2026-10-06T09:46:53Z",
+      "updated_at": "2026-10-06T09:55:41Z",
+      "head_sha": "f6745e32ef4e0f418d003da21e16af7fffbdfe3c",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37445321345"
+    },
+    {
+      "id": 37603278079,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-07T09:49:45Z",
+      "run_started_at": "2026-10-07T09:49:45Z",
+      "updated_at": "2026-10-07T09:51:54Z",
+      "head_sha": "97a5d02babe8038dadaa5715caf76360ace34eac",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37603278079"
+    },
+    {
+      "id": 37760613264,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-08T10:00:48Z",
+      "run_started_at": "2026-10-08T10:00:48Z",
+      "updated_at": "2026-10-08T10:02:50Z",
+      "head_sha": "8751ecfd9dc5484a9e78b767650e244934b4ff6a",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37760613264"
+    },
+    {
+      "id": 37915280096,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-09T10:04:01Z",
+      "run_started_at": "2026-10-09T10:04:01Z",
+      "updated_at": "2026-10-09T10:06:05Z",
+      "head_sha": "54ece0beede579fa6ec3b334ead37379adef3bc6",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/37915280096"
+    },
+    {
+      "id": 38041322464,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-10T09:25:17Z",
+      "run_started_at": "2026-10-10T09:25:17Z",
+      "updated_at": "2026-10-10T09:27:12Z",
+      "head_sha": "91a318e70e8e16e45010ba8c17ea028768dfd5ea",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38041322464"
+    },
+    {
+      "id": 38129225929,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-11T09:40:45Z",
+      "run_started_at": "2026-10-11T09:40:45Z",
+      "updated_at": "2026-10-11T09:42:52Z",
+      "head_sha": "dd622aa4874ef249b84b9724acdd6a3e20f6a471",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38129225929"
+    },
+    {
+      "id": 38235077877,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-12T10:14:34Z",
+      "run_started_at": "2026-10-12T10:14:34Z",
+      "updated_at": "2026-10-12T10:27:11Z",
+      "head_sha": "ed22006d3801149deaacd440a6f0b2f61fa899c7",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38235077877"
+    },
+    {
+      "id": 38381082758,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-13T10:06:29Z",
+      "run_started_at": "2026-10-13T10:06:29Z",
+      "updated_at": "2026-10-13T10:08:25Z",
+      "head_sha": "c17544744db7d79e0620d56fc0153b4cdec59447",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38381082758"
+    },
+    {
+      "id": 38534809552,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-14T08:23:51Z",
+      "run_started_at": "2026-10-14T08:23:51Z",
+      "updated_at": "2026-10-14T08:26:02Z",
+      "head_sha": "5ff0ba4e148ac0357a029b0cf1277c74cdf16a12",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38534809552"
+    },
+    {
+      "id": 38702489033,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-15T07:59:27Z",
+      "run_started_at": "2026-10-15T07:59:27Z",
+      "updated_at": "2026-10-15T08:01:46Z",
+      "head_sha": "c0416f98a0c924ad08407d3a1117061f9470fcda",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38702489033"
+    },
+    {
+      "id": 38870131532,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-16T07:54:01Z",
+      "run_started_at": "2026-10-16T07:54:01Z",
+      "updated_at": "2026-10-16T07:56:11Z",
+      "head_sha": "32a6e8b38598dec30cc1b41fda38b81d831d799c",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/38870131532"
+    },
+    {
+      "id": 39013983359,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-17T07:31:59Z",
+      "run_started_at": "2026-10-17T07:31:59Z",
+      "updated_at": "2026-10-17T07:34:02Z",
+      "head_sha": "f913e2ad09d48cbd0db6d07322438e14ab7dfdc0",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39013983359"
+    },
+    {
+      "id": 39108956459,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-18T07:46:56Z",
+      "run_started_at": "2026-10-18T07:46:56Z",
+      "updated_at": "2026-10-18T07:55:43Z",
+      "head_sha": "3149ce3a5df75e076fe4f106ff8a38f4de47ae3e",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39108956459"
+    },
+    {
+      "id": 39223175621,
+      "name": "Actualizar Parque Móvil FTR",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-19T08:29:54Z",
+      "run_started_at": "2026-10-19T08:29:54Z",
+      "updated_at": "2026-10-19T08:32:06Z",
+      "head_sha": "cf454336386b1808b9222dea61038b62fceabe4f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39223175621"
+    },
+    {
+      "id": 39377807130,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T05:59:07Z",
+      "run_started_at": "2026-10-20T05:59:07Z",
+      "updated_at": "2026-10-20T05:59:15Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39377807130"
+    },
+    {
+      "id": 39412478671,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T11:05:22Z",
+      "run_started_at": "2026-10-20T11:05:22Z",
+      "updated_at": "2026-10-20T11:05:34Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39412478671"
+    },
+    {
+      "id": 39450292231,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T15:38:31Z",
+      "run_started_at": "2026-10-20T15:38:31Z",
+      "updated_at": "2026-10-20T15:38:44Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39450292231"
+    },
+    {
+      "id": 39484547772,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/ftr_sincronizar.yml",
+      "event": "schedule",
+      "created_at": "2026-10-20T19:34:00Z",
+      "run_started_at": "2026-10-20T19:34:00Z",
+      "updated_at": "2026-10-20T19:34:11Z",
+      "head_sha": "0e964d8c3cff0eb75304ae74c11cc4fe9c2932b9",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39484547772"
+    },
+    {
+      "id": 39567554012,
+      "name": "FTR · schedule · automático",
+      "path": ".github/workflows/actualizar_parques.yml",
+      "event": "schedule",
+      "created_at": "2026-10-21T08:12:40Z",
+      "run_started_at": "2026-10-21T08:12:40Z",
+      "updated_at": "2026-10-21T08:12:49Z",
+      "head_sha": "d23bebc0e85c773642d3d3b5e65260a9cc78cb82",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/SanLean17/parque-movil-ftr/actions/runs/39567554012"
+    }
+  ],
+  "limits": [
+    "Los horarios de API identifican ejecuciones registradas, no la cola interna del programador de GitHub.",
+    "El cron de origen no aparece en todos los logs antiguos; no se inventa."
+  ],
+  "registered_after_due": []
+}

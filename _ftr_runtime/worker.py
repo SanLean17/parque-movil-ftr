@@ -61,7 +61,7 @@ def plan():
 def public_output(key, value):
     if os.environ.get('GITHUB_OUTPUT'):
         with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
-            f.write(key+'='+str(value).lower()+'\n')
+            f.write(key+'='+(str(value).lower() if isinstance(value,bool) else str(value))+'\n')
 
 
 def google_snapshot(root, config):
@@ -238,17 +238,23 @@ def main():
         operation['cron_utc'] = cron
     try:
         mode, config, state, jobs=plan()
-        from _ftr_runtime import oneoff
+        from _ftr_runtime import oneoff, publication_retry, schedule_health
+        created=schedule_health.event_created()
         payload = json.loads(os.environ.get('FTR_CONFIG') or '{}') if mode in (*oneoff.ACTIONS,'drive','cnrt','all') else {}
         if not isinstance(payload,dict):raise ValueError('La solicitud no es válida.')
-        execution = oneoff.resolve(ROOT,mode,config,state,jobs,now(),payload,request_id,cron)
+        execution = oneoff.resolve(ROOT,mode,config,state,jobs,now(),payload,request_id,cron,created,os.environ.get('GITHUB_RUN_ID'))
         jobs = execution['jobs']
-        operation.update(action=mode, config_digest=digest(config))
+        operation.update(action=mode, config_digest=digest(config),event_created_utc=created)
         if os.environ.get('FTR_PHASE')=='check':
+            if created:public_output('event_created_utc',created)
+            if mode=='recovery' and os.environ.get('GITHUB_TOKEN'):
+                health=schedule_health.inspect(config,oneoff.load(ROOT),publication_retry.current_revision(ROOT),schedule_health.github_get)
+                operation_event(operation,'schedule_health',health=health,read=False)
             if mode in ('oneoff-set','oneoff-cancel'):
                 oneoff.command(payload,now(),mode=='oneoff-cancel',True)
                 oneoff.native_schedule.authorization()
-            public_output('work', bool(jobs) or mode in ('config','oneoff-set','oneoff-cancel') or bool(execution['expired'] or execution['shared']))
+            public_output('work', bool(jobs) or mode in ('config','oneoff-set','oneoff-cancel') or bool(execution['expired'] or execution['shared']) or publication_retry.pending(state))
+            public_output('publication_only',not jobs and publication_retry.pending(state) and mode not in ('config','oneoff-set','oneoff-cancel'))
             public_output('cnrt', 'cnrt' in jobs)
             public_output('sources', ','.join(jobs))
             public_output('coalesced',bool(execution['shared']) and not jobs)
@@ -268,10 +274,15 @@ def main():
             raise ValueError('La publicación real solo se permite desde main de este repositorio.')
         if mode in ('oneoff-set','oneoff-cancel'):
             revision=oneoff.apply_command(ROOT,mode,payload,request_id,now(),commit)
+            if revision:schedule_health.confirm(ROOT,config,revision)
             operation_event(operation,'oneoff_saved',revision=revision,read=False,source=payload['source'])
             return 0
         if not dry:oneoff.claim(ROOT,execution,now(),os.environ.get('GITHUB_RUN_ID'),commit)
         if not jobs and mode!='config':
+            if publication_retry.pending(state) and not dry:
+                revision=publication_retry.current_revision(ROOT)
+                publication_retry.verify(ROOT,state,revision,commit,build_pages,utc)
+                operation_event(operation,'publication_recovered',revision=revision,read=False)
             if execution['expired']:
                 operation_event(operation,'error',read=False,message='La programación extraordinaria venció sin ejecutarse. Reprogramala.')
                 return 1
@@ -289,28 +300,29 @@ def main():
             for key in jobs:
                 from _ftr_runtime.agenda import eligible_slot, slot_satisfied
                 slot = eligible_slot(config, state, key, now())
+                if key not in execution['pure'] and slot and not slot_satisfied(state,key,slot):execution['expected'][key]=datetime.fromisoformat(slot.split(':',1)[1]).astimezone(timezone.utc).isoformat()
                 kind = ('additional' if mode == 'scheduled' and operation['event'] == 'schedule'
                         and (not slot or slot_satisfied(state, key, slot)) else
-                        'scheduled' if mode == 'scheduled' else 'configuration' if mode == 'config' else 'manual')
+                        'scheduled' if mode == 'scheduled' else 'recovery' if mode == 'recovery' else 'configuration' if mode == 'config' else 'manual')
                 if key in execution['pure']:
                     oneoff.preserve_calendar(state,key)
                     kind='oneoff'
                 elif key in execution['due']:
-                    kind='oneoff_and_recurrent' if mode in ('oneoff','scheduled') else 'oneoff_and_manual'
+                    kind='oneoff_and_recurrent' if mode in ('oneoff','scheduled','recovery') else 'oneoff_and_manual'
                     if not dry:state.setdefault(key,{}).pop('recurrence',None)
                 elif not dry:
                     state.setdefault(key,{}).pop('recurrence',None)
                 state.setdefault(key,{})['attempt_utc']=utc()
                 operation_event(operation, 'reading_started', source=key,
                                 configured_time=config[key]['time'], interval_days=config[key]['days'],
-                                requested_slot=slot, reading_kind=kind)
+                                requested_slot=slot, reading_kind=kind,expected_utc=execution['expected'].get(key),event_created_utc=created)
                 try:
                     data=cnrt_snapshot(stage,config) if key=='cnrt' else google_snapshot(stage,config)
                     read_at = datetime.fromisoformat(data['read_utc'])
                     state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),error=None)
                     if key not in execution['pure']:state[key]['served_slot']=current_slot(config,key,read_at)
                     results[key]=data
-                    if not dry:oneoff.finish(ROOT,execution,key,now(),True)
+                    if not dry:oneoff.finish(ROOT,execution,key,now(),True,read_utc=data['read_utc'])
                     operation_event(operation, 'reading_finished', source=key,
                                     read_utc=data['read_utc'], completed_utc=data['completed_utc'])
                 except Exception as exc:
@@ -341,14 +353,16 @@ def main():
             update_public(ROOT,config)
             paths.extend(['index.html','linea.html'])
             state.update(version=2,config_digest=digest(config),updated_utc=utc(),run_id=os.environ.get('GITHUB_RUN_ID'))
+            state['publication']=dict(status='pending',version=state['updated_utc'],run_id=os.environ.get('GITHUB_RUN_ID'),attempts=0)
             (ROOT/STATE).write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');paths.append(STATE)
             manifest=dict(version=state['updated_utc'],period=state.get('drive',{}).get('period',config['period']),config_digest=digest(config),run_id=os.environ.get('GITHUB_RUN_ID'),lines=sorted(enabled(config)),files_sha256=public_hashes(ROOT,config))
             (ROOT/'ftr_publicacion.json').write_text(json.dumps(manifest)+'\n',encoding='utf-8');paths.append('ftr_publicacion.json')
             oneoff.stage_finish(ROOT,execution,paths)
             revision=commit(ROOT,paths)
+            if mode=='config':schedule_health.confirm(ROOT,config,revision)
             operation_event(operation, 'configuration_saved' if mode=='config' else 'data_saved' if results else 'state_saved', revision=revision, sources=list(results))
             operation_event(operation, 'publication_pending', revision=revision)
-            build_pages(revision)
+            publication_retry.verify(ROOT,state,revision,commit,build_pages,utc)
             operation_event(operation, 'data_published' if results else 'configuration_published' if mode=='config' else 'state_published', revision=revision, sources=list(results))
             if errors:
                 operation_event(operation, 'source_errors', message=' '.join(errors))

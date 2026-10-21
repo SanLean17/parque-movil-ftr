@@ -82,7 +82,7 @@ def token():
 
 def api(method,suffix,payload=None,auth=None):
     # No se acepta una URL del cliente. La autorización solo se envía a este repositorio.
-    r=requests.request(method,BASE+suffix,headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
+    r=requests.request(method,BASE+suffix if suffix else BASE.rstrip('/'),headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
     if r.status_code==401:raise AuthorizationError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
     if r.status_code==403:raise AuthorizationError('GitHub no permitió la operación. Revisá Actions con lectura y escritura y acceso a este repositorio.')
     if r.status_code==404:raise ValueError('GitHub no encontró el recurso autorizado. Revisá el repositorio y que la integración esté activada.')
@@ -377,9 +377,9 @@ def check_resources():
         raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
     if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
         raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
-    if VERSION in ('06.3.1','06.3.2','06.3.3') and not (RESOURCE/'panel-bridge.js').is_file():
+    if VERSION in ('06.3.1','06.3.2','06.3.3','06.3.4') and not (RESOURCE/'panel-bridge.js').is_file():
         raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete '+VERSION+' en una carpeta nueva.')
-    if VERSION in ('06.3.2','06.3.3'):
+    if VERSION in ('06.3.2','06.3.3','06.3.4'):
         for name in ('panel-history.js','ftr-historial.js'):
             path=RESOURCE/name
             if name=='ftr-historial.js' and not getattr(sys,'frozen',False):path=Path(__file__).resolve().parents[1]/name

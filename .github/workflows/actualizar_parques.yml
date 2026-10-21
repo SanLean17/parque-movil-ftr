@@ -15,6 +15,7 @@ on:
 permissions:
   contents: write
   pages: write
+  actions: read
 # Exclusión mutua solo en el workflow llamado, nunca también en este padre.
 jobs:
   actualizar:

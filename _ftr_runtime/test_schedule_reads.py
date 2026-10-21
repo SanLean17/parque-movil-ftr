@@ -97,7 +97,7 @@ class ScheduleReadTests(unittest.TestCase):
             self.assertEqual(entry.main(), 0)
             self.google.assert_called_once()
             self.cnrt.assert_not_called()
-            self.commit.assert_called_once()
+            self.assertEqual(self.commit.call_count,2)  # Datos y recibo separado de publicación verificada.
             self.pages.assert_called_once()
         state = json.loads((self.root/'_ftr_estado.json').read_text())
         self.assertEqual(state['cnrt'], self.s['cnrt'])

@@ -1,5 +1,6 @@
-"""Prueba del binario nuevo con plantilla mínima, no del diseño 06.3 ausente."""
+"""Inicio, UI original recuperada, cola y cierre del paquete Windows completo."""
 import json
+import hashlib
 import subprocess
 import sys
 import tempfile
@@ -16,11 +17,11 @@ def main():
     executable = Path(sys.argv[1]).resolve()
     with tempfile.TemporaryDirectory(prefix='ftr-binario-') as temporary:
         root = Path(temporary)
-        # El binario usa una carpeta de datos aislada en --browser-test.
         template = executable.parent/'panel.html'
-        if template.exists():
-            raise ValueError('La prueba mínima no puede sobrescribir una interfaz existente.')
-        template.write_text('<html><body><p id="status">Prueba interna</p><script>window.csrf="__FTR_CSRF__";</script></body></html>',encoding='utf-8')
+        assert template.is_file() and (executable.parent/'panel-bridge.js').is_file()
+        for line in (executable.parent/'SHA256_ARCHIVOS.txt').read_text().splitlines():
+            expected,name=line.split('  ',1)
+            assert hashlib.sha256((executable.parent/name).read_bytes()).hexdigest()==expected,name
         process = None
         try:
             tested = subprocess.run([str(executable), '--self-test'], timeout=60,
@@ -45,34 +46,47 @@ def main():
                 page = context.new_page()
                 requests = []
                 page.on('request', lambda r: requests.append(r.url.split('/')[2]))
+                config=load(ROOT)
+                def bootstrap(route):
+                    response=route.fetch();value=response.json()
+                    assert value['version']=='06.3.1' and not value['connected']
+                    value['remote']={'config':config,'digest':digest(config),'state':{}}
+                    route.fulfill(response=response,json=value)
+                page.route('**/api/bootstrap',bootstrap)
                 page.goto(json.loads(target.read_text())['url'])
+                page.wait_for_selector('html[data-ready="true"]')
                 def api(path, payload=None):
                     return page.evaluate('''async ({path,payload}) => {
-                      const r=await fetch(path,{method:payload?'POST':'GET',headers:{'Content-Type':'application/json','X-FTR-CSRF':window.csrf},body:payload?JSON.stringify(payload):undefined});
+                      const r=await fetch(path,{method:payload?'POST':'GET',headers:{'Content-Type':'application/json', 'X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content},body:payload?JSON.stringify(payload):undefined});
                       return {status:r.status,data:await r.json()};
                     }''',dict(path=path,payload=payload))
                 assert api('/api/bootstrap')['data']['version']=='06.3.1'
                 assert page.evaluate("fetch('/api/orders').then(r=>r.status)")==403
-                config=load(ROOT)
                 order=api('/api/submit',dict(action='drive',expected=digest(config)))
                 assert order['status']==200 and order['data']['queued']
                 identifier=order['data']['request_id']
                 page.reload()
+                page.wait_for_selector('html[data-ready="true"]')
+                assert 'Pendiente de envío' in page.locator('#cloudActivity').inner_text()
                 assert api('/api/orders')['data']['orders'][0]['id']==identifier
                 duplicate=api('/api/submit',dict(action='drive',expected=digest(config)))
                 assert duplicate['data']['request_id']==identifier
-                assert api('/api/orders/cancel',dict(request_id=identifier))['status']==200
+                page.locator('[data-order-id] button').click()
+                page.locator('#dialogConfirm').click()
+                page.wait_for_function("() => document.querySelector('#cloudActivity').textContent.includes('Cancelada antes del envío')")
                 assert api('/api/orders')['data']['orders'][0]['status']=='cancelled'
                 assert all(host.startswith('127.0.0.1:') for host in requests)
-                assert api('/api/quit',{})['status']==200
+                page.evaluate("showView('connections')")
+                page.locator('#quitPanel').click();page.locator('#dialogConfirm').click()
+                page.wait_for_function("() => document.body.textContent.includes('Panel cerrado')")
                 context.close();browser.close()
             process.wait(timeout=10)
             assert process.returncode==0
-            print('Binario 06.3.1 Windows: inicio, sesión, cola persistente, doble envío, cancelación y cierre OK. Plantilla mínima; sin fuentes reales.')
+            print('Paquete completo 06.3.1 Windows: integridad, inicio, UI, sesión, cola, doble envío, cancelación visible y cierre OK. Sin fuentes reales.')
         finally:
             if process and process.poll() is None:
                 process.terminate();process.wait(timeout=10)
-            template.unlink(missing_ok=True)
+            (executable.parent/'self-test-ok.txt').unlink(missing_ok=True)
 
 
 if __name__=='__main__':

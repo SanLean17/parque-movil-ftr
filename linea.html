@@ -11,6 +11,7 @@
 
     <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="ftr-datos.js"></script>
 
     <!-- Fuente JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -349,7 +350,11 @@
 
 
         const lineaId =
-            urlParams.get('id') || '22';
+            /^[1-9][0-9]{0,4}$/.test(urlParams.get('id') || '22') ? (urlParams.get('id') || '22') : '0';
+
+        function escapeCell(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
 
 
         document.getElementById("lineaTitle").textContent =
@@ -767,6 +772,7 @@
                                     </td>
 
                                 </tr>`;
+                            mostrarLecturaNoDisponible();
 
                         }
 
@@ -791,6 +797,7 @@
                                 </td>
 
                             </tr>`;
+                        mostrarLecturaNoDisponible();
 
                     }
 
@@ -1150,22 +1157,22 @@
                 tr.innerHTML = `
 
                     <td class="py-2.5 px-2 font-extrabold text-gray-900 dark:text-gray-100 font-code text-sm tracking-wider">
-                        ${dominioCSV || '-'}
+                        ${escapeCell(dominioCSV || '-')}
                     </td>
 
 
                     <td class="py-2.5 px-2 font-extrabold text-blue-900 dark:text-blue-300 font-code text-base">
-                        ${internoVal || '-'}
+                        ${escapeCell(internoVal || '-')}
                     </td>
 
 
                     <td class="py-2.5 px-2 text-gray-700 dark:text-gray-300">
-                        ${modeloText}
+                        ${escapeCell(modeloText)}
                     </td>
 
 
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
-                        ${habHasta}
+                        ${escapeCell(habHasta)}
                     </td>
 
 
@@ -1174,14 +1181,14 @@
                         <span
                             class="${tecBadgeClass} px-2 py-0.5 rounded font-bold text-[10px] font-code"
                         >
-                            ${tecFecha}
+                            ${escapeCell(tecFecha)}
                         </span>
 
                     </td>
 
 
                     <td class="py-2.5 px-2 text-gray-600 dark:text-gray-400 font-code">
-                        ${tecNro}
+                        ${escapeCell(tecNro)}
                     </td>
 
 
@@ -1189,7 +1196,7 @@
 
                         ${
                             fechaFiscalizacionMostrar
-                                ? fechaFiscalizacionMostrar
+                                ? escapeCell(fechaFiscalizacionMostrar)
                                 : '<span class="text-gray-400 font-normal italic font-sans">-</span>'
                         }
 

@@ -139,6 +139,13 @@ def extend_report(report, sheets, root, configured, identifier, detected_at, tod
             'interno': event['interno'], 'campo': field, 'celda': f'{colname(column)}{event["fila"]}',
             'detectado_utc': detected_at, 'candidatos_mismo_interno': candidates(fleets.get(event['linea']), event['interno']),
             'archivo_url': f'https://docs.google.com/spreadsheets/d/{identifier}/edit'})
+        park = root / 'parques' / f"linea{event['linea']}.csv"
+        stamp = root / 'ultima_actualizacion_parque.txt'
+        entry['referencia_parque'] = {
+            'archivo': f"parques/linea{event['linea']}.csv" if park.is_file() else None,
+            'sha256': hashlib.sha256(park.read_bytes()).hexdigest() if park.is_file() else None,
+            'fecha_lectura_utc': stamp.read_text(encoding='utf-8-sig').strip() if stamp.is_file() else None,
+        }
         fingerprint = json.dumps([identifier, entry['pestana_posicion'], entry['fila'], code, entry['fecha_ingresada'], entry['dominio_ingresado'], entry['interno']], ensure_ascii=False)
         entry['id'] = hashlib.sha256(fingerprint.encode()).hexdigest()[:24]
         issues.append(entry)

@@ -44,8 +44,13 @@ def norm(value):
 
 
 def plate(value):
-    value = re.sub(r"[\s\-\u200b\ufeff]+", "", text(value).upper())
-    return value if re.fullmatch(r"(?:[A-Z]{3}\d{3}|[A-Z]{2}\d{3}[A-Z]{2})", value) else ""
+    value = re.sub(r"[\s\-\u200b\ufeff]+", "", text(value))
+    # Validar antes de upper(): ß y ſ pueden convertirse en letras ASCII.
+    # Ñ conserva su evidencia en el diagnóstico y nunca se transforma en N.
+    if not value.isascii():
+        return ""
+    value = value.upper()
+    return value if re.fullmatch(r"(?:[A-Z]{3}[0-9]{3}|[A-Z]{2}[0-9]{3}[A-Z]{2})", value) else ""
 
 
 def line_number(value):
@@ -255,8 +260,12 @@ def analyze(sheets, configured, year, today=None):
         found = blocks(sheet)
         ids = title_lines(sheet.name)
         if not found:
-            if ids:
+            header_kinds = {kind for kind, aliases in HEADERS.items()
+                            if any(norm(v) in aliases for v in sheet.cells.values())}
+            if ids or len(header_kinds & {'fecha', 'dominio', 'interno', 'linea'}) >= 2:
                 issue("ENCABEZADOS_NO_ENCONTRADOS", tab)
+            elif any(text(v) for v in sheet.cells.values()):
+                notes['PESTANA_SIN_TABLA_RECONOCIDA'] += 1
             details.append({"posicion": tab, "tipo": "sin_tabla", "lineas": sorted(ids)})
             continue
         valid, counted_blocks = 0, 0
@@ -268,7 +277,7 @@ def analyze(sheets, configured, year, today=None):
                 if expected:
                     issue("BLOQUE_MULTIPLE_SIN_COLUMNA_LINEA", tab, block["row"])
                 else:
-                    notes["TABLA_SIN_IDENTIDAD_OMITIDA"] += 1
+                    issue("TABLA_SIN_IDENTIDAD", tab, block["row"])
                 continue
             if block["conflict"]:
                 if by_row:
@@ -301,12 +310,12 @@ def analyze(sheets, configured, year, today=None):
                     continue
                 present.add(number)
                 parsed_date = parse_date(values.get("fecha"), sheet.epoch1904)
+                if parsed_date is not None and parsed_date.year != year:
+                    counts["REGISTROS_OTRO_ANIO"] += 1
+                    continue
                 domain = plate(values.get("dominio"))
                 if parsed_date is None or not domain:
                     issue("FECHA_O_DOMINIO_INVALIDO", tab, row, number, "fecha" if parsed_date is None else "dominio")
-                    continue
-                if parsed_date.year != year:
-                    counts["REGISTROS_OTRO_ANIO"] += 1
                     continue
                 if parsed_date > today:
                     issue("FECHA_FUTURA", tab, row, number, "fecha")

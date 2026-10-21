@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, ftr/auditoria-work-20261021]
+    branches: [main, ftr/auditoria-work-20261021, ftr/verificacion-integral-063]
     paths:
       - '**.py'
       - '**.js'
@@ -51,3 +51,22 @@ jobs:
       - name: Web móvil y escritorio con datos ficticios
         if: runner.os == 'Linux'
         run: python _ftr_runtime/browser_public_smoke.py
+      - name: Compilar y comprobar cliente Windows sin fuentes
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install 'pyinstaller>=6,<7' playwright
+          if ($LASTEXITCODE -ne 0) { throw 'Falló instalar compilador.' }
+          python -m playwright install chromium
+          if ($LASTEXITCODE -ne 0) { throw 'Falló preparar navegador.' }
+          python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --name FTR_Administracion _ftr_app/main0631.py
+          if ($LASTEXITCODE -ne 0) { throw 'Falló compilar cliente.' }
+          python _ftr_tools/check_client_build.py dist/FTR_Administracion.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Falló probar binario.' }
+      - name: Conservar binario comprobado (interfaz completa pendiente)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-cliente-0631-binario-comprobado
+          path: dist/FTR_Administracion.exe
+          retention-days: 7
+          if-no-files-found: error

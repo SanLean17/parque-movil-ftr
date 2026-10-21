@@ -33,7 +33,10 @@ def write_json(path: Path, value: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + '.' + secrets.token_hex(5) + '.tmp')
     try:
-        temporary.write_text(json.dumps(value, ensure_ascii=False), encoding='utf-8')
+        with temporary.open('w', encoding='utf-8') as stream:
+            json.dump(value, stream, ensure_ascii=False)
+            stream.flush()
+            os.fsync(stream.fileno())
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)

@@ -1,5 +1,6 @@
 """Contratos estáticos y datos publicados; sin red ni escrituras."""
 import ast
+import hashlib
 import csv
 import json
 import re
@@ -35,6 +36,9 @@ def main():
     assert json.loads(re.search(r'const lineas = (\[.*?\]);', html)[1]) == sorted(mapping)
     manifest = json.loads((ROOT/'ftr_publicacion.json').read_text())
     assert manifest['config_digest'] == digest(config)
+    for name, expected in manifest.get('files_sha256', {}).items():
+        data = subprocess.check_output(['git','show','HEAD:'+name], cwd=ROOT)
+        assert hashlib.sha256(data).hexdigest() == expected, 'Manifiesto desactualizado: '+name
     for number in mapping:
         for folder in ('parques','controlados'):
             file = ROOT/folder/f'linea{number}.csv'

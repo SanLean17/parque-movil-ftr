@@ -17,6 +17,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="ftr-datos.js"></script>
 
     <link
         rel="preconnect"
@@ -1026,7 +1027,7 @@
 
     function cargarFechasActualizacion() {
 
-        fetch(
+        FTRData.fetch(
             `ultima_actualizacion_parque.txt?t=${new Date().getTime()}`
         )
         .then(
@@ -1064,7 +1065,7 @@
         );
 
 
-        fetch(
+        FTRData.fetch(
             `ultima_actualizacion_controlados.txt?t=${new Date().getTime()}`
         )
         .then(

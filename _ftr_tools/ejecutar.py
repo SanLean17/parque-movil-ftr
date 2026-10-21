@@ -43,7 +43,7 @@ def commit_validated(root, paths):
     return git('rev-parse','HEAD')
 
 
-def sources_for_execution(mode, config, jobs, event_name):
+def sources_for_execution(mode, config, jobs, event_name, state=None, moment=None):
     """Una llegada real del calendario aprovecha el arranque para leer Drive.
 
     Política solicitada: una lectura extra, incluso antes del horario principal,
@@ -53,6 +53,14 @@ def sources_for_execution(mode, config, jobs, event_name):
     """
     result = list(jobs)
     if mode == 'scheduled' and event_name == 'schedule' and config['drive']['enabled']:
+        row = (state or {}).get('drive', {})
+        if row.get('status') == 'error' and row.get('attempt_utc') and moment:
+            from datetime import datetime, timedelta
+            try:
+                if moment - datetime.fromisoformat(row['attempt_utc']) < timedelta(hours=1):
+                    return result
+            except (ValueError, TypeError):
+                pass
         if 'drive' not in result:
             result.append('drive')
     return result
@@ -83,16 +91,18 @@ def audited_plan():
         native_schedule.preflight(worker.ROOT, config)
         agenda.activate_changed_schedules(worker.load(worker.ROOT), config, state, moment)
     event_name = os.environ.get('GITHUB_EVENT_NAME', '')
-    jobs = sources_for_execution(mode, config, jobs, event_name)
+    jobs = sources_for_execution(mode, config, jobs, event_name, state, moment)
     if os.environ.get('FTR_PHASE') == 'check':
         text = agenda.explain(config, state, moment, jobs, mode)
         if mode == 'scheduled' and event_name == 'schedule':
             origin = cron_origin()
             text += '\nOrigen: evento automático schedule de GitHub.\n'
             text += ('Cron recibido (UTC): `' + origin + '`.\n') if origin else 'El evento no informó una expresión cron legible.\n'
-            if config['drive']['enabled']:
+            if 'drive' in jobs:
                 text += ('Planilla FTR: se leerá en este arranque automático, aunque el turno principal todavía no haya llegado o ya se haya atendido. '
                          'Una lectura extra no cancela la del horario configurado.\n')
+            elif config['drive']['enabled']:
+                text += 'Planilla FTR: espera el plazo mínimo de reintento tras el error anterior; no se leerá en este arranque.\n'
             else:
                 text += 'Planilla FTR: automatización desactivada; se respeta la pausa.\n'
             text += 'CNRT conserva su intervalo y solo se descarga cuando corresponde.\n'

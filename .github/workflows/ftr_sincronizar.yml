@@ -61,7 +61,6 @@ jobs:
       FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'scheduled' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
-      FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
     steps:
       - uses: actions/checkout@v6
         with:
@@ -73,6 +72,7 @@ jobs:
         id: plan
         env:
           FTR_PHASE: check
+          FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
           FTR_SCHEDULE_TOKEN: ${{ secrets.FTR_SCHEDULE_TOKEN }}
         run: python _ftr_tools/ejecutar.py
       - name: Agenda comprobada sin lectura de fuentes

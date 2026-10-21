@@ -23,7 +23,6 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUTF8: '1'
-      LOCALAPPDATA: ${{ runner.temp }}/ftr-test-user
     steps:
       - uses: actions/checkout@v6
         with:
@@ -37,6 +36,8 @@ jobs:
       - name: Instalar dependencias sin credenciales de fuentes
         run: python -m pip install pytest pandas requests flask 'cryptography>=44,<49' tzdata pyyaml -r _ftr_pruebas/requirements.txt
       - name: Fuentes ficticias, agenda, publicación y contrato 06.3
+        env:
+          LOCALAPPDATA: ${{ runner.temp }}/ftr-test-user
         run: python -m pytest -q -p no:cacheprovider _ftr_runtime _ftr_pruebas _ftr_admin _ftr_app
       - name: Comparación web y funciones del panel
         run: node --test _ftr_runtime/test_public_web.cjs _ftr_panel/test_modelo_panel05.cjs

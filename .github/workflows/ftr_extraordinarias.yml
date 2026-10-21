@@ -2,6 +2,8 @@
 name: FTR - Actualización extraordinaria
 run-name: FTR · oneoff · PROGRAMADA MANUALMENTE
 on:
+  schedule:
+    - cron: '30 21 21 10 *'
   workflow_dispatch:
 permissions:
   contents: write

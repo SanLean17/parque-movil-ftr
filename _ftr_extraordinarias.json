@@ -1,1 +1,21 @@
-{"version":1,"pending":{},"history":[],"last_execution":{},"receipts":{}}
+{
+  "version": 1,
+  "pending": {
+    "drive": {
+      "id": "41b951380a4be53a215c05ff4f10c866",
+      "source": "drive",
+      "at": "2026-10-21T18:30:00-03:00",
+      "created_utc": "2026-10-21T21:19:10.934434+00:00",
+      "status": "pending"
+    }
+  },
+  "history": [],
+  "last_execution": {},
+  "receipts": {
+    "41b951380a4be53a215c05ff4f10c866": {
+      "status": "success",
+      "action": "oneoff-set",
+      "at": "2026-10-21T21:19:10.934434+00:00"
+    }
+  }
+}

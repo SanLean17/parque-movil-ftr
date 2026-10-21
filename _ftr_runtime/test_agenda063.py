@@ -131,7 +131,7 @@ class Coordinator063Tests(unittest.TestCase):
             self.assertEqual(entry.main(),1);source.assert_not_called();self.commit.assert_not_called()
     def test_schedule_save_does_not_read_or_mark_source(self):
         c=copy.deepcopy(self.c);c['drive']['time']='16:30'
-        env=dict(FTR_ACTION='config',FTR_CONFIG=json.dumps(c),FTR_EXPECTED=digest(self.c),FTR_PLANNED_SOURCES='')
+        env=dict(FTR_ACTION='config',FTR_SCHEDULE_TOKEN='UNIT_TEST_NOT_A_REAL_CREDENTIAL',FTR_CONFIG=json.dumps(c),FTR_EXPECTED=digest(self.c),FTR_PLANNED_SOURCES='')
         with self.context(env,at('2026-10-20T20:27:00')),patch.object(worker,'google_snapshot') as source:
             self.assertEqual(entry.main(),0);source.assert_not_called()
         state=json.loads((self.root/'_ftr_estado.json').read_text());self.assertEqual(state['drive']['read_utc'],self.s['drive']['read_utc'])

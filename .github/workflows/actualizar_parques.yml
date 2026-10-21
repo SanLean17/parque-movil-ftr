@@ -2,12 +2,13 @@
 # Horarios del panel reflejados en cron UTC. La PC puede estar apagada.
 # El intervalo de días se calcula en _ftr_runtime/agenda.py, no con */N del mes.
 # 03:00 UTC conserva una recuperación nocturna de turnos pendientes.
-# Planilla anual FTR: cada 1 día(s), 22:00 hs (America/Argentina/Buenos_Aires).
+# Planilla anual FTR: cada 1 día(s), 17:00 hs (America/Argentina/Buenos_Aires).
 # Parque móvil CNRT: cada 5 día(s), 22:00 hs (America/Argentina/Buenos_Aires).
 name: Actualizar Parque Móvil FTR
 run-name: FTR · ${{ github.event_name == 'schedule' && 'schedule' || 'all' }} · ${{ github.event_name == 'schedule' && 'automático' || 'manual' }}
 on:
   schedule:
+    - cron: '0 20 * * *'
     - cron: '0 1 * * *'
     - cron: '0 3 * * *'
   workflow_dispatch:

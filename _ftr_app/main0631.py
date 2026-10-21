@@ -94,7 +94,7 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.1'
+    server.VERSION = '06.3.2'
     server.app.view_functions['submit'] = submit
     server.app.view_functions['status'] = status
     original_connect = server.app.view_functions['connect']

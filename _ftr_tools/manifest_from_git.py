@@ -16,9 +16,11 @@ def main():
         return subprocess.check_output(['git','show',':'+name],cwd=ROOT)
     config=json.loads(staged('_ftr_config.json'))
     manifest=json.loads(staged('ftr_publicacion.json'))
-    paths=['index.html','linea.html','ftr-publica.js','ftr-datos.js',
+    paths=['index.html','linea.html','ftr-publica.js','ftr-datos.js','ftr-historial.js','ftr-historial-publico.js',
            'ultima_actualizacion_parque.txt','ultima_actualizacion_controlados.txt']
     paths += [f"{folder}/linea{line['line']}.csv" for folder in ('parques','controlados') for line in config['lines'] if line['enabled']]
+    tracked=set(subprocess.check_output(['git','ls-files'],cwd=ROOT,text=True).splitlines())
+    paths += [f"historial/linea{line['line']}.json" for line in config['lines'] if line['enabled'] and f"historial/linea{line['line']}.json" in tracked]
     manifest['files_sha256']={path:hashlib.sha256(staged(path)).hexdigest() for path in paths}
     (ROOT/'ftr_publicacion.json').write_text(json.dumps(manifest)+'\n',encoding='utf-8',newline='\n')
     print(f'Huellas verificables de {len(paths)} archivos. Fechas de lectura conservadas.')

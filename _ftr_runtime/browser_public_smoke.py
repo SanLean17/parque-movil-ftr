@@ -59,7 +59,7 @@ def main():
                         request.fulfill(status=200, body=fixture[path])
                     elif path == 'ftr_publicacion.json':
                         request.fulfill(status=200, json=manifest)
-                    elif path in ('index.html','linea.html','ftr-publica.js','ftr-datos.js'):
+                    elif path in ('index.html','linea.html','ftr-publica.js','ftr-datos.js','ftr-historial.js','ftr-historial-publico.js'):
                         request.fulfill(path=str(ROOT/path))
                     else:
                         request.fulfill(status=404, body='Fixture no disponible')

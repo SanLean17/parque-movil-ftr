@@ -100,6 +100,9 @@ def google_snapshot(root, config):
             writer.writerow([number, date.strftime('%d/%m/%Y'), domain, internal])
         (root/'controlados').mkdir(exist_ok=True)
         (root/'controlados'/f'linea{number}.csv').write_text(buf.getvalue(), encoding='utf-8-sig')
+    from _ftr_runtime.history import write_history
+    write_history(root, config, admin.source_rows(sheets), start,
+                  now().astimezone(statistics.ZoneInfo('America/Argentina/Buenos_Aires')).date())
     (root/'ultima_actualizacion_controlados.txt').write_text(start+'\n', encoding='utf-8')
     return dict(read_utc=start, completed_utc=utc(), period=config['period'], source_id=source_id,
                 records=report['totales_estadisticas']['registros_validos'], unique=report['totales_estadisticas']['unidades_unicas_por_linea'])
@@ -185,9 +188,10 @@ def build_pages(revision):
 
 
 def public_hashes(root, config):
-    files = ['index.html', 'linea.html', 'ftr-publica.js', 'ftr-datos.js',
+    files = ['index.html', 'linea.html', 'ftr-publica.js', 'ftr-datos.js', 'ftr-historial.js', 'ftr-historial-publico.js',
              'ultima_actualizacion_parque.txt', 'ultima_actualizacion_controlados.txt']
     files += [f'{folder}/linea{line}.csv' for folder in ('parques', 'controlados') for line in sorted(enabled(config))]
+    files += [f'historial/linea{line}.json' for line in sorted(enabled(config))]
     return {name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files if (root/name).is_file()}
 
 
@@ -257,6 +261,8 @@ def main():
             stage=Path(tmp)
             for name in ('parques','controlados'):
                 shutil.copytree(ROOT/name,stage/name)
+            if (ROOT/'historial').exists():
+                shutil.copytree(ROOT/'historial',stage/'historial')
             for name in ('ultima_actualizacion_parque.txt','ultima_actualizacion_controlados.txt','index.html','linea.html'):
                 if (ROOT/name).exists():shutil.copy2(ROOT/name,stage/name)
             paths=[]; errors=[]; results={}
@@ -292,6 +298,13 @@ def main():
                     dest=ROOT/folder/f'linea{number}.csv'
                     shutil.copy2(stage/folder/dest.name,dest);paths.append(str(dest.relative_to(ROOT)))
                 shutil.copy2(stage/stamp,ROOT/stamp);paths.append(stamp)
+                if key=='drive':
+                    for number in enabled(config):
+                        history=stage/'historial'/f'linea{number}.json'
+                        if history.is_file():
+                            (ROOT/'historial').mkdir(exist_ok=True)
+                            shutil.copy2(history,ROOT/'historial'/history.name)
+                            paths.append('historial/'+history.name)
             if mode=='config':
                 (ROOT/FILE).write_bytes(encoded(config));paths.append(FILE)
             update_public(ROOT,config)

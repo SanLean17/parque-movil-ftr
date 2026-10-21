@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, ftr/auditoria-work-20261021, ftr/verificacion-integral-063, ftr/cliente-0631-completo]
+    branches: [main, ftr/auditoria-work-20261021, ftr/verificacion-integral-063, ftr/cliente-0631-completo, ftr/historial-fuera-parque]
     paths:
       - '**.py'
       - '**.js'
@@ -40,7 +40,7 @@ jobs:
           LOCALAPPDATA: ${{ runner.temp }}/ftr-test-user
         run: python -m pytest -q -p no:cacheprovider _ftr_runtime _ftr_pruebas _ftr_admin _ftr_app
       - name: Comparación web y funciones del panel
-        run: node --test _ftr_runtime/test_public_web.cjs _ftr_panel/test_modelo_panel05.cjs
+        run: node --test _ftr_runtime/test_public_web.cjs _ftr_panel/test_modelo_panel05.cjs _ftr_runtime/test_history.cjs
       - name: Contratos de producción y datos intactos
         run: python _ftr_tools/validar_repositorio.py
       - name: Preparar navegador de pruebas
@@ -54,6 +54,9 @@ jobs:
       - name: Panel original, cola y reapertura sin fuentes
         if: runner.os == 'Linux'
         run: python _ftr_tools/check_panel.py
+      - name: Historial público con archivos conservados y casos ficticios
+        if: runner.os == 'Linux'
+        run: python _ftr_runtime/browser_history.py
       - name: Compilar y comprobar cliente Windows sin fuentes
         if: runner.os == 'Windows'
         run: |
@@ -63,15 +66,15 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Falló preparar navegador.' }
           python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --name FTR_Administracion _ftr_app/main0631.py
           if ($LASTEXITCODE -ne 0) { throw 'Falló compilar cliente.' }
-          python _ftr_tools/package_client.py dist/FTR_Administracion.exe dist/FTR_Administracion_06_3_1_Windows
+          python _ftr_tools/package_client.py dist/FTR_Administracion.exe dist/FTR_Administracion_06_3_2_Windows
           if ($LASTEXITCODE -ne 0) { throw 'Falló preparar paquete completo.' }
-          python _ftr_tools/check_client_build.py dist/FTR_Administracion_06_3_1_Windows/FTR_Administracion.exe
+          python _ftr_tools/check_client_build.py dist/FTR_Administracion_06_3_2_Windows/FTR_Administracion.exe
           if ($LASTEXITCODE -ne 0) { throw 'Falló probar binario.' }
       - name: Conservar paquete Windows completo comprobado
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
-          name: ftr-cliente-0631-completo-comprobado
-          path: dist/FTR_Administracion_06_3_1_Windows/
+          name: ftr-cliente-0632-completo-comprobado
+          path: dist/FTR_Administracion_06_3_2_Windows/
           retention-days: 7
           if-no-files-found: error

@@ -28,7 +28,7 @@ class ConfigTransactionTests(unittest.TestCase):
         self.clock=datetime(2026,10,21,20,1,tzinfo=timezone.utc)
         self.tables=[];self.downloads=[]
         for folder in ('parques','controlados','_ftr_admin'):(self.root/folder).mkdir()
-        for name in ('index.html','linea.html','ftr-publica.js','ftr-datos.js','scraper.py','actualizar_parques.py','_ftr_admin/diagnostico_publica.pem'):
+        for name in ('index.html','linea.html','ftr-publica.js','ftr-datos.js','ftr-historial.js','ftr-historial-publico.js','scraper.py','actualizar_parques.py','_ftr_admin/diagnostico_publica.pem'):
             shutil.copy2(REPO/name,self.root/name)
         (self.root/'_ftr_config.json').write_text(json.dumps(self.config))
         (self.root/'_ftr_estado.json').write_text('{}')
@@ -80,6 +80,12 @@ class ConfigTransactionTests(unittest.TestCase):
         self.assertIn('AA111AA',(self.root/'parques/linea998.csv').read_text())
         self.assertIn('998,20/10/2026,AA111AA',(self.root/'controlados/linea998.csv').read_text(encoding='utf-8-sig'))
         self.assertIn('const lineas = [36, 998];',(self.root/'index.html').read_text(encoding='utf-8'))
+        history=json.loads((self.root/'historial/linea998.json').read_text(encoding='utf-8'))
+        self.assertEqual(history['controles'],[dict(dominio='AA111AA',fecha='2026-10-20',interno='1')])
+        manifest=json.loads((self.root/'ftr_publicacion.json').read_text())
+        for name in ('historial/linea998.json','historial/linea36.json','ftr-historial.js','ftr-historial-publico.js'):
+            self.assertIn(name,manifest['files_sha256'])
+        self.assertIn('historial/linea998.json',self.commit.call_args.args[1])
         self.commit.assert_called_once();self.pages.assert_called_once()
 
     def test_shared_company_downloaded_once(self):
@@ -112,15 +118,18 @@ class ConfigTransactionTests(unittest.TestCase):
         self.assertEqual(self.execute(candidate),0)
         self.assertEqual((self.root/'controlados/linea36.csv').read_text(encoding='utf-8-sig'),'linea,fecha,dominio,interno\n')
         self.assertEqual(json.loads((self.root/'_ftr_estado.json').read_text())['drive']['records'],0)
+        self.assertEqual(json.loads((self.root/'historial/linea36.json').read_text())['controles'],[])
 
     def test_disable_reactivate_keeps_prior_line_files(self):
         candidate=copy.deepcopy(self.config)
         candidate['lines'].append(dict(line=998,company=9999,enabled=True))
         self.assertEqual(self.execute(candidate),0)
         before=(self.root/'controlados/linea998.csv').read_bytes()
+        history=(self.root/'historial/linea998.json').read_bytes()
         candidate['lines'][1]['enabled']=False
         self.assertEqual(self.execute(candidate),0)
         self.assertEqual((self.root/'controlados/linea998.csv').read_bytes(),before)
+        self.assertEqual((self.root/'historial/linea998.json').read_bytes(),history)
         self.assertIn('const lineas = [36];',(self.root/'index.html').read_text(encoding='utf-8'))
         candidate['lines'][1]['enabled']=True
         self.assertEqual(self.execute(candidate),0)

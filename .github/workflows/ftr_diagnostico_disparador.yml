@@ -1,0 +1,42 @@
+# Diagnóstico temporal del incidente del 21/10/2026. Deshabilitar al cerrar la prueba.
+# No es un calendario de producción ni un mecanismo de recuperación.
+# Sin checkout, secretos, permisos de repositorio, dependencias ni workflow reutilizable.
+name: FTR - Diagnóstico temporal del disparador
+run-name: FTR · diagnóstico de disparador · ${{ github.event_name }}
+on:
+  schedule:
+    - cron: '4,14,24,34,44,54 * * * *'
+permissions: {}
+jobs:
+  observar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Registrar únicamente el evento automático recibido
+        env:
+          OBSERVED_EVENT: ${{ github.event_name }}
+          OBSERVED_CRON: ${{ github.event.schedule }}
+          OBSERVED_SHA: ${{ github.sha }}
+          OBSERVED_RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          if os.environ['OBSERVED_EVENT'] != 'schedule':
+              raise SystemExit('Esta prueba solo acepta eventos schedule naturales.')
+          evidence = {
+              'event': os.environ['OBSERVED_EVENT'],
+              'cron': os.environ['OBSERVED_CRON'],
+              'revision': os.environ['OBSERVED_SHA'],
+              'run_id': os.environ['OBSERVED_RUN'],
+              'observed_utc': datetime.now(timezone.utc).isoformat(),
+              'sources_read': [],
+              'repository_writes': False,
+          }
+          report = json.dumps(evidence, ensure_ascii=False, indent=2)
+          print(report)
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+              'Evento horario recibido por una prueba aislada. Esto no confirma una lectura FTR.\n\n'
+              + '```json\n' + report + '\n```\n', encoding='utf-8')
+          PY

@@ -1,0 +1,37 @@
+name: FTR - Renovar reloj automático
+on:
+  workflow_run:
+    workflows:
+      - FTR - Reloj automático
+      - FTR - Sincronizar
+      - Actualizar Parque Móvil FTR
+      - FTR - Recuperar turnos pendientes
+      - FTR - Actualización extraordinaria
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: ftr-renovacion-reloj
+  cancel-in-progress: false
+  queue: max
+jobs:
+  renovar:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Nunca ejecutar la revisión ni descargar artefactos del evento recibido.
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Renovar la espera con la configuración publicada
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          PYTHONUNBUFFERED: '1'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FTR_CLOCK_PHASE: rearm
+          FTR_NATIVE_ENABLED: ${{ vars.FTR_NATIVE_CLOCK_ENABLED }}
+        run: python3 -m _ftr_runtime.native_clock

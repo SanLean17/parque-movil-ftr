@@ -1,0 +1,78 @@
+name: FTR - Reloj automático
+run-name: FTR · reloj · ${{ inputs.mode }} · paso ${{ inputs.step }} · intento ${{ inputs.retry }}
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Prueba finita sin fuentes o activar la agenda real
+        type: choice
+        options: [prueba, real]
+        default: prueba
+        required: true
+      step:
+        description: Paso de la prueba (la activación inicial usa 0)
+        type: string
+        default: '0'
+      retry:
+        description: Reintento interno (la activación inicial usa 0)
+        type: string
+        default: '0'
+permissions:
+  contents: read
+  actions: read
+# Solo cancela esperas reemplazadas. El coordinador real vive en OTRO workflow,
+# conserva su bloqueo sin cancelación y vuelve a comprobar la agenda vigente.
+concurrency:
+  group: ftr-reloj-${{ inputs.mode }}
+  cancel-in-progress: true
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTHONUNBUFFERED: '1'
+  FTR_NATIVE_ENABLED: ${{ vars.FTR_NATIVE_CLOCK_ENABLED }}
+  FTR_CLOCK_MODE: ${{ inputs.mode }}
+  FTR_CLOCK_STEP: ${{ inputs.step }}
+  FTR_CLOCK_RETRY: ${{ inputs.retry }}
+jobs:
+  preparar:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      armed: ${{ steps.agenda.outputs.armed }}
+      environment: ${{ steps.agenda.outputs.environment }}
+      minutes: ${{ steps.agenda.outputs.minutes }}
+      armed_utc: ${{ steps.agenda.outputs.armed_utc }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Preparar próxima espera sin leer fuentes
+        id: agenda
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FTR_CLOCK_PHASE: prepare
+        run: python3 -m _ftr_runtime.native_clock
+  despertar:
+    needs: preparar
+    if: needs.preparar.outputs.armed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: write
+    environment:
+      name: ${{ needs.preparar.outputs.environment }}
+      deployment: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Comprobar la agenda vigente después de la espera
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FTR_CLOCK_PHASE: wake
+          FTR_CLOCK_ARMED: ${{ needs.preparar.outputs.armed_utc }}
+          FTR_CLOCK_MINUTES: ${{ needs.preparar.outputs.minutes }}
+        run: python3 -m _ftr_runtime.native_clock

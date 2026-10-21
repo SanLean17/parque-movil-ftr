@@ -1,0 +1,115 @@
+FTR — RELOJ AUTÓNOMO EN GITHUB
+
+La configuración del cliente sigue siendo la fuente de verdad. No se cambian
+los horarios reales, los lectores, las reglas de validación ni el bloqueo de
+publicación. El cliente Windows 06.3.4 sigue siendo compatible.
+
+FUNCIONAMIENTO
+
+1. Al terminar una orden del coordinador (guardar configuración, programar o
+   cancelar una extraordinaria, actualizar o recuperar), GitHub avisa al
+   workflow FTR - Renovar reloj automático mediante workflow_run.
+2. La renovación solicita FTR - Reloj automático mediante workflow_dispatch,
+   con el GITHUB_TOKEN temporal del propio job. No necesita un PAT adicional.
+3. El reloj calcula la próxima comprobación útil desde main: turnos diarios,
+   intervalos de días, citas únicas, publicación pendiente o interrupciones.
+4. Elige una espera fija entre 1, 5, 15, 60, 240, 720, 1440 y 10080 minutos.
+   GitHub retiene el job sin mantener un runner encendido durante la espera.
+5. Al despertar hace otro checkout de main y vuelve a calcular la agenda.
+   Nunca ejecuta una lista de fuentes conservada antes de la espera.
+6. Si corresponde trabajo y no hay un coordinador activo, solicita únicamente
+   la acción recovery del coordinador existente. Allí se vuelve a verificar
+   la agenda bajo el bloqueo ftr-publicacion-validada, sin cancelación.
+7. Al terminar la espera o el coordinador, se prepara la siguiente espera.
+   Si ambos calendarios están desactivados y no hay citas o mantenimiento
+   pendientes, termina y cancela solo las esperas del reloj real.
+
+Un cambio de código o un merge no dispara lecturas de fuentes. El reloj no
+tiene schedule ni push; la renovación no escucha CI ni Pages. Los calendarios
+cron anteriores quedan como respaldo y comparten la misma deduplicación.
+Las llamadas de renovación son deliberadas y espaciadas por esperas reales;
+no hay un runner en un bucle infinito ni un proceso permanente en Windows.
+
+ACTIVACIÓN Y DETENCIÓN
+
+La variable de repositorio FTR_NATIVE_CLOCK_ENABLED debe valer true para
+armar la agenda real. Sin esa variable solo funciona la prueba finita.
+Después de validar la instalación se activa una sola vez el modo real de
+FTR - Reloj automático. Eso prepara una espera; no fuerza Drive ni CNRT.
+Las citas vencidas aún válidas se recuperan cuando despierta por sí mismo.
+No hace falta esa activación manual cada día ni después de guardar horarios.
+
+Para detener el mecanismo de inmediato, deshabilitar FTR - Reloj automático
+en GitHub: cada despertar verifica su estado antes de solicitar trabajo.
+Desactivar la variable impide nuevas renovaciones; una ejecución ya creada
+puede conservar el contexto previo de variables. El modo de parada inmediata
+es deshabilitar el workflow, no depender solo de cambiar esa variable.
+Desactivar las agendas/cancelar citas desde el cliente sigue respetándose al
+releer main. Desactivar una agenda no cancela una lectura que ya comenzó.
+
+CONFIGURACIÓN DEL ENTORNO
+
+Ocho entornos vacíos, sin secretos ni revisores: ftr-espera-N, con wait_timer
+igual a N para cada valor indicado. Antes y después de esperar se comprueba
+que el entorno conserve ese temporizador y no tenga una aprobación humana.
+Una espera ausente o incoherente falla sin leer fuentes. No se utiliza ni se
+modifica el entorno github-pages. deployment:false evita registrar estas
+comprobaciones como publicaciones de la aplicación.
+
+PERMISOS Y SEGURIDAD
+
+Solo contents:read para los nuevos workflows. El job que prepara la espera
+solo tiene actions:read. Despertar y renovar tienen actions:write para
+solicitar ejecuciones o cancelar esperas obsoletas. Nunca cancelan al lector.
+No se utiliza Administration:write ni se crea, lee o almacena una credencial
+administrativa. GOOGLE_SERVICE_ACCOUNT_JSON no se transmite al reloj.
+
+La renovación acepta solo finalizaciones de los workflows explícitos de
+producción o del reloj, en main y en el mismo repositorio. Rechaza forks,
+pull requests, CI y eventos push. Siempre ejecuta el código de main, nunca
+la revisión ni artefactos de una ejecución recibida.
+
+REINTENTOS Y REGISTROS
+
+- Las lecturas fallidas conservan su espera de una hora y los datos previos.
+- Una publicación fallida se vuelve a comprobar a partir de quince minutos
+  de su intento anterior, reutilizando los datos guardados.
+- Un reclamo interrumpido conserva los 95 minutos de margen del coordinador.
+- Un coordinador activo evita otro despacho; el reloj espera cinco minutos
+  y se reemplaza cuando llega la finalización de ese coordinador.
+- Un fallo del propio reloj puede renovarse tres veces, con mínimos de 5,
+  15 y 60 minutos. Tras ese límite queda el error visible y el respaldo cron;
+  no se produce una cadena rápida sin límite. Cancelaciones por reemplazo
+  del reloj no generan nuevas renovaciones.
+- Cada paso deja fecha observada, próxima cita, espera elegida y decisión en
+  el resumen de Actions. Preparar una espera no se presenta como lectura.
+- El coordinador conserva sus registros de lectura real, demora, resultado,
+  publicación y fuentes independientes. El origen solicitado es recovery.
+
+PRUEBAS
+
+Pruebas locales con API y fuentes ficticias: lectura diaria, renovación,
+cambio de hora mientras espera, cancelación, pausa, coincidencias,
+duplicados, intervalos CNRT, cambio de mes/año, citas lejanas, publicación
+fallida, reclamos interrumpidos, aprobación inesperada, espera omitida,
+permisos/eventos no permitidos y límite de reintentos.
+
+El modo prueba usa cuatro esperas de un minuto y se detiene. Cada renovación
+se solicita desde el workflow anterior mediante el token temporal. Nunca
+puede solicitar ftr_sincronizar. Debe verificarse en GitHub antes de activar
+el modo real, incluyendo que la cuarta espera comienza sin intervención.
+Los resultados reales de instalación y los enlaces se guardan en el PR.
+
+LÍMITES
+
+La espera tiene resolución de minutos y se añaden las colas, el arranque del
+runner y la preparación de las fuentes. No se garantiza el segundo ni el
+minuto exacto. El diseño evita depender de schedule como único disparador,
+pero sigue requiriendo que GitHub entregue workflow_dispatch/workflow_run y
+ejecute jobs. Una indisponibilidad total de GitHub no puede repararse desde
+GitHub. No se declara una lectura exitosa sin su registro y publicación.
+
+Referencias:
+https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#wait-timer
+https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow
+https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_run

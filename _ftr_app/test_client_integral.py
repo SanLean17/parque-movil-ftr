@@ -27,7 +27,7 @@ class SnapshotTests(unittest.TestCase):
         def get(method,path):
             paths.append(path)
             if path=='git/ref/heads/main':return {'object':{'sha':'a'*40}}
-            value=self.config if '_ftr_config' in path else {'drive':{'read_utc':'REAL_SAVED_TIME'}}
+            value=self.config if '_ftr_config' in path else {'version':1,'pending':{},'history':[]} if '_ftr_extraordinarias' in path else {'drive':{'read_utc':'REAL_SAVED_TIME'}}
             return {'content':base64.b64encode(json.dumps(value).encode()).decode()}
         with patch.object(server,'DATA',self.root),patch.object(server,'api',side_effect=get):
             value=main0631.snapshot()

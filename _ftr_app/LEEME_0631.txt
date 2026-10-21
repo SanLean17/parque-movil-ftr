@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.2 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.3 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -25,6 +25,26 @@ USO SIN INTERNET
 
 ACTUALIZAR ESTADO solo consulta. Los botones Actualizar ahora y Probar lectura
 requieren confirmación y sí solicitan lecturas reales a GitHub.
+
+PROGRAMAR UNA ACTUALIZACIÓN ÚNICA
+En Actualizaciones, cada tarjeta tiene ACTUALIZACIÓN PROGRAMADA. Elegir fecha
+y hora de Buenos Aires y pulsar PROGRAMAR ACTUALIZACIÓN. Se permite hoy si el
+horario es futuro y hasta 366 días hacia adelante. Confirmar guarda la orden
+en la cola; todavía no significa que esté publicada.
+Cuando el panel muestra "Guardada en GitHub", la PC puede estar apagada.
+Hay una cita pendiente por fuente. CAMBIAR reemplaza esa cita; CANCELAR la
+elimina. Ambas acciones conservan la frecuencia y el calendario recurrentes.
+Drive y CNRT son independientes. Una coincidencia comparte una sola lectura.
+El historial identifica PROGRAMADA MANUALMENTE y distingue lectura guardada,
+error, reemplazo y cancelación. Un error conserva el último dato válido.
+No se reintenta automáticamente una cita consumida o interrumpida.
+Si la fecha pasa antes de enviar una orden offline, queda detenida y se debe
+elegir otra fecha. GitHub puede demorar el inicio; el horario no es una garantía
+de puntualidad. Una cita con más de 24 horas de demora se registra como ERROR
+en la siguiente comprobación y requiere reprogramación.
+Se reutiliza el permiso de calendario FTR_SCHEDULE_TOKEN existente en GitHub.
+Si falta o venció, la programación falla sin leer fuentes; no ingresar secretos
+en los campos de fecha ni en la programación.
 
 CONSERVACIÓN Y PRIVACIDAD
 El diseño parte de la interfaz 06.3 original. Se conserva la configuración que

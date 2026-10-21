@@ -59,10 +59,18 @@
     if(!Number.isInteger(expected)||rows.length!==expected)throw Error('El detalle disponible no permite reconstruir este indicador. Información no disponible para esta lectura.');
     return rows;
   }
-  function renderDetail(container,row) {
+  function renderDetail(container,row,options={}) {
     const doc=container.ownerDocument;
     function item(label,value){const p=doc.createElement('p'),strong=doc.createElement('strong');strong.textContent=label+': ';p.append(strong,doc.createTextNode(value));container.append(p);}
     container.replaceChildren();
+    if(options.publicOnly) {
+      item('SITUACIÓN',`No figura en el parque comparado de la Línea ${row.linea}. Esto no confirma una baja oficial.`);
+      const refs=row.internos.map(i=>({interno:i,dominios:row.referencias.filter(r=>r.interno===i).map(r=>r.dominio)})).filter(r=>r.dominios.length);
+      if(refs.length)for(const r of refs)item('REFERENCIA ACTUAL DEL INTERNO '+r.interno,r.dominios.join(', '));
+      else item('REFERENCIA ACTUAL DEL INTERNO','No disponible.');
+      item('OBSERVACIÓN',refs.length?'El interno figura asociado a otro dominio en el parque comparado. Posible renovación o reasignación del interno. No se encuentra confirmada una relación de reemplazo.':'No se encontró otra unidad del parque comparado con el mismo interno. No se puede establecer una relación con otro vehículo.');
+      return;
+    }
     item('DOMINIO FISCALIZADO',row.dominio);item('INTERNO REGISTRADO',row.internos.join(' / ')||'Información no disponible');
     item('LÍNEA',String(row.linea));item('ÚLTIMA FISCALIZACIÓN',displayDate(row.ultima_fiscalizacion));
     item('SITUACIÓN',`No figura en el parque comparado de la Línea ${row.linea}. Esto no confirma una baja oficial.`);

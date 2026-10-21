@@ -24,31 +24,31 @@ class RunStateTests(unittest.TestCase):
         def call(method,path):return {'workflow_runs':[run()]} if '/runs?' in path else {'jobs':jobs()}
         with patch.object(bridge.server,'api',side_effect=call) as api:
             self.assertEqual(bridge.last_runs()[0]['effect'],'agenda_only')
-            bridge.last_runs();self.assertEqual(api.call_count,5)
+            bridge.last_runs();self.assertEqual(api.call_count,7)
     def test_retry_not_reuse_old_result(self):
         r=run()
-        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[r]},{'workflow_runs':[]},{'jobs':jobs()},{'workflow_runs':[{**r,'run_attempt':2}]},{'workflow_runs':[]},{'jobs':jobs('success')}]):
+        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[r]},{'workflow_runs':[]},{'workflow_runs':[]},{'jobs':jobs()},{'workflow_runs':[{**r,'run_attempt':2}]},{'workflow_runs':[]},{'workflow_runs':[]},{'jobs':jobs('success')}]):
             self.assertEqual(bridge.last_runs()[0]['effect'],'agenda_only')
             self.assertEqual(bridge.last_runs()[0]['effect'],'updated')
     def test_permission_problem_not_success(self):
-        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[run()]},{'workflow_runs':[]},ValueError('denied')]):
+        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[run()]},{'workflow_runs':[]},{'workflow_runs':[]},ValueError('denied')]):
             self.assertEqual(bridge.last_runs()[0]['effect'],'unknown')
 
 class BothEntrancesTests(unittest.TestCase):
     def setUp(self):bridge._cache.clear()
     def test_legacy_scheduled_execution_visible(self):
         r={**run(),'id':2,'event':'schedule'}
-        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[]},{'workflow_runs':[r]},{'jobs':jobs('success')}]) as api:
+        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[]},{'workflow_runs':[r]},{'workflow_runs':[]},{'jobs':jobs('success')}]) as api:
             out=bridge.last_runs()
         self.assertEqual(out[0]['id'],2);self.assertEqual(out[0]['effect'],'updated')
         self.assertIn('actualizar_parques.yml',api.call_args_list[1].args[1])
     def test_same_run_not_shown_twice(self):
         r=run()
-        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[r]},{'workflow_runs':[r]},{'jobs':jobs()}]):
+        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[r]},{'workflow_runs':[r]},{'workflow_runs':[]},{'jobs':jobs()}]):
             self.assertEqual(len(bridge.last_runs()),1)
     def test_scheduled_running_blocks_duplicate_submit(self):
         r={**run(status='in_progress',conclusion=None),'event':'schedule'}
-        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[]},{'workflow_runs':[r]}]):
+        with patch.object(bridge.server,'api',side_effect=[{'workflow_runs':[]},{'workflow_runs':[r]},{'workflow_runs':[]}]):
             self.assertEqual(bridge.last_runs()[0]['status'],'in_progress')
 
 if __name__=='__main__':unittest.main()

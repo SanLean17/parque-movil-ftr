@@ -30,14 +30,19 @@ def snapshot():
     state = get('_ftr_estado.json')
     if not isinstance(state, dict):
         raise ValueError('No se pudo interpretar el estado publicado.')
-    result = dict(config=config, digest=digest(config), state=state, revision=revision)
+    extra=get('_ftr_extraordinarias.json')
+    if extra.get('version')!=1 or not isinstance(extra.get('pending'),dict) or not isinstance(extra.get('history'),list):
+        raise ValueError('No se pudo verificar la programación extraordinaria publicada.')
+    from _ftr_runtime.oneoff import recover_interrupted
+    recover_interrupted(extra,agenda_bridge.datetime.now(agenda_bridge.timezone.utc))
+    result = dict(config=config, digest=digest(config), state=state, revision=revision,oneoffs=extra)
     write_json(server.DATA/'config_remota.json', result)
     return result
 
 
 def pending_runs(since):
     found = {}
-    for workflow in (server.WORKFLOW, 'actualizar_parques.yml'):
+    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml'):
         # El rango limita consultas y permite recuperar más de seis ejecuciones.
         for page in range(1, 4):
             rows = server.api('GET', 'actions/workflows/' + workflow +
@@ -62,9 +67,12 @@ def pending_runs(since):
 
 
 def dispatch(row):
+    payload=encoded(row['config']).decode() if row['config'] else ''
+    if row['action'] in ('oneoff-set','oneoff-cancel'):payload=json.dumps(row['oneoff'])
+    elif row['action'] in ('drive','cnrt','all'):payload=json.dumps(dict(requested_utc=row['created_at']))
     server.api('POST', 'actions/workflows/' + server.WORKFLOW + '/dispatches', {
         'ref': 'main', 'inputs': dict(action=row['action'],
-            config_json=encoded(row['config']).decode() if row['config'] else '',
+            config_json=payload,
             expected=row['expected'], request_id=row['id'])})
 
 
@@ -94,7 +102,7 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.2'
+    server.VERSION = '06.3.3'
     server.app.view_functions['submit'] = submit
     server.app.view_functions['status'] = status
     original_connect = server.app.view_functions['connect']

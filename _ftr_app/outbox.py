@@ -16,6 +16,7 @@ from pathlib import Path
 
 from _ftr_runtime.config import clean_config, digest, encoded
 from _ftr_app.local_clock import computer_lock, write_json
+from _ftr_runtime import oneoff
 
 OPEN = {'pending', 'authorization', 'sending', 'unknown', 'sent', 'conflict'}
 BUSY = {'queued', 'in_progress', 'waiting', 'pending', 'requested'}
@@ -68,12 +69,13 @@ class Outbox:
 
     def enqueue(self, data, published):
         action = data.get('action')
-        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic'):
+        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic','oneoff-set','oneoff-cancel'):
             raise ValueError('Acción no permitida.')
         expected = data.get('expected') or (published or {}).get('digest')
         if not isinstance(expected, str) or not re.fullmatch('[a-f0-9]{64}', expected):
             raise ValueError('Primero consultá la configuración publicada. Se conserva el borrador local.')
         candidate = clean_config(data.get('config')) if action in ('config', 'diagnostic') else None
+        extra = oneoff.command(data.get('oneoff'),self.clock(),action=='oneoff-cancel') if action in ('oneoff-set','oneoff-cancel') else None
         if candidate and len(encoded(candidate)) > 60000:
             raise ValueError('La configuración excede el límite de la solicitud.')
         dependency = data.get('depends_on')
@@ -86,15 +88,18 @@ class Outbox:
                 if not parent or parent['action'] != 'config' or parent['status'] in ('failed', 'cancelled', 'conflict'):
                     raise ValueError('La configuración de la que depende esta orden no está disponible.')
                 expected = digest(parent['config'])
-            fingerprint = hashlib.sha256(json.dumps([action, expected, candidate, dependency], sort_keys=True).encode()).hexdigest()
+            fingerprint = hashlib.sha256(json.dumps([action, expected, candidate, dependency, extra], sort_keys=True).encode()).hexdigest()
             duplicate = next((r for r in value['orders'] if r['fingerprint'] == fingerprint and r['status'] in OPEN), None)
             if duplicate:
                 return self.public(duplicate)
+            if extra and any(r.get('oneoff',{}).get('source')==extra['source'] and r['status'] in OPEN for r in value['orders']):
+                raise ValueError('Ya hay una orden pendiente para esta fuente. Esperá su resultado o cancelala antes del envío para cambiarla.')
             if sum(r['status'] in OPEN for r in value['orders']) >= 100:
                 raise ValueError('Hay 100 órdenes pendientes. Revisalas antes de agregar otra.')
             row = dict(id=secrets.token_hex(16), action=action, expected=expected, config=candidate,
                        depends_on=dependency, fingerprint=fingerprint, status='pending',
                        created_at=self.clock().isoformat(), attempts=0, message=LABELS['pending'])
+            if extra:row['oneoff']=extra
             value['orders'].append(row)
             self.save(value)  # Se conserva ANTES de cualquier acceso a Internet.
             return self.public(row)
@@ -155,7 +160,7 @@ class Outbox:
                         row['run_id'] = found['id']
                         row['url'] = found.get('url')
                         if found['status'] == 'completed':
-                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic') and found.get('conclusion') == 'success'
+                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic','oneoff_saved','coalesced') and found.get('conclusion') == 'success'
                             row.update(status='completed' if ok else 'failed', message=found.get('detail') or LABELS['completed' if ok else 'failed'])
                         else:
                             row.update(status='sent', message=LABELS['sent'])
@@ -164,6 +169,14 @@ class Outbox:
                 row = next((r for r in value['orders'] if r['status'] in OPEN), None)
                 if not row or row['status'] != 'pending':
                     return
+                if row['action'] in ('oneoff-set','oneoff-cancel'):
+                    try:
+                        change=oneoff.command(row['oneoff'],self.clock(),row['action']=='oneoff-cancel',True)
+                        if 'oneoffs' not in remote:raise ValueError('No se pudo consultar la programación extraordinaria publicada.')
+                        actual=remote['oneoffs'].get('pending',{}).get(change['source'],{})
+                        if actual.get('id')!=change['expected_id']:raise ValueError('La actualización programada cambió. Actualizá el estado y confirmá una nueva orden.')
+                    except ValueError as exc:
+                        row.update(status='conflict',message=str(exc));self.save(value);return
                 if row.get('depends_on'):
                     parent = next(r for r in value['orders'] if r['id'] == row['depends_on'])
                     if parent['status'] != 'completed':

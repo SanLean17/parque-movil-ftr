@@ -9,7 +9,7 @@ on:
       action:
         description: Proceso que se ejecutará
         type: choice
-        options: [all, drive, cnrt, diagnostic, config, scheduled]
+        options: [all, drive, cnrt, diagnostic, config, scheduled, oneoff-set, oneoff-cancel, oneoff]
         default: all
         required: true
       config_json:
@@ -58,7 +58,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONUNBUFFERED: '1'
-      FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'scheduled' }}
+      FTR_ACTION: ${{ inputs.action || 'scheduled' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
       FTR_REQUEST_ID: ${{ inputs.request_id || '' }}
@@ -97,6 +97,9 @@ jobs:
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
           FTR_PLANNED_SOURCES: ${{ steps.plan.outputs.sources }}
         run: python _ftr_tools/ejecutar.py
+      - name: Solicitud cubierta por una ejecución coincidente
+        if: success() && steps.plan.outputs.coalesced == 'true'
+        run: echo 'La solicitud comparte un resultado confirmado. No se volvió a descargar la fuente.'
       - name: Conservar informe administrativo protegido
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f

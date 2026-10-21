@@ -92,13 +92,21 @@ jobs:
         run: |
           @'
           from pathlib import Path
+          from playwright.sync_api import expect
           path=Path('_ftr_app/browser_smoke061.py').resolve()
           source=path.read_text(encoding='utf-8').replace('06.1','06.4')
-          source=source.replace("                result=page.evaluate", "                page.wait_for_selector('#localClockPanel')\n                page.wait_for_function(\"document.querySelector('#localClockBadge').textContent==='DESACTIVADO'\")\n                assert page.locator('#localClockDisable').is_disabled()\n                page.once('dialog',lambda d:d.accept())\n                page.locator('#localClockEnable').click()\n                page.wait_for_function(\"document.querySelector('#localClockMessage').textContent.includes('Conectá GitHub')\")\n                result=page.evaluate", 1)
-          scope={'__file__':str(path),'__name__':'ftr_smoke064'}
+          source=source.replace("                result=page.evaluate", "                page.wait_for_selector('#localClockPanel')\n                expect(page.locator('#localClockBadge')).to_have_text('DESACTIVADO')\n                assert page.locator('#localClockDisable').is_disabled()\n                page.once('dialog',lambda d:d.accept())\n                page.locator('#localClockEnable').click()\n                expect(page.locator('#localClockMessage')).to_contain_text('Conectá GitHub')\n                result=page.evaluate", 1)
+          scope={'__file__':str(path),'__name__':'ftr_smoke064','expect':expect}
           exec(compile(source,str(path),'exec'),scope)
           scope['TEMPLATE']=scope['TEMPLATE'].replace('<body>','<body><section data-page="schedules"><form id="schedulesForm"></form></section>').replace("window.csrf='__FTR_CSRF__';", "const csrf='__FTR_CSRF__';window.csrf=csrf;")
-          scope['main']()
+          with scope['sync_playwright']() as p:
+              browser=p.chromium.launch()
+              scope['test_executable'](browser)
+              scope['test_web'](browser)
+              browser.close()
+          import json
+          Path('dist/COMPROBACION_NAVEGADOR.json').write_text(json.dumps({'version':'06.4','compiled_windows_startup':'OK','two_instances_same_browser':'OK','session_cookie_csrf':'OK','local_clock_disabled_by_default':'OK','activation_requires_credentials':'OK','copy_alerts_desktop_mobile_light_dark':'OK','private_sources_used':False,'bots_executed':False}),encoding='utf-8')
+          print('Navegador real: inicio, controles de respaldo, seguridad y botones públicos OK.')
           '@ | python -
           if ($LASTEXITCODE -ne 0) { throw 'Falló navegador de la aplicación compilada.' }
       - name: Preparar artefacto sin informes privados

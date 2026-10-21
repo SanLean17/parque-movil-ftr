@@ -1,15 +1,16 @@
 name: FTR - Sincronizar
 run-name: FTR · ${{ inputs.action || github.event_name }} · ${{ inputs.request_id || 'automático' }}
 on:
-  # La programación vive en actualizar_parques.yml, el workflow original.
-  # Este archivo conserva las órdenes del panel y la ejecución reutilizable.
-  # No se lee ninguna fuente por cambiar código o por arrancar el panel.
+  # La programación de GitHub sigue en actualizar_parques.yml.
+  # scheduled permite al respaldo OPTATIVO de la PC solicitar la comprobación
+  # de la misma agenda. El evento se registra como workflow_dispatch, no schedule.
+  # Guardar código o consultar el estado no lee Google/CNRT.
   workflow_dispatch:
     inputs:
       action:
         description: Proceso que se ejecutará
         type: choice
-        options: [all, drive, cnrt, diagnostic, config]
+        options: [all, drive, cnrt, diagnostic, config, scheduled]
         default: all
         required: true
       config_json:

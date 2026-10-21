@@ -1,0 +1,129 @@
+name: FTR - Respaldo PC 06.4 (pruebas sin fuentes)
+on:
+  push:
+    branches: [ftr/respaldo-pc-064]
+    paths: [.github/workflows/ftr_respaldo064_pruebas.yml]
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Dependencias sin credenciales de fuentes
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7' playwright pyyaml
+      - name: Probar reloj, transporte simulado y seguridad de aplicación
+        shell: pwsh
+        run: |
+          python -m unittest discover -s _ftr_app -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de la aplicación.' }
+          python -m unittest discover -s _ftr_runtime -p test_agenda063.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron pruebas de turnos y coordinación.' }
+          node --check _ftr_app/local_clock_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'JavaScript inválido.' }
+      - name: Comprobar protección de endpoints del respaldo
+        shell: pwsh
+        run: |
+          @'
+          import sys, tempfile
+          from pathlib import Path
+          from unittest.mock import patch
+          sys.path.insert(0, str(Path('_ftr_app').resolve()))
+          import main064 as program
+          server = program.server
+          program.install()
+          with tempfile.TemporaryDirectory() as tmp, patch.object(server, 'DATA', Path(tmp)), patch.object(server, '_token', None):
+              client=server.app.test_client()
+              headers={'X-FTR-CSRF':server.CSRF,'Origin':server.ORIGIN}
+              assert client.get('/api/local-clock',base_url=server.ORIGIN).status_code==403
+              assert client.get('/iniciar/'+server.BOOT,base_url=server.ORIGIN).status_code==302
+              assert client.get('/api/local-clock',base_url=server.ORIGIN).status_code==403
+              result=client.get('/api/local-clock',base_url=server.ORIGIN,headers=headers)
+              assert result.status_code==200 and result.json['enabled'] is False
+              assert client.post('/api/local-clock',base_url=server.ORIGIN,headers=headers,json={'enabled':True}).status_code==400
+              with patch.object(server,'token',return_value='FTR_TEST_NOT_A_CREDENTIAL'), patch.object(server,'api',return_value={'state':'active'}):
+                  r=client.post('/api/local-clock',base_url=server.ORIGIN,headers=headers,json={'enabled':True})
+                  assert r.status_code==200 and r.json['enabled'] is True
+              assert program.clock._thread is None
+              bad={**headers,'Origin':'https://foreign.invalid'}
+              assert client.post('/api/local-clock',base_url=server.ORIGIN,headers=bad,json={'enabled':False}).status_code==403
+              assert client.post('/api/local-clock',base_url=server.ORIGIN,headers=headers,json={'enabled':False}).status_code==200
+              assert client.get('/local-clock-ui.js',base_url=server.ORIGIN).status_code==200
+          print('Activación explícita, rechazo sin permiso, sesión/CSRF/origen y ausencia de envíos durante pruebas: OK')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Fallaron endpoints del reloj.' }
+      - name: Verificar calendario conservado y respaldo sin nuevas credenciales
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          import yaml
+          def load(name): return yaml.load(Path('.github/workflows',name).read_text(encoding='utf-8'),Loader=yaml.BaseLoader)
+          child=load('ftr_sincronizar.yml'); parent=load('actualizar_parques.yml')
+          assert 'scheduled' in child['on']['workflow_dispatch']['inputs']['action']['options']
+          assert 'schedule' in parent['on'] and 'schedule' not in child['on']
+          assert 'push' not in child['on'] and 'push' not in parent['on']
+          assert child['concurrency']['group']=='ftr-publicacion-validada'
+          print('Calendario existente conservado. Respaldo llama modo scheduled; no fuerza all ni agrega servicios.')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Falló contrato de workflows.' }
+      - name: Instalar navegador de prueba
+        run: python -m playwright install chromium
+      - name: Compilar aplicación Windows 06.4
+        run: python -m PyInstaller --noconfirm --clean --onefile --noconsole --paths . --collect-all tzdata --add-data '_ftr_app/local_clock_ui.js;.' --name FTR_Administracion _ftr_app/main064.py
+      - name: Verificar arranque local y protección de credenciales
+        shell: pwsh
+        run: |
+          '<html><body>Prueba interna __FTR_CSRF__</body></html>' | Set-Content -Encoding utf8 dist/panel.html
+          $p=Start-Process -FilePath ./dist/FTR_Administracion.exe -ArgumentList '--self-test' -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path dist/self-test-ok.txt)) { throw 'Falló inicio del ejecutable.' }
+      - name: Probar navegador y pantalla de respaldo sin token real
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+          from playwright.sync_api import expect
+          path=Path('_ftr_app/browser_smoke061.py').resolve()
+          source=path.read_text(encoding='utf-8').replace('06.1','06.4')
+          source=source.replace("                result=page.evaluate", "                page.wait_for_selector('#localClockPanel')\n                expect(page.locator('#localClockBadge')).to_have_text('DESACTIVADO')\n                assert page.locator('#localClockDisable').is_disabled()\n                page.once('dialog',lambda d:d.accept())\n                page.locator('#localClockEnable').click()\n                expect(page.locator('#localClockMessage')).to_contain_text('Conectá GitHub')\n                result=page.evaluate", 1)
+          scope={'__file__':str(path),'__name__':'ftr_smoke064','expect':expect}
+          exec(compile(source,str(path),'exec'),scope)
+          scope['TEMPLATE']=scope['TEMPLATE'].replace('<body>','<body><section data-page="schedules"><form id="schedulesForm"></form></section>').replace("window.csrf='__FTR_CSRF__';", "const csrf='__FTR_CSRF__';window.csrf=csrf;")
+          with scope['sync_playwright']() as p:
+              browser=p.chromium.launch()
+              scope['test_executable'](browser)
+              scope['test_web'](browser)
+              browser.close()
+          import json
+          Path('dist/COMPROBACION_NAVEGADOR.json').write_text(json.dumps({'version':'06.4','compiled_windows_startup':'OK','two_instances_same_browser':'OK','session_cookie_csrf':'OK','local_clock_disabled_by_default':'OK','activation_requires_credentials':'OK','copy_alerts_desktop_mobile_light_dark':'OK','private_sources_used':False,'bots_executed':False}),encoding='utf-8')
+          print('Navegador real: inicio, controles de respaldo, seguridad y botones públicos OK.')
+          '@ | python -
+          if ($LASTEXITCODE -ne 0) { throw 'Falló navegador de la aplicación compilada.' }
+      - name: Preparar artefacto sin informes privados
+        shell: pwsh
+        run: |
+          Remove-Item dist/panel.html -ErrorAction SilentlyContinue
+          git archive --format=zip -o dist/ftr-fuentes-064.zip HEAD _ftr_app .github/workflows/ftr_sincronizar.yml
+          'Pruebas con reloj y GitHub simulados. El respaldo está desactivado por defecto y necesita confirmación en la PC. No se leyó Google ni CNRT. No se prueba ni se afirma la recuperación del evento schedule de GitHub.' | Set-Content -Encoding utf8 dist/ALCANCE_PRUEBA.txt
+      - name: Conservar ejecutable y comprobaciones
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-programa-windows-064
+          path: |
+            dist/FTR_Administracion.exe
+            dist/self-test-ok.txt
+            dist/COMPROBACION_NAVEGADOR.json
+            dist/ALCANCE_PRUEBA.txt
+            dist/ftr-fuentes-064.zip
+          if-no-files-found: error
+          retention-days: 7

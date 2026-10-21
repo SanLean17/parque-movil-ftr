@@ -1,5 +1,6 @@
 """Coordinador: agenda auditable y publicación con errores de Git identificables."""
 from pathlib import Path
+import json
 import os
 import re
 import subprocess
@@ -41,6 +42,37 @@ def commit_validated(root, paths):
     return git('rev-parse','HEAD')
 
 
+def sources_for_execution(mode, config, jobs, event_name):
+    """Una llegada real del calendario aprovecha el arranque para leer Drive.
+
+    Política solicitada: una lectura extra, incluso antes del horario principal,
+    no sustituye la de ese horario. CNRT conserva su calendario de varios días.
+    No se aplica a guardar configuración, consultar estado, push ni solicitudes
+    manuales. La agenda pasiva del panel conserva su próximo turno principal.
+    """
+    result = list(jobs)
+    if mode == 'scheduled' and event_name == 'schedule' and config['drive']['enabled']:
+        if 'drive' not in result:
+            result.append('drive')
+    return result
+
+
+def cron_origin():
+    """Registra el cron que GitHub envió, sin volcar el payload ni credenciales."""
+    path = os.environ.get('GITHUB_EVENT_PATH')
+    if not path:
+        return None
+    try:
+        with open(path, encoding='utf-8') as stream:
+            event = json.load(stream)
+        value = event.get('schedule') if isinstance(event, dict) else None
+    except (OSError, ValueError, UnicodeError):
+        return None
+    if isinstance(value, str) and re.fullmatch(r'[0-9* /,\-]{1,80}', value):
+        return value
+    return None
+
+
 _original_plan = worker.plan
 
 def audited_plan():
@@ -49,8 +81,20 @@ def audited_plan():
     if mode == 'config':
         native_schedule.preflight(worker.ROOT, config)
         agenda.activate_changed_schedules(worker.load(worker.ROOT), config, state, moment)
+    event_name = os.environ.get('GITHUB_EVENT_NAME', '')
+    jobs = sources_for_execution(mode, config, jobs, event_name)
     if os.environ.get('FTR_PHASE') == 'check':
         text = agenda.explain(config, state, moment, jobs, mode)
+        if mode == 'scheduled' and event_name == 'schedule':
+            origin = cron_origin()
+            text += '\nOrigen: evento automático schedule de GitHub.\n'
+            text += ('Cron recibido (UTC): `' + origin + '`.\n') if origin else 'El evento no informó una expresión cron legible.\n'
+            if config['drive']['enabled']:
+                text += ('Planilla FTR: se leerá en este arranque automático, aunque el turno principal todavía no haya llegado o ya se haya atendido. '
+                         'Una lectura extra no cancela la del horario configurado.\n')
+            else:
+                text += 'Planilla FTR: automatización desactivada; se respeta la pausa.\n'
+            text += 'CNRT conserva su intervalo y solo se descarga cuando corresponde.\n'
         print(text)
         if os.environ.get('GITHUB_STEP_SUMMARY'):
             with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as f:

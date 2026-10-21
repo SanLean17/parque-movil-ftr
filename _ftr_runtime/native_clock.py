@@ -1,7 +1,7 @@
 """Reloj alojado en GitHub: espera sin runner y relee main al despertar.
 
 No importa lectores, no escribe datos ni configura permisos/entornos. Cada
-ejecución termina; workflow_run rearma mediante workflow_dispatch. La prueba
+ejecución solicita directamente el próximo workflow_dispatch y termina. La prueba
 termina tras cuatro esperas y nunca puede despachar el coordinador real.
 """
 from __future__ import annotations
@@ -170,7 +170,9 @@ def prepare(root, moment, mode, step, retry, enabled, call=api):
     if plan is None:
         return dict(armed=False, status='idle', sources_read=[])
     target = instant(plan['next_due_utc'])
-    if mode == 'real' and target <= moment and busy(call):
+    if mode == 'real' and busy(call):
+        # Los avisos workflow_run de ejecuciones iniciadas por GITHUB_TOKEN
+        # pueden no llegar: volver a comprobar mientras trabaja el lector.
         target = moment + timedelta(minutes=5)
     minutes = choose_wait(target, moment, retry)
     validate_wait(call, minutes)
@@ -203,29 +205,51 @@ def wake(root, moment, mode, step, enabled, armed, minutes, run_id, call=api):
     return dict(proof, status='coordinator_requested', **plan)
 
 
+def next_cycle(mode, step, retry, conclusion):
+    if mode == 'prueba':
+        return dict(mode=mode, step=str(step + 1), retry='0') if conclusion == 'success' and step < 3 else None
+    if conclusion == 'success':
+        return dict(mode=mode, step='0', retry='0')
+    if conclusion in ('failure', 'timed_out', 'startup_failure') and retry < 3:
+        return dict(mode=mode, step='0', retry=str(retry + 1))
+    return None  # Cancelación por reemplazo o límite de fallos: no crear un bucle.
+
+
 def follow_up(event):
-    """Solo finalizaciones confiables; nunca PR, fork, CI ni push de código."""
+    """Solo producción confiable. El reloj no depende de su workflow_run."""
     row = event.get('workflow_run', {})
     if (event.get('action') != 'completed' or row.get('head_branch') != 'main'
             or row.get('head_repository', {}).get('full_name') != REPO
             or row.get('event') not in ('schedule', 'workflow_dispatch')):
         return None
     name = row.get('path', '').split('@', 1)[0].rsplit('/', 1)[-1]
-    if name in PRODUCTION:
-        return dict(mode='real', step='0', retry='0')
-    if name != CLOCK:
-        return None
-    match = TITLE.fullmatch(row.get('display_title', ''))
-    if not match:
-        return None
-    mode, step, retry = match[1], int(match[2]), int(match[3])
-    if mode == 'prueba':
-        return dict(mode=mode, step=str(step + 1), retry='0') if row.get('conclusion') == 'success' and step < 3 else None
-    if row.get('conclusion') == 'success':
-        return dict(mode=mode, step='0', retry='0')
-    if row.get('conclusion') in ('failure', 'timed_out', 'startup_failure') and retry < 3:
-        return dict(mode=mode, step='0', retry=str(retry + 1))
-    return None  # Cancelación por reemplazo o límite de fallos: no crear un bucle.
+    return dict(mode='real', step='0', retry='0') if name in PRODUCTION else None
+
+
+def request_next(root, inputs, moment, enabled, call, cancel_idle=False):
+    if inputs is None:
+        return dict(status='no_rearm', sources_read=[])
+    if inputs['mode'] == 'real':
+        if not enabled:
+            return dict(status='disabled', sources_read=[])
+        if snapshot(root, moment) is None:
+            if cancel_idle:
+                cancel_waiters(call)
+            return dict(status='idle', sources_read=[])
+    if not workflow_active(call, CLOCK) or not workflow_active(call, REARM):
+        return dict(status='disabled', sources_read=[])
+    dispatch(call, CLOCK, inputs)
+    return dict(status='next_wait_requested', **inputs, sources_read=[])
+
+
+def renew(root, moment, mode, step, retry, enabled, preparation, awakening, call=api):
+    outcomes = (preparation, awakening)
+    if any(value not in ('success', 'failure', 'cancelled', 'skipped') for value in outcomes):
+        raise ValueError('Resultados del ciclo no válidos.')
+    if 'cancelled' in outcomes or preparation == 'skipped' or outcomes == ('success', 'skipped'):
+        return dict(status='no_rearm', sources_read=[])
+    conclusion = 'failure' if 'failure' in outcomes else 'success'
+    return request_next(root, next_cycle(mode, step, retry, conclusion), moment, enabled, call)
 
 
 def rearm(root, event, moment, enabled, call=api):
@@ -236,19 +260,7 @@ def rearm(root, event, moment, enabled, call=api):
         if verified.get('status') != 'completed':
             return dict(status='event_not_completed', sources_read=[])
         event = dict(event, workflow_run=verified)
-    inputs = follow_up(event)
-    if inputs is None:
-        return dict(status='no_rearm', sources_read=[])
-    if inputs['mode'] == 'real':
-        if not enabled:
-            return dict(status='disabled', sources_read=[])
-        if snapshot(root, moment) is None:
-            cancel_waiters(call)
-            return dict(status='idle', sources_read=[])
-    if not workflow_active(call, CLOCK) or not workflow_active(call, REARM):
-        return dict(status='disabled', sources_read=[])
-    dispatch(call, CLOCK, inputs)
-    return dict(status='next_wait_requested', **inputs, sources_read=[])
+    return request_next(root, follow_up(event), moment, enabled, call, cancel_idle=True)
 
 
 def emit(result):
@@ -285,6 +297,9 @@ def main():
             raise ValueError('Los parámetros del reloj no son válidos.')
         if phase == 'prepare':
             result = prepare(root, moment, mode, int(step), int(retry), enabled)
+        elif phase == 'renew':
+            result = renew(root, moment, mode, int(step), int(retry), enabled,
+                           os.environ['FTR_PREPARE_RESULT'], os.environ['FTR_WAKE_RESULT'])
         elif phase == 'wake':
             result = wake(root, moment, mode, int(step), enabled, os.environ['FTR_CLOCK_ARMED'],
                           int(os.environ['FTR_CLOCK_MINUTES']), os.environ['GITHUB_RUN_ID'])

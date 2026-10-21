@@ -23,7 +23,7 @@ class PanelResourcesTests(unittest.TestCase):
         self.assertEqual(report['estado'],'SIN_INFORME');self.assertEqual(report['lineas'],[])
         self.assertNotRegex(html,r'-----BEGIN (?:RSA )?PRIVATE KEY-----\s+[A-Za-z0-9+/=]{20}')
         self.assertNotIn('39342172033',html)
-        self.assertEqual(re.findall(r'<script src="([^"]+)"',html),['/panel-bridge.js'])
+        self.assertEqual(re.findall(r'<script src="([^"]+)"',html),['/ftr-historial.js','/panel-history.js','/panel-bridge.js'])
 
     def test_incomplete_new_package_fails_clearly(self):
         with tempfile.TemporaryDirectory() as directory:

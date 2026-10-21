@@ -1,9 +1,9 @@
-ADMINISTRACIÓN FTR 06.3.1 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.2 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
 2. Extraer todo el ZIP nuevo en una carpeta nueva. No abrir dentro del ZIP.
-3. Abrir FTR_Administracion.exe. Mantener panel.html y panel-bridge.js a su lado.
+3. Abrir FTR_Administracion.exe. Mantener todos los archivos del paquete a su lado.
 4. La autorización, borradores e informes locales se reutilizan bajo el mismo
    usuario de Windows. No borrar la carpeta FTR_Administracion de AppData.
 5. Para recuperar la llave y el informe que venían dentro del paquete anterior:
@@ -41,3 +41,10 @@ la compilación y SHA256_ARCHIVOS.txt permite comprobar sus archivos.
 Las pruebas incluidas en el desarrollo usan fuentes ficticias; no demuestran
 por sí solas una lectura automática real de Google o CNRT. El estado publicado
 se consulta en el panel y en las ejecuciones de GitHub.
+
+HISTORIAL FUERA DEL PARQUE
+En Estadísticas > Cobertura actual, VER DETALLE muestra los vehículos del
+indicador Controlados fuera del parque. Usa el mismo informe privado y su
+parque comparado; no realiza una lectura nueva. Las referencias por interno
+no confirman reemplazos ni bajas. Si falta el detalle privado, recuperarlo
+desde el ZIP anterior o consultar el informe de una ejecución existente.

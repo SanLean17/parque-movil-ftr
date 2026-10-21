@@ -254,6 +254,18 @@ def panel_bridge():
     return response
 
 
+@app.get('/ftr-historial.js')
+@app.get('/panel-history.js')
+def history_resources():
+    name=request.path[1:]
+    path=RESOURCE/name
+    if name=='ftr-historial.js' and not getattr(sys,'frozen',False):
+        path=Path(__file__).resolve().parents[1]/name
+    response=make_response(path.read_text(encoding='utf-8'))
+    response.headers['Content-Type']='text/javascript; charset=utf-8'
+    return response
+
+
 @app.get('/api/bootstrap')
 def bootstrap():
     connected=True
@@ -365,8 +377,13 @@ def check_resources():
         raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
     if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
         raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
-    if VERSION=='06.3.1' and not (RESOURCE/'panel-bridge.js').is_file():
-        raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete 06.3.1 en una carpeta nueva.')
+    if VERSION in ('06.3.1','06.3.2') and not (RESOURCE/'panel-bridge.js').is_file():
+        raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete '+VERSION+' en una carpeta nueva.')
+    if VERSION=='06.3.2':
+        for name in ('panel-history.js','ftr-historial.js'):
+            path=RESOURCE/name
+            if name=='ftr-historial.js' and not getattr(sys,'frozen',False):path=Path(__file__).resolve().parents[1]/name
+            if not path.is_file():raise ValueError('Falta '+name+'. Extraé todo el paquete 06.3.2 en una carpeta nueva.')
 
 
 def local_server():

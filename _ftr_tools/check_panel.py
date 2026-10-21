@@ -1,4 +1,4 @@
-"""UI 06.3.1 real y cola real con GitHub ficticio, sin lecturas de producción."""
+"""UI 06.3.2 real y cola real con GitHub ficticio, sin lecturas de producción."""
 import copy
 import json
 import os
@@ -57,6 +57,8 @@ def main():
                     page.locator(selector).click();page.locator('#dialogConfirm').click()
                     page.wait_for_function('() => !document.querySelector("#confirmDialog").open')
                 context,page=opened()
+                from history_browser_checks import check_admin_history
+                check_admin_history(page)
                 page.locator('#driveTime').fill('18:15');page.locator('#saveAll').click()
                 page.wait_for_function('() => document.querySelector("#savedState").textContent.includes("guardado")')
                 assert not queue.status()['orders'] and not network['sent']
@@ -114,7 +116,7 @@ def main():
                 assert not failures,failures
                 assert not external,external
                 context.close();browser.close()
-                print('Panel 06.3.1: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
+                print('Panel 06.3.2: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
         finally:
             srv.shutdown();srv.server_close();thread.join(timeout=3)
 

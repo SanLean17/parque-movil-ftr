@@ -12,6 +12,7 @@
     <!-- PapaParse para CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="ftr-datos.js"></script>
+    <script src="ftr-historial.js"></script>
 
     <!-- Fuente JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -322,6 +323,21 @@
 
         </div>
 
+        <section id="historySection" hidden class="mt-6" aria-labelledby="historyTitle">
+            <h2 id="historyTitle" class="text-sm font-bold uppercase text-gray-700 dark:text-gray-300 mb-1">CONTROLADOS FUERA DEL PARQUE MÓVIL</h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Unidades fiscalizadas durante el período que ya no figuran en el parque móvil publicado de esta línea.</p>
+            <div class="bg-gray-50 dark:bg-gray-800/70 rounded-lg shadow-sm overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="overflow-x-auto">
+                    <table id="historyTable" class="w-full text-left border-collapse" aria-label="Controlados fuera del parque móvil">
+                        <thead><tr class="bg-gray-800 dark:bg-gray-950 text-white text-[11px] sm:text-xs uppercase tracking-wider text-center divide-x divide-gray-700">
+                            <th class="py-2.5 px-2 font-semibold">DOMINIO</th><th class="py-2.5 px-2 font-semibold">INTERNO</th><th class="py-2.5 px-2 font-semibold">ÚLTIMA FISCALIZACIÓN</th><th class="py-2.5 px-2 font-semibold">SITUACIÓN</th><th class="py-2.5 px-2 font-semibold">DETALLE</th>
+                        </tr></thead>
+                        <tbody id="historyTbody" class="divide-y divide-gray-200 dark:divide-gray-700 text-xs font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+            <p id="historyNote" class="text-[11px] text-gray-500 dark:text-gray-400 mt-2"></p>
+        </section>
     </main>
 
 
@@ -336,6 +352,7 @@
 
 
 
+    <script src="ftr-historial-publico.js"></script>
     <!-- JAVASCRIPT -->
 
     <script>
@@ -367,8 +384,10 @@
         // ============================================================
 
         let mapControlados = {};
+        let registrosControlados = [];
 
         function mostrarLecturaNoDisponible() {
+            FTRHistoryPublic.clear();
             for (const id of ['countTotal', 'countControlados', 'countPendientes']) {
                 document.getElementById(id).textContent = '—';
             }
@@ -621,6 +640,7 @@
                     }
 
 
+                    registrosControlados = results.data;
                     if (
                         results &&
                         results.data &&
@@ -740,42 +760,17 @@
 
                     complete: function(results) {
 
-                        if (!results || !results.data || (results.errors || []).length) {
+                        if (!results || !Array.isArray(results.data) || (results.errors || []).length) {
                             mostrarLecturaNoDisponible();
                             return;
                         }
-
-
-                        if (
-                            results &&
-                            results.data &&
-                            results.data.length > 0
-                        ) {
-
-                            renderFleet(results.data);
-
-                        }
-
-                        else {
-
-                            document.getElementById(
-                                "fleetTbody"
-                            ).innerHTML =
-
-                                `<tr>
-
-                                    <td
-                                        colspan="8"
-                                        class="py-6 text-center text-red-500 font-bold"
-                                    >
-                                        El archivo 'parques/linea${lineaId}.csv' está vacío.
-                                    </td>
-
-                                </tr>`;
+                        const fields = (results.meta?.fields || []).map(normalizarClave);
+                        if (!fields.includes('dominio') || !fields.includes('interno')) {
                             mostrarLecturaNoDisponible();
-
+                            return;
                         }
-
+                        // Un CSV con encabezados válidos y cero filas sí es un parque vacío.
+                        renderFleet(results.data);
                     },
 
 
@@ -813,6 +808,7 @@
         // ============================================================
 
         function renderFleet(data) {
+            FTRHistoryPublic.update(Number(lineaId), data, registrosControlados);
 
 
             // Ordenar por interno
@@ -1399,6 +1395,7 @@
 
 
 
+            FTRHistoryPublic.filter(currentStatusFilter, searchInput);
             tr.forEach(row => {
 
 

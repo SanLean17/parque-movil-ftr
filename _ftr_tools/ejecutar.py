@@ -20,7 +20,7 @@ def commit_validated(root, paths):
         if calendar_changed and native_schedule.PATH not in paths:
             paths.append(native_schedule.PATH)
     def git(*args):
-        result=subprocess.run(['git',*args],cwd=root,text=True,capture_output=True)
+        result=subprocess.run(['git',*args],cwd=root,text=True,encoding='utf-8',errors='replace',capture_output=True)
         if result.returncode:
             detail=result.stderr[:1800]
             for name in ('GITHUB_TOKEN','GOOGLE_SERVICE_ACCOUNT_JSON','FTR_SCHEDULE_TOKEN'):
@@ -34,7 +34,8 @@ def commit_validated(root, paths):
     git('add','--',*paths)
     if not git('diff','--cached','--name-only'):
         return git('rev-parse','HEAD')
-    git('commit','-m','FTR: datos y configuración validados')
+    message = 'FTR: configuración y calendario guardados' if os.environ.get('FTR_ACTION') == 'config' else 'FTR: resultados de fuentes y estado de ejecución'
+    git('commit','-m',message)
     if calendar_changed:
         native_schedule.push(root)
     else:

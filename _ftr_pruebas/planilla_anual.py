@@ -389,12 +389,30 @@ def add_comparison(report, records, root):
 
 
 def configuration(root):
+    # El diagnóstico participa del sistema activo: nunca una segunda lista.
+    if (root / '_ftr_config.json').exists():
+        sys.path.insert(0, str(ROOT))
+        from _ftr_runtime.config import load, enabled
+        return enabled(load(root))
+    # Compatibilidad con fixtures y respaldos anteriores al panel.
     tree = ast.parse((root / "configuracion_lineas.py").read_text(encoding="utf-8-sig"))
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "LINEAS_EMPRESAS" for t in node.targets):
             raw = ast.literal_eval(node.value)
             return {int(k): int(v) for k, v in raw.items()}
     raise DiagnosisError("No se encontró la configuración de líneas.")
+
+
+def source_settings(root):
+    """Los diagnósticos usan la fuente publicada salvo una propuesta explícita."""
+    sys.path.insert(0, str(ROOT))
+    from _ftr_runtime.config import load
+    config = load(root)
+    year = int(os.environ.get('FTR_PERIODO') or config['period'])
+    if not 2000 <= year <= 2100:
+        raise DiagnosisError('El período está fuera del rango admitido.')
+    identifier = spreadsheet_id(os.environ.get('FTR_SHEET_URL') or config['sheetUrl'])
+    return year, identifier
 
 
 def spreadsheet_id(value):
@@ -483,10 +501,7 @@ def main():
     report = {}
     failed = False
     try:
-        year = int(os.environ.get("FTR_PERIODO", "2026"))
-        if not 2000 <= year <= 2100:
-            raise DiagnosisError("El período está fuera del rango admitido.")
-        identifier = spreadsheet_id(os.environ.get("FTR_SHEET_URL", ""))
+        year, identifier = source_settings(ROOT)
         sheets = decode_xlsx(export_sheet(identifier))
         report, records = analyze(sheets, configuration(ROOT), year)
         add_comparison(report, records, ROOT)

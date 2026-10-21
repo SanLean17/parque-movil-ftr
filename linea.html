@@ -363,6 +363,17 @@
 
         let mapControlados = {};
 
+        function mostrarLecturaNoDisponible() {
+            for (const id of ['countTotal', 'countControlados', 'countPendientes']) {
+                document.getElementById(id).textContent = '—';
+            }
+            document.getElementById('fleetTbody').innerHTML =
+                '<tr><td colspan="8" class="py-6 text-center">Lectura no disponible. Recargá la página para reintentar.</td></tr>';
+            for (const button of document.querySelectorAll('button[onclick="copyControlled()"], button[onclick="copyMissing()"]')) {
+                button.disabled = true;
+            }
+        }
+
 
         let currentStatusFilter = 'ALL';
 
@@ -599,6 +610,11 @@
 
                 complete: function(results) {
 
+                    if (!results || !results.data || (results.errors || []).length) {
+                        mostrarLecturaNoDisponible();
+                        return;
+                    }
+
 
                     if (
                         results &&
@@ -608,6 +624,9 @@
 
 
                         results.data.forEach(row => {
+
+                            const line = getProp(row, ['linea']);
+                            if (line && String(line).trim() !== String(lineaId)) return;
 
 
                             // ----------------------------------------
@@ -684,12 +703,8 @@
 
                 error: function() {
 
-                    // Si no existe el archivo de controles,
-                    // igualmente se carga el parque oficial.
-
-                    mapControlados = {};
-
-                    cargarParqueOficial();
+                    // Un fallo de descarga no demuestra que todos estén pendientes.
+                    mostrarLecturaNoDisponible();
 
                 }
 
@@ -719,6 +734,11 @@
 
 
                     complete: function(results) {
+
+                        if (!results || !results.data || (results.errors || []).length) {
+                            mostrarLecturaNoDisponible();
+                            return;
+                        }
 
 
                         if (

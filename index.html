@@ -664,6 +664,13 @@
                 ) {
 
                     let totalUnidades = 0;
+                    const dominiosParque = new Set();
+
+                    if (!resParque || (resParque.errors || []).length || !resParque.data) {
+                        document.getElementById(`total-${id}`).textContent = '—';
+                        setFallbackControlados(id);
+                        return;
+                    }
 
                     let razonSocial = '';
 
@@ -699,8 +706,11 @@
                             );
 
 
-                        totalUnidades =
-                            filasValidas.length;
+                        filasValidas.forEach(row => dominiosParque.add(
+                            getProp(row, ['dominio', 'patente', 'dominio_vehiculo'])
+                                .toUpperCase().replace(/[\s-]+/g, '')
+                        ));
+                        totalUnidades = dominiosParque.size;
 
 
                         const primerReg =
@@ -767,6 +777,11 @@
                             complete: function(
                                 resControl
                             ) {
+
+                                if (!resControl || (resControl.errors || []).length || !resControl.data) {
+                                    setFallbackControlados(id);
+                                    return;
+                                }
 
                                 const dominiosControlados =
                                     new Set();
@@ -838,9 +853,9 @@
                                                         );
 
 
-                                                dominiosControlados.add(
-                                                    dom
-                                                );
+                                                // Cobertura del parque actual de esta línea.
+                                                // El CSV conserva los controles fuera del parque para revisión.
+                                                if (dominiosParque.has(dom)) dominiosControlados.add(dom);
 
 
                                                 const fechaStr =
@@ -968,7 +983,7 @@
                     document.getElementById(
                         `total-${id}`
                     ).textContent =
-                        0;
+                        '—';
 
 
                     setFallbackControlados(
@@ -989,18 +1004,18 @@
 
         document.getElementById(
             `controladas-${id}`
-        ).textContent = 0;
+        ).textContent = '—';
 
 
         document.getElementById(
             `porcentaje-${id}`
-        ).textContent = '0%';
+        ).textContent = '—';
 
 
         document.getElementById(
             `visita-${id}`
         ).textContent =
-            'Sin registros';
+            'Lectura no disponible';
 
     }
 

@@ -110,10 +110,7 @@ def main():
     if directory == base.ROOT or base.ROOT in directory.parents:
         raise base.DiagnosisError('El informe debe guardarse fuera del repositorio.')
     try:
-        year = int(os.environ.get('FTR_PERIODO', '2026'))
-        if not 2000 <= year <= 2100:
-            raise base.DiagnosisError('Período inválido.')
-        identifier = base.spreadsheet_id(os.environ.get('FTR_SHEET_URL', ''))
+        year, identifier = base.source_settings(base.ROOT)
         today = datetime.now(ZoneInfo('America/Argentina/Buenos_Aires')).date()
         configured = base.configuration(base.ROOT)
         public_pem = (Path(__file__).parent / 'diagnostico_publica.pem').read_bytes()

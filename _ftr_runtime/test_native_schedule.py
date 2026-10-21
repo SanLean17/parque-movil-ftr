@@ -170,7 +170,7 @@ class CalendarTests(unittest.TestCase):
 
     def test_config_and_calendar_committed_together(self):
         def git(*args):
-            return subprocess.check_output(['git', *args], cwd=self.root, text=True, stderr=subprocess.PIPE).strip()
+            return subprocess.check_output(['git', *args], cwd=self.root, text=True, encoding='utf-8', stderr=subprocess.PIPE).strip()
         git('init', '-b', 'main')
         git('config', 'user.name', 'Unit Test')
         git('config', 'user.email', 'unit@example.invalid')
@@ -185,7 +185,7 @@ class CalendarTests(unittest.TestCase):
             seen.append(set(git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD').splitlines()))
             self.assertEqual(git('show', 'HEAD:' + native.PATH) + '\n', native.render(changed))
             self.assertEqual(json.loads(git('show', 'HEAD:_ftr_config.json')), changed)
-        with patch.dict(os.environ, {'FTR_ACTION': 'config', native.TOKEN_NAME: FAKE}, clear=True), patch.object(native, 'push', side_effect=simulated_push):
+        with patch.dict(os.environ, {'FTR_ACTION': 'config', native.TOKEN_NAME: FAKE, 'PATH': os.environ.get('PATH', ''), 'SYSTEMROOT': os.environ.get('SYSTEMROOT', '')}, clear=True), patch.object(native, 'push', side_effect=simulated_push):
             revision = entry.commit_validated(self.root, ['_ftr_config.json'])
         self.assertNotEqual(revision, before)
         self.assertEqual(seen, [{'_ftr_config.json', native.PATH}])

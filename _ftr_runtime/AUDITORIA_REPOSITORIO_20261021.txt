@@ -105,7 +105,9 @@ Opciones examinadas:
    fuentes por cambios de código. No se implementó.
 4. Temporizador de un environment: espera relativa después de un arranque;
    no es una fecha absoluta ni un calendario recurrente independiente.
-   Añadiría estado/permisos y seguiría sujeto a la cola de ejecución.
+   Se comprobó de forma aislada y funcionó: véase la prueba siguiente.
+   Integrarlo con fechas variables y renovación automática añadiría
+   estado/permisos y seguiría sujeto a la cola de ejecución.
 5. Mantener un runner durmiendo: necesita un arranque previo, consume tiempo
    de ejecución y cada job alojado tiene límite de seis horas. No brinda
    continuidad ni garantiza la hora. No se implementó.
@@ -123,6 +125,60 @@ https://docs.github.com/en/actions/how-tos/troubleshoot-workflows
 https://github.blog/changelog/2026-03-19-github-actions-late-march-2026-updates/
 https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#wait-timer
 https://docs.github.com/en/actions/reference/limits
+
+PRUEBA REAL DE UN MECANISMO DISTINTO, SIN FUENTES
+
+Se creó el entorno vacío ftr-prueba-espera-nativa con wait timer de dos
+minutos. No tiene secretos ni variables, no modifica github-pages y no se
+ampliaron permisos de credenciales. La prueba usa permissions: {}, no hace
+checkout, no lee datos de producción, no tiene cron ni workflow_dispatch,
+no mantiene un runner durmiendo y no se renueva en un bucle.
+
+Archivo: .github/workflows/ftr_prueba_espera_nativa.yml.
+Se activa únicamente con cambios de ese archivo en la rama explícita
+ftr/prueba-espera-nativa. No se dispara al integrarlo a main ni desde CI.
+El entorno usa deployment: false: la prueba no publica la aplicación.
+
+Ejecución 39690865711, commit 91bac3f6c8984fd3665a5ae85aefb7d67e6d5474:
+https://github.com/SanLean17/parque-movil-ftr/actions/runs/39690865711
+- Inicio de espera medido: 21/10/2026 23:03:39.317151 UTC.
+- Referencia de dos minutos: 23:05:39.317151 UTC.
+- Reanudación observada: 23:05:46.004458 UTC (20:05:46 Argentina).
+- Tiempo total: 126.687307 segundos; 6.687307 sobre los dos minutos.
+- Resultado: success. Se observó el estado waiting con la regla de dos
+  minutos; no se pulsó Start all waiting jobs ni se aprobó manualmente.
+
+El mecanismo de espera sí reanudó por sí mismo una tarea previamente
+preparada. Es una alternativa comprobada al disparo por cron, pero aún no
+es un reemplazo de la agenda FTR: no se probaron lecturas de fuentes,
+recurrencias, cambios de horario durante la espera ni renovación de turnos.
+Tampoco es evidencia de puntualidad garantizada en otras ejecuciones.
+
+Para integrar esperas variables habría que preparar cada próxima cita al
+guardar la orden y después de cada ejecución; identificar/cancelar esperas
+obsoletas; comprobar de nuevo la configuración vigente antes de leer;
+conservar el bloqueo y la deduplicación existentes; y registrar un fallo de
+rearme de forma visible. Cambiar wait_timer mediante la API exige permiso
+Administration: write, ausente del token estándar GITHUB_TOKEN. No se
+concedió ese acceso ni se almacenó una credencial administrativa. Una espera
+admite hasta 30 días, por lo que citas más lejanas también necesitan diseño.
+No se convirtió el ejemplo de dos minutos en un proceso permanente.
+
+Documentación adicional:
+https://docs.github.com/en/rest/deployments/environments#create-or-update-an-environment
+https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idenvironment
+
+VERIFICACIÓN POSTERIOR
+
+El arreglo del historial se integró mediante PR #16, merge 34f250c.
+Validación integral de main 39689603796: Linux y Windows correctos.
+Publicación de Pages 39689603617: correcta.
+La contraprueba de zona IANA prevista para 19:58 Argentina tampoco había
+generado una ejecución registrada al corte de 20:04 Argentina. El último
+schedule seguía siendo el de 05:12:40 Argentina, y las extraordinarias de
+18:30 continuaban pendientes. No se alteraron para hacer pasar la prueba.
+El inventario después de añadir el diagnóstico aislado abarca 255 archivos,
+todos con comprobaciones estáticas correctas.
 
 CRITERIO DE CIERRE
 

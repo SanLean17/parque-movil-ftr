@@ -1,0 +1,91 @@
+name: FTR - Recuperación puntual solicitada de la planilla
+run-name: FTR - Enviar lectura de Drive solicitada (no es prueba de schedule)
+on:
+  push:
+    branches: [ftr/recuperar-planilla-solicitada]
+    paths: [.github/workflows/ftr_recuperar_planilla_solicitada.yml]
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: ftr-recuperacion-puntual-solicitada
+  cancel-in-progress: false
+jobs:
+  solicitar:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/ftr/recuperar-planilla-solicitada'
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Enviar una solicitud de Drive usando configuración publicada
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUEST_RUN: ${{ github.run_id }}
+          REQUEST_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, time
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError, URLError
+          base='https://api.github.com/repos/SanLean17/parque-movil-ftr/'
+          token=os.environ['GH_TOKEN']
+          identifier='recuperacion-planilla-'+os.environ['REQUEST_RUN']
+          def api(method,path,payload=None):
+              data=None if payload is None else json.dumps(payload).encode()
+              req=Request(base+path,data=data,method=method,headers={
+                  'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json',
+                  'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'})
+              try:
+                  with urlopen(req,timeout=30) as response:
+                      raw=response.read()
+                      return json.loads(raw) if raw else {}
+              except HTTPError as exc:
+                  raise SystemExit('GitHub rechazó la solicitud (HTTP '+str(exc.code)+'). No se reenvía a ciegas.') from None
+              except (URLError,TimeoutError):
+                  raise SystemExit('No se confirmó la respuesta. Revisar ejecuciones antes de reintentar.') from None
+          if os.environ['REQUEST_ATTEMPT']!='1':
+              raise SystemExit('Esta tarea puntual no se reenvía al reejecutarla.')
+          workflow='actions/workflows/ftr_sincronizar.yml'
+          meta=api('GET',workflow)
+          if meta.get('state')!='active':
+              raise SystemExit('El sincronizador no está activo; no se cambió su habilitación.')
+          watched={'.github/workflows/ftr_sincronizar.yml','.github/workflows/actualizar_parques.yml'}
+          for status in ('queued','in_progress','waiting','pending','requested'):
+              runs=api('GET','actions/runs?branch=main&status='+status+'&per_page=100').get('workflow_runs',[])
+              if any(r.get('path') in watched for r in runs):
+                  raise SystemExit('Ya hay una operación FTR en curso. No se envió otra solicitud.')
+          state_file=api('GET','contents/_ftr_estado.json?ref=main')
+          state=json.loads(base64.b64decode(state_file['content']))
+          print('Última lectura antes de solicitar:',state.get('drive',{}).get('read_utc'))
+          answer=api('POST',workflow+'/dispatches',{'ref':'main','inputs':{
+              'action':'drive','config_json':'','expected':'','request_id':identifier}})
+          print('Solicitud enviada:',identifier)
+          print('Acción: drive. Sin cambiar horarios, enlace, período ni líneas. CNRT no solicitado.')
+          print('Esta ejecución fue pedida por el administrador; no acredita recuperación del cron.')
+          target=None
+          for _ in range(18):
+              runs=api('GET',workflow+'/runs?branch=main&event=workflow_dispatch&per_page=20').get('workflow_runs',[])
+              target=next((r for r in runs if identifier in r.get('display_title','')),None)
+              if target:break
+              time.sleep(3)
+          if not target:
+              raise SystemExit('Solicitud enviada pero aún no visible. No se envió una segunda.')
+          print('Ejecución de lectura:',target['id'],target['html_url'])
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as f:
+              f.write('## Lectura de planilla solicitada por el administrador\n\n')
+              f.write('Orden puntual, no ejecución del horario automático.\n\n')
+              f.write('Proceso: Drive; configuración actual, sin modificar CNRT.\n\n')
+              f.write('Ejecución que hay que comprobar: '+target['html_url']+'\n')
+          PY
+      - name: Deshabilitar esta solicitud auxiliar de un solo uso
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from urllib.request import Request,urlopen
+          req=Request('https://api.github.com/repos/SanLean17/parque-movil-ftr/actions/workflows/ftr_recuperar_planilla_solicitada.yml/disable',method='PUT',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+          with urlopen(req,timeout=30) as response:
+              print('Solicitud auxiliar deshabilitada:',response.status)
+          print('No se deshabilitó ningún workflow de producción.')
+          PY

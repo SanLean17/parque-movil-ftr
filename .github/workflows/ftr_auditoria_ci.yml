@@ -1,0 +1,52 @@
+name: FTR - Validación integral sin fuentes
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, ftr/auditoria-work-20261021]
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.cjs'
+      - '**.html'
+      - '.github/workflows/**'
+      - '_ftr_config.json'
+permissions:
+  contents: read
+jobs:
+  pruebas:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONUTF8: '1'
+      LOCALAPPDATA: ${{ runner.temp }}/ftr-test-user
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Instalar dependencias sin credenciales de fuentes
+        run: python -m pip install pytest pandas requests flask 'cryptography>=44,<49' tzdata pyyaml -r _ftr_pruebas/requirements.txt
+      - name: Fuentes ficticias, agenda, publicación y contrato 06.3
+        run: python -m pytest -q -p no:cacheprovider _ftr_runtime _ftr_pruebas _ftr_admin _ftr_app
+      - name: Comparación web y funciones del panel
+        run: node --test _ftr_runtime/test_public_web.cjs _ftr_panel/test_modelo_panel05.cjs
+      - name: Contratos de producción y datos intactos
+        run: python _ftr_tools/validar_repositorio.py
+      - name: Preparar navegador de pruebas
+        if: runner.os == 'Linux'
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Web móvil y escritorio con datos ficticios
+        if: runner.os == 'Linux'
+        run: python _ftr_runtime/browser_public_smoke.py

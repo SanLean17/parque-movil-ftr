@@ -5,6 +5,7 @@ activa en un directorio temporal. Nunca se usa force-push ni git add .
 """
 from __future__ import annotations
 import csv
+import hashlib
 import io
 import json
 import os
@@ -29,6 +30,19 @@ def now(): return datetime.now(timezone.utc)
 def utc(): return now().isoformat()
 def read_json(path, default):
     return json.loads(path.read_text(encoding='utf-8-sig')) if path.exists() else default
+
+
+def operation_event(operation, status, **details):
+    """Recibo sin datos administrativos ni credenciales; compatible con 06.3."""
+    event = dict(status=status, at=utc(), **details)
+    operation.setdefault('events', []).append(event)
+    operation.update(status=status, at=event['at'])
+    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    (REPORT_DIR/'operacion.json').write_text(json.dumps(operation, ensure_ascii=False, indent=2), encoding='utf-8')
+    print('FTR: '+json.dumps(event, ensure_ascii=False))
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as stream:
+            stream.write('\n- `'+status+'` — '+event['at']+'; '+json.dumps(details, ensure_ascii=False)+'\n')
 
 
 def plan():
@@ -56,7 +70,11 @@ def google_snapshot(root, config):
     base = admin.base
     start = utc()
     source_id = base.spreadsheet_id(config['sheetUrl'])
-    sheets = base.decode_xlsx(base.export_sheet(source_id))
+    try:
+        sheets = base.decode_xlsx(base.export_sheet(source_id))
+    except base.DiagnosisError as exc:
+        # DiagnosisError contiene mensajes controlados, sin contenido de celdas.
+        raise ValueError(str(exc)) from None
     report, records = base.analyze(sheets, enabled(config), config['period'])
     base.add_comparison(report, records, root)
     detail = admin.extend_report(report, sheets, root, enabled(config), source_id, start)
@@ -158,18 +176,63 @@ def build_pages(revision):
         time.sleep(10)
         built=gh('GET','pages/builds/latest')
         if built.get('commit')==revision:
-            if built.get('status')=='built': return
+            if built.get('status')=='built':
+                verify_publication(revision)
+                return
             if built.get('status')=='errored': break
     raise ValueError('Los datos se guardaron en GitHub, pero no se confirmó el despliegue de Pages. Revisá la ejecución antes de darlo por publicado.')
 
 
+def public_hashes(root, config):
+    files = ['index.html', 'linea.html', 'ftr-publica.js',
+             'ultima_actualizacion_parque.txt', 'ultima_actualizacion_controlados.txt']
+    files += [f'{folder}/linea{line}.csv' for folder in ('parques', 'controlados') for line in sorted(enabled(config))]
+    return {name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files if (root/name).is_file()}
+
+
+def verify_publication(revision):
+    """Pages construido no basta: verificar los archivos servidos por la web."""
+    import requests
+    from concurrent.futures import ThreadPoolExecutor
+    expected = read_json(ROOT/'ftr_publicacion.json', {})
+    if not expected.get('files_sha256'):
+        raise ValueError('No hay un manifiesto verificable para confirmar la publicación.')
+    base_url = 'https://sanlean.com.ar/parque-movil-ftr/'
+
+    def fetch(path):
+        response = requests.get(base_url+path, params={'ftr_revision': revision},
+                                headers={'Cache-Control': 'no-cache'}, timeout=(10, 45))
+        response.raise_for_status()
+        return response
+
+    for attempt in range(3):
+        try:
+            if fetch('ftr_publicacion.json').json() != expected:
+                raise ValueError('Manifiesto anterior en la web.')
+            def check(item):
+                path, digest_value = item
+                return hashlib.sha256(fetch(path).content).hexdigest() == digest_value
+            with ThreadPoolExecutor(max_workers=6) as pool:
+                if all(pool.map(check, expected.get('files_sha256', {}).items())):
+                    return
+        except (requests.RequestException, ValueError):
+            pass
+        if attempt < 2:
+            time.sleep(10)
+    raise ValueError('Los datos están guardados en GitHub y Pages terminó, pero la web aún no entrega todos los archivos de esta versión. Publicación pendiente de comprobar.')
+
+
 def main():
+    operation = dict(version=1, event=os.environ.get('GITHUB_EVENT_NAME', ''),
+                     run_id=os.environ.get('GITHUB_RUN_ID'), events=[])
     try:
         mode, config, state, jobs=plan()
+        operation.update(action=mode, config_digest=digest(config))
         if os.environ.get('FTR_PHASE')=='check':
             public_output('work', bool(jobs) or mode=='config')
             public_output('cnrt', 'cnrt' in jobs)
             public_output('sources', ','.join(jobs))
+            operation_event(operation, 'agenda_checked', sources=jobs, read=False)
             return 0
         prepared = os.environ.get('FTR_PLANNED_SOURCES')
         if prepared is not None:
@@ -192,14 +255,20 @@ def main():
             paths=[]; errors=[]; results={}
             for key in jobs:
                 state.setdefault(key,{})['attempt_utc']=utc()
+                operation_event(operation, 'reading_started', source=key,
+                                configured_time=config[key]['time'], interval_days=config[key]['days'],
+                                requested_slot=current_slot(config, key, now()))
                 try:
                     data=cnrt_snapshot(stage,config) if key=='cnrt' else google_snapshot(stage,config)
                     read_at = datetime.fromisoformat(data['read_utc'])
                     state[key].update(data,status='success',run_id=os.environ.get('GITHUB_RUN_ID'),served_slot=current_slot(config,key,read_at),error=None)
                     results[key]=data
+                    operation_event(operation, 'reading_finished', source=key,
+                                    read_utc=data['read_utc'], completed_utc=data['completed_utc'])
                 except Exception as exc:
                     message=str(exc) if isinstance(exc,ValueError) else 'La fuente no pudo procesarse ('+type(exc).__name__+'); se conserva su último resultado válido.'
                     errors.append(message);state[key].update(status='error',error=message)
+                    operation_event(operation, 'source_error', source=key, message=message)
             if mode=='config' and errors:
                 raise ValueError('No se aplicó la configuración. '+' '.join(errors))
             if dry:
@@ -217,21 +286,23 @@ def main():
             paths.extend(['index.html','linea.html'])
             state.update(version=2,config_digest=digest(config),updated_utc=utc(),run_id=os.environ.get('GITHUB_RUN_ID'))
             (ROOT/STATE).write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');paths.append(STATE)
-            manifest=dict(version=state['updated_utc'],period=state.get('drive',{}).get('period',config['period']),config_digest=digest(config),run_id=os.environ.get('GITHUB_RUN_ID'),lines=sorted(enabled(config)))
+            manifest=dict(version=state['updated_utc'],period=state.get('drive',{}).get('period',config['period']),config_digest=digest(config),run_id=os.environ.get('GITHUB_RUN_ID'),lines=sorted(enabled(config)),files_sha256=public_hashes(ROOT,config))
             (ROOT/'ftr_publicacion.json').write_text(json.dumps(manifest)+'\n',encoding='utf-8');paths.append('ftr_publicacion.json')
             revision=commit(ROOT,paths)
-            print('Datos guardados. Solicitando publicación web...')
+            operation_event(operation, 'configuration_saved' if mode=='config' else 'data_saved' if results else 'state_saved', revision=revision, sources=list(results))
+            operation_event(operation, 'publication_pending', revision=revision)
             build_pages(revision)
-            print('Publicación web confirmada.')
+            operation_event(operation, 'data_published' if results else 'configuration_published' if mode=='config' else 'state_published', revision=revision, sources=list(results))
             if errors:
+                operation_event(operation, 'source_errors', message=' '.join(errors))
                 print('Hubo una fuente con errores; su último resultado válido se conservó.')
                 return 1
         return 0
     except Exception as exc:
         message=str(exc) if isinstance(exc,ValueError) else 'La operación no pudo completarse ('+type(exc).__name__+'). Revisá el estado; no se fuerza ninguna publicación.'
         print(message)
-        REPORT_DIR.mkdir(parents=True,exist_ok=True)
-        (REPORT_DIR/'operacion.json').write_text(json.dumps({'status':'error','message':message,'at':utc()}),encoding='utf-8')
+        operation['message'] = message
+        operation_event(operation, 'error', message=message)
         return 1
 
 if __name__=='__main__':sys.exit(main())

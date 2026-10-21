@@ -115,9 +115,9 @@ def extraer_lineas(valor):
     Ejemplos:
 
         195          -> 195
-        2077IE       -> 2077
-        2077OP1      -> 2077
-        2077OP11     -> 2077
+        2077IE       -> ignorado (código, no línea)
+        2077OP1      -> ignorado
+        2077OP11     -> ignorado
 
     """
 
@@ -151,17 +151,17 @@ def extraer_lineas(valor):
             continue
 
         # ----------------------------------------------------
-        # Tomar solamente el número inicial
+        # Solo números completos: un código alfanumérico no es una línea.
         # ----------------------------------------------------
 
-        coincidencia = re.match(
-            r"^(\d+)",
+        coincidencia = re.fullmatch(
+            r"(\d+)(?:\.0+)?",
             parte
         )
 
         if coincidencia:
 
-            numero = coincidencia.group(1)
+            numero = str(int(coincidencia.group(1)))
 
             encontrados.add(
                 numero
@@ -250,6 +250,25 @@ def leer_csv_cnrt(ruta):
         ruta
     )
 
+    # pandas puede aceptar una primera fila larga como índice implícito o
+    # completar una fila corta. Validar todas las columnas antes de filtrar.
+    raw = Path(ruta).read_bytes()
+    try:
+        decoded = raw.decode('utf-8-sig')
+    except UnicodeDecodeError:
+        decoded = raw.decode('cp1252')
+    import io
+    reader = csv.reader(io.StringIO(decoded), delimiter=separador, strict=True)
+    try:
+        header = next(reader)
+        if not header or len(set(header)) != len(header):
+            raise ValueError('CNRT devolvió encabezados vacíos o repetidos.')
+        for row in reader:
+            if row and len(row) != len(header):
+                raise ValueError(f'CNRT devolvió columnas desalineadas en la fila {reader.line_num}. Se rechaza la descarga completa.')
+    except (csv.Error, StopIteration) as exc:
+        raise ValueError('CNRT no devolvió un CSV completo y válido.') from exc
+
     print(
         f"Separador detectado: "
         f"{repr(separador)}"
@@ -269,7 +288,7 @@ def leer_csv_cnrt(ruta):
             encoding="utf-8-sig",
             sep=separador,
             engine="python",
-            on_bad_lines="warn"
+            on_bad_lines="error"
         )
 
         print(
@@ -297,7 +316,7 @@ def leer_csv_cnrt(ruta):
             encoding="latin-1",
             sep=separador,
             engine="python",
-            on_bad_lines="warn"
+            on_bad_lines="error"
         )
 
         print(

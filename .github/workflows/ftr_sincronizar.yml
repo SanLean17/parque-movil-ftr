@@ -49,6 +49,7 @@ permissions:
 concurrency:
   group: ftr-publicacion-validada
   cancel-in-progress: false
+  queue: max
 jobs:
   actualizar:
     if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/main'
@@ -60,6 +61,7 @@ jobs:
       FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'scheduled' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
+      FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-informe
     steps:
       - uses: actions/checkout@v6
         with:
@@ -94,7 +96,7 @@ jobs:
           FTR_PLANNED_SOURCES: ${{ steps.plan.outputs.sources }}
         run: python _ftr_tools/ejecutar.py
       - name: Conservar informe administrativo protegido
-        if: always() && steps.plan.outputs.work == 'true'
+        if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ftr-informe-administrativo

@@ -271,10 +271,7 @@ def main():
     report, encrypted = {}, None
     failed = False
     try:
-        year = int(os.environ.get('FTR_PERIODO', '2026'))
-        if not 2000 <= year <= 2100:
-            raise base.DiagnosisError('Período inválido.')
-        identifier = base.spreadsheet_id(os.environ.get('FTR_SHEET_URL', ''))
+        year, identifier = base.source_settings(base.ROOT)
         configured = base.configuration(base.ROOT)
         public_pem = (Path(__file__).parent / 'diagnostico_publica.pem').read_bytes()
         sheets = base.decode_xlsx(base.export_sheet(identifier))

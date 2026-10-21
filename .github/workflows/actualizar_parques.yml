@@ -21,5 +21,3 @@ jobs:
     with:
       action: ${{ github.event_name == 'schedule' && 'scheduled' || 'all' }}
     secrets: inherit
-
-# Verificación reversible de permiso 39534288434-1; solo rama de pruebas.

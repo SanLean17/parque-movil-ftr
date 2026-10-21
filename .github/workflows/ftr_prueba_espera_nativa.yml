@@ -1,0 +1,60 @@
+# Prueba finita de una espera nativa, completamente separada de producción.
+# Sin cron, checkout, fuentes, secretos, bucles ni permisos de repositorio.
+name: FTR - Prueba aislada de espera nativa
+on:
+  push:
+    branches: [ftr/prueba-espera-nativa]
+    paths: [.github/workflows/ftr_prueba_espera_nativa.yml]
+permissions: {}
+jobs:
+  preparar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      armed_utc: ${{ steps.armar.outputs.armed_utc }}
+    steps:
+      - id: armar
+        name: Registrar inicio de la prueba sin fuentes
+        run: |
+          python3 - <<'PY'
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          stamp = datetime.now(timezone.utc).isoformat()
+          with Path(os.environ['GITHUB_OUTPUT']).open('a') as output:
+              output.write('armed_utc=' + stamp + '\n')
+          print('Prueba preparada: ' + stamp + '. No se leen fuentes.')
+          PY
+  comprobar:
+    needs: preparar
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    environment:
+      name: ftr-prueba-espera-nativa
+      deployment: false
+    steps:
+      - name: Registrar reanudación automática después de la espera
+        env:
+          ARMED_UTC: ${{ needs.preparar.outputs.armed_utc }}
+          OBSERVED_RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+          armed = datetime.fromisoformat(os.environ['ARMED_UTC'])
+          observed = datetime.now(timezone.utc)
+          expected = armed + timedelta(minutes=2)
+          evidence = dict(mechanism='environment_wait_timer', wait_minutes=2,
+              armed_utc=armed.isoformat(), earliest_expected_utc=expected.isoformat(),
+              observed_utc=observed.isoformat(), delay_seconds=(observed-expected).total_seconds(),
+              elapsed_seconds=(observed-armed).total_seconds(), run_id=os.environ['OBSERVED_RUN'],
+              sources_read=[], repository_writes=False, automatic_rearming=False)
+          report = json.dumps(evidence, indent=2)
+          print(report)
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+              'Prueba aislada de espera. No confirma una actualización FTR.\n\n```json\n'
+              + report + '\n```\n', encoding='utf-8')
+          if observed < expected:
+              raise SystemExit('La espera de dos minutos no se aplicó; prueba no confirmada.')
+          PY

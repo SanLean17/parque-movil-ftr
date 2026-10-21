@@ -1,0 +1,134 @@
+FTR — REVISIÓN DEL REPOSITORIO Y ALTERNATIVAS DE PROGRAMACIÓN
+21/10/2026. Base: 0b81858c728b8c2c8fbd18243ead867638b9fd2c.
+
+ALCANCE Y EVIDENCIA
+
+Se inventariaron los 252 archivos versionados de la base: código, cliente,
+13 workflows, documentación, configuración, recursos y 130 CSV conservados.
+Se comprobaron todos los Python por AST; JavaScript y scripts de HTML sin
+ejecutarlos; JSON completos; CSV completos y alineación de columnas; YAML
+sin claves duplicadas y destinos de llamadas existentes. Los archivos
+conservados se identificaron por huellas. No aparecieron errores en esas
+comprobaciones ni ciclos de llamadas entre workflows.
+
+La revisión funcional se concentró en la ruta completa: cola del cliente,
+confirmación de órdenes, commit conjunto del horario y calendario, conversión
+horaria, selección de turnos, coincidencias, reclamos, fuentes independientes,
+publicación y reintentos. Una comprobación estática de todos los archivos no
+equivale a probar todas las ramas ni a ejecutar los lectores contra servicios
+reales. Las pruebas de esta auditoría usaron fuentes ficticias.
+
+Corte remoto del 21/10 a las 22:42:20 UTC (19:42:20 Argentina):
+- Los calendarios principal, extraordinario, recuperación y diagnóstico
+  estaban activos; el coordinador también.
+- Principal: último schedule registrado 39567554012, 08:12:40 UTC.
+- Extraordinario, recuperación y diagnóstico: ningún schedule registrado.
+- Drive y CNRT del 21/10 18:30 seguían pendientes.
+- Configuración, estado y citas conservaban sus huellas anteriores.
+
+Esto localiza el síntoma antes de la ejecución del código FTR. No determina
+si GitHub retuvo, descartó o dejó de generar internamente esos avisos.
+No hay evidencia de que un error del lector haya causado esos arranques
+ausentes. El diagnóstico mínimo tampoco llama al lector ni al coordinador.
+
+FALLA PROPIA REPRODUCIDA Y CORREGIDA
+
+Después de un reclamo interrumpido, recover_interrupted cambiaba el estado
+solo en memoria. Sin otro turno pendiente, la comprobación respondía
+work=false y el error nunca se guardaba en GitHub. Además, el recibo de la
+orden seguía running. No es la causa de los eventos schedule ausentes.
+
+Ahora se conserva la corrección del historial aunque no haya fuentes para
+leer. Se guardan únicamente los registros de ejecución, una vez. Una
+comprobación posterior sin novedades no vuelve a escribir. El comprobador
+previo sigue siendo de solo lectura y una operación de mantenimiento del
+historial no se informa como actualización exitosa.
+
+También se eliminó la atribución de una hora de finalización supuesta:
+started_utc + 90 minutos es un límite, no una observación. Se registra
+timeout_utc y detected_utc sin inventar finished_utc ni read_utc.
+Los reclamos recientes permanecen en curso. El turno recurrente interrumpido
+continúa siendo recuperable; una extraordinaria ya reclamada no se repite
+automáticamente, según la protección existente contra duplicados.
+
+ARCHIVOS MODIFICADOS
+
+- _ftr_runtime/oneoff.py: detección persistible y recibos coherentes.
+- _ftr_runtime/worker.py: mantenimiento del historial aunque no haya lectura.
+- _ftr_runtime/test_interrupted_history.py: cuatro regresiones con fuentes
+  ficticias; comprueban no lectura, no publicación, datos intactos, ausencia
+  de fechas inventadas, persistencia única y respeto de reclamos recientes.
+- .github/workflows/ftr_diagnostico_disparador.yml: contraprueba puntual con
+  timezone America/Argentina/Buenos_Aires, 21/10/2026 19:58 local = 22:58 UTC.
+  Solo registra la recepción; no usa checkout, secretos ni permisos, no
+  invoca fuentes y no permite workflow_dispatch. El diagnóstico es temporal:
+  deshabilitarlo al cerrar la investigación, conservando su historial.
+- Este informe.
+
+La prueba local nueva reprodujo tres fallos antes del arreglo. La suite
+posterior ejecutó 354 casos Python y 33 subcasos. El único fallo de entorno
+fue el bloqueo del socket 127.0.0.1; ese caso pasó al repetirlo con acceso
+local permitido. Las 21 pruebas JavaScript pasaron. La validación definitiva
+en Linux y Windows se registra en el PR y en el commit de main.
+
+ARQUITECTURA Y ARCHIVOS ANTIGUOS
+
+Tres entradas de producción llaman al mismo coordinador: principal,
+extraordinaria y recuperación. Solo el coordinador posee el bloqueo de
+publicación; cancel-in-progress=false y queue=max. No se ejecutan fuentes
+por push. CI valida y compila sin credenciales de fuentes.
+
+Los siete workflows históricos de prueba están limitados a ramas específicas.
+No tienen schedule y no se disparan con esta rama ni con main. Algunos
+diagnósticos históricos sí leen Google en su rama explícita: no se ejecutaron.
+Los archivos main064.py/local_clock y control_actualizacion.py son legado;
+el cliente entregado usa main0631.py. Importar utilidades de escritura y
+bloqueo desde local_clock no activa su reloj. El archivo literal
+${GITHUB_OUTPUT} es un residuo sin referencias en la ruta vigente; no dirige
+el calendario. Se conservó para no mezclar limpieza con el diagnóstico.
+
+HORARIOS Y ALTERNATIVAS
+
+Se conservan Drive diario 17:00 Argentina (0 20 * * *), CNRT cada cinco días
+22:00 Argentina (0 1 * * *, anchor 2026-10-19), y recuperación a los minutos
+7,22,37,52 UTC. El intervalo se calcula por fechas transcurridas, no por
+*/5 del día del mes. Las dos extraordinarias de 18:30 no se reprogramaron.
+
+Opciones examinadas:
+1. Cron UTC y cron con zona IANA: ambos son nativos. Se añade la contraprueba
+   aislada para comparar su recepción. La conversión actual es correcta;
+   timezone no constituye otro servicio de arranque ni asegura puntualidad.
+2. Calendario fijo de recuperación: ya implementado; recupera turnos al
+   recibir un evento. No puede corregir la ausencia total de eventos.
+3. workflow_run: depende de que termine o comience otra ejecución; no es
+   un reloj. Encadenar CI a producción además cambiaría la regla de no leer
+   fuentes por cambios de código. No se implementó.
+4. Temporizador de un environment: espera relativa después de un arranque;
+   no es una fecha absoluta ni un calendario recurrente independiente.
+   Añadiría estado/permisos y seguiría sujeto a la cola de ejecución.
+5. Mantener un runner durmiendo: necesita un arranque previo, consume tiempo
+   de ejecución y cada job alojado tiene límite de seis horas. No brinda
+   continuidad ni garantiza la hora. No se implementó.
+6. Disparadores externos o temporizadores de Windows: excluidos por las
+   condiciones solicitadas. No se instalaron ni contrataron servicios.
+
+GitHub documenta demoras e incluso descarte bajo carga. Con GitHub Actions
+como único reloj no puede prometerse ejecución al minuto exacto. La
+arquitectura puede pedir el horario, evitar duplicados, recuperar atrasos y
+registrar resultados; no puede obligar al servicio a entregar el aviso.
+
+Fuentes oficiales consultadas el 21/10/2026:
+https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule
+https://docs.github.com/en/actions/how-tos/troubleshoot-workflows
+https://github.blog/changelog/2026-03-19-github-actions-late-march-2026-updates/
+https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments#wait-timer
+https://docs.github.com/en/actions/reference/limits
+
+CRITERIO DE CIERRE
+
+El arreglo del historial y CI verde no resuelven por sí solos el incidente.
+Falta observar un schedule real de producción, lectura con hora real,
+consumo correcto de los turnos y publicación verificada. No se inició ninguna
+actualización manual de Drive/CNRT ni se alteraron las fechas para simularlo.
+El nuevo cliente no es necesario: el arreglo operativo se ejecuta en GitHub;
+el paquete 06.3.4 existente puede seguir enviando horarios y consultando estado.

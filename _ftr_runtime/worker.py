@@ -253,7 +253,7 @@ def main():
             if mode in ('oneoff-set','oneoff-cancel'):
                 oneoff.command(payload,now(),mode=='oneoff-cancel',True)
                 oneoff.native_schedule.authorization()
-            public_output('work', bool(jobs) or mode in ('config','oneoff-set','oneoff-cancel') or bool(execution['expired'] or execution['shared']) or publication_retry.pending(state))
+            public_output('work', bool(jobs) or mode in ('config','oneoff-set','oneoff-cancel') or bool(execution['expired'] or execution['shared'] or execution['interrupted']) or publication_retry.pending(state))
             public_output('publication_only',not jobs and publication_retry.pending(state) and mode not in ('config','oneoff-set','oneoff-cancel'))
             public_output('cnrt', 'cnrt' in jobs)
             public_output('sources', ','.join(jobs))
@@ -285,6 +285,9 @@ def main():
                 operation_event(operation,'publication_recovered',revision=revision,read=False)
             if execution['expired']:
                 operation_event(operation,'error',read=False,message='La programación extraordinaria venció sin ejecutarse. Reprogramala.')
+                return 1
+            if execution['interrupted']:
+                operation_event(operation,'error',read=False,message='Se registraron ejecuciones interrumpidas en el historial de GitHub. No se leyó ninguna fuente ni se informa una actualización completada.')
                 return 1
             if execution['shared']:operation_event(operation,'request_coalesced',read=False,sources=list(execution['shared']))
             return 0

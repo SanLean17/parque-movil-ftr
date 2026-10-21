@@ -108,14 +108,19 @@ def apply_command(root,action,payload,identifier,moment,commit):
 def recover_interrupted(data,moment):
     # El coordinador tiene timeout de 90 minutos. Se deja margen antes de
     # diagnosticar un reclamo cuyo resultado nunca llegó a publicarse.
-    for row in [*data.get('history',[]),*data.get('execution_history',[]),*data.get('last_execution',{}).values()]:
+    changed=False
+    for row in [*data.get('history',[]),*data.get('execution_history',[]),*data.get('last_execution',{}).values(),*data.get('receipts',{}).values()]:
         if row.get('status')=='running' and row.get('started_utc') and moment-instant(row['started_utc'])>timedelta(minutes=95):
-            row.update(status='error',finished_utc=(instant(row['started_utc'])+timedelta(minutes=90)).isoformat(),error='La ejecución terminó o se interrumpió sin publicar un resultado confirmado. Revisá su ejecución en GitHub y reprogramá si hace falta.')
+            # El límite permite detectar la interrupción, no conocer su hora real.
+            # No inventar finished_utc ni una lectura para cerrar el historial.
+            row.update(status='error',detected_utc=moment.isoformat(),timeout_utc=(instant(row['started_utc'])+timedelta(minutes=90)).isoformat(),error='La ejecución terminó o se interrumpió sin publicar un resultado confirmado. Revisá su ejecución en GitHub y reprogramá si hace falta.')
+            changed=True
+    return changed
 
 
 def resolve(root,mode,config,state,jobs,moment,payload=None,identifier='',cron='',event_created=None,run_id=None):
     enabled=(Path(root)/FILE).exists() or mode in ACTIONS
-    data=load(root) if enabled else empty();recover_interrupted(data,moment);normal=list(jobs);due={};expired=[]
+    data=load(root) if enabled else empty();interrupted=recover_interrupted(data,moment);normal=list(jobs);due={};expired=[]
     if mode in ('scheduled','recovery','oneoff','drive','cnrt','all'):
         for key,row in data['pending'].items():
             if instant(row['at'])<=moment and (mode in ('scheduled','recovery','oneoff','all') or key==mode):
@@ -161,13 +166,14 @@ def resolve(root,mode,config,state,jobs,moment,payload=None,identifier='',cron='
     for key in jobs:
         slot=eligible_slot(config,state,key,moment)
         if key not in pure and slot and not slot_satisfied(state,key,slot):expected[key]=slot_time(slot).astimezone(timezone.utc).isoformat()
-    return dict(enabled=enabled,data=data,jobs=jobs,normal=normal,due=due,expired=expired,shared=shared,pure=pure,identifier=identifier,expected=expected,mode=mode,cron=cron,event_created=event_created)
+    return dict(enabled=enabled,data=data,jobs=jobs,normal=normal,due=due,expired=expired,shared=shared,pure=pure,identifier=identifier,expected=expected,mode=mode,cron=cron,event_created=event_created,interrupted=interrupted)
 
 
 def claim(root,plan,moment,run_id,commit):
     if not plan['enabled']:return
     data=plan['data'];stamp=moment.isoformat()
     if any(r.get('status')!='success' for r in plan['shared'].values()):
+        if plan['interrupted']:save(root,data,commit)
         raise ValueError('La ejecución coincidente terminó con error o no tiene resultado confirmado. No se vuelve a ejecutar automáticamente; revisá el historial.')
     for key in plan['expired']:
         row=data['pending'].pop(key);data['history'].append(dict(row,status='error',finished_utc=stamp,error='GitHub no inició esta cita dentro de las 24 horas siguientes. Reprogramala.'))
@@ -190,7 +196,7 @@ def claim(root,plan,moment,run_id,commit):
             row=data['pending'].pop(key);data['history'].append(dict(row,status='running',started_utc=stamp,run_id=run_id,reasons=reasons))
     if plan['identifier'] and (plan['jobs'] or plan['shared']):
         data['receipts'][plan['identifier']]=dict(status='running' if plan['jobs'] else 'success',started_utc=stamp,run_id=run_id)
-    if plan['jobs'] or plan['expired'] or plan['shared']:save(root,data,commit)
+    if plan['jobs'] or plan['expired'] or plan['shared'] or plan['interrupted']:save(root,data,commit)
 
 
 def finish(root,plan,key,moment,success,error=None,read_utc=None):

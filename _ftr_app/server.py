@@ -27,6 +27,8 @@ import requests
 from flask import Flask, abort, jsonify, make_response, request
 from werkzeug.serving import make_server
 from _ftr_runtime.config import clean_config,digest,encoded
+from _ftr_app.outbox import AuthorizationError
+from _ftr_app.local_clock import write_json
 
 REPO='SanLean17/parque-movil-ftr'
 WORKFLOW='ftr_sincronizar.yml'
@@ -73,16 +75,16 @@ def token():
     global _token
     if _token is None and os.name=='nt' and (DATA/'github.dpapi').exists():
         try:_token=protect((DATA/'github.dpapi').read_bytes(),True).decode()
-        except Exception:raise ValueError('No se pudo abrir la autorización de este equipo. Conectá GitHub de nuevo.') from None
-    if not _token:raise ValueError('Conectá GitHub en la sección Conexiones de este equipo.')
+        except Exception:raise AuthorizationError('No se pudo abrir la autorización de este equipo. Conectá GitHub de nuevo.') from None
+    if not _token:raise AuthorizationError('Conectá GitHub en la sección Conexiones de este equipo.')
     return _token
 
 
 def api(method,suffix,payload=None,auth=None):
     # No se acepta una URL del cliente. La autorización solo se envía a este repositorio.
     r=requests.request(method,BASE+suffix,headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
-    if r.status_code==401:raise ValueError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
-    if r.status_code==403:raise ValueError('GitHub no permitió la operación. Revisá Actions con lectura y escritura y acceso a este repositorio.')
+    if r.status_code==401:raise AuthorizationError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
+    if r.status_code==403:raise AuthorizationError('GitHub no permitió la operación. Revisá Actions con lectura y escritura y acceso a este repositorio.')
     if r.status_code==404:raise ValueError('GitHub no encontró el recurso autorizado. Revisá el repositorio y que la integración esté activada.')
     if not r.ok:raise ValueError('No se completó la operación con GitHub (HTTP '+str(r.status_code)+'). Revisá su estado antes de repetirla.')
     return r.json() if r.content else {}
@@ -105,6 +107,24 @@ def cached(name,default):
     except (OSError,ValueError):return default
 
 
+def atomic_bytes(path, data):
+    temporary=path.with_name(path.name+'.'+secrets.token_hex(6)+'.tmp')
+    try:
+        with temporary.open('wb') as stream:
+            stream.write(data);stream.flush();os.fsync(stream.fileno())
+        os.replace(temporary,path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def diagnostic_cache():
+    protected=DATA/'informe.dpapi'
+    if protected.exists():
+        try:return json.loads(protect(protected.read_bytes(),True))
+        except Exception:raise ValueError('No se pudo abrir el informe protegido de este usuario de Windows. Los archivos se conservaron.') from None
+    return cached('informe.json',None)
+
+
 def last_runs():
     rows=api('GET','actions/workflows/'+WORKFLOW+'/runs?per_page=6').get('workflow_runs',[])
     return [{'id':r['id'],'title':r.get('display_title',r.get('name','Actualización')),'status':r['status'],'conclusion':r.get('conclusion'),'url':r['html_url'],'created_at':r['created_at']} for r in rows]
@@ -115,15 +135,22 @@ def unseal(value):
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
     if value.get('format')!='FTR-DIAGNOSTICO-3':raise ValueError('El informe cifrado tiene un formato no reconocido.')
-    key_path=DATA/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
-    if not key_path.exists():
-        shipped=BUNDLE/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
-        if shipped.exists():key_path.write_bytes(shipped.read_bytes())
-        else:return None
-    key=serialization.load_pem_private_key(key_path.read_bytes(),password=None)
+    protected=DATA/'diagnostico.dpapi'
+    if protected.exists():
+        raw_key=protect(protected.read_bytes(),True)
+    else:
+        key_path=DATA/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
+        if not key_path.exists():key_path=BUNDLE/'LLAVE_PRIVADA_DIAGNOSTICO.pem'
+        if not key_path.exists():return None
+        raw_key=key_path.read_bytes()
+    key=serialization.load_pem_private_key(raw_key,password=None)
     b=lambda field:base64.b64decode(value[field],validate=True)
     symmetric=key.decrypt(b('wrapped_key'),padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
-    return json.loads(AESGCM(symmetric).decrypt(b('nonce'),b('ciphertext'),b'FTR-DIAGNOSTICO-3'))
+    detail=json.loads(AESGCM(symmetric).decrypt(b('nonce'),b('ciphertext'),b'FTR-DIAGNOSTICO-3'))
+    if os.name=='nt' and not protected.exists():
+        atomic_bytes(protected,protect(raw_key))
+    # Conserva el original por compatibilidad; jamás rota ni distribuye la clave.
+    return detail
 
 
 def report_for_run(run_id):
@@ -150,7 +177,8 @@ def report_for_run(run_id):
     if report and detail and (report.get('periodo'),report.get('revision_repositorio'),report.get('inicio_lectura_utc'))!=(detail.get('periodo'),detail.get('revision_repositorio'),detail.get('detectado_utc')):
         raise ValueError('El detalle y el resumen corresponden a ejecuciones distintas.')
     result={'report':report,'details':detail,'operation':error,'run_id':run_id}
-    (DATA/'informe.json').write_text(json.dumps(result,ensure_ascii=False),encoding='utf-8')
+    if os.name=='nt':atomic_bytes(DATA/'informe.dpapi',protect(json.dumps(result,ensure_ascii=False).encode()))
+    else:write_json(DATA/'informe.json',result)
     return result
 
 
@@ -220,7 +248,7 @@ def bootstrap():
     connected=True
     try:token()
     except ValueError:connected=False
-    diag=cached('informe.json',None)
+    diag=diagnostic_cache()
     if diag is None and (BUNDLE/'resumen.json').exists():
         summary=json.loads((BUNDLE/'resumen.json').read_text(encoding='utf-8'))
         detail=unseal(json.loads((BUNDLE/'detalle_admin.enc.json').read_text(encoding='utf-8'))) if (BUNDLE/'detalle_admin.enc.json').exists() else None
@@ -233,7 +261,7 @@ def draft():
     content=request.get_json()
     c=clean_config(content['config'])
     value={'config':c,'expected':content.get('expected'),'saved_at':datetime.now(timezone.utc).isoformat()}
-    (DATA/'borrador.json').write_text(json.dumps(value,ensure_ascii=False),encoding='utf-8')
+    write_json(DATA/'borrador.json',value)
     return jsonify(ok=True)
 
 
@@ -251,7 +279,7 @@ def connect():
     info=api('GET','actions/workflows/'+WORKFLOW,auth=value)
     if not info.get('id'):raise ValueError('No se encontró la automatización FTR.')
     with _lock:
-        if os.name=='nt':(DATA/'github.dpapi').write_bytes(protect(value.encode()))
+        if os.name=='nt':atomic_bytes(DATA/'github.dpapi',protect(value.encode()))
         _token=value
     return jsonify(ok=True,persistent=os.name=='nt')
 
@@ -359,13 +387,15 @@ def main():
             if os.name=='nt':
                 sample=b'FTR_PRUEBA_SIN_CREDENCIAL'
                 assert protect(protect(sample),True)==sample
-            (RESOURCE/'self-test-ok.txt').write_text('06.1: recursos, sesión, redirección y HTML sobre HTTP loopback; DPAPI Windows: OK. Sin conexión a GitHub o Google.',encoding='utf-8')
+            (RESOURCE/'self-test-ok.txt').write_text(VERSION+': recursos, sesión, redirección y HTML sobre HTTP loopback; DPAPI Windows: OK. Sin conexión a GitHub o Google.',encoding='utf-8')
             return
         if '--browser-test' in sys.argv:
             # Intercambio local exclusivo de CI; nunca se sube ni imprime este archivo.
             target=Path(sys.argv[sys.argv.index('--browser-test')+1])
             target.write_text(json.dumps({'url':ORIGIN+'/iniciar/'+BOOT,'version':VERSION}),encoding='utf-8')
-            threading.Timer(90,srv.shutdown).start()
+            timeout=threading.Timer(90,srv.shutdown)
+            timeout.daemon=True
+            timeout.start()
         else:
             webbrowser.open(ORIGIN+'/iniciar/'+BOOT)
         thread.join()

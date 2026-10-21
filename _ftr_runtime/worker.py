@@ -50,7 +50,8 @@ def plan():
     mode = os.environ.get('FTR_ACTION', 'scheduled')
     proposed = os.environ.get('FTR_CONFIG', '')
     config = clean_config(json.loads(proposed)) if proposed and mode in ('config', 'diagnostic') else old
-    if mode == 'config' and os.environ.get('FTR_EXPECTED') != digest(old):
+    expected = os.environ.get('FTR_EXPECTED', '')
+    if (mode == 'config' or expected) and expected != digest(old):
         raise ValueError('La configuración cambió desde otra computadora. Recargá y revisá el borrador antes de publicar.')
     state = read_json(ROOT/STATE, {})
     jobs = selected(config, old, state, mode, now())
@@ -184,7 +185,7 @@ def build_pages(revision):
 
 
 def public_hashes(root, config):
-    files = ['index.html', 'linea.html', 'ftr-publica.js',
+    files = ['index.html', 'linea.html', 'ftr-publica.js', 'ftr-datos.js',
              'ultima_actualizacion_parque.txt', 'ultima_actualizacion_controlados.txt']
     files += [f'{folder}/linea{line}.csv' for folder in ('parques', 'controlados') for line in sorted(enabled(config))]
     return {name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files if (root/name).is_file()}
@@ -225,6 +226,12 @@ def verify_publication(revision):
 def main():
     operation = dict(version=1, event=os.environ.get('GITHUB_EVENT_NAME', ''),
                      run_id=os.environ.get('GITHUB_RUN_ID'), events=[])
+    request_id = os.environ.get('FTR_REQUEST_ID', '')
+    cron = os.environ.get('FTR_CRON', '')
+    if re.fullmatch(r'[A-Za-z0-9_-]{1,100}', request_id):
+        operation['request_id'] = request_id
+    if re.fullmatch(r'[0-9* /,\-]{1,80}', cron):
+        operation['cron_utc'] = cron
     try:
         mode, config, state, jobs=plan()
         operation.update(action=mode, config_digest=digest(config))
@@ -254,10 +261,15 @@ def main():
                 if (ROOT/name).exists():shutil.copy2(ROOT/name,stage/name)
             paths=[]; errors=[]; results={}
             for key in jobs:
+                from _ftr_runtime.agenda import eligible_slot, slot_satisfied
+                slot = eligible_slot(config, state, key, now())
+                kind = ('additional' if mode == 'scheduled' and operation['event'] == 'schedule'
+                        and (not slot or slot_satisfied(state, key, slot)) else
+                        'scheduled' if mode == 'scheduled' else 'configuration' if mode == 'config' else 'manual')
                 state.setdefault(key,{})['attempt_utc']=utc()
                 operation_event(operation, 'reading_started', source=key,
                                 configured_time=config[key]['time'], interval_days=config[key]['days'],
-                                requested_slot=current_slot(config, key, now()))
+                                requested_slot=slot, reading_kind=kind)
                 try:
                     data=cnrt_snapshot(stage,config) if key=='cnrt' else google_snapshot(stage,config)
                     read_at = datetime.fromisoformat(data['read_utc'])

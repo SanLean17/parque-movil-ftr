@@ -61,6 +61,8 @@ jobs:
       FTR_ACTION: ${{ github.event_name == 'schedule' && 'scheduled' || inputs.action || 'scheduled' }}
       FTR_CONFIG: ${{ inputs.config_json || '' }}
       FTR_EXPECTED: ${{ inputs.expected || '' }}
+      FTR_REQUEST_ID: ${{ inputs.request_id || '' }}
+      FTR_CRON: ${{ github.event.schedule || '' }}
     steps:
       - uses: actions/checkout@v6
         with:

@@ -53,7 +53,7 @@
     const element = document.getElementById(id);
     if (!element) continue;
     element.title = 'Inicio de la lectura del último resultado guardado correctamente. Las cargas posteriores pueden no estar incluidas.';
-    fetch(file+'?v='+Date.now(), {cache:'no-store'})
+    FTRData.fetch(file+'?v='+Date.now())
       .then(r=>{if(!r.ok)throw Error();return r.text();})
       .then(s=>{element.textContent=text+dateTime(s);})
       .catch(()=>{element.textContent=text+'sin fecha disponible';});

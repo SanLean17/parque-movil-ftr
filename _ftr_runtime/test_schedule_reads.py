@@ -182,6 +182,11 @@ class ScheduleReadTests(unittest.TestCase):
         for mode in ('config', 'cnrt', 'drive', 'all', 'diagnostic'):
             self.assertEqual(entry.sources_for_execution(mode, self.c, [], 'schedule'), [])
 
+    def test_extra_read_respects_one_hour_after_error(self):
+        state = {'drive':{'status':'error','attempt_utc':at('2026-10-21T16:55:00').isoformat()}}
+        self.assertEqual(entry.sources_for_execution('scheduled',self.c,[],'schedule',state,at('2026-10-21T17:00:00')),[])
+        self.assertEqual(entry.sources_for_execution('scheduled',self.c,[],'schedule',state,at('2026-10-21T17:55:00')),['drive'])
+
     def test_source_order_and_no_duplicate_drive(self):
         jobs = ['cnrt', 'drive']
         self.assertEqual(entry.sources_for_execution('scheduled', self.c, jobs, 'schedule'), jobs)

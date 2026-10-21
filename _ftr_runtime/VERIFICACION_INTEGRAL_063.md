@@ -22,7 +22,7 @@ La conexión GitHub devolvió permisos de lectura/escritura para este repositori
 10. **Espera de reintento eludida por una lectura adicional.** Se conserva la lectura extra de Drive en arranques `schedule`, pero también se respeta una hora mínima después de un error. Se registran cron, solicitud, turno, tipo de lectura, inicio y final. Las horas publicadas no se alteran.
 11. **Persistencia local.** Borradores, órdenes y autorización usan escritura temporal y reemplazo atómico. La credencial GitHub sigue protegida por DPAPI. El cliente reutiliza la clave de informes existente y guarda una copia protegida por DPAPI solo después de descifrar correctamente. No rota ni elimina la clave original. Los nuevos informes locales se guardan protegidos; los anteriores se conservan para compatibilidad.
 
-## Base Windows y límite de la entrega
+## Base Windows y recuperación de la interfaz original
 
 Se localizó y descargó el artefacto `ftr-programa-windows-063`, ID `12308144960`, de la ejecución `39517663938`, commit `c7108928afffa9f674c4fd61496c162a225c82c8`.
 
@@ -32,7 +32,11 @@ Contiene `FTR_Administracion.exe`, comprobantes de prueba, alcance y `ftr-fuente
 
 El nuevo motor tiene versión **06.3.1**, conserva la carpeta `FTR_Administracion` y no importa ni activa el reloj opcional 06.4. Se reutilizan únicamente sus funciones genéricas de escritura y bloqueo, sin crear tareas de Windows ni temporizadores de fuentes. La cola solo transmite órdenes ya confirmadas mientras el programa está abierto. La agenda publicada continúa enteramente en GitHub.
 
-La CI compila el motor y prueba el ejecutable real en Windows con una **plantilla mínima de prueba**, sesión HTTP, DPAPI, órdenes, cancelación y cierre. Esto no acredita la interfaz original ni su compatibilidad visual. **Hace falta el `panel.html` original o el paquete completo 06.3 para conectar los controles visibles de pendientes/cancelación, verificar el diseño y entregar UN paquete completo.** No se entrega un ZIP incompleto como producto final. No se inspeccionó la instalación del usuario.
+La PR #10 probó el motor con una plantilla mínima. Después el usuario aportó `FTR_Administracion_06_3_Windows.zip`, que sí contiene la interfaz original. Se recuperó únicamente `panel.html`, cuyo resumen incrustado está vacío y cuyo detalle privado es `null`. No se incorporaron la llave ni los informes del ZIP al repositorio. `ORIGEN_063.json` identifica el original y la huella de todos sus estilos, conservados sin cambios.
+
+El panel 06.3.1 conecta ahora las órdenes persistentes, cancelación, conflictos y dependencia de configuración a los componentes existentes de Actualizaciones. El tema se conserva entre puertos e inicios. Conexiones permite recuperar expresamente la llave e informe del ZIP anterior, exclusivamente en el equipo y protegidos por Windows; se conserva un informe más reciente y se rechaza reemplazar una llave distinta. La recuperación se verificó también con el ZIP original en una carpeta temporal aislada, sin cambiar ese ZIP ni inspeccionar la instalación del usuario.
+
+La CI ahora prepara y prueba un **paquete completo con la interfaz recuperada**, ejecutable Windows, inicio, sesión, cola visible, cancelación y cierre. `check_panel.py` verifica las ocho pantallas a 390 y 1280 px, en claro y oscuro, sin solicitudes externas ni errores JavaScript. El paquete distribuible contiene solo el ejecutable, HTML, JavaScript, instrucciones, versión/revisión y huellas. La aceptación del ejecutable exige que pase `check_client_build.py` en la revisión entregada.
 
 La autenticación vencida conserva la orden y espera reconexión expresa; tres envíos rechazados detienen nuevos intentos. Una respuesta ambigua nunca se transforma en “no enviada” ni se reenvía sola. El cierre durante un envío deja una marca recuperable. Un informe de GitHub confirma procesamiento/publicación solo si el paso correspondiente terminó correctamente.
 
@@ -58,12 +62,12 @@ Se ejecutan pruebas con archivos y fuentes ficticios; las llamadas a Google/CNRT
 | 7–9: alta sin CSV previo, empresa compartida, desactivar/reactivar | `test_config_transaction.py`, `test_audit_regressions.py` | Flujo completo sobre repositorio temporal; conserva archivos históricos |
 | 10–12: nueva fuente, denegación, año nuevo vacío | `test_config_transaction.py`, `test_source_pipeline.py` | Exportación simulada; denegación conserva configuración, estado y CSV anteriores |
 | 13–16: tablas, repeticiones, CSV roto, códigos alfanuméricos | `test_planilla_anual.py`, `test_audit_regressions.py`, `test_integral_sources.py` | Fuentes ficticias; 195 no se confunde con 2077IE/OP1 |
-| 17–18: sugerencias y resolución | `test_integral_sources.py`, pruebas administrativas, `test_modelo_panel05.cjs` | Ñ original, N válida, candidatos y resolución; UI original pendiente |
+| 17–18: sugerencias y resolución | `test_integral_sources.py`, pruebas administrativas, `test_modelo_panel05.cjs` | Ñ original, N válida, candidatos y resolución; interfaz original recuperada |
 | 19: fallo de fuente/publicación sin ceros | `test_publication.py`, `browser_public_smoke.py` | HTTP simulado y navegador real; rechazo de archivos con huella distinta |
-| 20–24: simultaneidad, sin Internet, reapertura, conflicto, vencimiento | `test_outbox.py`, `test_client_integral.py`, `check_client_build.py` | Disco real, GitHub simulado, binario Windows con plantilla mínima |
+| 20–24: simultaneidad, sin Internet, reapertura, conflicto, vencimiento | `test_outbox.py`, `test_client_integral.py`, `check_client_build.py` | Disco real, GitHub simulado, interfaz recuperada y ejecutable Windows completo |
 | 25–26: cobertura y bytes servidos | `test_public_web.cjs`, pruebas administrativas, navegador y verificación HTTP posterior al despliegue | Cobertura usa línea/dominio; estados y totales históricos separados |
-| 27: compatibilidad visual 06.3 | Artefacto original incompleto | Pendiente de `panel.html` privado original |
-| 28: paquete final Windows | Compilación/prueba del motor en CI | No equivale al paquete completo con interfaz original |
+| 27: compatibilidad visual 06.3 | ZIP original aportado, `test_panel_resources.py`, `check_panel.py` | CSS íntegro idéntico; ocho pantallas, dos tamaños y dos temas |
+| 28: paquete final Windows | `package_client.py`, `check_client_build.py`, CI Windows | Paquete completo identificado; hash de cada archivo, inicio y cierre del ejecutable |
 
 Las capturas de detalle público a 390 y 1280 px coinciden píxel a píxel con las capturas de la PR #9, con los mismos datos ficticios y modo oscuro. Se comprobaron también copias, fechas y estados de error. No se cambiaron estilos, colores, fuentes ni distribución de pantallas.
 
@@ -84,3 +88,12 @@ No se atribuye la falta de un evento nuevo a saturación, permisos o caché sin 
 - Validación: CI integral, pruebas de transacción/fuentes/cliente, navegador, `check_client_build.py`, `manifest_from_git.py`, `validar_repositorio.py`.
 
 Para revertir, crear otra rama desde el `main` vigente y restaurar únicamente el código afectado a la revisión anterior a esta PR. **No restaurar `_ftr_config.json`, `_ftr_estado.json`, CSV o fechas desde una revisión antigua.** Regenerar las huellas del manifiesto con los archivos y configuración vigentes, ejecutar pruebas, revisar la PR y confirmar la publicación. No hacer force-push. En Windows, conservar la carpeta de datos local, las autorizaciones, la clave original y la cola; no ejecutar la versión anterior como si pudiera transmitir las órdenes nuevas pendientes. No se elimina ningún historial para revertir código.
+
+
+## Continuación del cliente después de recibir el ZIP 06.3
+
+Se corrigieron los controles que bloqueaban las órdenes offline y el mensaje obsoleto que describía comprobaciones cada quince minutos. El calendario real se conserva. Los borradores sin confirmar no se convierten en órdenes; una orden confirmada se guarda antes de intentar enviarla y una actualización dependiente espera su configuración. Una recarga fallida no descarta el borrador. Un recibo de error sin informe no reemplaza el último informe válido local.
+
+La recuperación del paquete anterior lee exclusivamente tres entradas del ZIP, valida su cifrado y coherencia y nunca extrae ni ejecuta el programa anterior. No reemplaza otra llave, no toca la autorización y no retrocede el informe local a una lectura más antigua. Los archivos privados originales se conservan. Se añadieron pruebas de migración DPAPI y contratos de recursos; la CI compila y comprueba los archivos completos de esta revisión, sin credenciales de las fuentes.
+
+Esta continuación no cambia la web, los CSV, configuración, fechas de lectura ni permisos de producción. La comprobación de un `schedule` auténtico con lectura/publicación sigue siendo independiente de las pruebas del cliente; debe informarse con su ejecución concreta cuando exista.

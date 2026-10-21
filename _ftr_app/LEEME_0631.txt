@@ -1,0 +1,43 @@
+ADMINISTRACIÓN FTR 06.3.1 — WINDOWS
+
+ACTUALIZAR
+1. En el programa anterior: Conexiones > Salir del programa.
+2. Extraer todo el ZIP nuevo en una carpeta nueva. No abrir dentro del ZIP.
+3. Abrir FTR_Administracion.exe. Mantener panel.html y panel-bridge.js a su lado.
+4. La autorización, borradores e informes locales se reutilizan bajo el mismo
+   usuario de Windows. No borrar la carpeta FTR_Administracion de AppData.
+5. Para recuperar la llave y el informe que venían dentro del paquete anterior:
+   Conexiones > Recuperar informes de 06.3 > elegir tu ZIP 06.3 original.
+   Confirmar Recuperar. Todo queda en este equipo; el ZIP original no cambia.
+   Si hay un informe local más reciente, se conserva.
+
+USO SIN INTERNET
+- Guardar borrador local guarda cambios, sin autorizar su publicación.
+- Confirmar orden guarda una orden como Pendiente de envío.
+- En Actualizaciones se ve su estado y se puede cancelar antes del envío.
+- Al abrir con Internet, se comprueba la configuración actual y se envían
+  únicamente las órdenes confirmadas. Una actualización que dependa de una
+  configuración confirmada espera a que ésta se publique correctamente.
+- Si aparece un conflicto, revisar, cancelar la orden y confirmar una nueva.
+- Un envío incierto no se repite automáticamente: se busca su ejecución.
+- Con el programa cerrado no se transmiten órdenes locales. Los horarios ya
+  publicados siguen en GitHub aunque la PC esté apagada.
+
+ACTUALIZAR ESTADO solo consulta. Los botones Actualizar ahora y Probar lectura
+requieren confirmación y sí solicitan lecturas reales a GitHub.
+
+CONSERVACIÓN Y PRIVACIDAD
+El diseño parte de la interfaz 06.3 original. Se conserva la configuración que
+esté publicada en GitHub; el paquete no la cambia al abrirse. El tema visual
+queda guardado entre inicios. No instala servicios, tareas ni inicio automático.
+El ZIP nuevo no incluye tokens, credenciales de Google, llaves privadas ni
+informes administrativos. Conservá tu ZIP anterior privado para recuperar
+informes. No lo subas al repositorio público.
+
+No requiere Python ni otras instalaciones. El ejecutable no tiene firma
+comercial; no desactivar las protecciones de Windows. VERSION.json identifica
+la compilación y SHA256_ARCHIVOS.txt permite comprobar sus archivos.
+
+Las pruebas incluidas en el desarrollo usan fuentes ficticias; no demuestran
+por sí solas una lectura automática real de Google o CNRT. El estado publicado
+se consulta en el panel y en las ejecuciones de GitHub.

@@ -46,7 +46,7 @@ DATA.mkdir(parents=True,exist_ok=True)
 BUNDLE=Path(sys.executable).parent if getattr(sys,'frozen',False) else Path(__file__).parent
 RESOURCE=BUNDLE
 app=Flask(__name__)
-app.config['MAX_CONTENT_LENGTH']=2*1024*1024
+app.config['MAX_CONTENT_LENGTH']=32*1024*1024
 logging.getLogger('werkzeug').disabled=True
 _lock=threading.Lock()
 _token=None
@@ -177,8 +177,10 @@ def report_for_run(run_id):
     if report and detail and (report.get('periodo'),report.get('revision_repositorio'),report.get('inicio_lectura_utc'))!=(detail.get('periodo'),detail.get('revision_repositorio'),detail.get('detectado_utc')):
         raise ValueError('El detalle y el resumen corresponden a ejecuciones distintas.')
     result={'report':report,'details':detail,'operation':error,'run_id':run_id}
-    if os.name=='nt':atomic_bytes(DATA/'informe.dpapi',protect(json.dumps(result,ensure_ascii=False).encode()))
-    else:write_json(DATA/'informe.json',result)
+    # Un recibo de error sin informe no reemplaza la última lectura válida local.
+    if report:
+        if os.name=='nt':atomic_bytes(DATA/'informe.dpapi',protect(json.dumps(result,ensure_ascii=False).encode()))
+        else:write_json(DATA/'informe.json',result)
     return result
 
 
@@ -189,6 +191,7 @@ def matches(value, expected):
 @app.before_request
 def secure():
     if request.host!=f'127.0.0.1:{PORT}':abort(403)
+    if request.path!='/api/import-legacy' and (request.content_length or 0)>2*1024*1024:abort(413)
     if request.path=='/iniciar/'+BOOT:
         if request.method!='GET':abort(405)
         if request.headers.get('Origin') not in (None,ORIGIN):abort(403)
@@ -225,6 +228,7 @@ def errors(exc):
             response.headers['Content-Type']='text/html; charset=utf-8'
             return response
         return jsonify(error=message,code=exc.code),exc.code
+    if isinstance(exc,AuthorizationError):return jsonify(error=str(exc),code='authorization'),401
     if isinstance(exc,ValueError):return jsonify(error=str(exc)),400
     if isinstance(exc,requests.RequestException):return jsonify(error='No se pudo conectar a GitHub. El borrador sigue en tu equipo; revisá Internet y reintentá.'),503
     return jsonify(error='No se completó la operación. Revisá la última ejecución antes de repetirla.'),500
@@ -243,6 +247,13 @@ def index():
     return (RESOURCE/'panel.html').read_text(encoding='utf-8').replace('__FTR_CSRF__',CSRF)
 
 
+@app.get('/panel-bridge.js')
+def panel_bridge():
+    response=make_response((RESOURCE/'panel-bridge.js').read_text(encoding='utf-8'))
+    response.headers['Content-Type']='text/javascript; charset=utf-8'
+    return response
+
+
 @app.get('/api/bootstrap')
 def bootstrap():
     connected=True
@@ -253,7 +264,22 @@ def bootstrap():
         summary=json.loads((BUNDLE/'resumen.json').read_text(encoding='utf-8'))
         detail=unseal(json.loads((BUNDLE/'detalle_admin.enc.json').read_text(encoding='utf-8'))) if (BUNDLE/'detalle_admin.enc.json').exists() else None
         diag={'report':summary,'details':detail,'run_id':None}
-    return jsonify(version=VERSION,connected=connected,draft=cached('borrador.json',None),remote=cached('config_remota.json',None),diagnostic=diag)
+    return jsonify(version=VERSION,connected=connected,draft=cached('borrador.json',None),remote=cached('config_remota.json',None),diagnostic=diag,preferences=cached('preferencias.json',{}))
+
+
+@app.post('/api/preferences')
+def preferences():
+    value=request.get_json()
+    if not isinstance(value,dict) or value.get('theme') not in ('light','dark'):
+        raise ValueError('La preferencia visual no es válida.')
+    write_json(DATA/'preferencias.json',{'theme':value['theme']})
+    return jsonify(ok=True)
+
+
+@app.post('/api/import-legacy')
+def import_legacy():
+    from _ftr_app.migration import import_archive
+    return jsonify(import_archive(request.files.get('archive'),DATA,protect,diagnostic_cache,atomic_bytes))
 
 
 @app.post('/api/draft')
@@ -339,6 +365,8 @@ def check_resources():
         raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
     if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
         raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
+    if VERSION=='06.3.1' and not (RESOURCE/'panel-bridge.js').is_file():
+        raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete 06.3.1 en una carpeta nueva.')
 
 
 def local_server():

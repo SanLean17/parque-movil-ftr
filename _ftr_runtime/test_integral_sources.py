@@ -25,14 +25,14 @@ class IntegrityTests(unittest.TestCase):
 
     def test_control_table_without_line_identity_is_reported(self):
         tables = [sheet('LINEA 36', [['FECHA','DOMINIO','INTERNO']]),
-                  sheet('Nueva pestaña', [['FECHA','DOMINIO','INTERNO'],['01/10/2026','AA111AA',1]])]
+                  sheet('LINEA nueva', [['FECHA','DOMINIO','INTERNO'],['01/10/2026','AA111AA',1]])]
         report, _ = base.analyze(tables, {36:9999}, 2026, date(2026,10,21))
         self.assertTrue(report['ubicaciones_a_revisar'])
         self.assertEqual(report['estado'], 'REVISAR')
 
     def test_unknown_incomplete_table_does_not_disappear(self):
         tables = [sheet('LINEA 36', [['FECHA','DOMINIO','INTERNO']]),
-                  sheet('Nuevos controles', [['FECHA','DOMINIO'],['01/10/2026','AA111AA']])]
+                  sheet('LINEA nueva', [['FECHA','DOMINIO'],['01/10/2026','AA111AA']])]
         report, _ = base.analyze(tables, {36:9999}, 2026, date(2026,10,21))
         self.assertTrue(report['ubicaciones_a_revisar'])
 

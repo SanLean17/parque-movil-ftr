@@ -93,7 +93,7 @@ def candidates(rows, value):
 def source_rows(sheets):
     """Comparte detección de tablas con el lector ya probado; no lee NOVEDADES."""
     for pos, sheet in enumerate(sheets, 1):
-        if base.norm(sheet.name) == 'tablerodecontrol':
+        if not base.is_control_sheet(sheet.name):
             continue
         found = base.blocks(sheet)
         for block in found:

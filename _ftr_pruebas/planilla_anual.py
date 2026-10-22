@@ -43,6 +43,12 @@ def norm(value):
     return re.sub(r"[^a-z0-9]", "", "".join(c for c in value if not unicodedata.combining(c)))
 
 
+def is_control_sheet(name):
+    """Solo pestañas cuyo nombre comienza con Linea, sin distinguir acentos/caso."""
+    name = unicodedata.normalize("NFD", text(name)).casefold()
+    return "".join(c for c in name if not unicodedata.combining(c)).startswith("linea")
+
+
 def plate(value):
     value = re.sub(r"[\s\-\u200b\ufeff]+", "", text(value))
     # Validar antes de upper(): ß y ſ pueden convertirse en letras ASCII.
@@ -254,8 +260,9 @@ def analyze(sheets, configured, year, today=None):
             issues.append(item)
 
     for tab, sheet in enumerate(sheets, 1):
-        if norm(sheet.name) == "tablerodecontrol":
-            details.append({"posicion": tab, "tipo": "tablero_ignorado"})
+        if not is_control_sheet(sheet.name):
+            kind = "tablero_ignorado" if norm(sheet.name) == "tablerodecontrol" else "pestana_auxiliar_ignorada"
+            details.append({"posicion": tab, "tipo": kind})
             continue
         found = blocks(sheet)
         ids = title_lines(sheet.name)

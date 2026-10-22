@@ -85,6 +85,34 @@ class AnnualTests(unittest.TestCase):
         report, _ = analyze([dashboard, s], {2:2058}, 2026, TODAY)
         self.assertEqual(report["lineas"][0]["registros_periodo"], 1)
 
+    def test_only_tabs_starting_with_linea_are_read_in_any_position(self):
+        for name in ('Linea 2', 'LINEA 2', 'Línea 2', 'línea 2', 'LINEAS 2'):
+            with self.subTest(name=name):
+                auxiliary = sheet_from_rows('Auxiliar', [['FECHA', 'DOMINIO', 'INTERNO'], ['incorrecta', 'incorrecta', 1]])
+                copy = single([['1/1/2026', 1, 'ABC123', 1]], name='Resumen Linea 2')
+                control = single([['1/1/2026', 1, 'AB123CD', 1]], name=name)
+                report, records = analyze([auxiliary, copy, control], {2:2058}, 2026, TODAY)
+                self.assertEqual(report['estado'], 'LECTURA_COMPLETA')
+                self.assertEqual(set(records[2]), {'AB123CD'})
+                self.assertEqual(report['pestanas_totales'], 3)
+                self.assertEqual([s['tipo'] for s in report['pestanas']], ['pestana_auxiliar_ignorada', 'pestana_auxiliar_ignorada', 'tabla_control'])
+                self.assertEqual(report['pestanas'][-1]['posicion'], 3)
+
+    def test_auxiliary_cannot_satisfy_a_missing_line_or_replace_all_controls(self):
+        auxiliary = single([], number=17, name='Resumen Linea 17')
+        report, _ = analyze([single([]), auxiliary], {2:2058, 17:2024}, 2026, TODAY)
+        self.assertEqual(report['lineas_habilitadas_no_encontradas'], [17])
+        self.assertEqual(report['estado'], 'REVISAR')
+        with self.assertRaises(DiagnosisError):
+            analyze([auxiliary], {17:2024}, 2026, TODAY)
+
+    def test_linea_table_errors_still_require_review_at_original_position(self):
+        auxiliary = sheet_from_rows('Auxiliar', [['FECHA', 'DOMINIO', 'INTERNO']])
+        broken = single([['incorrecta', 1, 'AB123CD', 1]])
+        report, _ = analyze([auxiliary, broken], {2:2058}, 2026, TODAY)
+        self.assertEqual(report['estado'], 'REVISAR')
+        self.assertEqual(report['ubicaciones_a_revisar'], [{'codigo':'FECHA_O_DOMINIO_INVALIDO', 'pestana_posicion':2, 'fila':4, 'linea':2, 'campo_a_revisar':'fecha'}])
+
     def test_new_line_detected_not_auto_enabled(self):
         report, records = analyze([single([], number=2), single([["1/1/2026",1,"AB123CD",1]], number=36)], {2:2058}, 2026, TODAY)
         self.assertEqual(report["lineas_detectadas_no_habilitadas"], [36])
@@ -105,7 +133,7 @@ class AnnualTests(unittest.TestCase):
         self.assertEqual(report["ubicaciones_a_revisar"][0]["fila"], 6)
 
     def test_vertical_blocks(self):
-        s = sheet_from_rows("Controles", [["LINEA 2"], ["FECHA","DOMINIO","INTERNO"], ["1/1/2026","AB123CD",17], ["LINEA 17"], ["FECHA","DOMINIO","INTERNO"], ["2/1/2026","ABC123",2]])
+        s = sheet_from_rows("LINEAS 2/17", [["LINEA 2"], ["FECHA","DOMINIO","INTERNO"], ["1/1/2026","AB123CD",17], ["LINEA 17"], ["FECHA","DOMINIO","INTERNO"], ["2/1/2026","ABC123",2]])
         report, records = analyze([s], {2:2058,17:2024}, 2026, TODAY)
         self.assertEqual(set(records[2]), {"AB123CD"})
         self.assertEqual(set(records[17]), {"ABC123"})

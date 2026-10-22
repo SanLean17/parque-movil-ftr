@@ -20,16 +20,16 @@ class MechanicalTests(unittest.TestCase):
         self.assertEqual([x[1] for x in known],['frenos_delanteros','frenos_delanteros'])
 
     def test_known_unknown_can_coexist_without_inventing_codes(self):
-        for value in ('Barra larga, R3','R1 R2 R3 y barra corta','Cardán; abreviatura desconocida'):
+        for value in ('Barra larga, R9','R9 A7 R10 y barra corta','Cardán; abreviatura desconocida'):
             with self.subTest(value=value):
                 known, unknown=anomalies.classify(value)
                 self.assertEqual(len(known),1)
                 self.assertTrue(unknown)
-        known,unknown=anomalies.classify('R3')
-        self.assertFalse(known);self.assertEqual(unknown,['r3'])
+        known,unknown=anomalies.classify('R9')
+        self.assertFalse(known);self.assertEqual(unknown,['R9'])
 
     def test_no_substring_or_unqualified_flexible_equivalence(self):
-        for value in ('refrenos','cardanico','barrita','flexible','amortiguadorXYZ','frenos? quizá otro componente','dirección del domicilio','suspensión de la visita'):
+        for value in ('refrenos','cardanico','barrita','flexible de combustible','amortiguadorXYZ','frenos? quizá otro componente','dirección del domicilio','suspensión de la visita'):
             with self.subTest(value=value):
                 known,unknown=anomalies.classify(value)
                 self.assertFalse(known);self.assertTrue(unknown)
@@ -73,8 +73,8 @@ class StatisticsPipelineTests(unittest.TestCase):
         self.assertEqual(data['totales'],dict(registros_validos=4,unidades_unicas_por_linea=2,unidades_repetidas=1,registros_fuera_de_servicio=1,registros_observados=1,registros_sin_novedad=1,registros_sin_estado=1,registros_otro_estado=0))
         self.assertEqual([m['controles'] for m in data['mensual']], [1,2,1]+[0]*9)
         self.assertEqual([m['estado'] for m in data['mensual']][-3:],['en_curso','futuro','futuro'])
-        self.assertEqual(data['anomalias']['identificadas'],5)
-        self.assertEqual(data['anomalias']['sin_clasificar'],1)
+        self.assertEqual(data['anomalias']['identificadas'],6)
+        self.assertEqual(data['anomalias']['sin_clasificar'],0)
         self.assertEqual(data['totales']['registros_validos'],4)
         self.assertEqual(data['anomalias']['categorias'][1]['componentes'][1]['estados']['fuera_de_servicio'],1)
 
@@ -101,8 +101,8 @@ class StatisticsPipelineTests(unittest.TestCase):
         self.google([horizontal])
         rows=list(admin.source_rows([horizontal],include_novedades=True))
         self.assertEqual([(r['linea'],r['novedades']) for r in rows],[(36,'barra corta'),(37,'cardán'),(36,'R3')])
-        self.assertEqual(self.read()['anomalias']['identificadas'],2)
-        self.assertEqual(self.read()['anomalias']['sin_clasificar'],1)
+        self.assertEqual(self.read()['anomalias']['identificadas'],3)
+        self.assertEqual(self.read()['anomalias']['sin_clasificar'],0)
 
     def test_missing_or_duplicate_novedades_reports_incomplete_coverage(self):
         for headers in (['FECHA','DOMINIO','INTERNO'],['FECHA','DOMINIO','INTERNO','NOVEDADES','NOVEDADES']):
@@ -126,7 +126,7 @@ class StatisticsPipelineTests(unittest.TestCase):
     def test_auxiliary_other_year_and_disabled_lines_are_excluded(self):
         sheets=self.visits()+[self.sheet('Resumen Línea 36',[['FECHA','LINEA','DOMINIO','INTERNO','NOVEDADES'],['01/01/2026',36,'XX999XX',1,'cardan']])]
         sheets[0].cells.update({(6,1):'01/01/2025',(6,2):36,(6,3):'AA111AA',(6,4):1,(6,6):'cardan'})
-        self.google(sheets);self.assertEqual(self.read()['anomalias']['identificadas'],5)
+        self.google(sheets);self.assertEqual(self.read()['anomalias']['identificadas'],6)
 
     def test_failed_read_preserves_last_valid_statistics(self):
         self.google(self.visits());before=(self.root/stats.FILE).read_bytes()
@@ -141,7 +141,7 @@ class StatisticsPipelineTests(unittest.TestCase):
         for forbidden in ('CANARIO_PRIVADO','AA111AA','CC333CC','inspector nombre','pestana_posicion','expresiones','wrapped_key'):
             self.assertNotIn(forbidden,public)
         self.assertNotIn('CANARIO_PRIVADO',summary)
-        self.assertIn('canario_privado',json.dumps(seal.call_args.args[0]['novedades_sin_clasificar']))
+        self.assertIn('CANARIO_PRIVADO',json.dumps(seal.call_args.args[0]['novedades_sin_clasificar']))
         corrupted=self.read();corrupted['novedades']='CANARIO_PRIVADO'
         with self.assertRaises(ValueError):stats.validate(corrupted)
 

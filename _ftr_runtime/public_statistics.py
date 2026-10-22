@@ -1,17 +1,20 @@
 """Proyección agregada y verificable del mismo modelo validado por Administración."""
 import json
 from collections import Counter
+from calendar import monthrange
 from datetime import date, datetime
 from fractions import Fraction
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from _ftr_admin.estadisticas_periodo import clasificar_estado
-from .anomalies import CATEGORIES, VERSION, classify
+from .anomalies import CATEGORIES, VERSION, analyze, fold
+from .mechanical_dictionary import CATALOGUES
 from .config import enabled
 
 FILE = 'estadisticas_ftr.json'
-ASSETS = ('estadisticas.html', 'ftr-estadisticas.css', 'ftr-estadisticas.js', FILE)
+INDEX = 'estadisticas/indice.json'
+ASSETS = ('estadisticas.html', 'ftr-estadisticas.css', 'ftr-estadisticas.js', FILE, INDEX)
 STATUS = ('fuera_de_servicio', 'observado', 'sin_novedad', 'estado_vacio', 'estado_otro')
 TOTALS = ('registros_validos', 'unidades_unicas_por_linea', 'unidades_repetidas',
           'registros_fuera_de_servicio', 'registros_observados', 'registros_sin_novedad',
@@ -37,7 +40,7 @@ def proportions(lines):
 
 def monthly(events, period, cutoff):
     counts = Counter(e['fecha'].month for e in events)
-    return [dict(mes=m, controles=counts[m], estado='futuro' if (period,m) > (cutoff.year,cutoff.month) else
+    return [dict(mes=m, controles=counts[m], dias_con_fiscalizaciones=len({e['fecha'] for e in events if e['fecha'].month==m}), estado='futuro' if (period,m) > (cutoff.year,cutoff.month) else
                  'en_curso' if (period,m) == (cutoff.year,cutoff.month) else 'completo') for m in range(1,13)]
 
 
@@ -52,7 +55,7 @@ def mechanics(events, pending=False):
     if pending:
         return result, []
     components = {c['id']:c for category in categories for c in category['componentes']}
-    private = []
+    private = {}; references = []
     for e in events:
         coverage = result['cobertura']; coverage['registros_validos'] += 1
         if not e.get('tiene_novedades'):
@@ -63,22 +66,30 @@ def mechanics(events, pending=False):
             coverage['vacios'] += 1
             continue
         coverage['con_texto'] += 1
-        known, unknown = classify(e['novedades'])
+        analysis = analyze(e['novedades'])
+        known, unknown = analysis['hallazgos'], analysis['pendientes']
         state = clasificar_estado(e.get('estado'))
-        for _, component, _ in known:
+        for finding in known:
+            component = finding['componente']
             components[component]['cantidad'] += 1
             components[component]['estados'][state] += 1
         components['sin_clasificar']['cantidad'] += len(unknown)
         components['sin_clasificar']['estados'][state] += len(unknown)
-        if unknown:
-            private.append({k:e.get(k) for k in ('linea','pestana_posicion','fila')} | {'expresiones':unknown})
+        ref = {k:e.get(k) for k in ('linea','pestana','pestana_posicion','fila')}
+        ref.update(periodo=e['fecha'].year, novedades_original=e['novedades'])
+        for expression in unknown:
+            item = private.setdefault((e['fecha'].year,fold(expression)), dict(periodo=e['fecha'].year, expresion=expression,
+                variantes=[], frecuencia=0, estado='pendiente', referencias=[]))
+            item['frecuencia'] += 1; item['referencias'].append(ref)
+            if expression not in item['variantes']:item['variantes'].append(expression)
+        references.extend(ref | finding for finding in known if finding['referencia'])
     for category in categories:
         category['cantidad'] = sum(c['cantidad'] for c in category['componentes'])
     result['identificadas'] = sum(c['cantidad'] for c in categories if c['id'] != 'otras')
     result['sin_clasificar'] = components['sin_clasificar']['cantidad']
     if result['cobertura']['sin_columna']:
         result['estado'] = 'parcial'
-    return result, private
+    return result, dict(version_reglas=VERSION, pendientes=list(private.values()), referencias_tecnicas=references)
 
 
 def build(report, events, config, read_utc, *, pending_mechanics=False):
@@ -100,7 +111,7 @@ def build(report, events, config, read_utc, *, pending_mechanics=False):
             if any(counts[k] != row[k] for k in STATUS):
                 raise ValueError('Los resultados formales de las estadísticas no coinciden.')
     anomalies, private = mechanics(events, pending_mechanics)
-    data = dict(version=1, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
+    data = dict(version=2, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
         origen='informe_validado_historial' if pending_mechanics else 'lectura_validada',
         totales={k:report['totales_estadisticas'][k] for k in TOTALS}, lineas=lines,
         mensual=monthly(events,config['period'],cutoff), destacados=ranking(lines),
@@ -118,7 +129,7 @@ def validate(data):
         if type(n) is not int or n < 0:
             raise ValueError('Cantidad estadística inválida.')
     exact(data, ('version','periodo','lectura_planilla_utc','corte_fecha','origen','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','anomalias'))
-    if data['version'] != 1 or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada'):
+    if type(data['version']) is not int or data['version'] not in (1,2) or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada'):
         raise ValueError('Versión estadística no admitida.')
     stamp = datetime.fromisoformat(data['lectura_planilla_utc'])
     if stamp.tzinfo is None or date.fromisoformat(data['corte_fecha']) != stamp.astimezone(ZoneInfo('America/Argentina/Buenos_Aires')).date():
@@ -139,23 +150,28 @@ def validate(data):
     if len(months)!=12 or [m['mes'] for m in months] != list(range(1,13)):
         raise ValueError('Meses estadísticos inválidos.')
     for m in months:
-        exact(m,('mes','controles','estado'));number(m['controles'])
+        exact(m,('mes','controles','estado') if data['version']==1 else ('mes','controles','estado','dias_con_fiscalizaciones'));number(m['controles'])
         cutoff=date.fromisoformat(data['corte_fecha'])
         expected='futuro' if (data['periodo'],m['mes'])>(cutoff.year,cutoff.month) else 'en_curso' if (data['periodo'],m['mes'])==(cutoff.year,cutoff.month) else 'completo'
         if m['estado']!=expected or m['estado']=='futuro' and m['controles']:
             raise ValueError('Mes futuro incompatible.')
+        if data['version']==2:
+            days=m['dias_con_fiscalizaciones'];number(days)
+            limit=min(monthrange(data['periodo'],m['mes'])[1],cutoff.day) if m['estado']=='en_curso' else monthrange(data['periodo'],m['mes'])[1]
+            if days>min(limit,m['controles']) or bool(days)!=bool(m['controles']):raise ValueError('Días con fiscalizaciones incompatibles.')
     if sum(m['controles'] for m in months)!=totals['registros_validos'] or data['destacados']!=ranking(lines) or data['minimo_controles_proporcion']!=MINIMUM or data['proporciones']!=proportions(lines):
         raise ValueError('Gráficos estadísticos incompatibles.')
     a=data['anomalias'];exact(a,('version_reglas','estado','identificadas','sin_clasificar','cobertura','categorias'))
-    if a['version_reglas']!=VERSION or a['estado'] not in ('pendiente','parcial','disponible'):
+    if type(a['version_reglas']) is not int or a['version_reglas'] not in CATALOGUES or data['version']==1 and a['version_reglas']!=1 or a['estado'] not in ('pendiente','parcial','disponible'):
         raise ValueError('Análisis mecánico no válido.')
+    catalogue=CATALOGUES[a['version_reglas']]
     pending=a['estado']=='pendiente'
     exact(a['cobertura'],('registros_validos','con_columna','con_texto','vacios','sin_columna'))
-    if [c['id'] for c in a['categorias']]!=list(CATEGORIES):raise ValueError('Categorías inválidas.')
+    if [c['id'] for c in a['categorias']]!=list(catalogue):raise ValueError('Categorías inválidas.')
     values=[a['identificadas'],a['sin_clasificar'],*a['cobertura'].values()]
     for category in a['categorias']:
         exact(category,('id','cantidad','componentes'));values.append(category['cantidad'])
-        if [c['id'] for c in category['componentes']]!=list(CATEGORIES[category['id']]):raise ValueError('Componentes inválidos.')
+        if [c['id'] for c in category['componentes']]!=list(catalogue[category['id']]):raise ValueError('Componentes inválidos.')
         for c in category['componentes']:
             exact(c,('id','cantidad','estados'));exact(c['estados'],STATUS)
             values += [c['cantidad'],*c['estados'].values()]
@@ -175,8 +191,5 @@ def validate(data):
 
 
 def write(root, data):
-    validate(data)
-    target=Path(root)/FILE
-    temp=target.with_suffix('.json.tmp')
-    temp.write_text(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf-8',newline='\n')
-    temp.replace(target)
+    from .statistics_archive import publish
+    publish(root, data)

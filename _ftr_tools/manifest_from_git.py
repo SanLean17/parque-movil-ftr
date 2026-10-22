@@ -24,6 +24,7 @@ def main():
     paths += [f"{folder}/linea{line['line']}.csv" for folder in ('parques','controlados') for line in config['lines'] if line['enabled']]
     tracked=set(subprocess.check_output(['git','ls-files'],cwd=ROOT,text=True).splitlines())
     paths += [name for name in ASSETS if name in tracked]
+    paths += sorted(name for name in tracked if name.startswith('estadisticas/') and name.endswith('.json') and name not in paths)
     paths += [f"historial/linea{line['line']}.json" for line in config['lines'] if line['enabled'] and f"historial/linea{line['line']}.json" in tracked]
     manifest['files_sha256']={path:hashlib.sha256(staged(path)).hexdigest() for path in paths}
     (ROOT/'ftr_publicacion.json').write_text(json.dumps(manifest)+'\n',encoding='utf-8',newline='\n')

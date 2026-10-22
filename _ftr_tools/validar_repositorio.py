@@ -53,6 +53,9 @@ def main():
     assert statistics['periodo'] == manifest['period']
     assert [r['linea'] for r in statistics['lineas']] == manifest['lines']
     assert set(ASSETS) <= manifest['files_sha256'].keys()
+    from _ftr_runtime.statistics_archive import validate_collection
+    archive=validate_collection(ROOT,lambda name:subprocess.check_output(['git','show','HEAD:'+name],cwd=ROOT))
+    assert {r['archivo'] for r in archive['periodos']} <= manifest['files_sha256'].keys()
     for page in ('index.html','linea.html'):
         assert not re.search(r'(?:href|onclick)=[^>]*estadisticas\.html', (ROOT/page).read_text(encoding='utf-8'), re.I)
     for name, expected in manifest.get('files_sha256', {}).items():

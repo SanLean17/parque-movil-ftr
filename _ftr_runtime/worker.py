@@ -196,9 +196,11 @@ def build_pages(revision):
 
 def public_hashes(root, config):
     from _ftr_runtime.public_statistics import ASSETS
+    from _ftr_runtime.statistics_archive import data_paths
     files = ['index.html', 'linea.html', 'ftr-publica.js', 'ftr-datos.js', 'ftr-historial.js', 'ftr-historial-publico.js',
              'ultima_actualizacion_parque.txt', 'ultima_actualizacion_controlados.txt']
     files += list(ASSETS)
+    if (root/'estadisticas/indice.json').exists():files += data_paths(root)
     files += [f'{folder}/linea{line}.csv' for folder in ('parques', 'controlados') for line in sorted(enabled(config))]
     files += [f'historial/linea{line}.json' for line in sorted(enabled(config))]
     return {name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files if (root/name).is_file()}
@@ -306,6 +308,10 @@ def main():
                 shutil.copytree(ROOT/name,stage/name)
             if (ROOT/'historial').exists():
                 shutil.copytree(ROOT/'historial',stage/'historial')
+            if (ROOT/'estadisticas').exists():
+                shutil.copytree(ROOT/'estadisticas',stage/'estadisticas')
+            if (ROOT/'estadisticas_ftr.json').exists():
+                shutil.copy2(ROOT/'estadisticas_ftr.json',stage/'estadisticas_ftr.json')
             for name in ('ultima_actualizacion_parque.txt','ultima_actualizacion_controlados.txt','index.html','linea.html'):
                 if (ROOT/name).exists():shutil.copy2(ROOT/name,stage/name)
             paths=[]; errors=['Una programación extraordinaria venció sin ejecutarse. Reprogramala.'] if execution['expired'] else []; results={}
@@ -354,9 +360,11 @@ def main():
                     shutil.copy2(stage/folder/dest.name,dest);paths.append(str(dest.relative_to(ROOT)))
                 shutil.copy2(stage/stamp,ROOT/stamp);paths.append(stamp)
                 if key=='drive':
-                    from _ftr_runtime.public_statistics import FILE as statistics_file
-                    shutil.copy2(stage/statistics_file, ROOT/statistics_file)
-                    paths.append(statistics_file)
+                    from _ftr_runtime.statistics_archive import data_paths
+                    for statistics_file in data_paths(stage):
+                        (ROOT/statistics_file).parent.mkdir(parents=True,exist_ok=True)
+                        shutil.copy2(stage/statistics_file, ROOT/statistics_file)
+                        paths.append(statistics_file)
                     for number in enabled(config):
                         history=stage/'historial'/f'linea{number}.json'
                         if history.is_file():

@@ -1,31 +1,43 @@
 {
   "drive": {
-    "attempt_utc": "2026-10-21T02:47:36.265856+00:00",
+    "attempt_utc": "2026-10-22T00:00:48.623008+00:00",
     "read_utc": "2026-10-21T02:47:36.346776+00:00",
     "completed_utc": "2026-10-21T02:47:41.132797+00:00",
     "period": 2026,
     "source_id": "1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk",
     "records": 1909,
     "unique": 1850,
-    "status": "success",
+    "status": "error",
     "run_id": "39534950424",
     "served_slot": "db7d7a37123f:2026-10-20T22:00:00-03:00",
-    "error": null,
+    "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados.",
     "schedule_effective_from_utc": "2026-10-21T04:18:44.468372+00:00"
   },
   "version": 2,
   "config_digest": "3819cb72da178af3d2548a42649e47c41d285087615d682817b1f35583a97d55",
-  "updated_utc": "2026-10-21T04:18:44.475436+00:00",
-  "run_id": "39543314459",
+  "updated_utc": "2026-10-22T00:07:42.535036+00:00",
+  "run_id": "39696960085",
   "cnrt": {
-    "attempt_utc": "2026-10-20T01:38:31.860489+00:00",
-    "read_utc": "2026-10-20T01:38:31.860499+00:00",
-    "completed_utc": "2026-10-20T01:45:18.606665+00:00",
+    "attempt_utc": "2026-10-22T00:00:53.610836+00:00",
+    "read_utc": "2026-10-22T00:00:53.690655+00:00",
+    "completed_utc": "2026-10-22T00:07:42.520796+00:00",
     "companies": 34,
     "lines": 48,
     "status": "success",
-    "run_id": "39351534215",
+    "run_id": "39696960085",
     "served_slot": "ae0f1700591a:2026-10-19T22:00:00-03:00",
-    "error": null
+    "error": null,
+    "recurrence": {
+      "status": "success",
+      "read_utc": "2026-10-20T01:38:31.860499+00:00",
+      "attempt_utc": "2026-10-20T01:38:31.860489+00:00",
+      "served_slot": "ae0f1700591a:2026-10-19T22:00:00-03:00"
+    }
+  },
+  "publication": {
+    "status": "pending",
+    "version": "2026-10-22T00:07:42.535036+00:00",
+    "run_id": "39696960085",
+    "attempts": 0
   }
 }

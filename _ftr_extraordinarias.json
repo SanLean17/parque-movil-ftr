@@ -1,23 +1,66 @@
 {
   "version": 1,
-  "pending": {
-    "drive": {
+  "pending": {},
+  "history": [
+    {
       "id": "41b951380a4be53a215c05ff4f10c866",
       "source": "drive",
       "at": "2026-10-21T18:30:00-03:00",
       "created_utc": "2026-10-21T21:19:10.934434+00:00",
-      "status": "pending"
+      "status": "running",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE",
+        "actualización solicitada o recurrente"
+      ]
     },
-    "cnrt": {
+    {
       "id": "4c815870140abf2f3be02f29a52fbcbd",
       "source": "cnrt",
       "at": "2026-10-21T18:30:00-03:00",
       "created_utc": "2026-10-21T21:20:26.954234+00:00",
-      "status": "pending"
+      "status": "running",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ]
+    }
+  ],
+  "last_execution": {
+    "drive": {
+      "source": "drive",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "status": "running",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE",
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-10-21T20:00:00+00:00",
+      "delay_seconds": 14447,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-22T00:00:03Z"
+    },
+    "cnrt": {
+      "source": "cnrt",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "status": "running",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "oneoff",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-22T00:00:03Z"
     }
   },
-  "history": [],
-  "last_execution": {},
   "receipts": {
     "41b951380a4be53a215c05ff4f10c866": {
       "status": "success",
@@ -28,6 +71,44 @@
       "status": "success",
       "action": "oneoff-set",
       "at": "2026-10-21T21:20:26.954234+00:00"
+    },
+    "reloj-39696830916": {
+      "status": "running",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "run_id": "39696960085"
     }
-  }
+  },
+  "execution_history": [
+    {
+      "source": "drive",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "status": "running",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE",
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-10-21T20:00:00+00:00",
+      "delay_seconds": 14447,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-22T00:00:03Z"
+    },
+    {
+      "source": "cnrt",
+      "started_utc": "2026-10-22T00:00:47.398297+00:00",
+      "status": "running",
+      "run_id": "39696960085",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "oneoff",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-22T00:00:03Z"
+    }
+  ]
 }

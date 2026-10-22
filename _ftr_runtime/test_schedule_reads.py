@@ -56,6 +56,7 @@ class ScheduleReadTests(unittest.TestCase):
             folder, stamp = ('controlados', 'ultima_actualizacion_controlados.txt') if key == 'drive' else ('parques', 'ultima_actualizacion_parque.txt')
             (root/folder/'linea2.csv').write_text('linea,fecha,dominio,interno\n2,21/10/2026,ABC123,1\n', encoding='utf-8')
             (root/stamp).write_text(moment.isoformat(), encoding='utf-8')
+            if key=='drive':(root/'estadisticas_ftr.json').write_text('{"fixture_agenda":true}')
             return dict(read_utc=moment.isoformat(), completed_utc=moment.isoformat())
         return produce
 

@@ -48,6 +48,13 @@ def main():
     assert json.loads(re.search(r'const lineas = (\[.*?\]);', html)[1]) == sorted(mapping)
     manifest = json.loads((ROOT/'ftr_publicacion.json').read_text())
     assert manifest['config_digest'] == digest(config)
+    from _ftr_runtime.public_statistics import FILE as STATISTICS, ASSETS, validate
+    statistics = validate(json.loads((ROOT/STATISTICS).read_text(encoding='utf-8')))
+    assert statistics['periodo'] == manifest['period']
+    assert [r['linea'] for r in statistics['lineas']] == manifest['lines']
+    assert set(ASSETS) <= manifest['files_sha256'].keys()
+    for page in ('index.html','linea.html'):
+        assert not re.search(r'(?:href|onclick)=[^>]*estadisticas\.html', (ROOT/page).read_text(encoding='utf-8'), re.I)
     for name, expected in manifest.get('files_sha256', {}).items():
         data = subprocess.check_output(['git','show','HEAD:'+name], cwd=ROOT)
         assert hashlib.sha256(data).hexdigest() == expected, 'Manifiesto desactualizado: '+name

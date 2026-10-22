@@ -43,6 +43,7 @@ class RecoveryTests(unittest.TestCase):
                 folder,stamp=('parques','ultima_actualizacion_parque.txt') if key=='cnrt' else ('controlados','ultima_actualizacion_controlados.txt')
                 (root/folder/'linea36.csv').write_text('dominio,interno,linea\nBB222BB,1,36\n')
                 (root/stamp).write_text(started)
+                if key=='drive':(root/'estadisticas_ftr.json').write_text('{"fixture_agenda":true}')
                 return dict(read_utc=started,completed_utc=self.clock.isoformat(),period=2026)
             s.enter_context(patch.object(worker,'google_snapshot',side_effect=lambda r,c:read('drive',r,c)))
             s.enter_context(patch.object(worker,'cnrt_snapshot',side_effect=lambda r,c:read('cnrt',r,c)))

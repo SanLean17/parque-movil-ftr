@@ -47,6 +47,7 @@ class OneoffTests(unittest.TestCase):
         folder,stamp=('parques','ultima_actualizacion_parque.txt') if key=='cnrt' else ('controlados','ultima_actualizacion_controlados.txt')
         (root/folder/'linea36.csv').write_text('dominio,interno,linea\nBB222BB,1,36\n',encoding='utf-8')
         (root/stamp).write_text(started+'\n')
+        if key=='drive':(root/'estadisticas_ftr.json').write_text('{"fixture_agenda":true}')
         return dict(read_utc=started,completed_utc=self.clock.isoformat(),period=2026)
     def execute(self,mode='oneoff',payload=None,identifier='',run='101'):
         with ExitStack() as s:

@@ -106,6 +106,7 @@ class Coordinator063Tests(unittest.TestCase):
             name,stamp=('parques','ultima_actualizacion_parque.txt') if key=='cnrt' else ('controlados','ultima_actualizacion_controlados.txt')
             (root/name/'linea2.csv').write_text('dominio\nABC123\n')
             (root/stamp).write_text(read.isoformat())
+            if key=='drive':(root/'estadisticas_ftr.json').write_text('{"fixture_agenda":true}')
             return dict(read_utc=read.isoformat(),completed_utc=at('2026-10-24T22:07:00').isoformat())
         return read_mock
     def test_plan_outputs_selected_sources_without_reading(self):

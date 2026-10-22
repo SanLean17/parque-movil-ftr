@@ -1,0 +1,128 @@
+ESTADÍSTICAS PÚBLICAS FTR — V1
+
+URL directa: https://sanlean.com.ar/parque-movil-ftr/estadisticas.html
+Sin enlaces nuevos desde index.html, linea.html, cabecera o navegación.
+La página conserva colores FTR, JetBrains Mono para cifras y el tema guardado
+por las páginas existentes. No tiene edición ni funciones administrativas.
+
+DATOS Y ACTUALIZACIÓN
+
+Una exportación de Drive -> tablas Linea/Línea -> un modelo de registros ->
+validación existente -> estadísticas de Administración -> proyección pública.
+No hay una segunda consulta de Google ni llamadas de fuentes en el navegador.
+No se cambian horarios, agendas, líneas, período ni la interfaz Windows.
+
+Los seis indicadores copian los resultados de estadisticas_periodo.py.
+Incluyen visitas fuera del parque actual. Identidad de vehículo: línea-dominio.
+Un vehículo con tres visitas cuenta como un vehículo repetido. Las posibles
+filas duplicadas exactas conservan el tratamiento vigente de Administración.
+ESTADO tiene una sola clasificación: fuera de servicio, observado, sin novedad,
+vacío u otro. Los dos últimos no se redistribuyen. NOVEDADES no determina ESTADO.
+
+Los meses usan las fechas de todas las visitas válidas. El mes de la lectura
+se identifica en curso; los posteriores se distinguen de un mes completo vacío.
+Los destacados incluyen todas las líneas empatadas, ordenadas por número.
+Si ningún control tiene el resultado, no se inventa una línea ganadora.
+
+La proporción usa casos fuera de servicio / controles válidos de la misma
+línea. Ranking principal: mínimo 20 controles, criterio descriptivo visible,
+no prueba de significación ni evaluación de riesgo. La lista ampliada permite
+consultar las muestras menores y los denominadores nulos (sin porcentaje).
+
+NOVEDADES Y LÍMITES
+
+source_rows(..., include_novedades=True) localiza NOVEDADES por encabezado,
+en la zona contigua del mismo bloque, respetando separadores y otras tablas.
+Acepta cambios de columna, incluso antes de FECHA cuando el bloque se puede
+delimitar. Encabezados duplicados, separados ambiguamente o ausentes producen
+cobertura incompleta; no se adivina una letra ni se usa una tabla auxiliar.
+
+Reglas v1 explícitas, separadas en anomalies.py:
+- Dirección: barra larga y barra corta.
+- Frenos: delantero, trasero, flexible de freno; freno sin ubicación precisada.
+- Suspensión: amortiguadores y bujes (categorías indicadas por el responsable).
+- Transmisión: cardán y crucetas.
+- Las menciones genéricas de dirección/suspensión/transmisión requieren una
+  ubicación o un defecto explícito; no se inventa el componente concreto.
+- Flexible sin referencia explícita a freno, abreviaturas como R1/R2/R3,
+  dudas, negaciones de alcance incierto y texto desconocido van a revisión.
+
+Cada componente/ubicación inequívocos cuentan por separado. Una misma mención
+no cuenta dos veces por coincidir con varias palabras. Menciones idénticas del
+mismo componente/ubicación en una celda se deduplican; no se infiere cuántas
+piezas representa un plural sin ubicaciones. Se conservan por separado las
+partes conocidas y desconocidas de una celda. El catálogo no pretende cubrir
+todo el lenguaje libre ni definir gravedad o equivalencias técnicas nuevas.
+
+La web distingue anomalías identificadas de menciones sin clasificar. Estas
+últimas no se presentan como anomalías mecánicas confirmadas. El desglose por
+resultado procede del ESTADO original. Las expresiones pendientes se conservan
+únicamente dentro de detalle_admin.enc.json, mediante el cifrado existente.
+No hay diccionario editable ni cambios en la interfaz de Administración.
+
+PRIVACIDAD E INTEGRIDAD
+
+estadisticas_ftr.json usa un esquema cerrado: solo cantidades, líneas numéricas,
+fechas de lectura y etiquetas de un catálogo fijo. No contiene dominios,
+internos, inspectores, celdas, títulos de pestañas, correos o texto de NOVEDADES.
+La validación verifica totales, meses, destacados, proporciones, categorías y
+estados antes de escribir el archivo. Se prepara en el área temporal de la
+fuente y se publica con los demás datos en el mismo commit. Si falla una
+lectura se conserva la última estadística válida y su fecha verdadera.
+El manifiesto y la comprobación HTTP incluyen JSON, HTML, CSS y JavaScript.
+La página verifica hash, versión, período, líneas y relaciones entre cantidades;
+rechaza una publicación mezclada/incompleta en lugar de mostrar cifras parciales.
+
+CARGA INICIAL SIN CONSULTAR FUENTES
+
+bootstrap_statistics.py abre únicamente resumen.json de un artefacto ya
+generado. Verifica su período/fecha contra el estado publicado y los hashes
+del historial completo de visitas. Revalida cantidades, vehículos y repetidos
+por línea, calcula meses y proyecta los resultados agregados del informe.
+No reconstruye visitas desde el CSV de últimos controles. No descifra claves
+ni informes. NOVEDADES queda pendiente, con valores nulos, hasta una lectura
+automática válida que realmente aporte ese texto. No se publica un cero falso.
+
+PRUEBAS
+
+test_public_statistics.py: cálculo, invariancia de Administración, fuera del
+parque, varios bloques, columnas móviles, tabla adyacente sin contaminación,
+cobertura, códigos desconocidos, privacidad, conservación en fallo y esquema.
+browser_statistics.py: 360/390/430/768/1440 px, claro/oscuro, toque y teclado,
+meses futuros, categorías/componentes, muestras menores, hash/período inválidos,
+ausencia de scroll horizontal y ausencia de consultas a fuentes privadas.
+Se ejecuta desde el chequeo de navegador existente; no cambia ningún workflow.
+Las capturas de entrega usan agregados reales guardados, con NOVEDADES pendiente.
+
+ARCHIVOS DE ESTA ENTREGA
+
+Página y datos públicos:
+- estadisticas.html
+- ftr-estadisticas.css
+- ftr-estadisticas.js
+- estadisticas_ftr.json
+- ftr-datos.js (permite usar la comprobación de JSON sin cargar un lector CSV)
+- ftr_publicacion.json (integridad de los nuevos archivos)
+
+Lectura, cálculo y publicación:
+- _ftr_admin/diagnostico_administrativo.py (lector compartido; interfaz intacta)
+- _ftr_runtime/worker.py
+- _ftr_runtime/anomalies.py
+- _ftr_runtime/public_statistics.py
+- _ftr_tools/bootstrap_statistics.py
+- _ftr_tools/manifest_from_git.py
+- _ftr_tools/validar_repositorio.py
+
+Pruebas y documentación:
+- _ftr_runtime/test_public_statistics.py
+- _ftr_runtime/browser_statistics.py
+- _ftr_runtime/browser_public_smoke.py
+- _ftr_runtime/test_agenda063.py
+- _ftr_runtime/test_oneoff.py
+- _ftr_runtime/test_recovery.py
+- _ftr_runtime/test_schedule_reads.py
+- _ftr_runtime/ESTADISTICAS_PUBLICAS.txt
+
+No se modifican index.html, linea.html, la interfaz de Administración,
+estadisticas_periodo.py, la configuración ni los workflows. Los cuatro archivos
+de pruebas de agenda solo adaptan sus fuentes ficticias al nuevo archivo público.

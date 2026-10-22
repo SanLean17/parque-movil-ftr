@@ -76,13 +76,20 @@ def google_snapshot(root, config):
     except base.DiagnosisError as exc:
         # DiagnosisError contiene mensajes controlados, sin contenido de celdas.
         raise ValueError(str(exc)) from None
-    report, records = base.analyze(sheets, enabled(config), config['period'])
+    today = now().astimezone(statistics.ZoneInfo('America/Argentina/Buenos_Aires')).date()
+    events = list(admin.source_rows(sheets, include_novedades=True))
+    report, records = base.analyze(sheets, enabled(config), config['period'], today=today)
     base.add_comparison(report, records, root)
-    detail = admin.extend_report(report, sheets, root, enabled(config), source_id, start)
-    statistics.completar_estadisticas(report, admin.source_rows(sheets), now().astimezone(statistics.ZoneInfo('America/Argentina/Buenos_Aires')).date())
+    detail = admin.extend_report(report, sheets, root, enabled(config), source_id, start, today=today, source_events=events)
+    statistics.completar_estadisticas(report, events, today)
     report.update(inicio_lectura_utc=start, fin_prueba_utc=utc(), revision_repositorio=os.environ.get('GITHUB_SHA', 'local'))
     report['fecha_parque_comparado_utc'] = (root/'ultima_actualizacion_parque.txt').read_text().strip() if (root/'ultima_actualizacion_parque.txt').exists() else None
     detail.update(detectado_utc=start, revision_repositorio=report['revision_repositorio'])
+    from _ftr_runtime import public_statistics
+    public_stats = None
+    if report['listo_para_revision_de_integracion']:
+        public_stats, unidentified = public_statistics.build(report, events, config, start)
+        detail['novedades_sin_clasificar'] = unidentified
     if ROOT == REPORT_DIR or ROOT in REPORT_DIR.parents:
         raise ValueError('El informe privado no puede guardarse dentro del repositorio.')
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -101,8 +108,8 @@ def google_snapshot(root, config):
         (root/'controlados').mkdir(exist_ok=True)
         (root/'controlados'/f'linea{number}.csv').write_text(buf.getvalue(), encoding='utf-8-sig')
     from _ftr_runtime.history import write_history
-    write_history(root, config, admin.source_rows(sheets), start,
-                  now().astimezone(statistics.ZoneInfo('America/Argentina/Buenos_Aires')).date())
+    write_history(root, config, events, start, today)
+    public_statistics.write(root, public_stats)
     (root/'ultima_actualizacion_controlados.txt').write_text(start+'\n', encoding='utf-8')
     return dict(read_utc=start, completed_utc=utc(), period=config['period'], source_id=source_id,
                 records=report['totales_estadisticas']['registros_validos'], unique=report['totales_estadisticas']['unidades_unicas_por_linea'])
@@ -188,8 +195,10 @@ def build_pages(revision):
 
 
 def public_hashes(root, config):
+    from _ftr_runtime.public_statistics import ASSETS
     files = ['index.html', 'linea.html', 'ftr-publica.js', 'ftr-datos.js', 'ftr-historial.js', 'ftr-historial-publico.js',
              'ultima_actualizacion_parque.txt', 'ultima_actualizacion_controlados.txt']
+    files += list(ASSETS)
     files += [f'{folder}/linea{line}.csv' for folder in ('parques', 'controlados') for line in sorted(enabled(config))]
     files += [f'historial/linea{line}.json' for line in sorted(enabled(config))]
     return {name: hashlib.sha256((root/name).read_bytes()).hexdigest() for name in files if (root/name).is_file()}
@@ -345,6 +354,9 @@ def main():
                     shutil.copy2(stage/folder/dest.name,dest);paths.append(str(dest.relative_to(ROOT)))
                 shutil.copy2(stage/stamp,ROOT/stamp);paths.append(stamp)
                 if key=='drive':
+                    from _ftr_runtime.public_statistics import FILE as statistics_file
+                    shutil.copy2(stage/statistics_file, ROOT/statistics_file)
+                    paths.append(statistics_file)
                     for number in enabled(config):
                         history=stage/'historial'/f'linea{number}.json'
                         if history.is_file():

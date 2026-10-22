@@ -22,9 +22,10 @@
     </div>
   </header>
   <main id="statistics" data-status="loading">
-    <div class="page-heading"><div><p class="eyebrow">FISCALIZACIÓN DE TRANSPORTE</p><h1>ESTADÍSTICAS</h1><p class="subtitle">Resultados de las fiscalizaciones realizadas durante el período.</p></div><span class="period-badge">PERÍODO <strong id="period">—</strong></span></div>
+    <div class="page-heading"><div><p class="eyebrow">FISCALIZACIÓN DE TRANSPORTE</p><h1>ESTADÍSTICAS</h1><p class="subtitle">Resultados de las fiscalizaciones realizadas durante el período.</p></div><div class="period-badge"><label for="periodSelect">PERÍODO</label><select id="periodSelect" aria-label="Período estadístico" disabled><option>—</option></select></div></div>
     <div class="reading-meta"><p>Última lectura válida: <time id="lastRead">—</time></p><span id="availability" class="availability" role="status">Verificando datos…</span></div>
     <p id="loadError" class="notice" hidden></p>
+    <p id="historicalNote" class="section-note historical-note" hidden></p>
     <noscript><p class="notice">Activá JavaScript para consultar las estadísticas y sus gráficos.</p></noscript>
 
     <section aria-labelledby="resultsTitle">
@@ -37,7 +38,7 @@
     <section class="panel" aria-labelledby="monthlyTitle">
       <div class="section-heading"><span class="section-number" aria-hidden="true">02</span><div><h2 id="monthlyTitle">EVOLUCIÓN MENSUAL</h2><p class="section-note">Fiscalizaciones registradas según su fecha original.</p></div></div>
       <div id="months" class="month-chart" role="group" aria-label="Controles registrados por mes"></div>
-      <p id="monthSelection" class="chart-selection" aria-live="polite">Tocá un mes para consultar sus controles.</p>
+      <p id="monthSelection" class="chart-selection" aria-live="polite">Tocá un mes para consultar controles y días con fiscalizaciones.</p>
       <p class="section-note">Las barras rayadas corresponden a meses posteriores a la última lectura. El mes en curso puede seguir sumando controles.</p>
     </section>
 
@@ -59,7 +60,7 @@
       <div class="section-heading"><span class="section-number" aria-hidden="true">05</span><div><h2 id="mechanicsTitle">ANOMALÍAS MECÁNICAS</h2><p class="section-note">Categorías y componentes mencionados en las fiscalizaciones.</p></div></div>
       <p id="mechanicsStatus" class="notice">Pendiente de la próxima lectura válida con NOVEDADES.</p>
       <p id="mechanicsCoverage" class="section-note"></p>
-      <div class="mechanics-layout"><div><p class="subheading">TOCÁ UNA CATEGORÍA</p><div id="categories" class="category-list" role="group" aria-label="Categorías mecánicas"></div></div><div id="componentPanel" class="component-panel" role="region" aria-labelledby="componentTitle"><h3 id="componentTitle">DIRECCIÓN</h3><div id="components"></div><p id="componentNote" class="section-note"></p></div></div>
+      <div class="mechanics-layout"><div><p class="subheading">TOCÁ UNA CATEGORÍA</p><div id="categories" class="category-list" role="group" aria-label="Categorías mecánicas"></div></div><div id="componentPanel" class="component-panel" role="region" aria-labelledby="componentTitle" aria-live="polite"><p class="subheading">DETALLE DE LA CATEGORÍA SELECCIONADA</p><h3 id="componentTitle">DIRECCIÓN</h3><div id="components" class="component-grid"></div><p id="componentNote" class="section-note"></p></div></div>
       <p class="section-note mechanics-note">Una fiscalización puede contener varias anomalías. Las expresiones ambiguas se mantienen sin clasificar; no se infiere el resultado ni la gravedad a partir de NOVEDADES.</p>
     </section>
   </main>

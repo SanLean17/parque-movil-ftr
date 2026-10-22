@@ -1,5 +1,8 @@
 ESTADÍSTICAS PÚBLICAS FTR — V1
 
+Documento histórico de la entrega V1. La versión actual y las equivalencias
+confirmadas posteriormente se documentan en ESTADISTICAS_PUBLICAS_V2.txt.
+
 URL directa: https://sanlean.com.ar/parque-movil-ftr/estadisticas.html
 Sin enlaces nuevos desde index.html, linea.html, cabecera o navegación.
 La página conserva colores FTR, JetBrains Mono para cifras y el tema guardado

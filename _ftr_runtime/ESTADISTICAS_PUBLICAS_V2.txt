@@ -1,0 +1,190 @@
+ESTADÍSTICAS FTR V2 — ENTREGA Y CONTRATO
+
+URL: https://sanlean.com.ar/parque-movil-ftr/estadisticas.html
+La navegación principal no incorpora ningún enlace a esta página.
+
+DISEÑO
+
+Se conserva el diseño FTR, sus secciones, colores, tipografías y ambos temas.
+Los seis indicadores tienen cifras de 36–44 px y filas alineadas. Los destacados
+usan cifras de 40–46 px: rojo para fuera de servicio, ámbar para observados y
+verde para el total de controles. Este último lleva la leyenda TOTAL DE CONTROLES.
+
+Las proporciones usan una sola columna: línea, barra de ancho uniforme y
+porcentaje alineado. La descripción queda debajo de la barra. La fórmula,
+el mínimo de 20 controles y la consulta separada de muestras menores no cambian.
+Las siete categorías mecánicas se muestran primero. El detalle se encuentra
+siempre DEBAJO, nunca en una columna lateral adelantada. Cada componente con
+datos muestra cantidad, barra segmentada y cantidades/porcentajes por ESTADO.
+Los estados vacíos u otros forman un segmento neutral. Cero y ausencia de
+análisis son diferentes: cero indica sin menciones; ausencia se muestra con —.
+
+DÍAS CON FISCALIZACIONES
+
+Se cuentan fechas calendario diferentes entre todas las visitas válidas del
+mes y período, sin separar por línea ni sumar dos veces un mismo día. No se
+estiman días hábiles, feriados, jornadas trabajadas ni actividad sin registros.
+Las doce barras siguen representando controles. Su selección agrega los días.
+Los meses futuros y en curso se determinan respecto de la lectura guardada.
+
+DATOS REALES DE LA ENTREGA, SIN LECTURAS MANUALES
+
+Se reutilizó el informe validado de la lectura automática del 22/10/2026,
+17:01 Argentina, y su historial completo de visitas, verificado por hash,
+período, línea, fecha de lectura y correspondencia con controles publicados.
+No se consultó Google ni CNRT para esta migración. Se leyó solo resumen.json
+del artefacto ya descargado; no se descifraron informes administrativos.
+
+Controles: 1.928. Vehículos únicos: 1.869. Vehículos repetidos: 59.
+Fuera de servicio: 310. Observados: 96. Sin novedad: 1.520. Sin ESTADO: 2.
+Los controles de unidades fuera del parque actual siguen incluidos.
+Destacados calculados: línea 177, 18 FDS; línea 160, 11 observados;
+línea 180, 70 controles totales. No están fijados en el código de la página.
+
+Mes:              ENE FEB MAR ABR MAY JUN JUL AGO SEP OCT NOV DIC
+Controles:        212 169 212 205 208 192 202 193 210 125   0   0
+Días registrados:  19  17  20  20  19  20  21  20  22  14   0   0
+Octubre está en curso; noviembre y diciembre son posteriores a la lectura.
+NOVEDADES permanece PENDIENTE: los archivos anteriores no guardaron ese texto.
+No se fabricaron cantidades ni se publicaron los datos ficticios de pruebas.
+
+DICCIONARIO CONFIRMADO, VERSIÓN 2
+
+DIRECCIÓN: columna, caja, brazo Pitman, rótulas de dirección, barra larga,
+barra corta y otro componente. Lados se agrupan en el mismo componente.
+SISTEMA DE FRENOS: delanteros, traseros, flexibles, pulmón de freno, tanque
+de aire, válvula de descarga, servicio, estacionamiento, emergencia y sin
+componente precisado. Las tres funciones de freno se conservan separadas.
+SUSPENSIÓN: amortiguadores, bujes, pulmón de suspensión, válvula niveladora,
+barra estabilizadora, tensores y sin componente precisado.
+TRANSMISIÓN: cardán, crucetas y sin componente precisado. No se duplican
+en dirección.
+NEUMÁTICOS: delanteros, traseros, tuercas de rueda, bulones de rueda y sin
+ubicación precisada. Cubierta requiere contexto inequívoco de neumático.
+SISTEMA ELÉCTRICO: corte de batería/corriente, sonora de marcha atrás y
+sin componente precisado.
+OTRAS / SIN CLASIFICAR: menciones pendientes de interpretación, no fallas
+mecánicas confirmadas.
+
+R1/R2: neumáticos delantero izquierdo/derecho. R3–R8: neumáticos traseros,
+conservando el código como referencia distinta, sin inventar interior/exterior.
+A1/A2: amortiguadores delantero izquierdo/derecho. A3–A6: amortiguadores
+traseros, sin posiciones adicionales inventadas.
+PF: pulmón de FRENO. Pulmón de suspensión: SUSPENSIÓN. Pulmón sin calificativo
+se interpreta en suspensión solo sin contexto contradictorio de frenos.
+Flexible independiente se reconoce como freno, salvo otro sistema explícito.
+CHICHARRA: señal sonora de marcha atrás, incluso sin un defecto especificado.
+R9, R10, A7, A8 y otros códigos no definidos quedan pendientes.
+
+Los códigos tienen límites de palabra: XR1, R10 o PF123 no coinciden con R1/PF.
+El catálogo y las equivalencias están separados del motor. Una futura edición
+requerirá validación y nueva versión; no hay editor ni configuración pública.
+
+MÚLTIPLES MENCIONES Y DEDUPLICACIÓN
+
+Se procesan comas, punto y coma, saltos, enumeraciones y conjunciones delante
+de otro componente; también componentes sucesivos sin puntuación. Se normalizan
+mayúsculas y acentos para comparar, conservando los originales solo protegidos.
+La identidad de un hallazgo es categoría/componente/ubicación dentro de una
+fiscalización. Se deduplican coincidencias repetidas; dos ubicaciones o códigos
+traseros distintos cuentan por separado. No se cuentan palabras descriptivas
+como nuevas anomalías ni se multiplican los controles.
+
+Buje de amortiguador y A4 buje flojo cuentan un hallazgo de BUJE, conservando
+la referencia A4. A4 roto y buje de A4 flojo sí identifican dos componentes.
+R3 juego reconoce el neumático y guarda defecto no_identificado: no inventa
+qué falla de neumático significa juego. Tampoco se infiere gravedad.
+Las negaciones de falla, normalidad, dudas y contradicciones quedan sin
+confirmar. Este clasificador es conservador, no una interpretación exhaustiva
+de cualquier texto libre. Nuevas expresiones necesitan revisión autorizada.
+
+ESTADO Y PRIVACIDAD
+
+Los indicadores reutilizan estadisticas_periodo.py sin cambiar sus cálculos.
+NOVEDADES y el estado formal son independientes. Las barras usan únicamente
+FUERA DE SERVICIO, OBSERVADO, SIN NOVEDAD o el grupo neutral de ESTADO.
+El lector de bloques vigente permanece intacto y no procesa pestañas auxiliares.
+NOVEDADES ausente o ambigua produce cobertura incompleta, sin adivinar columnas.
+
+El informe cifrado existente conserva los desconocidos bajo
+novedades_sin_clasificar: versión, expresión original, variantes, frecuencia,
+estado pendiente, año y referencias de línea/pestaña/fila/texto original.
+También guarda referencias técnicas de códigos y el defecto identificado o
+no_identificado. Estos campos NO van al resumen ni a JSON públicos ni a logs.
+La interfaz y compatibilidad del programa Windows no se modifican.
+
+ARCHIVO ANUAL E INTEGRIDAD
+
+estadisticas/2026.json contiene la versión actual de 2026.
+estadisticas/indice.json enumera solo archivos disponibles, con período,
+esquema, reglas, lectura, líneas de ese año y hash SHA-256.
+estadisticas_ftr.json conserva el agregado activo como copia compatible.
+
+Cada lectura válida actualiza solo su año y el índice/copia activa, sin borrar
+otros años. Cuando el período configurado sea 2027 y haya una lectura válida,
+se creará 2027.json y el selector lo ofrecerá conservando 2026 byte por byte.
+No se cambia el período ni se crea 2027 durante esta entrega.
+La selección en la web no modifica configuración ni consulta fuentes.
+Las líneas históricas se validan contra SU archivo/índice, nunca contra la
+flota o las líneas actualmente habilitadas. No se mezclan los años.
+
+Se admiten explícitamente esquemas 1/2 y reglas 1/2. Un histórico V1 mantiene
+sus cantidades y catálogo original; días y componentes que no guardó aparecen
+sin análisis, nunca con ceros inventados. Incorporar reglas nuevas no reclasifica
+años cerrados. Una lectura anterior a la guardada se rechaza; revisar un año
+anterior al más reciente requiere una operación histórica explícita futura.
+
+El trabajador copia todo el archivo anual al área temporal, valida el conjunto
+y publica archivo anual/índice/agregado activo/manifiesto en el mismo commit.
+El navegador verifica manifiesto, hashes, metadatos, período, versiones y
+relaciones entre cantidades. Una falla o mezcla no muestra datos parciales
+ni deja cifras del año previamente seleccionado. Se conserva el último dato
+válido ante errores de fuente. Todos los archivos anuales están en el manifiesto.
+
+AUTOMATIZACIÓN Y PRUEBAS
+
+La próxima lectura automática válida aplicará el diccionario V2 y publicará
+NOVEDADES. Sin ejecutar bots manualmente, no puede afirmarse que ese análisis
+real ya ocurrió. Google Drive continúa diario a las 17:00 Argentina; CNRT,
+cada cinco días a las 22:00. No cambian configuración, anchors, workflows,
+recuperaciones, turnos extraordinarios ni reloj autónomo.
+
+Pruebas: diccionario completo, códigos, separadores, ubicaciones, negaciones,
+ambigüedad, deduplicación, clasificación formal, días únicos, misma estadística
+administrativa, privacidad del cifrado, persistencia 2026→2027 con líneas
+distintas, migración V1, fallos, corrupción e integridad.
+Navegador real: 360/390/430/768/1280/1440 px, claro/oscuro, cifras/alineación,
+panel inferior, siete categorías, segmentos incluyendo neutral, años, versión
+antigua sin días/componentes, un único período, errores y ausencia de desborde.
+Las capturas públicas usan datos reales; las de segmentos con datos simulados
+se llaman prueba-ficticia-componentes y no se publican en el sitio.
+
+ARCHIVOS MODIFICADOS O INCORPORADOS EN V2
+
+estadisticas.html
+ftr-estadisticas.css
+ftr-estadisticas.js
+estadisticas_ftr.json
+estadisticas/2026.json
+estadisticas/indice.json
+ftr_publicacion.json
+_ftr_runtime/anomalies.py
+_ftr_runtime/mechanical_dictionary.py
+_ftr_runtime/public_statistics.py
+_ftr_runtime/statistics_archive.py
+_ftr_runtime/worker.py
+_ftr_tools/manifest_from_git.py
+_ftr_tools/validar_repositorio.py
+_ftr_runtime/test_public_statistics.py
+_ftr_runtime/test_statistics_v2.py
+_ftr_runtime/statistics_test_helpers.py
+_ftr_runtime/test_agenda063.py
+_ftr_runtime/test_oneoff.py
+_ftr_runtime/test_recovery.py
+_ftr_runtime/test_schedule_reads.py
+_ftr_runtime/browser_statistics.py
+_ftr_runtime/ESTADISTICAS_PUBLICAS.txt (marca la documentación V1 como histórica)
+_ftr_runtime/ESTADISTICAS_PUBLICAS_V2.txt
+
+Sin cambios: index.html, linea.html, ftr-datos.js, _ftr_admin/,
+_ftr_panel/, _ftr_app/, _ftr_config.json y .github/workflows/.

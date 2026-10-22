@@ -75,6 +75,27 @@ class SourcePipelineTests(unittest.TestCase):
             self.google([self.sheet('LINEA 36', [['FECHA','DOMINIO','INTERNO']])])
         self.assertEqual(old, {p.name:p.read_bytes() for p in (self.root/'controlados').glob('*.csv')})
 
+    def test_auxiliary_tabs_do_not_block_publish_or_enter_stats_and_history(self):
+        sheets = self.sheets()
+        auxiliary = self.sheet('Resumen Linea 36', [
+            ['FECHA','LINEA','DOMINIO','INTERNO','ESTADO'],
+            ['21/10/2026',36,'EE555EE',9,'FUERA DE SERVICIO'],
+            ['incorrecta',36,'incorrecta',9,''],
+        ])
+        unidentified = self.sheet('Auxiliar', [[], [], ['FECHA','DOMINIO','INTERNO'], ['21/10/2026','FF666FF',1]])
+        sheets = [auxiliary, sheets[0], unidentified, sheets[1]]
+        data = self.google(sheets)
+        self.assertEqual((data['records'], data['unique']), (3, 2))
+        report = json.loads((self.root/'reports/resumen.json').read_text(encoding='utf-8'))
+        self.assertTrue(report['listo_para_revision_de_integracion'])
+        self.assertEqual(report['totales_estadisticas']['registros_validos'], 3)
+        self.assertEqual(report['totales_estadisticas']['registros_fuera_de_servicio'], 1)
+        self.assertEqual(report['ubicaciones_a_revisar'], [])
+        self.assertEqual({r['pestana_posicion'] for r in admin.source_rows(sheets)}, {2, 4})
+        history = json.loads((self.root/'historial/linea36.json').read_text(encoding='utf-8'))
+        self.assertEqual([r['dominio'] for r in history['controles']], ['AA111AA', 'AA111AA'])
+        self.assertNotIn('EE555EE', (self.root/'controlados/linea36.csv').read_text())
+
     def test_valid_empty_table_and_period_change_do_not_mix_years(self):
         self.config['period'] = 2027
         data = self.google(self.sheets())

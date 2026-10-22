@@ -13,7 +13,9 @@ Esta carpeta prepara el nuevo lector de Controles FTR 2026. No reemplaza los bot
 
 ## Lectura
 
-Reconoce FECHA / DOMINIO / INTERNO por nombres, no por letras de columnas. En pestañas múltiples usa la columna LÍNEA de cada fila; no adivina por interno o empresa. Ignora Tablero de Control. Continúa después de filas vacías. Acepta celdas combinadas reales, fechas Excel y texto. Selecciona el período y deduplica línea + dominio conservando la fecha más reciente.
+Lee únicamente pestañas cuyo nombre empiece con Linea o LINEA (también Línea, sin distinguir mayúsculas ni acentos). Ignora las demás pestañas, incluido Tablero de Control, aunque contengan tablas o estén intercaladas. La selección no depende de cuáles sean las últimas dos pestañas. Esta misma regla se comparte con el informe administrativo, las estadísticas y el historial de producción; las posiciones de los avisos siguen siendo las originales del archivo.
+
+Reconoce FECHA / DOMINIO / INTERNO por nombres, no por letras de columnas. En pestañas múltiples usa la columna LÍNEA de cada fila; no adivina por interno o empresa. Continúa después de filas vacías. Acepta celdas combinadas reales, fechas Excel y texto. Selecciona el período y deduplica línea + dominio conservando la fecha más reciente. Una pestaña Linea con errores o una línea habilitada ausente sigue requiriendo revisión.
 
 Un registro puede estar controlado aunque su estado sea fuera de servicio: el estado no decide si fue inspeccionado. La ausencia de un dominio en el parque comparado NO prueba una baja oficial.
 

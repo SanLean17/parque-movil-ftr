@@ -37,6 +37,7 @@
     return new Response(await files.get(name), {status:200});
   }
   window.FTRData = {fetch:checkedFetch, manifest};
+  if (typeof Papa === 'undefined') return; // Las estadísticas solo consultan JSON.
   const parse = Papa.parse.bind(Papa);
   Papa.parse = function (input, options) {
     if (!options?.download || typeof input !== 'string' || !/^(?:parques|controlados)\//.test(input)) return parse(input, options);

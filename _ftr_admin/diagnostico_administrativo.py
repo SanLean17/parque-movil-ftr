@@ -90,8 +90,8 @@ def candidates(rows, value):
     return [{'dominio': d, 'interno': i} for d, i in sorted(unique)]
 
 
-def source_rows(sheets):
-    """Comparte detección de tablas con el lector ya probado; no lee NOVEDADES."""
+def source_rows(sheets, include_novedades=False):
+    """Modelo compartido. NOVEDADES es optativo y nunca se agrega al resumen público."""
     for pos, sheet in enumerate(sheets, 1):
         if not base.is_control_sheet(sheet.name):
             continue
@@ -105,6 +105,24 @@ def source_rows(sheets):
             following = min((b['left'] for b in found if b['row'] == block['row'] and b['left'] > block['left']), default=2049)
             states = [c for (r, c), v in sheet.cells.items() if r == block['row'] and block['left'] <= c < following and base.norm(v) == 'estado']
             state_col = states[0] if len(states) == 1 else None
+            # Encabezados contiguos del mismo bloque, limitados por separadores
+            # vacíos y por las columnas de los bloques vecinos. No adivinar letras.
+            note_col = None
+            if include_novedades:
+                left, right = min(cols.values()), max(cols.values())
+                while left > 1 and base.text(sheet.cells.get((block['row'], left - 1))):
+                    if any(b['row'] == block['row'] and b['right'] >= left - 1 and b['left'] < block['left'] for b in found):
+                        # Sin separador, la columna anterior a FECHA pertenece
+                        # al bloque previo según los límites del lector.
+                        left = min(cols.values())
+                        break
+                    left -= 1
+                while right + 1 < following and base.text(sheet.cells.get((block['row'], right + 1))):
+                    right += 1
+                notes = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'novedades']
+                # Dos encabezados son ambiguos; se informa cobertura incompleta.
+                if len(notes) == 1:
+                    note_col = notes[0]
             for row in range(block['row'] + 1, end):
                 values = {k: sheet.get(row, c) for k, c in cols.items()}
                 if not any(base.text(values.get(k)) for k in ('fecha', 'dominio', 'interno')):
@@ -112,16 +130,19 @@ def source_rows(sheets):
                 if any(base.title_lines(sheet.cells.get((row, c))) for c in range(block['left'], block['right'] + 1)) and not base.plate(values.get('dominio')):
                     break
                 number = base.line_number(values.get('linea')) if by_row else next(iter(expected))
-                yield {'pestana': sheet.name, 'pestana_posicion': pos, 'fila': row,
+                event = {'pestana': sheet.name, 'pestana_posicion': pos, 'fila': row,
                        'linea': number, 'cols': cols, 'values': values,
                        'fecha': base.parse_date(values.get('fecha'), sheet.epoch1904),
                        'dominio': base.plate(values.get('dominio')), 'interno': internal(values.get('interno')),
                        'estado': base.norm(sheet.get(row, state_col)) if state_col else '',
                        'tiene_estado': state_col is not None,
                        'conflicto_titulo': bool(by_row and expected and number not in expected)}
+                if include_novedades:
+                    event.update(novedades=base.text(sheet.get(row, note_col)) if note_col else '', tiene_novedades=note_col is not None)
+                yield event
 
 
-def extend_report(report, sheets, root, configured, identifier, detected_at, today=None):
+def extend_report(report, sheets, root, configured, identifier, detected_at, today=None, source_events=None):
     today = today or datetime.now(ZoneInfo('America/Argentina/Buenos_Aires')).date()
     fleets = {n: fleet_rows(root, n) for n in configured}
     issues, events, unknown_events = [], [], []
@@ -150,7 +171,7 @@ def extend_report(report, sheets, root, configured, identifier, detected_at, tod
         entry['id'] = hashlib.sha256(fingerprint.encode()).hexdigest()[:24]
         issues.append(entry)
 
-    for event in source_rows(sheets):
+    for event in source_rows(sheets) if source_events is None else source_events:
         number, dt, domain = event['linea'], event['fecha'], event['dominio']
         if number is None:
             add('LINEA_AUSENTE', event, 'linea')

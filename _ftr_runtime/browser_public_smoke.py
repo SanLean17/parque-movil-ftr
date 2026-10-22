@@ -122,3 +122,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    from browser_statistics import main as statistics_smoke
+    statistics_smoke()

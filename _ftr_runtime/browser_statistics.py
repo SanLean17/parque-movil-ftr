@@ -90,8 +90,12 @@ def main():
                 current=copy.deepcopy(actual);open_page()
                 for theme in ('light','dark'):
                     if (theme=='dark')!=page.evaluate('document.documentElement.classList.contains("dark")'):page.locator('#themeButton').click()
-                    layout();assert 'Pendiente' in page.locator('#mechanicsStatus').inner_text()
-                    page.locator('[data-category="frenos"]').click();assert page.locator('#components .component-count').all_inner_texts()==['—']*4
+                    layout()
+                    pending=actual['anomalias']['estado']=='pendiente'
+                    assert ('Pendiente' if pending else 'anomalías identificadas') in page.locator('#mechanicsStatus').inner_text()
+                    page.locator('[data-category="frenos"]').click()
+                    counts=page.locator('#components .component-count').all_inner_texts()
+                    assert counts==['—']*4 if pending else len(counts)==4 and all(n!='—' for n in counts)
                     if output:
                         page.evaluate('window.scrollTo(0,0)')
                         page.evaluate('document.fonts.ready')

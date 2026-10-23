@@ -44,10 +44,14 @@ def check_statistics_admin(page):
     page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("CONFLICTO")')
     page.locator('#technicalDiscard').click()
     assert 'sigue protegida' in page.locator('#technicalStatus').inner_text()
+    page.locator('#technicalDictionary summary').first.click()
     page.locator('#historicalImporter summary').first.click()
+    page.locator('#historicalRefresh').click()
+    page.wait_for_function('()=>document.querySelector("#historicalStatus").textContent.includes("Diccionario revisión")')
+    assert page.locator('#historicalStatus').is_visible()
     page.locator('#historicalUrl').fill('https://docs.google.com/spreadsheets/d/HISTORICAL_FICTITIOUS_1234567/edit')
     page.locator('#historicalForm button').click();page.locator('#dialogConfirm').click()
-    page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("Importación solicitada")')
+    page.wait_for_function('()=>document.querySelector("#historicalStatus").textContent.includes("Importación solicitada")')
     row=last_order('history-import');assert row['statistical']['period']==2025 and not row['statistical']['allow_partial']
     # La incidencia sigue visible aunque el registro sea válido para los conteos.
     page.evaluate('''()=>{incidentCategory='advertencia';adminDetails={version:3,periodo:diagnosticReport.periodo,revision_repositorio:diagnosticReport.revision_repositorio,detectado_utc:diagnosticReport.inicio_lectura_utc,incidencias:[{id:'estado-ficticio',codigo:'CONTROL_SIN_ESTADO',categoria:'advertencia',mensaje:'Fiscalización válida sin resultado en ESTADO.',linea:91,pestana:'Línea 91',pestana_posicion:5,fila:7,celda:'I7',fecha_control:'2026-02-03',dominio_ingresado:'AA111AA',interno:'1'}],repetidos:[]};renderIncidents();showView('incidents')}''')

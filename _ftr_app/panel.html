@@ -203,7 +203,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
     <h3>Reglas confirmadas</h3><div id="technicalRules"></div>
    </details>
    <details class="panel" id="historicalImporter"><summary><strong>IMPORTAR ESTADÍSTICAS HISTÓRICAS</strong></summary>
-    <p class="small">Importa un año cerrado desde una fuente independiente. Conserva el período activo, los parques y las programaciones.</p><p id="historyAvailable" class="inline-note"></p>
+     <p class="small">Importa un año cerrado desde una fuente independiente. Conserva el período activo, los parques y las programaciones.</p><button class="btn secondary" type="button" id="historicalRefresh">Consultar GitHub</button><p id="historyAvailable" class="inline-note"></p><p id="historicalStatus" class="inline-note" aria-live="polite"></p>
     <form id="historicalForm"><div class="forms"><div class="field"><label for="historicalPeriod">Año histórico</label><input id="historicalPeriod" type="number" min="2000" max="2100" value="2025" required></div><div class="field"><label for="historicalUrl">Planilla histórica de Google Sheets</label><input id="historicalUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."></div></div>
     <p class="help">La cuenta lectora del bot debe tener permiso de lectura sobre esta planilla.</p>
     <p class="small"><label><input type="checkbox" id="historicalPartial">Autorizar excluir registros inválidos y mostrar el histórico como parcial.</label></p>

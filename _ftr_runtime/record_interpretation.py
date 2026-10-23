@@ -21,7 +21,7 @@ def reference(event):
 def suggestions(original,dictionary):
     result=[]
     # El texto se corta por sus posiciones originales, nunca se reescribe.
-    for start,end in anomalies.clause_spans(original):
+    for start,end in anomalies.interpretation_spans(original,rules.compile_rules(dictionary)):
         result.append(dict(inicio=start,fin=end,modo='automatico',hallazgos=[]))
     return result
 
@@ -76,8 +76,8 @@ def apply(event,corrections,dictionary):
         if saved.get('regla'):
             rule=saved['regla']
             def overlaps(row):
-                if row.get('tipo')==rule.get('tipo')=='descriptor' and row['componente']!=rule['componente']:return False
-                return re.search(r'\b'+re.escape(row['expresion'])+r'\b',rule['expresion']) or re.search(r'\b'+re.escape(rule['expresion'])+r'\b',row['expresion'])
+                if row.get('tipo')==rule.get('tipo')=='descriptor' and (rules.general(row)!=rules.general(rule) or row.get('componente')!=rule.get('componente')):return False
+                return rules.overlap(row,rule)
             rows=[r for r in dictionary['reglas'] if not overlaps(r)]+[rule]
             candidate=rules.validate(dict(dictionary,reglas=rows))
             return anomalies.analyze(event['novedades'],rules.compile_rules(candidate))

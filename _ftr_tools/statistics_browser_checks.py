@@ -173,9 +173,81 @@ def check_mechanical_review(page, binary_profile=None):
             # Acceso desde Estadísticas conserva el año.
             page.evaluate('showView("statistics")');page.locator('#mechanicalPeriod').select_option('2025');page.locator('#openDictionary').click()
             assert page.locator('#dictionaryPeriod').input_value()=='2025'
+            check_general_descriptors(page,server,test,path,remote,report,detail,binary_profile)
             page.unroute('**/api/statistics-admin?remote=1')
             if not binary_profile:
                 (server.DATA/'interpretaciones.dpapi').unlink(missing_ok=True)
                 if old is None:path.unlink(missing_ok=True)
                 else:path.write_bytes(old)
     finally:test.tearDown()
+
+
+def check_general_descriptors(page,server,test,path,remote,report,detail,binary_profile):
+    from _ftr_runtime.test_general_descriptors import CASES
+    texts=[*CASES,'EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','EXTREMO BARRA LARGA; EXTREMOS']
+    sheets=[test.sheet('Línea 999',[['FECHA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],
+        *[['01/02/2025','AA111AA',7,'OBSERVADO',text] for text in texts]])]
+    test.source=lambda:sheets
+    public,new_report,new_detail=test.build()
+    report.clear();report.update(new_report);detail.clear();detail.update(new_detail)
+    if binary_profile:(server.DATA/'informe.dpapi').write_bytes(server.protect(json.dumps({'report':report,'details':detail}).encode()))
+    remote.update(dictionary=copy.deepcopy(rules.EMPTY),expected_dictionary=rules.digest(rules.EMPTY))
+    remote['statistics']['2025']=public;server.write_json(path,remote)
+    page.locator('#technicalRefresh').click()
+    page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("revisión 1.")')
+    page.locator('#mechanicalSearch').fill('EXTREMO');page.locator('#mechanicalState').select_option('')
+    item=page.locator('#mechanicalExpressions>details').filter(has=page.locator('summary',has_text='EXTREMO ·')).first
+    item.locator('summary').click();item.get_by_role('button',name='Ver registros originales',exact=True).click()
+    item.locator('article').first.get_by_role('button',name='CLASIFICAR EXPRESIÓN',exact=True).click()
+    page.wait_for_selector('#dictionaryMeaning')
+    page.locator('#dictionaryMeaning').select_option('descriptor')
+    form=page.locator('.dictionary-editor');scope=form.get_by_label('Alcance',exact=True)
+    scope.select_option('general')
+    assert form.get_by_label('Componente ya reconocido',exact=True).is_hidden()
+    form.get_by_label('Variantes (separadas por /)',exact=True).fill('EXTREMOS')
+    form.get_by_label('Expresión técnica',exact=True).fill('EXTREMO')
+    form.get_by_label('Significado del descriptor',exact=True).select_option('extremo')
+    preview=form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True)
+    preview.click();page.wait_for_selector('.dictionary-preview:not([hidden])')
+    assert '9 controles conservados' in form.inner_text()
+    assert '7 registros potencialmente afectados' in form.inner_text()
+    assert 'Menciones sin clasificar: 11 → 4' in form.inner_text()
+    ambiguity=form.locator('.dictionary-preview details').nth(1)
+    assert '(3)' in ambiguity.locator('summary').inner_text()
+    ambiguity.locator('summary').click();ambiguity.get_by_role('button',name='Ver registros',exact=True).click()
+    assert 'EXTREMO BARRA LARGA; EXTREMOS' in ambiguity.inner_text()
+    # Cambiar alcance o variantes invalida la autorización de guardar.
+    scope.select_option('componente');assert form.locator('.dictionary-preview').is_hidden()
+    assert form.get_by_label('Componente ya reconocido',exact=True).is_visible()
+    scope.select_option('general');preview.click();page.wait_for_selector('.dictionary-preview:not([hidden])')
+    form.get_by_label('Variantes (separadas por /)',exact=True).fill('EXTREMOS ')
+    assert form.locator('.dictionary-preview').is_hidden()
+    preview.click();page.wait_for_selector('.dictionary-preview:not([hidden])')
+    output=os.environ.get('FTR_SCREENSHOTS')
+    for width in (390,900,1280):
+        page.set_viewport_size({'width':width,'height':950})
+        for theme in ('light','dark'):
+            page.evaluate('(t)=>document.documentElement.dataset.theme=t',theme)
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(width,theme)
+            if output:form.screenshot(path=str(Path(output)/f'descriptor-general-{width}-{theme}.png'))
+    page.set_viewport_size({'width':1280,'height':950})
+    form.get_by_role('button',name='GUARDAR REGLA GENERAL',exact=True).click();page.locator('#dialogConfirm').click()
+    page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("Orden guardada")')
+    order=api(page,'orders')['value']['orders'][-1];row=order['statistical']['reglas'][0]
+    assert row['alcance']=='general' and row['variantes']==['extremos']
+    assert 'componente' not in row and 'categoria' not in row
+    assert api(page,'orders/cancel',{'request_id':order['id']})['status']==200
+    # Reapertura desde la lista global, incluida la variante y el alcance.
+    remote['dictionary']=rules.proposed(rules.EMPTY,[row],rules.digest(rules.EMPTY))
+    remote['expected_dictionary']=rules.digest(remote['dictionary']);server.write_json(path,remote)
+    page.locator('#technicalRefresh').click()
+    page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("revisión 2.")')
+    page.locator('#confirmedRules').evaluate('(d)=>d.open=true')
+    assert 'CUALQUIER COMPONENTE RECONOCIDO' in page.locator('#technicalRules').inner_text()
+    assert 'extremo / extremos' in page.locator('#technicalRules').inner_text()
+    page.locator('#technicalRules').get_by_role('button',name='Modificar',exact=True).click()
+    form=page.locator('.dictionary-editor')
+    assert form.get_by_label('Alcance',exact=True).input_value()=='general'
+    assert form.get_by_label('Componente ya reconocido',exact=True).is_hidden()
+    assert form.get_by_label('Variantes (separadas por /)',exact=True).input_value()=='extremos'
+    form.get_by_role('button',name='CANCELAR',exact=True).click()

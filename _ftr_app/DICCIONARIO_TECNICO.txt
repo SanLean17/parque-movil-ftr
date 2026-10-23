@@ -19,6 +19,29 @@ Se puede indicar descriptor contextual, abreviatura de componente, múltiples
 anomalías o dejar pendiente. Los descriptores solo se consumen cuando están
 unidos al componente compatible; no crean otro hallazgo.
 
+Alcance del descriptor (opción A — COMPLEMENTA UN COMPONENTE)
+El formulario conserva las reglas específicas y permite elegir:
+- SOLO EL COMPONENTE SELECCIONADO: exige el componente reconocido.
+- CUALQUIER COMPONENTE RECONOCIDO: no exige seleccionar uno.
+Las variantes se escriben separadas por /, por ejemplo EXTREMOS para EXTREMO.
+Solo se admiten términos del vocabulario técnico cerrado; una variante no
+autoriza a ocultar otros textos desconocidos. El significado continúa siendo
+obligatorio. Una regla específica habilitada prevalece sobre la general para
+el mismo término y componente; deshabilitarla permite aplicar la general.
+
+EXTREMO BARRA LARGA, EXTREMO BARRA CORTA y TENSOR EXTREMO DERECHO mantienen
+un componente por expresión. EXTREMOS BARRA LARGA - CRUCETA 2 conserva ambos
+componentes, resuelve EXTREMOS y deja el número 2 para su revisión anterior.
+EXTREMO DELANTERO DE BARRA CORTA también se asocia a la barra corta.
+BARRA LARGA, EXTREMO IZQUIERDO CON JUEGO admite la coma porque continúa la
+descripción completa de un único componente, sin otro candidato al lado.
+EXTREMO solo, entre dos componentes posibles o separado por un límite de
+anomalía queda pendiente. No se atraviesan palabras desconocidas, negaciones,
+incertidumbres, puntos, punto y coma, guiones ni saltos de línea.
+Si las posiciones nuevas cambian la cantidad de componentes reconocidos, se
+conservan los hallazgos anteriores y la interpretación queda pendiente.
+Las decisiones explícitas del editor de fragmentos conservan sus límites.
+
 Fragmentos
 El editor propone los fragmentos del mismo motor. Permite usar una selección
 del original, reemplazar un fragmento, agregar, dividir en el cursor, unir con
@@ -31,8 +54,10 @@ se multiplica el número de controles.
 Dos alcances de guardado
 1. Regla general: vocabulario técnico validado, sin texto libre ni referencias
    de vehículos. Se guarda por la cola existente en _ftr_diccionario.json;
-   queda habilitada por defecto. Las reglas contextuales incluyen componente
-   y significado. Se pueden editar/deshabilitar desde Reglas confirmadas.
+   queda habilitada por defecto. El alcance del descriptor indica si incluye
+   un componente concreto o admite cualquiera ya reconocido. No confundir
+   este alcance con el guardado global frente al guardado particular.
+   Se pueden editar/deshabilitar desde Reglas confirmadas.
    El archivo global se recupera al reinstalar y se utiliza en años futuros.
 2. Interpretación particular: decisión privada para el registro exacto. Se
    guarda en %LOCALAPPDATA%/FTR_Administracion/interpretaciones.dpapi usando
@@ -49,7 +74,9 @@ Dos alcances de guardado
 Vista previa y estado
 Se recalcula con el mismo motor y el informe protegido completo y vigente.
 Se muestran conteos anteriores/posteriores, registros afectados y apariciones
-que necesitan revisión individual. Una vista previa particular parte de las
+que necesitan revisión individual, incluso cuando un registro se resuelve solo
+parcialmente. Los conteos incluyen menciones sin clasificar y cada categoría.
+Una vista previa particular parte de las
 interpretaciones privadas ya guardadas. Cancelar no escribe ni encola órdenes.
 Editar después de calcular invalida la confirmación. Los recibos particulares
 vencen a los cinco minutos y verifican informe, diccionario y versión local.
@@ -57,9 +84,18 @@ Se distinguen orden pendiente, regla guardada, recálculo pendiente, estadístic
 recalculadas y publicación verificada. Guardar no equivale a publicar.
 
 Compatibilidad y privacidad
-Se conserva el catálogo público versión 3; la revisión interna del motor es 5.
-Los informes de motores anteriores no habilitan una vista previa exacta:
-se requiere un informe nuevo de una lectura automática o revisión autorizada.
+Se conserva el catálogo público versión 3; la revisión interna del motor es 6.
+Un informe de revisión 5 se admite únicamente si reproduce exactamente sus
+estadísticas guardadas con las reglas originales y pasa las comprobaciones de
+integridad, período y cantidad de registros. Otros informes antiguos o que no
+coincidan requieren un informe nuevo de una lectura automática autorizada.
+El esquema de diccionario sigue en versión 1. Un descriptor general almacena
+tipo=descriptor, alcance=general, expresion, significado, habilitada y variantes
+opcionales; omite categoría y componente. Uno específico conserva categoría y
+componente, admite alcance=componente y variantes opcionales. Sin alcance se
+interpreta como específico y mantiene su representación y huella anteriores.
+No se permiten términos/variantes duplicados dentro del mismo alcance. La
+coexistencia general/específica tiene la precedencia indicada arriba.
 PF-3 se reconoce como PF3, PF.3, PF 3 y P.F.3. R4 tiene ubicación trasera
 interna derecha por confirmación expresa; no se deducen las demás posiciones R.
 La normalización no cambia las posiciones ni el texto original del editor.
@@ -84,3 +120,6 @@ LEEME_PRIMERO.txt y todos los recursos. Cambios posteriores de fuentes sin
 modificar el marcador no generan otra distribución Windows.
 Las capturas y casos de pruebas contienen exclusivamente información ficticia.
 No se ejecutan bots ni lecturas de fuentes reales durante estas pruebas.
+La ampliación de descriptores generales se entrega como cambios de fuentes y
+PR: no modifica el marcador de entrega ni genera un ZIP. El ejecutable 06.3.7
+ya distribuido no incorpora esta ampliación; requiere una futura entrega.

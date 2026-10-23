@@ -72,7 +72,7 @@ def check_mechanical_review(page, binary_profile=None):
                 page.wait_for_selector('#dictionaryMeaning')
                 assert card.locator('.dictionary-editor').count()==1
                 page.locator('#dictionaryMeaning').select_option('component')
-                form=card.locator('.dictionary-editor');form.get_by_label('Componente',exact=True).select_option('barra_larga');return form
+                form=card.locator('.dictionary-editor');form.get_by_label('Categoría',exact=True).select_option('direccion');form.get_by_label('Componente',exact=True).select_option('barra_larga');return form
             form=classify();form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click()
             page.wait_for_selector('.dictionary-preview:not([hidden])')
             assert '2 registros potencialmente afectados' in form.inner_text()
@@ -108,7 +108,9 @@ def check_mechanical_review(page, binary_profile=None):
             page.locator('#mechanicalSearch').fill('PUNTA')
             item=page.locator('#mechanicalExpressions>details').first;item.locator('summary').click();item.get_by_role('button',name='Ver registros originales',exact=True).click()
             item.locator('article').first.get_by_role('button',name='CLASIFICAR EXPRESIÓN',exact=True).click();page.wait_for_selector('#dictionaryMeaning')
-            form=page.locator('.dictionary-editor');assert page.locator('#dictionaryMeaning').input_value()=='descriptor'
+            form=page.locator('.dictionary-editor');assert page.locator('#dictionaryMeaning').input_value()==''
+            page.locator('#dictionaryMeaning').select_option('descriptor')
+            form.get_by_label('¿QUÉ INFORMACIÓN AGREGA?',exact=True).select_option('parte')
             assert form.get_by_label('Categoría',exact=True).count()==0
             form.get_by_label('Significado del descriptor').select_option('extremo')
             form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click();page.wait_for_selector('.dictionary-preview:not([hidden])')
@@ -174,6 +176,8 @@ def check_mechanical_review(page, binary_profile=None):
             page.evaluate('showView("statistics")');page.locator('#mechanicalPeriod').select_option('2025');page.locator('#openDictionary').click()
             assert page.locator('#dictionaryPeriod').input_value()=='2025'
             check_general_descriptors(page,server,test,path,remote,report,detail,binary_profile)
+            from technical_browser_checks import check_technical_v7
+            check_technical_v7(page,server,test,path,remote,report,detail,binary_profile)
             page.unroute('**/api/statistics-admin?remote=1')
             if not binary_profile:
                 (server.DATA/'interpretaciones.dpapi').unlink(missing_ok=True)
@@ -190,7 +194,13 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
     test.source=lambda:sheets
     public,new_report,new_detail=test.build()
     # Formato del informe de 06.3.7: el binario nuevo debe validar y reutilizarlo.
-    new_detail['novedades_sin_clasificar']['revision_mecanica']['motor_revision']=5
+    capsule=new_detail['novedades_sin_clasificar']['revision_mecanica'];capsule['motor_revision']=5
+    from _ftr_runtime.legacy_mechanics import mechanics
+    from datetime import date
+    events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in capsule['registros']]
+    public['anomalias'],old_private=mechanics(events,capsule['diccionario'],5)
+    capsule['estadisticas']['anomalias']=copy.deepcopy(public['anomalias'])
+    new_detail['novedades_sin_clasificar'].update(old_private)
     report.clear();report.update(new_report);detail.clear();detail.update(new_detail)
     if binary_profile:(server.DATA/'informe.dpapi').write_bytes(server.protect(json.dumps({'report':report,'details':detail}).encode()))
     remote.update(dictionary=copy.deepcopy(rules.EMPTY),expected_dictionary=rules.digest(rules.EMPTY))
@@ -203,7 +213,7 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
     item.locator('article').first.get_by_role('button',name='CLASIFICAR EXPRESIÓN',exact=True).click()
     page.wait_for_selector('#dictionaryMeaning')
     page.locator('#dictionaryMeaning').select_option('descriptor')
-    form=page.locator('.dictionary-editor');scope=form.get_by_label('Alcance',exact=True)
+    form=page.locator('.dictionary-editor');form.get_by_label('¿QUÉ INFORMACIÓN AGREGA?',exact=True).select_option('parte');form.get_by_label('Significado del descriptor').select_option('extremo');scope=form.get_by_label('Alcance',exact=True)
     scope.select_option('general')
     assert form.get_by_label('Componente ya reconocido',exact=True).is_hidden()
     form.get_by_label('Variantes (separadas por /)',exact=True).fill('EXTREMOS')
@@ -222,13 +232,17 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
     alone=next(r for r in effect['ambiguos'] if r['novedades_original']=='EXTREMO')
     assert alone['pendientes']==['EXTREMO']
     assert effect['registros']==9
-    assert [c for c in effect['antes']['categorias'] if c['id']!='otras']==[c for c in effect['despues']['categorias'] if c['id']!='otras']
+    for category in effect['antes']['categorias']:
+        if category['id']=='otras':continue
+        after=next(c for c in effect['despues']['categorias'] if c['id']==category['id'])
+        assert category['cantidad']==after['cantidad']
+        for component in category['componentes']:assert component==next(c for c in after['componentes'] if c['id']==component['id'])
     page.wait_for_selector('.dictionary-preview:not([hidden])')
     assert '9 controles conservados' in form.inner_text()
     assert '7 registros potencialmente afectados' in form.inner_text()
     assert 'Menciones sin clasificar: 11 → 4' in form.inner_text()
     ambiguity=form.locator('.dictionary-preview details').nth(1)
-    assert '(3)' in ambiguity.locator('summary').inner_text()
+    assert '(4)' in ambiguity.locator('summary').inner_text()
     ambiguity.locator('summary').click();ambiguity.get_by_role('button',name='Ver registros',exact=True).click()
     assert 'EXTREMO BARRA LARGA; EXTREMOS' in ambiguity.inner_text()
     # Cambiar alcance o variantes invalida la autorización de guardar.

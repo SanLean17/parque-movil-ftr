@@ -3,11 +3,13 @@ import copy
 import re
 from . import anomalies, dictionary_rules as rules
 from .mechanical_review import fingerprint
+from .technical_fields import EXTRA_FIELDS, validate_extra
 
 LOCATIONS = ('sin_ubicacion','delantero','trasero','derecho','izquierdo','superior','inferior',
              'delantero derecho','delantero izquierdo','trasero derecho','trasero izquierdo',
-             'trasero derecho interno','trasero izquierdo interno','superior derecho','superior izquierdo')
-DEFECTS = ('no_identificado','corte','pinchadura','rotura','flojo','suelto','no_funciona','juego','desgaste')
+             'trasero derecho interno','trasero izquierdo interno','trasero derecho externo','trasero izquierdo externo',
+             'trasero interno','trasero externo','interno','externo','zona media','superior derecho','superior izquierdo')
+DEFECTS = ('no_identificado','corte','pinchadura','rotura','flojo','suelto','no_funciona','juego','desgaste','liso','faltante')
 
 def reference(event):
     import hashlib,json
@@ -36,12 +38,14 @@ def validated(original,fragments):
         if row['modo'] not in ('automatico','confirmado','pendiente') or not isinstance(row['hallazgos'],list) or len(row['hallazgos'])>20:raise ValueError('Interpretación no válida.')
         if row['modo']!='confirmado' and row['hallazgos'] or row['modo']=='confirmado' and not row['hallazgos']:raise ValueError('Elegí el componente o mantené el fragmento pendiente.')
         for finding in row['hallazgos']:
-            if not isinstance(finding,dict) or set(finding)!={'categoria','componente','ubicacion','referencia','defecto'}:raise ValueError('Hallazgo no válido.')
+            required={'categoria','componente','ubicacion','referencia','defecto'}
+            if not isinstance(finding,dict) or not required<=set(finding) or set(finding)-required-EXTRA_FIELDS:raise ValueError('Hallazgo no válido.')
+            validate_extra(finding)
             if finding['categoria']=='otras' or finding['categoria'] not in rules.CATEGORIES or finding['componente'] not in rules.CATEGORIES[finding['categoria']]:raise ValueError('Componente no válido.')
             position=finding['ubicacion']
             if position not in LOCATIONS and not re.fullmatch(r'trasero (?:[ar][3-8]|pf[3-6]|ps[34])',str(position)):raise ValueError('Ubicación no confirmada.')
             if finding['defecto'] not in DEFECTS:raise ValueError('Defecto no válido.')
-            if finding['referencia'] is not None and (finding['referencia'] not in anomalies.ALIASES or finding['referencia'] not in re.sub(r'[^a-z0-9]','',anomalies.fold(original[a:b]))):raise ValueError('Referencia ajena al fragmento.')
+            if finding['referencia'] is not None and (finding['referencia'] not in anomalies.ALIASES or finding['referencia'] not in {anomalies.code_reference(m.group()) for m in anomalies.CODE.finditer(anomalies.fold(original[a:b]))}):raise ValueError('Referencia ajena al fragmento.')
         result.append(copy.deepcopy(row))
     return result
 
@@ -55,7 +59,9 @@ def interpret(original,fragments,dictionary):
         if not text:continue
         analysis=anomalies.analyze(text,compiled) if row['modo']=='automatico' else dict(hallazgos=row['hallazgos'],pendientes=[text] if row['modo']=='pendiente' else [],descriptores=[])
         for f in analysis['hallazgos']:
-            key=(f['categoria'],f['componente'],anomalies.canonical(f['ubicacion']),f['referencia'] if f['ubicacion']=='sin_ubicacion' else None)
+            position='sin_ubicacion' if f['componente'] in ('barra_corta','barra_larga') else anomalies.canonical(f['ubicacion'])
+            distinct=f['referencia'] and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]',f['referencia'])
+            key=(f['categoria'],f['componente'],position,f['referencia'] if f['ubicacion']=='sin_ubicacion' or distinct else None)
             findings.setdefault(key,f)
         pending.extend(analysis['pendientes']);descriptors.extend(analysis['descriptores'])
     return dict(hallazgos=[findings[k] for k in sorted(findings,key=lambda k:tuple(x or '' for x in k))],pendientes=list(dict.fromkeys(pending)),descriptores=descriptors)

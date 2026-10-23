@@ -111,15 +111,22 @@ class GeneralPreviewTests(unittest.TestCase):
 
     def test_complete_preview_partial_ambiguity_controls_and_legacy_snapshot(self):
         data,_,detail=self.build();snap=detail['novedades_sin_clasificar']['revision_mecanica'];snap['motor_revision']=5
+        from _ftr_runtime.legacy_mechanics import mechanics
+        from datetime import date
+        events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in snap['registros']]
+        snap['estadisticas']['anomalias']=mechanics(events,snap['diccionario'],5)[0]
         before=copy.deepcopy(snap);effect=review.preview(snap,dictionary())
         self.assertEqual(effect['registros'],9)
         self.assertEqual(effect['antes']['sin_clasificar']-effect['despues']['sin_clasificar'],7)
         self.assertEqual(effect['antes']['identificadas'],effect['despues']['identificadas'])
         self.assertEqual(len(effect['afectados']),7)
-        self.assertEqual(len(effect['ambiguos']),3)
+        self.assertEqual(len(effect['ambiguos']),4)  # Includes the unclassified CRUCETA 2 reference.
         self.assertTrue(set(r['registro_id'] for r in effect['afectados'])&set(r['registro_id'] for r in effect['ambiguos']))
         for category in effect['antes']['categorias']:
-            if category['id']!='otras':self.assertEqual(category,next(c for c in effect['despues']['categorias'] if c['id']==category['id']))
+            if category['id']!='otras':
+                after=next(c for c in effect['despues']['categorias'] if c['id']==category['id'])
+                self.assertEqual(category['cantidad'],after['cantidad'])
+                for component in category['componentes']:self.assertEqual(component,next(c for c in after['componentes'] if c['id']==component['id']))
         after=copy.deepcopy(data);after['anomalias']=effect['despues'];review.unchanged_controls(data,after)
         self.assertEqual(snap,before)
         snap['estadisticas']['anomalias']['sin_clasificar']+=1

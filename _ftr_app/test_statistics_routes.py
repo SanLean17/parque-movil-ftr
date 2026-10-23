@@ -75,4 +75,30 @@ class StatisticsRoutesTests(unittest.TestCase):
                 self.assertEqual({p.name:p.read_bytes() for p in Path(temp).iterdir()},before)
         finally:fixture.tearDown()
 
+    def test_preview_verifies_published_recalculation_with_same_source_timestamp(self):
+        import copy
+        from datetime import date
+        from _ftr_runtime.test_mechanical_review import ReviewTests
+        from _ftr_runtime.legacy_mechanics import mechanics
+        fixture=ReviewTests();fixture.setUp()
+        try:
+            public,report,detail=fixture.build()
+            capsule=detail['novedades_sin_clasificar']['revision_mecanica']
+            capsule['motor_revision']=6
+            events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in capsule['registros']]
+            capsule['estadisticas']['anomalias']=mechanics(events,capsule['diccionario'],6)[0]
+            before=copy.deepcopy(capsule)
+            app=Flask('ftr-baseline-test');app.before_request(server.secure)
+            with tempfile.TemporaryDirectory() as temp,patch.object(server,'app',app),patch.object(server,'DATA',Path(temp)),patch.object(server,'diagnostic_cache',return_value={'report':report,'details':detail}),patch.object(server,'api',side_effect=AssertionError('No red')):
+                remote=dict(dictionary=rules.EMPTY,expected_dictionary=rules.digest(rules.EMPTY),period=2026,statistics={'2025':public},hashes={})
+                server.write_json(Path(temp)/'diccionario_remoto.json',remote)
+                statistics_admin.install(server);client=app.test_client();client.set_cookie(server.COOKIE_NAME,server.SESSION,domain='127.0.0.1')
+                payload=dict(period=2025,reglas=fixture.candidate()['reglas'],expected_dictionary=rules.digest(rules.EMPTY))
+                response=client.post('/api/statistics-preview',base_url=server.ORIGIN,headers={'X-FTR-CSRF':server.CSRF,'Origin':server.ORIGIN},json=payload)
+                self.assertEqual(response.status_code,200,response.json)
+                self.assertEqual(response.json['motor_antes'],7)
+                self.assertEqual(response.json['antes'],public['anomalias'])
+                self.assertEqual(capsule,before)
+        finally:fixture.tearDown()
+
 if __name__=='__main__':unittest.main()

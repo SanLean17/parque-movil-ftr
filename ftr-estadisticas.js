@@ -6,7 +6,7 @@
   const STATES = ['fuera_de_servicio','observado','sin_novedad','estado_vacio','estado_otro'];
   const CATEGORIES = {direccion:'DIRECCIÓN', frenos:'SISTEMA DE FRENOS', suspension:'SUSPENSIÓN', transmision:'TRANSMISIÓN', neumaticos:'NEUMÁTICOS', electrico:'SISTEMA ELÉCTRICO', otras:'OTRAS / SIN CLASIFICAR'};
   const COMPONENTS = {
-    direccion:{columna_direccion:'Columna de dirección',caja_direccion:'Caja de dirección',brazo_pitman:'Brazo Pitman',rotulas_direccion:'Rótulas de dirección',barra_larga:'Barra larga',barra_corta:'Barra corta',direccion_sin_componente:'Dirección — otro componente'},
+    direccion:{columna_direccion:'Columna de dirección',caja_direccion:'Caja de dirección',brazo_pitman:'Brazo Pitman',rotulas_direccion:'Rótulas de dirección',barra_larga:'Barra larga',barra_corta:'Barra corta',amortiguador_direccion:'Amortiguador de dirección',direccion_sin_componente:'Dirección — otro componente'},
     frenos:{frenos_delanteros:'Frenos delanteros',frenos_traseros:'Frenos traseros',flexibles_freno:'Flexibles de freno',pulmon_freno:'Pulmón de freno',tanque_aire:'Tanque de aire',valvula_descarga:'Válvula de descarga',freno_servicio:'Freno de servicio',freno_estacionamiento:'Freno de estacionamiento',freno_emergencia:'Freno de emergencia',freno_sin_ubicacion:'Frenos — sin componente precisado'},
     suspension:{amortiguadores:'Amortiguadores',bujes:'Bujes',pulmon_suspension:'Pulmón de suspensión',valvula_niveladora:'Válvula niveladora',barra_estabilizadora:'Barra estabilizadora',tensores:'Tensores',suspension_sin_componente:'Suspensión — sin componente precisado'},
     transmision:{cardan:'Cardán',crucetas:'Crucetas',transmision_sin_componente:'Transmisión, sin componente precisado'},
@@ -30,7 +30,7 @@
     if (!index || index.version!==1 || !Array.isArray(index.periodos) || !index.periodos.length) bad();
     let previous=Infinity;
     for (const r of index.periodos) {
-      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3].includes(r.version) || ![1,2,3].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
+      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3].includes(r.version) || ![1,2,3,4].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
       previous=r.periodo;
     }
     return index;
@@ -64,9 +64,10 @@
       const count=Math.max(0,...data.lineas.map(r=>r[k])),item=data.destacados[k];
       if (!item || item.cantidad!==count || JSON.stringify(item.lineas)!==JSON.stringify(count?data.lineas.filter(r=>r[k]===count).map(r=>r.linea):[])) bad();
     }
-    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v)]));
-    if (![1,2,3].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
+    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>a.version_reglas>=4||id!=='amortiguador_direccion')]));
+    if (![1,2,3,4].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
     const pending=a.estado==='pendiente',count=n=>pending?n===null:integer(n);
+    if(a.version_reglas>=4){if(a.motor_revision!==7)bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
     if (!count(a.identificadas) || !count(a.sin_clasificar) || !a.cobertura || !['registros_validos','con_columna','con_texto','vacios','sin_columna'].every(k=>count(a.cobertura[k]))) bad();
     for (const cat of a.categorias) {
       if (!count(cat.cantidad) || !Array.isArray(cat.componentes) || JSON.stringify(cat.componentes.map(c=>c.id))!==JSON.stringify(catalogue[cat.id])) bad();
@@ -158,7 +159,8 @@
     const pending=data.estado==='pendiente';
     $('mechanicsStatus').textContent=pending?'Sin análisis disponible.':data.estado==='parcial'?'Análisis parcial.':'';
     $('mechanicsStatus').hidden=data.estado==='disponible';
-    $('mechanicsCoverage').textContent='';
+    const physical=data.elementos_fisicos;
+    $('mechanicsCoverage').textContent=physical&&physical.cantidad_confirmada!=null?'Elementos físicos con cantidad explícita: '+format(physical.cantidad_confirmada)+' en '+format(physical.menciones_con_cantidad)+' menciones. '+format(physical.menciones_sin_cantidad)+' menciones sin cantidad precisada. Las menciones y los controles se cuentan por separado.':'Cantidad de elementos físicos: no disponible en esta versión.';
     const max=Math.max(1,...data.categorias.map(c=>c.cantidad||0));
     const buttons=Object.entries(CATEGORIES).map(([id,name])=>{
       const cat=data.categorias.find(c=>c.id===id),unavailable=pending||!cat;

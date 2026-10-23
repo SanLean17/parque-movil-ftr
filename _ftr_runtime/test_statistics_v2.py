@@ -29,7 +29,7 @@ class DictionaryV2Tests(unittest.TestCase):
                 known,unknown=anomalies.classify(text)
                 self.assertEqual([r[1] for r in known],[expected]);self.assertEqual(unknown,[])
 
-    def test_codes_individual_and_no_invented_rear_positions(self):
+    def test_codes_individual_and_explicitly_confirmed_positions(self):
         for prefix,last in (('R',8),('A',6)):
             for n in range(1,last+1):
                 with self.subTest(code=f'{prefix}{n}'):
@@ -39,10 +39,12 @@ class DictionaryV2Tests(unittest.TestCase):
                     self.assertEqual(known[0][1],expected)
                     if n<=2:self.assertEqual(known[0][2],'delantero izquierdo' if n==1 else 'delantero derecho')
                     else:
-                        self.assertEqual(known[0][2],'trasero derecho interno' if prefix=='R' and n==4 else f'trasero {prefix.lower()}{n}')
+                        position='trasero'+(' izquierdo' if n%2 else ' derecho') if n<=6 else 'trasero'
+                        if prefix=='R' and n<=6:position+=' interno' if n<=4 else ' externo'
+                        self.assertEqual(known[0][2],position)
                         self.assertNotIn('interior',known[0][2]);self.assertNotIn('exterior',known[0][2])
         result=anomalies.analyze('R3 juego')['hallazgos'][0]
-        self.assertEqual(result['referencia'],'r3');self.assertEqual(result['defecto'],'no_identificado')
+        self.assertEqual(result['referencia'],'r3');self.assertEqual(result['defecto'],'juego')
 
     def test_four_findings_with_and_without_punctuation(self):
         for text in ('R1 cortado, A2 flojo, PF trasero derecho y chicharra','R1 cortado A2 flojo PF trasero derecho chicharra','1. R1 cortado 2. A2 flojo 3. PF trasero derecho 4. chicharra','R1 cortado; A2 flojo\nPF trasero derecho y chicharra'):
@@ -135,6 +137,7 @@ class StatisticsV2PipelineTests(unittest.TestCase):
         self.google(self.visits());old=self.read();old['version']=1;old.pop('interpretacion');old.pop('calidad')
         for month in old['mensual']:month.pop('dias_con_fiscalizaciones')
         old['anomalias']['version_reglas']=1
+        old['anomalias'].pop('elementos_fisicos');old['anomalias'].pop('motor_revision')
         old['anomalias']['categorias']=[dict(id=k,cantidad=0,componentes=[dict(id=c,cantidad=0,estados={s:0 for s in stats.STATUS}) for c in components]) for k,components in LEGACY_CATEGORIES.items()]
         old['anomalias']['identificadas']=0;old['anomalias']['sin_clasificar']=0
         stats.validate(old)

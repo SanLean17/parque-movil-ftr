@@ -1,5 +1,6 @@
 """Exploración local de informes protegidos y el único diccionario compartido."""
 import base64
+import copy
 import hashlib
 import json
 import os
@@ -9,7 +10,9 @@ from _ftr_runtime import dictionary_rules as rules, mechanical_review as review
 from _ftr_runtime import public_statistics as stats, statistics_archive as archive
 from _ftr_runtime.config import clean_config,digest
 from _ftr_runtime.statistics_commands import WORKFLOW
-from _ftr_runtime.mechanical_dictionary import CATEGORIES
+from _ftr_runtime.mechanical_dictionary import CATEGORIES, ENGINE_REVISION
+from _ftr_runtime.technical_fields import INFORMATION
+from _ftr_runtime import anomalies
 from _ftr_runtime import record_interpretation as records
 from _ftr_app.private_interpretations import Store
 
@@ -67,14 +70,41 @@ def install(server):
             if capsule and cached and saved['registros']:
                 try:
                     events,_,_,_=review.unpack(capsule)
-                    local,adjusted=stats.mechanics(events,dictionary=capsule['diccionario'],corrections=saved['registros'])
-                    items=adjusted['pendientes']
+                    applicable={}
+                    for event in events:
+                        key=records.reference(event)['registro_id'];decision=saved['registros'].get(key)
+                        if decision and decision['huella']==records.correction(event,decision['fragmentos'])['huella']:applicable[key]=decision
+                    if applicable:
+                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6
+                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6}.get(capsule.get('motor_revision'),anomalies)
+                        compiled=rules.compile_rules(capsule['diccionario'])
+                        def local_analysis(event):
+                            if records.reference(event)['registro_id'] in applicable:return records.apply(event,applicable,capsule['diccionario'])
+                            return previous.analyze(event.get('novedades',''),compiled)
+                        local,adjusted=stats.mechanics(events,dictionary=capsule['diccionario'],analyzer=local_analysis)
+                        items=adjusted['pendientes']
                 except ValueError:pass  # Un informe anterior no se reinterpreta silenciosamente.
+            items=json.loads(json.dumps(items))
+            # Local display-only comparison. Never saves classifications or updates sources.
+            if cached:
+                compiled=rules.compile_rules(cached['dictionary']);public=cached.get('statistics',{}).get(str(year),{})
+                verified=(public.get('interpretacion',{}).get('sha256')==cached['expected_dictionary'] and public.get('anomalias',{}).get('motor_revision')==ENGINE_REVISION and cached.get('publication',{}).get(str(year)) and public.get('lectura_planilla_utc')==summary.get('inicio_lectura_utc'))
+                for item in items:
+                    unresolved=0;refs=item.get('referencias',[])
+                    for ref in refs:
+                        if not isinstance(ref.get('novedades_original'),str) or not ref['novedades_original'].strip():
+                            unresolved+=1;continue
+                        result=anomalies.analyze(ref.get('novedades_original',''),compiled);term=anomalies.fold(item['expresion'])
+                        if any(term in anomalies.fold(p) or anomalies.fold(p) in term for p in result['pendientes']):unresolved+=1
+                    solved=len(refs)-unresolved
+                    color='verified' if refs and solved==len(refs) and verified else 'waiting' if solved else 'attention'
+                    message='APLICADO Y VERIFICADO' if color=='verified' else ('INTERPRETACIÓN DISPONIBLE · '+str(solved)+' apariciones resueltas localmente; estadísticas pendientes'+(' · '+str(unresolved)+' ambiguas' if unresolved else '')) if solved else 'REQUIERE REVISIÓN · falta una interpretación inequívoca'
+                    item['interpretacion']=dict(color=color,mensaje=message,resueltas=solved,ambiguas=unresolved)
             views[str(year)]=dict(pending=items,preview_available=bool(capsule),read=summary.get('inicio_lectura_utc'),
                                   historical=summary.get('historico',False),sheetUrl=(capsule or {}).get('sheetUrl'),archive=(capsule or {}).get('sha256_archivo'),local=local)
             pending.extend(items)
         saved=store.read()
-        return server.jsonify(remote=cached,pending=pending,reviews=views,catalogue=CATEGORIES,runs=runs,
+        return server.jsonify(motor_revision=ENGINE_REVISION,informacion=INFORMATION,remote=cached,pending=pending,reviews=views,catalogue=CATEGORIES,runs=runs,
             particulares=dict(revision=saved['revision'],cantidad=len(saved['registros'])),descriptores=sorted(rules.DESCRIPTORS),significados=rules.MEANINGS,ubicaciones=records.LOCATIONS,defectos=records.DEFECTS)
     def context(body):
         year=body.get('period');cached=server.cached('diccionario_remoto.json',None)
@@ -120,6 +150,7 @@ def install(server):
             effect=review.preview(capsule,current,overrides)
             # El delta particular parte de las decisiones privadas ya guardadas.
             effect['antes']=stats.mechanics(events,dictionary=current,corrections=saved['registros'])[0]
+            effect['motor_antes']=ENGINE_REVISION
             effect['afectados']=[]
             for item in events:
                 before=records.apply(item,saved['registros'],current);after=records.apply(item,overrides,current)
@@ -156,6 +187,17 @@ def install(server):
                 raise ValueError('El informe no corresponde a la última publicación. Abrí su informe protegido antes de continuar.')
             current=rules.validate(cached['dictionary'])
             candidate=current if body.get('mode')=='saved' else rules.proposed(current,body.get('reglas'),body.get('expected_dictionary'))
+            # A published recalculation can retain the same source timestamp.
+            # Replay and prove that baseline; never label an older report delta
+            # as a change from the newer published statistics.
+            if public['anomalias']!=capsule['estadisticas']['anomalias']:
+                candidates=[current,capsule['diccionario']]
+                baseline=next((d for d in candidates if rules.digest(d)==public.get('interpretacion',{}).get('sha256')),None)
+                if baseline is None or public['anomalias'].get('motor_revision')!=ENGINE_REVISION:
+                    raise ValueError('La publicación usa otra interpretación. Abrí su informe protegido antes de calcular el impacto.')
+                capsule=copy.deepcopy(capsule)
+                capsule.update(motor_revision=ENGINE_REVISION,diccionario=baseline,estadisticas=copy.deepcopy(public))
+                review.unpack(capsule)  # Requires exact aggregates from the same complete records.
             effect=review.preview(capsule,candidate);review.unchanged_controls(public,capsule['estadisticas'])
             effect['antes']=public['anomalias'];effect['dictionary']=candidate
             if year<cached['period'] and capsule.get('sheetUrl'):

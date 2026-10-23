@@ -26,7 +26,7 @@ def validate_index(index):
         if not isinstance(item,dict) or set(item)!= {'periodo','archivo','version','version_reglas','lectura_planilla_utc','lineas','sha256'}:
             raise ValueError('Metadatos de período inválidos.')
         year=item['periodo'];years.append(year)
-        if type(year) is not int or not 2000<=year<=2100 or item['archivo']!=f'estadisticas/{year}.json' or item['version'] not in (1,2,3) or item['version_reglas'] not in (1,2,3):
+        if type(year) is not int or not 2000<=year<=2100 or item['archivo']!=f'estadisticas/{year}.json' or item['version'] not in (1,2,3) or item['version_reglas'] not in (1,2,3,4):
             raise ValueError('Versión o ruta histórica no admitida.')
         if not re.fullmatch('[a-f0-9]{64}',item['sha256']) or datetime.fromisoformat(item['lectura_planilla_utc']).tzinfo is None:
             raise ValueError('Integridad histórica no verificable.')

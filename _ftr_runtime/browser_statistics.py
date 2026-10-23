@@ -30,11 +30,12 @@ def fixture():
         current=json.loads((test.root/FILE).read_text())
         test.config['period']=2027;test.config['lines']=[dict(line=99,company=9999,enabled=True)]
         test.clock=datetime(2027,2,9,20,tzinfo=timezone.utc)
-        test.google([test.sheet('LINEA 99',[rows[0],['05/02/2027',99,'ZZ999ZZ',1,'OBSERVADO','R5 pinchado']])])
+        test.google([test.sheet('LINEA 99',[rows[0],['05/02/2027',99,'ZZ999ZZ',1,'OBSERVADO','R5 pinchado y amortiguador de dirección']])])
         following=json.loads((test.root/FILE).read_text())
         legacy=copy.deepcopy(current);legacy.update(version=1,periodo=2025,lectura_planilla_utc='2025-10-21T20:01:00+00:00',corte_fecha='2025-10-21')
         for month in legacy['mensual']:month.pop('dias_con_fiscalizaciones')
         legacy['anomalias']['version_reglas']=1
+        legacy['anomalias'].pop('elementos_fisicos');legacy['anomalias'].pop('motor_revision')
         legacy['anomalias']['categorias']=[dict(id=k,cantidad=sum(c['cantidad'] for old in current['anomalias']['categorias'] if old['id']==k for c in old['componentes'] if c['id'] in components),
             componentes=[copy.deepcopy(c) for old in current['anomalias']['categorias'] if old['id']==k for c in old['componentes'] if c['id'] in components]) for k,components in LEGACY_CATEGORIES.items()]
         legacy['anomalias']['identificadas']=sum(c['cantidad'] for c in legacy['anomalias']['categorias'] if c['id']!='otras')
@@ -113,6 +114,8 @@ def main():
                 assert '2026' in page.locator('#fechaControlados').inner_text()
                 assert page.locator('#periodSelect').input_value()=='2027'
                 assert page.locator('[data-metric="registros_validos"] .metric-value').inner_text()=='1'
+                direction=page.locator('.component').filter(has=page.get_by_role('heading',name='Amortiguador de dirección',exact=True))
+                assert direction.locator('.component-count').inner_text()=='1'
                 select(2026)
                 assert page.locator('[data-metric="registros_validos"] .metric-value').inner_text()=='120'
                 assert page.locator('[data-metric="unidades_repetidas"] .metric-value').inner_text()=='2'

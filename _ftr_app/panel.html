@@ -116,6 +116,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
  <nav class="nav">
   <button data-view="incidents"><svg><use href="#i-info"/></svg>Incidencias</button>
   <button data-view="statistics"><svg><use href="#i-lines"/></svg>Estadísticas</button>
+  <button data-view="dictionary"><svg><use href="#i-sheet"/></svg>Diccionario técnico</button>
   <button data-view="diagnostic"><svg><use href="#i-check"/></svg>Diagnóstico anual</button>
   <button data-view="schedules"><svg><use href="#i-clock"/></svg>Actualizaciones</button>
   <button data-view="source"><svg><use href="#i-sheet"/></svg>Planilla y período</button>
@@ -168,18 +169,26 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 <div class="forms"><div class="field"><label for="mechanicalPeriod">Período de anomalías</label><select id="mechanicalPeriod"></select></div></div>
 <p id="mechanicalStatus" class="inline-note" aria-live="polite"></p><p id="mechanicalRead" class="small"></p>
 <div id="mechanicalSummary" class="stats"></div><div id="mechanicalComponents"></div>
-<details id="mechanicalPending"><summary><strong>OTRAS / SIN CLASIFICAR</strong></summary><p id="mechanicalPendingCount" class="small"></p>
-<div class="forms"><div class="field"><label for="mechanicalSearch">Buscar expresión</label><input type="search" id="mechanicalSearch"></div><div class="field"><label for="mechanicalState">Resultado asociado</label><select id="mechanicalState"><option value="">Todos</option><option value="fuera_de_servicio">Fuera de servicio</option><option value="observado">Observado</option><option value="sin_novedad">Sin novedad</option><option value="estado_vacio">Sin estado</option><option value="estado_otro">Otro estado</option></select></div></div>
-<div id="mechanicalExpressions"></div></details>
-<form id="mechanicalForm" hidden><h3 id="mechanicalSelected"></h3><p class="small">Regla general: se aplica al mismo término en contextos compatibles. La clasificación de una sola aparición no está habilitada; si el significado cambia según el registro, dejalo pendiente.</p>
-<div class="forms"><div class="field"><label for="mechanicalExpression">Expresión técnica confirmada</label><input id="mechanicalExpression" maxlength="48" required></div><div class="field"><label for="mechanicalCategory">Categoría</label><select id="mechanicalCategory" required></select></div><div class="field"><label for="mechanicalComponent">Componente</label><select id="mechanicalComponent" required></select></div></div>
-<p class="small"><label><input id="mechanicalMeaning" type="checkbox" required> Revisé los registros: esta equivalencia tiene un significado técnico consistente y puede compartirse, sin datos privados.</label></p>
-<div class="actions"><button type="submit" class="btn">ASIGNAR CLASIFICACIÓN</button><button type="button" class="btn secondary" id="mechanicalCancel">CANCELAR</button></div></form>
+<div class="actions"><button type="button" class="btn secondary" id="openDictionary">REVISAR EXPRESIONES PENDIENTES</button></div>
 <div id="mechanicalPreview" class="inline-note" hidden aria-live="polite"></div>
 <details id="mechanicalHistorical" hidden><summary><strong>REVISIÓN EXPLÍCITA DEL HISTÓRICO</strong></summary><p class="small">Preparar la revisión lee únicamente la planilla histórica indicada y genera un informe cifrado. Recalcular requiere una vista previa y otra confirmación; conserva la versión anterior. No consulta CNRT ni la planilla activa.</p>
 <div class="field"><label for="mechanicalHistoryUrl">Planilla del período histórico seleccionado</label><input id="mechanicalHistoryUrl" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."></div><div class="actions"><button type="button" class="btn secondary" id="mechanicalPrepare">PREPARAR INFORME HISTÓRICO</button><button type="button" class="btn secondary" id="mechanicalRecalculate">REVISAR RECÁLCULO HISTÓRICO</button></div></details>
 <details><summary><strong>INFORMES PROTEGIDOS DISPONIBLES</strong></summary><p class="small">Abrí el informe correspondiente a la lectura. Podés volver a consultar sin leer las fuentes.</p><div id="mechanicalRuns"></div></details>
 </div>
+</section>
+
+
+<section data-page="dictionary" hidden id="technicalDictionary">
+ <div class="hero"><p class="kicker">Revisión y aprendizaje</p><h1>Diccionario técnico</h1><p class="lead">Un diccionario para todos los años. Revisá la observación completa antes de confirmar su interpretación.</p></div>
+ <div class="panel"><div class="panel-head"><h2>A. EXPRESIONES PENDIENTES</h2><button class="btn secondary" type="button" id="technicalRefresh">Consultar GitHub</button></div>
+ <div class="forms"><div class="field"><label for="dictionaryPeriod">Período</label><select id="dictionaryPeriod"></select></div><div class="field"><label for="mechanicalSearch">Buscar expresión</label><input type="search" id="mechanicalSearch"></div>
+ <div class="field"><label for="mechanicalState">Resultado formal</label><select id="mechanicalState"><option value="">Todos</option><option value="fuera_de_servicio">Fuera de servicio</option><option value="observado">Observado</option><option value="sin_novedad">Sin novedad</option><option value="estado_vacio">Sin estado</option><option value="estado_otro">Otro estado</option></select></div>
+ <div class="field"><label for="dictionarySort">Ordenar apariciones</label><select id="dictionarySort"><option value="desc">Más frecuentes primero</option><option value="asc">Menos frecuentes primero</option></select></div></div>
+ <p id="mechanicalPendingCount" class="small"></p><div id="mechanicalExpressions"></div></div>
+ <details class="panel" id="dictionaryReview"><summary><strong>B. REVISAR NOVEDADES</strong></summary><p class="small">Consultá registros completos, incluso los que ya tienen componentes reconocidos. Una interpretación particular se aplica al informe privado de este equipo y no publica cambios en la web.</p>
+ <div class="field"><label for="dictionaryRecordSearch">Buscar en NOVEDADES</label><input id="dictionaryRecordSearch" type="search"></div><button class="btn secondary" id="dictionaryFind" type="button">Buscar registros del período</button><div id="dictionaryRecords"></div></details>
+ <details class="panel" id="confirmedRules"><summary><strong>C. REGLAS CONFIRMADAS</strong></summary><p class="small">Las reglas nuevas quedan habilitadas. Deshabilitar conserva la regla y detiene su uso en futuras lecturas.</p><div id="technicalRules"></div></details>
+ <details class="panel" open><summary><strong>D. INFORMACIÓN DEL DICCIONARIO</strong></summary><p id="technicalStatus" class="inline-note" aria-live="polite"></p><div id="dictionaryApplication"></div><p id="privateInterpretationStatus" class="small"></p><p class="small">El diccionario general se recupera desde GitHub al reinstalar. Las interpretaciones particulares se conservan cifradas en el perfil de Windows, fuera de la carpeta del programa; requieren el mismo usuario Windows. Los históricos cerrados solo cambian mediante una revisión explícita que conserva su versión anterior.</p></details>
 </section>
 
   <section data-page="diagnostic" hidden>
@@ -205,22 +214,9 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
   <section data-page="source" hidden>
    <div class="hero"><p class="kicker">Configuración de la fuente</p><h1>Planilla y período</h1><p class="lead">Pegá el enlace del archivo anual. Sus pestañas individuales y compartidas se leerán sin modificar tu hoja de trabajo.</p></div>
    <form id="sourceForm" class="panel"><div class="panel-head"><div><h2>Fuente de fiscalizaciones</h2><p>Cambiar la fuente no modifica el parque oficial de CNRT.</p></div><span class="badge">BORRADOR LOCAL</span></div><div class="forms"><div class="field"><label for="period">Período de trabajo</label><input id="period" type="number" min="2000" max="2100" step="1" required value="2026"><p class="help">Los años archivados permanecen disponibles en Estadísticas.</p></div><div class="field"><label for="sheetUrl">Enlace de Google Sheets</label><input id="sheetUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."><p class="help">El enlace identifica el archivo completo, no solamente la pestaña abierta.</p><p class="permission-help"><strong>Importante al cambiar de planilla:</strong> compartí el nuevo archivo como <strong>Lector</strong> con el correo del bot que figura abajo, salvo que ya tenga acceso heredado. Pegar el enlace no otorga permisos. No hace falta hacerlo público ni darle edición.</p><p class="mono" id="botEmail"></p><button class="text-btn" id="copyBotEmail" type="button">Copiar correo del bot</button><p class="error" id="urlError" hidden></p></div></div><div class="actions" style="margin-top:24px"><button class="btn secondary" type="button" id="checkUrl">Comprobar enlace</button><button class="btn secondary" type="button" id="testSheet">Probar lectura</button><span class="small" id="urlStatus">Solo comprueba que el enlace tenga formato de Google Sheets. No consulta permisos ni lee datos.</span></div><hr class="rule"><div class="inline-note"><strong>Cambiar enlace reemplaza los controles activos.</strong><p>Si la nueva hoja está correctamente estructurada y vacía, empezará en cero. Si no se puede leer o faltan columnas, se conservará lo publicado y se informará el error.</p></div><div class="actions end"><button class="btn" type="submit">Guardar y activar planilla</button></div></form>
-   <details class="panel" id="technicalDictionary"><summary><strong>DICCIONARIO TÉCNICO</strong></summary>
-    <p class="small">Equivalencias compartidas entre tus equipos. Las observaciones originales se consultan solo en este programa.</p>
-    <button class="btn secondary" type="button" id="technicalRefresh">Consultar GitHub</button><p id="technicalStatus" class="inline-note" aria-live="polite"></p>
-    <h3>Expresiones pendientes</h3><div id="technicalPending"></div>
-    <form id="technicalForm"><h3 id="technicalSelection">Nueva equivalencia</h3><div class="forms">
-    <div class="field"><label for="technicalExpression">Abreviatura o término técnico general</label><input id="technicalExpression" maxlength="48" required autocomplete="off"><p class="help">Abreviatura o hasta cinco palabras técnicas confirmadas. No pegues observaciones, dominios, nombres ni números de fila.</p></div>
-    <div class="field"><label for="technicalCategory">Categoría</label><select id="technicalCategory" required></select></div>
-    <div class="field"><label for="technicalComponent">Componente</label><select id="technicalComponent" required></select></div></div>
-    <p><label><input type="checkbox" id="technicalEnabled" checked> Regla habilitada</label></p>
-    <p class="small"><label><input type="checkbox" id="technicalPublic" required> Confirmo que la equivalencia es general y puede guardarse en el repositorio, sin información privada.</label></p>
-    <div class="actions"><button class="btn" id="technicalSave" type="submit">GUARDAR CLASIFICACIÓN</button><button class="btn secondary" id="technicalDiscard" type="button">DEJAR SIN CLASIFICAR</button></div></form>
-    <h3>Reglas confirmadas</h3><div id="technicalRules"></div>
-   </details>
    <details class="panel" id="historicalImporter"><summary><strong>IMPORTAR ESTADÍSTICAS HISTÓRICAS</strong></summary>
      <p class="small">Importa un año cerrado desde una fuente independiente. Conserva el período activo, los parques y las programaciones.</p><button class="btn secondary" type="button" id="historicalRefresh">Consultar GitHub</button><p id="historyAvailable" class="inline-note"></p><p id="historicalStatus" class="inline-note" aria-live="polite"></p>
-    <form id="historicalForm"><div class="forms"><div class="field"><label for="historicalPeriod">Año histórico</label><input id="historicalPeriod" type="number" min="2000" max="2100" value="2025" required></div><div class="field"><label for="historicalUrl">Planilla histórica de Google Sheets</label><input id="historicalUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."></div></div>
+    <h3>PERÍODOS HISTÓRICOS DISPONIBLES</h3><div id="historicalPeriods"></div><h3>IMPORTAR OTRO AÑO</h3><p class="small">Utilizá esta opción para incorporar un año anterior que todavía no esté guardado.</p><form id="historicalForm"><div class="forms"><div class="field"><label for="historicalPeriod">Año histórico</label><input id="historicalPeriod" type="number" min="2000" max="2100" required></div><div class="field"><label for="historicalUrl">Planilla histórica de Google Sheets</label><input id="historicalUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."></div></div>
     <p class="help">La cuenta lectora del bot debe tener permiso de lectura sobre esta planilla.</p>
     <p class="small"><label><input type="checkbox" id="historicalPartial">Autorizar excluir registros inválidos y mostrar el histórico como parcial.</label></p>
     <button class="btn" type="submit">IMPORTAR AÑO HISTÓRICO</button></form><div id="historicalRuns"></div>

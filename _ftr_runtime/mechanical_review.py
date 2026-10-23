@@ -29,14 +29,22 @@ def unpack(value):
     if baseline!=data['anomalias']:raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
     return events,data,dictionary,private
 
-def preview(value, dictionary):
+def preview(value, dictionary, corrections=None):
     events,data,old,_=unpack(value)
-    after,private=stats.mechanics(events,dictionary=dictionary)
+    after,private=stats.mechanics(events,dictionary=dictionary,corrections=corrections)
     proposed=copy.deepcopy(data)
     proposed['anomalias']=after
     proposed['interpretacion']={'revision':dictionary['revision'],'sha256':rules.digest(dictionary)}
     stats.validate(proposed)
-    return dict(periodo=data['periodo'],lectura=data['lectura_planilla_utc'],registros=len(events),
+    from .record_interpretation import reference,apply
+    affected=[];ambiguous=[]
+    from .anomalies import analyze,fold
+    old_compiled=rules.compile_rules(old)
+    for event in events:
+        before=analyze(event.get('novedades',''),old_compiled);result=apply(event,corrections or {},dictionary)
+        if before!=result:affected.append(dict(reference(event),antes=before,despues=result))
+        elif result['pendientes'] and any(r['expresion'] in fold(event.get('novedades','')) for r in dictionary['reglas']):ambiguous.append(reference(event))
+    return dict(periodo=data['periodo'],lectura=data['lectura_planilla_utc'],registros=len(events),afectados=affected,ambiguos=ambiguous,
                 antes=data['anomalias'],despues=after,huella_registros=value['huella_registros'],
                 huella_resultado=fingerprint(after),pendientes=private['pendientes'])
 

@@ -35,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Determinar si cambió el cliente Windows
+      - name: Comprobar solicitud de entrega Windows
         if: runner.os == 'Windows'
         id: client_scope
         run: python _ftr_tools/client_build_scope.py

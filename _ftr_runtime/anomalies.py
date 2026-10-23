@@ -14,7 +14,7 @@ NEUTRAL = re.compile(r'^(?:sin\s+(?:novedad(?:es)?|anomalias?|fallas?|defectos?|
 NEGATION = re.compile(r'\b(?:sin\s+(?:fallas?|defectos?|anomalias?|problemas?|novedad(?:es)?|juego|perdidas?)|no\s+(?:presentan?|tienen?|hay|se\s+(?:detectan?|observan?))|en\s+buen\s+estado|funciona\s+(?:bien|correctamente)|ok)\b')
 UNCERTAIN = re.compile(r'\b(?:posible|posiblemente|quizas?|duda|revisar|verificar|descartar|podria)\b|\?')
 DEFECT = re.compile(r'\b(?:juego|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|fallas?|defectuos[oa]s?|desgaste|perdidas?|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|no\s+(?:funciona|anda))\b')
-LOCATION_WORD = r'(?:delanter[oa]s?|traser[oa]s?|derech[oa]s?|izquierd[oa]s?|superior(?:es)?|inferior(?:es)?|der|izq|isk|del|tras|sup)'
+LOCATION_WORD = r'(?:delanter[oa]s?|traser[oa]s?|derech[oa]s?|izquierd[oa]s?|intern[oa]s?|extern[oa]s?|superior(?:es)?|inferior(?:es)?|der|izq|isk|del|tras|sup)'
 POSITION = re.compile(r'\b'+LOCATION_WORD+r'\b')
 LOCATION = r'(?:(?:zona|lado)\s+)?(?:media|'+LOCATION_WORD+r')'
 GLUE = r'(?:sin|esta|estan|y|e|de|la|el|los|las|en|con|un|una|por|al|se|su|sus|tiene|presenta)'
@@ -34,43 +34,47 @@ def canonical(location):
     names={'der':'derecho','izq':'izquierdo','isk':'izquierdo','del':'delantero','tras':'trasero','sup':'superior','superiores':'superior','inferiores':'inferior'}
     words=[]
     for word in location.split():
-        for stem in ('delanter','traser','derech','izquierd'):
+        for stem in ('delanter','traser','derech','izquierd','intern','extern'):
             word=re.sub('^'+stem+r'[oa]s?$',stem+'o',word)
         words.append(names.get(word,word))
     order={'delantero':0,'trasero':0,'derecho':1,'izquierdo':1,'superior':2,'inferior':2}
     return ' '.join(sorted(dict.fromkeys(words),key=lambda w:order.get(w,3))).replace('lado ','')
 
 
-def clauses(original):
-    text=fold(original)
+def clause_spans(original):
     # Proteger también códigos no confirmados: nunca reconocer un prefijo suyo.
-    protected=[m.span() for m in CODE.finditer(text)]
-    protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|sup)\.',text)]
-    masked=list(text)
+    protected=[m.span() for m in re.finditer(CODE_TOKEN,original,re.I)]
+    protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|sup)\.',original,re.I)]
+    masked=list(original)
     for left,right in protected:masked[left:right]='_'*(right-left)
     # No confundir el número de "PF 3. A2" con una numeración de lista:
     # se protege PF 3, pero el punto posterior sigue separando expresiones.
     bounds=[m.span() for m in re.finditer(r'(?:^|(?<=\s))\d+[.)][ \t]*|[,;.\n\r!]+|[-–—]+',''.join(masked))]
     start=0
-    for left,right in bounds:
-        if original[start:left].strip():yield original[start:left].strip()
+    for left,right in bounds+[(len(original),len(original))]:
+        raw=original[start:left]
+        if raw.strip():yield start+len(raw)-len(raw.lstrip()),left-(len(raw)-len(raw.rstrip()))
         start=right
-    if original[start:].strip():yield original[start:].strip()
 
 
-def descriptor_pattern(component):
+def clauses(original):
+    for start,end in clause_spans(original):yield original[start:end]
+
+
+def descriptor_pattern(component, contextual=()):
     specific=''
     if component in ('barra_corta','barra_larga'):
         specific=r'|lado\s+(?:pit+t?man|eje|rueda)|enter[oa]s?'
     elif component=='tensores':
         specific=r'|mono|monio|posicionamiento(?:\s+del\s+eje)?'
     if component in PNEUMATIC:specific+=r'|perdidas?\s+(?:de\s+)?aire(?:\s+en\s+(?:el\s+)?sistema(?:\s+de)?)?'
+    specific+=''.join('|'+re.escape(r['expresion']) for r in contextual if r['componente']==component)
     return re.compile(r'\b(?:'+BASE_DESCRIPTION+'|'+LOCATION+specific+'|'+GLUE+r')\b')
 
 
-def descriptors(text, component, reverse=False):
+def descriptors(text, component, reverse=False, contextual=()):
     """Solo la cadena contigua al componente. Lo desconocido corta el alcance."""
-    tokens=list(descriptor_pattern(component).finditer(text));selected=[]
+    tokens=list(descriptor_pattern(component,contextual).finditer(text));selected=[]
     cursor=len(text) if reverse else 0
     for token in reversed(tokens) if reverse else tokens:
         gap=text[token.end():cursor] if reverse else text[cursor:token.start()]
@@ -93,25 +97,26 @@ def locations(text):
         elif word in ('derecho','izquierdo') and axis:
             if result and result[-1].startswith(axis) and not re.search(r'\b(?:derecho|izquierdo)\b',result[-1]):result[-1]+=' '+word
             else:result.append(axis+' '+word)
-        elif word in ('superior','inferior') and result:result[-1]+=' '+word
+        elif word in ('superior','inferior','interno','externo') and result:result[-1]+=' '+word
         elif word in ('derecho','izquierdo') and result and result[-1] in ('superior','inferior'):result[-1]+=' '+word
         else:result.append(word)
     return result or ['sin_ubicacion']
 
 
-def location_descriptors(text, tokens, prefix=False, component=None):
+def location_descriptors(text, tokens, prefix=False, component=None, contextual=()):
     result=[]
     for token in tokens:
         # La ubicación del moño es la del extremo del tensor; no identifica
         # otro tensor ni permite deducir el eje donde está montado.
         if component=='tensores' and token.group() in ('mono','monio'):break
-        if not re.fullmatch(LOCATION,token.group()):continue
+        meaning=next((r['significado'] for r in contextual if r['componente']==component and r['expresion']==token.group()),token.group())
+        if not re.fullmatch(LOCATION,meaning):continue
         # DEL también es una preposición. No convertir "del motor" en
         # delantero, ni "juego del amortiguador" en una ubicación.
         if token.group()=='del':
             rest=text[token.end():].strip(' .:()')
             if prefix or rest and not re.match(r'(?:'+LOCATION_WORD+'|'+BASE_DESCRIPTION+r')\b',rest):continue
-        result.append(token.group())
+        result.append(meaning)
     return ' '.join(result)
 
 
@@ -120,7 +125,8 @@ def component_of(match, custom_rows):
 
 
 def analyze(value, custom=None):
-    custom_rows,custom_pattern=custom or ([],None)
+    custom_rows,custom_pattern=(custom or ([],None))[:2]
+    contextual=custom[2] if custom and len(custom)>2 else ()
     original=unicodedata.normalize('NFC',str(value or '').strip())
     if not original or NEUTRAL.fullmatch(fold(original)):
         return dict(hallazgos=[],pendientes=[],descriptores=[])
@@ -170,13 +176,15 @@ def analyze(value, custom=None):
             if component=='flexibles_freno' and (re.search(r'\b(?:motor|combustible|agua|hidraulic[oa]|aceite|escape|suspension)\b',context) or re.search(r'flexibles?\s+(?:de\s+)?suspension',clause)):continue
             if component=='rotulas_direccion' and (re.search(r'\b(?:suspension|cadera|rodilla)\b',context) or re.search(r'rotulas?\s+(?:de\s+)?suspension',clause)):continue
             if component=='neumatico_sin_ubicacion' and match.group().startswith('cubierta') and not re.search(r'\b(?:delanter[oa]|traser[oa]|rueda|neumatico|pinchad[oa]|cortad[oa]|desgastad[oa])\b',context):continue
-            before=descriptors(prefix,component,reverse=True)
-            after=descriptors(suffix,component)
+            before=descriptors(prefix,component,reverse=True,contextual=contextual)
+            after=descriptors(suffix,component,contextual=contextual)
             attached=' '.join(t.group() for t in before)+' '+match.group()+' '+' '.join(t.group() for t in after)
+            for rule in contextual:
+                if rule['componente']==component:attached=re.sub(r'\b'+re.escape(rule['expresion'])+r'\b',rule['significado'],attached)
             # DEL dentro de "pulmón del freno" es una preposición. Solo las
             # posiciones explícitas completas pueden venir dentro del nombre.
             internal=' '.join(p.group() for p in POSITION.finditer(match.group()) if len(p.group())>3)
-            selected_locations=locations(location_descriptors(prefix,before,True,component)+' '+internal+' '+location_descriptors(suffix,after,component=component))
+            selected_locations=locations(location_descriptors(prefix,before,True,component,contextual)+' '+internal+' '+location_descriptors(suffix,after,component=component,contextual=contextual))
             if component in ('direccion_sin_componente','suspension_sin_componente','transmision_sin_componente','electrico_sin_componente') and not DEFECT.search(attached):
                 # "dirección del domicilio" no usa DEL como ubicación técnica.
                 if suffix[(after[-1].end() if after else 0):].strip(' .:()'):continue

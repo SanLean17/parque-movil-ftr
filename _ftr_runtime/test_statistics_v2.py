@@ -39,7 +39,7 @@ class DictionaryV2Tests(unittest.TestCase):
                     self.assertEqual(known[0][1],expected)
                     if n<=2:self.assertEqual(known[0][2],'delantero izquierdo' if n==1 else 'delantero derecho')
                     else:
-                        self.assertEqual(known[0][2],f'trasero {prefix.lower()}{n}')
+                        self.assertEqual(known[0][2],'trasero derecho interno' if prefix=='R' and n==4 else f'trasero {prefix.lower()}{n}')
                         self.assertNotIn('interior',known[0][2]);self.assertNotIn('exterior',known[0][2])
         result=anomalies.analyze('R3 juego')['hallazgos'][0]
         self.assertEqual(result['referencia'],'r3');self.assertEqual(result['defecto'],'no_identificado')

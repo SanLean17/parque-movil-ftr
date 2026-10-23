@@ -127,9 +127,9 @@ class ExpressionTests(unittest.TestCase):
     def test_reserved_codes_all_years_and_old_reports(self):
         for text in ('PF','PF7','PS','PS5','A7','A9','R9'):
             with self.subTest(text=text),self.assertRaises(ValueError):rules.expression(text)
-        value=rules.proposed(rules.EMPTY,[dict(expresion='xyz',categoria='suspension',componente='tensores',habilitada=True)],rules.digest(rules.EMPTY))
+        value=rules.proposed(rules.EMPTY,[dict(expresion='X12',categoria='suspension',componente='tensores',habilitada=True)],rules.digest(rules.EMPTY))
         for year in (2025,2026,2027,2028):
-            event=dict(fecha=date(year,1,1),estado='OBSERVADO',tiene_novedades=True,novedades='PS.1 XYZ')
+            event=dict(fecha=date(year,1,1),estado='OBSERVADO',tiene_novedades=True,novedades='PS.1 X12')
             before=copy.deepcopy(event)
             data,_=stats.mechanics([event],dictionary=json.loads(rules.encoded(value)))
             self.assertEqual(data['identificadas'],2);self.assertEqual(event,before)

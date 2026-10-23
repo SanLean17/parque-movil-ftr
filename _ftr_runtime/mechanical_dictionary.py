@@ -6,7 +6,7 @@ requerirá validación y una nueva versión; nunca reinterpreta archivos cerrado
 VERSION = 3
 # Contrato público compatible con Administración 06.3.6. La revisión del
 # intérprete se registra por separado en los informes protegidos y en Git.
-ENGINE_REVISION = 4
+ENGINE_REVISION = 5
 LEGACY_CATEGORIES = {
     'direccion': ('barra_larga', 'barra_corta', 'direccion_sin_componente'),
     'frenos': ('frenos_delanteros', 'frenos_traseros', 'flexibles_freno', 'freno_sin_ubicacion'),
@@ -27,7 +27,7 @@ CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATEGORIES, 3: CATEGORIES}
 POSITIONS = r'(?:delanter[oa]s?|traser[oa]s?)(?:\s+(?:derech[oa]s?|izquierd[oa]s?))?'
 # No cruzar líneas, guiones ni palabras para fabricar un código. Se protege
 # también el código no confirmado completo, para no reconocer un prefijo suyo.
-CODE_GAP = r'(?:[ \t]*[.,][ \t]*|[ \t]*)'
+CODE_GAP = r'(?:[ \t]*[.,-][ \t]*|[ \t]*)'
 CODE_TOKEN = r'\b(?:p[ \t]*\.?[ \t]*[fs]|[ar])'+CODE_GAP+r'\d+(?:[.,]\d+)*\b'
 A_CODE = r'a'+CODE_GAP+r'[1-8](?!\w|[.,]\d)'
 PF_CODE = r'p[ \t]*\.?[ \t]*f'+CODE_GAP+r'[1-6](?!\w|[.,]\d)'
@@ -73,3 +73,5 @@ ALIASES = {**{f'r{n}': ('neumaticos_delanteros' if n <= 2 else 'neumaticos_trase
     **{f'a{n}': ('amortiguadores', ('delantero izquierdo' if n == 1 else 'delantero derecho') if n <= 2 else f'trasero a{n}' if n<=6 else 'sin_ubicacion') for n in range(1,9)},
     **{f'pf{n}': ('pulmon_freno', ('delantero izquierdo' if n == 1 else 'delantero derecho') if n <= 2 else f'trasero pf{n}') for n in range(1,7)},
     **{f'ps{n}': ('pulmon_suspension', ('delantero izquierdo' if n == 1 else 'delantero derecho') if n <= 2 else f'trasero ps{n}') for n in range(1,5)}}
+# Confirmación específica del usuario; no inferir los demás códigos R.
+ALIASES['r4'] = ('neumaticos_traseros', 'trasero derecho interno')

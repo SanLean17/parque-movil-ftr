@@ -1,166 +1,124 @@
 (function(){
   'use strict';
-  const style=document.createElement('style');
-  style.textContent='#technicalDictionary select{height:var(--field-height);width:100%;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-input);padding:0 16px;color:var(--text)}#technicalDictionary select:focus-visible{outline:3px solid var(--primary);outline-offset:3px}#technicalDictionary>summary,#historicalImporter>summary{cursor:pointer;min-height:36px}#technicalDictionary h3{margin-top:24px}#technicalDictionary .repeat-item{overflow-wrap:anywhere}';
-  document.head.append(style);
-  style.textContent+='#mechanicalReview select{height:var(--field-height);width:100%;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:var(--radius-input);padding:0 12px}#mechanicalReview .stat{cursor:pointer;text-align:left;color:var(--text);font:inherit}#mechanicalReview .stat[aria-pressed=true]{border-color:var(--primary)}#mechanicalReview .repeat-item{overflow-wrap:anywhere}#mechanicalReview details>summary{cursor:pointer;min-height:44px;padding:10px 0}#mechanicalForm{margin-top:24px}#mechanicalReview select:focus-visible{outline:3px solid var(--primary);outline-offset:3px}';
   const q=id=>document.getElementById(id),csrf=document.querySelector('meta[name="ftr-csrf"]').content;
   const categories={direccion:'Dirección',frenos:'Sistema de frenos',suspension:'Suspensión',transmision:'Transmisión',neumaticos:'Neumáticos',electrico:'Sistema eléctrico',otras:'Otras / sin clasificar'};
-  let data=null,editing=null;
-  const label=x=>({sonora_marcha_atras:'Sonora de marcha atrás',corte_corriente:'Corte de batería / corriente',cardan:'Cardán',rotulas_direccion:'Rótulas de dirección',pulmon_freno:'Pulmón de freno',pulmon_suspension:'Pulmón de suspensión'}[x]||x.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase()));
+  const formal={fuera_de_servicio:'Fuera de servicio',observado:'Observado',sin_novedad:'Sin novedad',estado_vacio:'Sin estado',estado_otro:'Otro estado'};
+  const label=x=>({pulmon_freno:'Pulmón de freno',pulmon_suspension:'Pulmón de suspensión',sin_ubicacion:'Sin ubicación confirmada',no_identificado:'Sin defecto confirmado'}[x]||String(x).replaceAll('_',' ').replace(/^./,c=>c.toUpperCase()));
+  let data=null,editor=null,generation=0,category='otras';
+  const style=document.createElement('style');style.textContent=`
+    button:not(:disabled),a.btn,summary{transition:background-color 160ms,box-shadow 160ms}
+    button:not(:disabled):hover,a.btn:hover{box-shadow:0 0 0 3px var(--soft-primary);filter:brightness(.96)}
+    .btn.secondary:hover,.btn.neutral:hover,.text-btn:hover,.theme:hover,.nav button:hover{background:var(--soft-primary);color:var(--primary)}
+    button:focus-visible,a:focus-visible,summary:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
+    details>summary{cursor:pointer;min-height:44px;padding:12px;border-radius:var(--radius-input);list-style:none;display:flex;align-items:center;gap:12px}
+    details>summary::before{content:'›';color:var(--primary);font-size:24px;line-height:1;transition:transform 160ms;flex:none}
+    details[open]>summary::before{transform:rotate(90deg)}details>summary::-webkit-details-marker{display:none}
+    details>summary:hover{background:var(--soft-primary);color:var(--primary)}
+    #technicalDictionary .small,#technicalDictionary .help,#historicalImporter .small{font-size:14px;line-height:1.6}
+    #technicalDictionary select,#mechanicalReview select{height:var(--field-height);width:100%;min-width:0;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:var(--radius-input);padding:0 12px}
+    #technicalDictionary .repeat-item{overflow-wrap:anywhere;margin-top:16px;padding:16px;border:1px solid var(--line);border-radius:var(--radius-card)}
+    #technicalDictionary .field{max-width:100%}#technicalDictionary .forms{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 0}
+    #technicalDictionary textarea{width:100%;min-height:90px;padding:14px;color:var(--text);background:var(--surface);font:inherit;line-height:1.6;border:1px solid var(--line);border-radius:var(--radius-input);resize:vertical}
+    .dictionary-original{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.7;background:var(--surface-2);padding:16px;border-radius:var(--radius-input)}
+    .dictionary-original mark{background:var(--error-bg);color:var(--error);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+    .dictionary-editor{margin-top:20px;padding:20px;border:2px solid var(--primary);border-radius:var(--radius-panel)}
+    .dictionary-editor .actions{margin-top:16px}.dictionary-editor h3{margin:0 0 12px}.dictionary-preview{margin-top:20px}
+    #mechanicalReview .stat{font:inherit;text-align:left;color:var(--text);border:1px solid var(--line)}#mechanicalReview .stat[aria-pressed=true]{border-color:var(--primary)}
+    @media(max-width:900px){#technicalDictionary .forms{grid-template-columns:1fr}.dictionary-editor{padding:14px}.sidebar{overflow-y:auto}.panel-head{flex-wrap:wrap}}
+    @media(prefers-reduced-motion:reduce){button,summary,summary::before{transition:none!important}}
+  `;document.head.append(style);
   function node(tag,text,cls){const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;}
+  function button(text,fn,cls='btn secondary'){const b=node('button',text,cls);b.type='button';b.onclick=fn;return b;}
+  function field(text,input){const d=node('div',null,'field'),l=node('label',text);input.id||='dictionary-field-'+(++field.id);l.htmlFor=input.id;d.append(l,input);return d;}field.id=0;
+  function select(values,value){const s=node('select');s.append(...values.map(v=>new Option(Array.isArray(v)?v[1]:label(v),Array.isArray(v)?v[0]:v)));if(value!=null)s.value=value;return s;}
+  function input(value=''){const i=node('input');i.value=value;return i;}
   async function api(path,body){const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{'X-FTR-CSRF':csrf,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo completar la operación.');return d;}
   function message(text,error=false){for(const id of ['technicalStatus','historicalStatus']){q(id).textContent=text;q(id).className=error?'error':'inline-note';}}
-  function components(){const old=q('technicalComponent').value;q('technicalComponent').replaceChildren(...(data?.catalogue[q('technicalCategory').value]||[]).map(c=>new Option(label(c),c)));if([...q('technicalComponent').options].some(o=>o.value===old))q('technicalComponent').value=old;}
-  function reset(){editing=null;q('technicalExpression').value='';q('technicalEnabled').checked=true;q('technicalPublic').checked=false;q('technicalSave').textContent='GUARDAR CLASIFICACIÓN';q('technicalSelection').textContent='Nueva equivalencia';}
-  function edit(rule){editing=rule.expresion;q('technicalExpression').value=rule.expresion;q('technicalCategory').value=rule.categoria;components();q('technicalComponent').value=rule.componente;q('technicalEnabled').checked=rule.habilitada;q('technicalPublic').checked=false;q('technicalSave').textContent='MODIFICAR CLASIFICACIÓN';q('technicalSelection').textContent='Regla seleccionada: '+rule.expresion;}
-  function render(){
-    q('technicalCategory').replaceChildren(...Object.entries(categories).map(([id,name])=>new Option(name,id)));components();
-    const list=q('technicalRules');list.replaceChildren();
-    for(const r of data.remote?.dictionary.reglas||[]){const row=node('div',null,'repeat-item');row.append(node('strong',r.expresion+' · '+(r.habilitada?'CONFIRMADA':'DESHABILITADA')),node('p',categories[r.categoria]+' → '+label(r.componente),'small'));const b=node('button','Modificar','btn secondary');b.type='button';b.onclick=()=>edit(r);row.append(b);list.append(row);}
-    if(!list.children.length)list.append(node('p','Sin equivalencias adicionales. El diccionario original sigue activo.','small'));
-    const pending=q('technicalPending');pending.replaceChildren();
-    for(const item of data.pending||[]){const row=node('details',null,'repeat-item');row.append(node('summary',item.expresion+' · '+item.frecuencia+' apariciones · '+item.periodo));row.append(node('p','PENDIENTE DE CLASIFICACIÓN','small'));for(const ref of (item.referencias||[]).slice(0,20))row.append(node('p','Línea '+ref.linea+' · Pestaña '+ref.pestana_posicion+': '+ref.pestana+' · Fila '+ref.fila,'small'));const b=node('button','Clasificar término técnico','btn secondary');b.type='button';b.onclick=()=>{reset();q('technicalExpression').value=/^(?:[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]{2,24}|[A-Za-z]{1,4}\d{1,2})$/.test(item.expresion)?item.expresion:'';q('technicalSelection').textContent='Seleccionada: '+item.expresion+' · '+item.periodo;};row.append(b);pending.append(row);}
-    if(!pending.children.length)pending.append(node('p','No hay expresiones pendientes en los informes protegidos cargados. Consultá el informe de una lectura o importación.','small'));
-    const runs=q('historicalRuns');runs.replaceChildren();
-    for(const run of data.runs||[]){if(!run.title.includes('history-import'))continue;const row=node('div',null,'repeat-item');row.append(node('p',run.title+' · '+(run.conclusion||run.status)));if(run.status==='completed'){const b=node('button','Abrir informe protegido','btn secondary');b.type='button';b.onclick=async()=>{try{const d=await api('report',{run_id:run.id});if(!d?.report)throw Error('Esta ejecución no generó un informe.');diagnosticReport=d.report;adminDetails=d.details;renderDiagnostic();renderIncidents();renderStatistics();showView('incidents');await load(false);}catch(e){message(e.message,true);}};row.append(b);}runs.append(row);}
-    q('historyAvailable').textContent=data.remote?'Años archivados: '+data.remote.periods.join(', ')+' · Activo: '+data.remote.period:'Consultá GitHub antes de confirmar una importación.';
-    renderAnomalies();
+  function year(){return Number(q('dictionaryPeriod').value);}
+  function distribution(states){return Object.entries(formal).map(([k,v])=>v+': '+(states?.[k]??'—')).join(' · ');}
+  function closeEditor(){generation++;if(editor){editor.root.remove();editor.trigger?.focus();editor=null;}}
+  function original(text,expression){const p=node('p',null,'dictionary-original');if(!expression){p.textContent=text;return p;}
+    const fold=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es');
+    let normalized='',map=[];for(let i=0;i<text.length;){const char=String.fromCodePoint(text.codePointAt(i)),f=fold(char);for(const c of f){normalized+=c;map.push([i,i+char.length]);}i+=char.length;}
+    const term=fold(expression);let cursor=0,search=0,pos;
+    while(term&&(pos=normalized.indexOf(term,search))>=0){const start=map[pos][0],end=map[pos+term.length-1][1];p.append(document.createTextNode(text.slice(cursor,start)),node('mark',text.slice(start,end)));cursor=end;search=pos+term.length;}
+    p.append(document.createTextNode(text.slice(cursor)));return p;
   }
-  async function load(remote){try{data=await api('statistics-admin'+(remote?'?remote=1':''));render();reset();message(data.remote?'Diccionario revisión '+data.remote.dictionary.revision+'. Las equivalencias se aplican en próximas lecturas; los años cerrados se conservan.':'Consultá GitHub para cargar el diccionario compartido.');}catch(e){message(e.message,true);}}
-  q('technicalRefresh').onclick=()=>load(true);q('historicalRefresh').onclick=()=>load(true);q('technicalCategory').onchange=components;
-  q('technicalDiscard').onclick=()=>{reset();message('Se dejó sin clasificar. La expresión original sigue protegida en el informe.');};
-  q('technicalForm').onsubmit=e=>{e.preventDefault();if(!data?.remote){message('Consultá GitHub primero.',true);return;}if(!q('technicalPublic').checked){message('Confirmá que es un término técnico general, sin datos privados.',true);return;}
-    const expression=q('technicalExpression').value.trim();const rows=data.remote.dictionary.reglas.filter(r=>r.expresion!==editing);rows.push({expresion:expression,categoria:q('technicalCategory').value,componente:q('technicalComponent').value,habilitada:q('technicalEnabled').checked});
-    openDialog('Guardar equivalencia técnica','Se guardará en el repositorio: '+expression+' → '+label(q('technicalComponent').value)+'. No se enviará la observación original ni se recalcularán años cerrados.','Guardar clasificación',async()=>{try{await api('submit',{action:'dictionary-save',expected:data.remote.expected,statistical:{expected_dictionary:data.remote.expected_dictionary,reglas:rows}});message('Orden guardada. Seguí su resultado en Actualizaciones y luego consultá el diccionario.');}catch(err){message('EN CONFLICTO / REVISAR: '+err.message,true);}});
+  function provenance(ref){return node('p','Año '+ref.periodo+' · Línea '+ref.linea+' · Pestaña '+ref.pestana_posicion+': '+ref.pestana+' · Fila '+ref.fila+' · Fecha '+(ref.fecha||'no disponible')+' · Dominio '+(ref.dominio||'no disponible')+' · Interno '+(ref.interno??'no disponible')+' · ESTADO: '+(ref.estado_formal||'Vacío'),'small');}
+  function recordCard(ref,expression){const box=node('article',null,'repeat-item');box.append(node('strong','NOVEDADES ORIGINAL'),original(ref.novedades_original??'Texto no conservado en este informe.',expression),provenance(ref));const b=button('CLASIFICAR EXPRESIÓN',()=>openEditor(box,ref,expression,b));b.disabled=!ref.registro_id||ref.novedades_original==null;box.append(b);return box;}
+  function renderPending(){closeEditor();const all=data?.reviews?.[year()]?.pending||(data?.pending||[]).filter(x=>x.periodo===year());const search=q('mechanicalSearch').value.toLocaleLowerCase('es').trim(),state=q('mechanicalState').value;
+    const items=all.filter(x=>x.expresion.toLocaleLowerCase('es').includes(search)&&(!state||x.estados?.[state]>0)).sort((a,b)=>(q('dictionarySort').value==='asc'?1:-1)*(a.frecuencia-b.frecuencia)||a.expresion.localeCompare(b.expresion));
+    q('mechanicalPendingCount').textContent=all.length?all.reduce((n,x)=>n+x.frecuencia,0)+' menciones · '+all.length+' expresiones agrupadas · '+items.length+' coinciden con el filtro.':'No hay pendientes en el informe protegido cargado. La ausencia del detalle no significa cero.';
+    q('mechanicalExpressions').replaceChildren();for(const item of items){const d=node('details',null,'repeat-item');d.append(node('summary',item.expresion+' · '+item.frecuencia+' apariciones · '+item.periodo),node('p','PENDIENTE DE CLASIFICACIÓN · '+distribution(item.estados),'small'));
+      const records=node('div');let shown=0;const more=button('Ver registros originales',()=>{const refs=item.referencias||[];refs.slice(shown,shown+20).forEach(ref=>records.append(recordCard({...ref,periodo:item.periodo},item.expresion)));shown+=20;more.hidden=shown>=refs.length;more.textContent='Ver más registros ('+Math.max(0,refs.length-shown)+' restantes)';});d.append(records,more);q('mechanicalExpressions').append(d);}
+  }
+  function years(){return [...new Set([...(data?.remote?.periods||[]),...Object.keys(data?.reviews||{}).map(Number)])].sort((a,b)=>b-a);}
+  function periodSelect(id){const s=q(id),old=Number(s.value),ys=years();s.replaceChildren(...ys.map(y=>new Option(y,y)));s.value=String(ys.includes(old)?old:data.remote?.period||ys[0]||'');}
+  function applicationStatus(y){const remote=data?.remote,publicData=remote?.statistics?.[y];if(!publicData)return 'Período sin publicación verificada.';const applied=publicData.interpretacion?.sha256===remote.expected_dictionary;return y+' · Regla guardada: revisión '+remote.dictionary.revision+' · '+(applied?'Estadísticas recalculadas con esta revisión. '+(remote.publication?.[y]?'Publicación verificada.':'Publicación pendiente de verificación.'):(y===remote.period?'Recálculo pendiente de la próxima lectura automática válida.':'Año cerrado: requiere revisión histórica explícita.'));}
+  function renderStats(){const y=Number(q('mechanicalPeriod').value),a=data?.remote?.statistics?.[y]?.anomalias;q('mechanicalSummary').replaceChildren();for(const [id,name] of Object.entries(categories)){const c=a?.categorias.find(x=>x.id===id),b=button('',()=>{category=id;renderStats();if(id==='otras')goDictionary(y);},'stat');b.dataset.mechanicalCategory=id;b.setAttribute('aria-pressed',String(category===id));b.append(node('span',name),node('strong',c?.cantidad??'—'));q('mechanicalSummary').append(b);}
+    q('mechanicalComponents').replaceChildren();for(const c of a?.categorias.find(c=>c.id===category)?.componentes||[])q('mechanicalComponents').append(node('p',label(c.id)+' · '+c.cantidad+' · '+distribution(c.estados),'small'));q('mechanicalStatus').textContent=applicationStatus(y);q('mechanicalRead').textContent='Lectura de estadísticas: '+(data?.remote?.statistics?.[y]?.lectura_planilla_utc||'sin verificar');q('mechanicalHistorical').hidden=!(y<data?.remote?.period);q('mechanicalHistoryUrl').value=data?.reviews?.[y]?.sheetUrl||'';
+  }
+  function goDictionary(y){q('dictionaryPeriod').value=String(y);renderPending();showView('dictionary');q('dictionaryPeriod').focus();}
+  function renderRules(){q('technicalRules').replaceChildren();for(const r of data?.remote?.dictionary.reglas||[]){const row=node('div',null,'repeat-item');row.append(node('strong',r.expresion+' · '+(r.habilitada?'CONFIRMADA':'DESHABILITADA')),node('p',categories[r.categoria]+' → '+label(r.componente)+(r.tipo==='descriptor'?' · Descriptor: '+label(r.significado):''),'small'));const edit=button('Modificar',()=>editRule(row,r,edit));row.append(edit);q('technicalRules').append(row);}if(!q('technicalRules').children.length)q('technicalRules').append(node('p','Sin reglas adicionales. Las equivalencias originales de neumáticos, amortiguadores, pulmones y demás componentes continúan activas.','small'));}
+  function render(){periodSelect('dictionaryPeriod');periodSelect('mechanicalPeriod');renderPending();renderRules();renderStats();q('dictionaryRecords').replaceChildren();q('dictionaryApplication').replaceChildren(...years().map(y=>node('p',applicationStatus(y),'small')));q('privateInterpretationStatus').textContent=(data.particulares?.cantidad||0)+' interpretaciones particulares guardadas en este usuario Windows. Su aplicación es privada; no actualizan las estadísticas públicas.';
+    q('historyAvailable').textContent=data.remote?'Períodos comprobados en el índice y sus archivos.':'Consultá GitHub antes de importar.';q('historicalPeriods').replaceChildren(...(data.remote?.periods||[]).map(y=>node('p',y+' — '+(y===data.remote.period?'PERÍODO ACTIVO':'IMPORTADO'),'small')));
+    for(const id of ['historicalRuns','mechanicalRuns']){q(id).replaceChildren();for(const run of data.runs||[]){if(id==='historicalRuns'&&!run.title.includes('history-import'))continue;const row=node('div',null,'repeat-item');row.append(node('p',run.title+' · '+(run.conclusion||run.status),'small'));if(run.status==='completed'&&!run.title.includes('dictionary-save'))row.append(button('Abrir informe protegido',async()=>{try{const d=await api('report',{run_id:run.id});if(!d.report)throw Error('La ejecución no generó un informe.');await load(false);}catch(e){message(e.message,true);}}));q(id).append(row);}}
+  }
+  async function load(remote){closeEditor();try{data=await api('statistics-admin'+(remote?'?remote=1':''));render();message(data.remote?'Diccionario revisión '+data.remote.dictionary.revision+'. Las reglas se aplican en próximas lecturas; los años cerrados se conservan.':'Consultá GitHub para cargar el diccionario compartido.');}catch(e){message(e.message,true);}}
+  function ruleFields(container,rule,recognized){const fields=node('div',null,'forms'),expr=input(rule.expresion||'');expr.maxLength=48;fields.append(field('Expresión técnica',expr));const cat=select(Object.entries(categories).filter(([k])=>k!=='otras'),rule.categoria||'direccion'),comp=select([]),meaning=select(data.significados||[],rule.significado||'superior');function fill(){const old=comp.value;comp.replaceChildren(...(data.catalogue[cat.value]||[]).map(c=>new Option(label(c),c)));if([...comp.options].some(o=>o.value===old))comp.value=old;}fill();if(rule.componente)comp.value=rule.componente;cat.onchange=fill;
+    if(rule.tipo==='descriptor'){const options=[...new Set((recognized||[]).map(f=>f.componente))];if(!options.length&&rule.componente)options.push(rule.componente);comp.replaceChildren(...options.map(c=>new Option(label(c),c)));fields.append(field('Componente ya reconocido',comp),field('Significado del descriptor',meaning));}else fields.append(field('Categoría',cat),field('Componente',comp));container.append(fields);return ()=>{const c=comp.value,k=Object.keys(data.catalogue).find(k=>data.catalogue[k].includes(c));return {expresion:expr.value.trim(),categoria:k,componente:c,habilitada:true,...(rule.tipo==='descriptor'?{tipo:'descriptor',significado:meaning.value}:{})};};
+  }
+  function invalidate(e){generation++;e.preview.replaceChildren();e.preview.hidden=true;}
+  function alertEditor(e,text,error=false){e.status.textContent=text;e.status.className=error?'error':'inline-note';}
+  function createEditor(parent,trigger){closeEditor();const root=node('div',null,'dictionary-editor'),status=node('p','','inline-note'),preview=node('div',null,'dictionary-preview');status.setAttribute('role','status');preview.hidden=true;preview.setAttribute('aria-live','polite');parent.append(root);const e={root,status,preview,trigger};editor=e;root.addEventListener('input',()=>invalidate(e));return e;}
+  async function openEditor(parent,ref,expression,trigger){const e=createEditor(parent,trigger);e.root.append(node('h3','Interpretar NOVEDADES'),e.status);alertEditor(e,'Cargando el registro protegido…');const request=++generation;
+    try{const record=await api('dictionary-record',{period:year(),registro_id:ref.registro_id});if(editor!==e||request!==generation)return;e.record=record;e.fragments=structuredClone(record.fragmentos);e.expression=expression;e.root.append(node('p','Expresión pendiente: '+(expression||'Revisión completa'),'small'));
+      const type=select([['descriptor','A — Complementa un componente'],['component','B — Abreviatura o nombre de componente'],['multiple','C — La observación contiene varias anomalías'],['pending','D — Todavía no puedo identificarla']],record.analisis.hallazgos.length?'descriptor':'component');type.id='dictionaryMeaning';e.type=type;e.root.append(field('¿Qué representa la expresión pendiente?',type));const body=node('div');e.root.append(body,e.preview);
+      function mode(){invalidate(e);body.replaceChildren();e.getRule=null;if(type.value==='pending'){body.append(node('p','La expresión permanece pendiente. No se guardará una clasificación.','inline-note'),button('CANCELAR',closeEditor));return;}if(type.value==='multiple')fragmentEditor(e,body);else e.getRule=ruleFields(body,{expresion:expression,...(type.value==='descriptor'?{tipo:'descriptor',componente:record.analisis.hallazgos[0]?.componente,significado:'superior'}:{})},record.analisis.hallazgos);const actions=node('div',null,'actions');if(type.value!=='multiple')actions.append(button('VISTA PREVIA DE REGLA GENERAL',()=>previewGeneral(e),'btn'));actions.append(button('VISTA PREVIA SOLO ESTE REGISTRO',()=>previewRecord(e)),button('CANCELAR',closeEditor));body.append(actions);}
+      type.onchange=mode;mode();alertEditor(e,record.guardada?'Este registro tiene una interpretación particular guardada.':'Revisá la interpretación y su impacto antes de guardar.');type.focus({preventScroll:true});
+    }catch(err){alertEditor(e,err.message,true);e.root.append(button('CANCELAR',closeEditor));}
+  }
+  function fragmentEditor(e,body){const text=e.record.registro.novedades_original,chars=Array.from(text),source=node('textarea');source.value=text;source.readOnly=true;source.setAttribute('aria-label','NOVEDADES original: seleccioná una parte para crear, reemplazar o dividir un fragmento');body.append(field('Seleccionar una parte del texto original',source));
+    const list=node('div');let selected=[0,0];function capture(){selected=[Array.from(text.slice(0,source.selectionStart)).length,Array.from(text.slice(0,source.selectionEnd)).length];}source.onselect=capture;source.onkeyup=capture;source.onmouseup=capture;
+    function selection(){if(selected[0]===selected[1])throw Error('Seleccioná una parte del texto original.');return selected;}
+    function action(fn){try{fn();e.fragments.sort((a,b)=>a.inicio-b.inicio);invalidate(e);draw();}catch(err){alertEditor(e,err.message,true);}}
+    body.append(button('Crear fragmento con la selección',()=>action(()=>{const [inicio,fin]=selection();if(e.fragments.some(f=>inicio<f.fin&&fin>f.inicio))throw Error('La selección ya pertenece a un fragmento: dividilo o modificá sus límites.');e.fragments.push({inicio,fin,modo:'automatico',hallazgos:[]});})),list);
+    function draw(){list.replaceChildren();e.fragments.forEach((f,index)=>{const row=node('div',null,'repeat-item');row.append(node('strong','Fragmento '+(index+1)),original(chars.slice(f.inicio,f.fin).join('')),node('p','Posiciones originales: '+f.inicio+'–'+f.fin,'small'));
+      const initial=e.record.fragmentos.findIndex(x=>x.inicio===f.inicio&&x.fin===f.fin),analysis=e.record.fragmentos_analisis?.[initial],known=f.modo==='confirmado'?f.hallazgos:analysis?.hallazgos||[];
+      row.append(node('p',f.modo==='pendiente'?'REVISIÓN PENDIENTE':f.modo==='confirmado'?'INTERPRETACIÓN CONFIRMADA':(analysis?.pendientes?.length?'RECONOCIMIENTO PARCIAL / REVISIÓN PENDIENTE':known.length?'RECONOCIDO':'REVISAR EN VISTA PREVIA'),'small'));
+      if(known.length)row.append(node('p',known.map(x=>categories[x.categoria]+' → '+label(x.componente)+' · '+label(x.ubicacion)+' · '+label(x.defecto)).join('; '),'small'));
+      const mode=select([['automatico','Interpretación del motor'],['confirmado','Elegir interpretación'],['pendiente','Mantener pendiente']],f.modo);row.append(field('Resultado de interpretación',mode));mode.onchange=()=>action(()=>{f.modo=mode.value;f.hallazgos=mode.value==='confirmado'?[known[0]||{categoria:'direccion',componente:'barra_larga',ubicacion:'sin_ubicacion',referencia:null,defecto:'no_identificado'}]:[];});
+      if(f.modo==='confirmado'){
+        const chosen=f.hallazgos[0],get=ruleFields(row,{categoria:chosen.categoria,componente:chosen.componente,expresion:''});row.querySelector('.forms .field').remove();
+        const loc=select([...new Set([...(data.ubicaciones||[]),chosen.ubicacion])],chosen.ubicacion),defect=select(data.defectos||[],chosen.defecto);row.append(field('Ubicación / descripción',loc),field('Condición / defecto',defect));
+        const update=()=>{const r=get();f.hallazgos=[{categoria:r.categoria,componente:r.componente,ubicacion:loc.value,referencia:null,defecto:defect.value}];invalidate(e);};row.querySelectorAll('.forms select').forEach(s=>s.addEventListener('change',update));loc.onchange=update;defect.onchange=update;
+      }
+      const actions=node('div',null,'actions');actions.append(button('Usar selección como fragmento',()=>action(()=>{const [inicio,fin]=selection();if(e.fragments.some((other,i)=>i!==index&&inicio<other.fin&&fin>other.inicio))throw Error('Los fragmentos no pueden superponerse.');Object.assign(f,{inicio,fin,modo:'automatico',hallazgos:[]});})),button('Dividir en el cursor',()=>action(()=>{const pos=selected[0];if(pos<=f.inicio||pos>=f.fin)throw Error('Ubicá el cursor dentro de este fragmento en el texto original.');e.fragments.splice(index,1,{inicio:f.inicio,fin:pos,modo:'automatico',hallazgos:[]},{inicio:pos,fin:f.fin,modo:'automatico',hallazgos:[]});})),button('Unir con siguiente',()=>action(()=>{const next=e.fragments[index+1];if(!next)throw Error('No hay otro fragmento después de este.');e.fragments.splice(index,2,{inicio:f.inicio,fin:next.fin,modo:'automatico',hallazgos:[]});})),button('Eliminar interpretación',()=>action(()=>{e.fragments.splice(index,1);})));row.append(actions);list.append(row);
+    });}draw();body.append(node('p','El texto original se conserva. Eliminar un fragmento deja su texto pendiente; unir o dividir vuelve a verificarlo con el motor.','small'));
+  }
+  function impact(box,effect){box.replaceChildren();box.hidden=false;box.append(node('h3','VISTA PREVIA · '+effect.periodo),node('p',effect.registros+' controles conservados. ESTADO, fechas y vehículos no cambian.','small'),node('strong',(effect.afectados?.length||0)+' registros potencialmente afectados.'));
+    for(const [id,name] of Object.entries(categories)){const before=effect.antes.categorias.find(x=>x.id===id)?.cantidad,after=effect.despues.categorias.find(x=>x.id===id)?.cantidad;box.append(node('p',name+': '+before+' → '+after,'small'));}
+    for(const [key,title] of [['afectados','Revisar registros afectados'],['ambiguos','Apariciones que requieren revisión individual']]){const d=node('details');d.append(node('summary',title+' ('+(effect[key]?.length||0)+')'));const content=node('div');let n=0;const more=button('Ver registros',()=>{for(const r of (effect[key]||[]).slice(n,n+20)){const c=node('div',null,'repeat-item');c.append(original(r.novedades_original),provenance(r));content.append(c);}n+=20;more.hidden=n>=(effect[key]?.length||0);});d.append(content,more);box.append(d);}
+  }
+  async function previewGeneral(e,rowsOverride){try{if(!data.remote)throw Error('Consultá GitHub primero.');const rule=e.getRule?.(),rows=rowsOverride||[...data.remote.dictionary.reglas,rule],expected=data.remote.expected,expected_dictionary=data.remote.expected_dictionary;
+    const request=++generation;alertEditor(e,'Calculando el impacto en el período seleccionado…');const effect=await api('statistics-preview',{period:year(),reglas:rows,expected_dictionary});if(editor!==e||request!==generation)return;
+    impact(e.preview,effect);e.preview.append(node('p','Esta regla se utilizará en futuras lecturas cuando coincida el mismo contexto técnico.','small'));
+    e.preview.append(button('GUARDAR REGLA GENERAL',()=>{if(editor!==e||request!==generation)return;openDialog('Confirmar regla general','Esta regla se utilizará en futuras lecturas cuando coincida el mismo contexto técnico. Los históricos cerrados se conservan.','CONFIRMAR GUARDADO',async()=>{try{if(editor!==e||request!==generation)throw Error('La vista previa cambió. Volvé a revisarla.');await api('submit',{action:'dictionary-save',expected,statistical:{expected_dictionary,reglas:rows}});closeEditor();message('Orden guardada. Regla pendiente de confirmación en GitHub; recálculo y publicación todavía pendientes.');}catch(err){alertEditor(e,err.message,true);}});},'btn'),button('CANCELAR',closeEditor));alertEditor(e,'Vista previa calculada. Revisá los registros antes de confirmar.');
+  }catch(err){alertEditor(e,err.message,true);}}
+  async function previewRecord(e){try{const body={period:year(),registro_id:e.record.registro.registro_id,fragmentos:e.fragments};if(e.getRule)body.regla=e.getRule();const request=++generation;alertEditor(e,'Calculando la interpretación particular…');const effect=await api('dictionary-record-preview',body);if(editor!==e||request!==generation)return;impact(e.preview,effect);
+    e.preview.append(node('p','Aplicación al informe privado de este usuario Windows. No guarda una regla global ni publica estadísticas.','inline-note'),button('GUARDAR SOLO ESTE REGISTRO',()=>{if(editor!==e||request!==generation)return;openDialog('Confirmar interpretación particular','Se guardará cifrada para este registro exacto. La web pública conserva sus estadísticas.','CONFIRMAR GUARDADO',async()=>{try{if(editor!==e||request!==generation)throw Error('La vista previa cambió.');await api('dictionary-record-save',{confirmation:effect.confirmation});closeEditor();await load(false);message('Interpretación particular guardada y aplicada al informe privado. Publicación web sin cambios.');}catch(err){alertEditor(e,err.message,true);}});},'btn'),button('CANCELAR',closeEditor));alertEditor(e,'Vista previa privada calculada.');
+  }catch(err){alertEditor(e,err.message,true);}}
+  function editRule(parent,rule,trigger){const e=createEditor(parent,trigger);e.root.append(node('h3','Modificar regla confirmada'),e.status);e.getRule=ruleFields(e.root,rule,[rule]);const enabled=node('input');enabled.type='checkbox';enabled.checked=rule.habilitada;const l=node('label',' Habilitada para futuras lecturas');l.prepend(enabled);e.root.append(l);e.root.append(button('VER IMPACTO DEL CAMBIO',()=>{const rows=data.remote.dictionary.reglas.filter(r=>r!==rule);rows.push({...e.getRule(),habilitada:enabled.checked});previewGeneral(e,rows);},'btn'),button('CANCELAR',closeEditor),e.preview);}
+  q('dictionaryPeriod').onchange=()=>{q('dictionaryRecords').replaceChildren();renderPending();};q('mechanicalSearch').oninput=renderPending;q('mechanicalState').onchange=renderPending;q('dictionarySort').onchange=renderPending;
+  q('openDictionary').onclick=()=>goDictionary(Number(q('mechanicalPeriod').value));q('mechanicalPeriod').onchange=()=>{q('mechanicalPreview').hidden=true;renderStats();};
+  for(const id of ['technicalRefresh','historicalRefresh','mechanicalRefresh'])q(id).onclick=()=>load(true);
+  q('dictionaryFind').onclick=async()=>{closeEditor();const y=year(),search=q('dictionaryRecordSearch').value,box=q('dictionaryRecords');box.replaceChildren(node('p','Buscando registros…','small'));try{const result=await api('dictionary-records',{period:y,search});if(year()!==y)return;box.replaceChildren(node('p',result.total+' registros encontrados.','small'));let offset=0;const append=rows=>{rows.forEach(r=>box.append(recordCard(r,'')));offset+=rows.length;};append(result.registros);const more=button('Ver más registros',async()=>{try{const next=await api('dictionary-records',{period:y,search,offset});if(year()!==y)return;more.remove();append(next.registros);more.hidden=offset>=next.total;box.append(more);}catch(err){message(err.message,true);}});more.hidden=offset>=result.total;box.append(more);}catch(err){box.replaceChildren(node('p',err.message,'error'));}};
+  q('historicalForm').onsubmit=e=>{e.preventDefault();const remote=data?.remote,period=Number(q('historicalPeriod').value);if(!remote){message('Consultá GitHub primero.',true);return;}if(period>=remote.period||remote.periods.includes(period)){message('Ese año ya está disponible o es activo. Para revisarlo, usá Revisión explícita del histórico en Estadísticas.',true);return;}
+    const payload={period,sheetUrl:q('historicalUrl').value.trim(),allow_partial:q('historicalPartial').checked};openDialog('Importar otro año','Se leerá solamente la fuente histórica indicada. '+(payload.allow_partial?'Se excluirán los registros inválidos y el resultado se marcará parcial.':'Se detendrá si hay registros excluidos.'),'IMPORTAR AÑO',async()=>{try{await api('submit',{action:'history-import',expected:remote.expected,statistical:payload});message('Importación solicitada. Seguí su resultado en Actualizaciones.');}catch(err){message(err.message,true);}});
   };
-  q('historicalForm').onsubmit=e=>{e.preventDefault();if(!data?.remote){message('Consultá GitHub primero.',true);return;}const period=Number(q('historicalPeriod').value);if(period>=data.remote.period||data.remote.periods.includes(period)){message('Elegí un año anterior que todavía no esté archivado.',true);return;}
-    openDialog('Importar estadísticas históricas','Se leerá únicamente la fuente indicada para '+period+'. No cambia la configuración, los controles activos ni CNRT. '+(q('historicalPartial').checked?'Autorizaste excluir registros inválidos y mostrar el histórico como parcial.':'La importación se detendrá si hay registros excluidos.'),'Importar año',async()=>{try{await api('submit',{action:'history-import',expected:data.remote.expected,statistical:{period,sheetUrl:q('historicalUrl').value.trim(),allow_partial:q('historicalPartial').checked}});message('Importación solicitada. Seguí el resultado en Actualizaciones; luego consultá GitHub para abrir su informe.');}catch(err){message(err.message,true);}});
+  q('mechanicalPrepare').onclick=()=>{const period=Number(q('mechanicalPeriod').value),remote=data?.remote,publicData=remote?.statistics?.[period];if(!publicData||period>=remote.period)return;
+    const payload={period,sheetUrl:q('mechanicalHistoryUrl').value.trim(),allow_partial:publicData.calidad.parcial,expected_archive:remote.hashes[period],expected_dictionary:remote.expected_dictionary};openDialog('Preparar revisión histórica','Se leerá exclusivamente la planilla histórica indicada. No publica cambios ni consulta CNRT.','PREPARAR INFORME',async()=>{try{await api('submit',{action:'history-review',expected:remote.expected,statistical:payload});q('mechanicalStatus').textContent='Preparación solicitada. Abrí su informe protegido cuando termine.';}catch(err){q('mechanicalStatus').textContent=err.message;}});
   };
-
-  const formal={fuera_de_servicio:'Fuera de servicio',observado:'Observado',sin_novedad:'Sin novedad',estado_vacio:'Sin estado',estado_otro:'Otro estado'};
-  let selectedCategory='otras',previewGeneration=0;
-  function selectedYear(){return Number(q('mechanicalPeriod').value);}
-  function mechanicalMessage(text,error=false){q('mechanicalStatus').textContent=text;q('mechanicalStatus').className=error?'error':'inline-note';}
-  function dateLabel(value){return value?new Intl.DateTimeFormat('es-AR',{dateStyle:'short',timeStyle:'short',timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(value))+' · Argentina':'Fecha no disponible';}
-  function distribution(states,total){return Object.entries(formal).map(([key,name])=>name+': '+(states?.[key]??'no disponible')+(Number.isInteger(states?.[key])&&total?' ('+(100*states[key]/total).toLocaleString('es-AR',{maximumFractionDigits:1})+' %)':'')).join(' · ');}
-  function mechanicalComponents(){
-    const old=q('mechanicalComponent').value;
-    q('mechanicalComponent').replaceChildren(...(data?.catalogue[q('mechanicalCategory').value]||[]).filter(c=>c!=='sin_clasificar').map(c=>new Option(label(c),c)));
-    if([...q('mechanicalComponent').options].some(o=>o.value===old))q('mechanicalComponent').value=old;
-  }
-  function resetMechanical(){
-    previewGeneration++;
-    q('mechanicalForm').hidden=true;q('mechanicalPreview').hidden=true;q('mechanicalPreview').replaceChildren();q('mechanicalMeaning').checked=false;
-  }
-  function renderAnomalies(){
-    const select=q('mechanicalPeriod'),old=select.value;
-    const years=[...new Set([...(data.remote?.periods||[]),...Object.keys(data.reviews||{}).map(Number)])].sort((a,b)=>b-a);
-    select.replaceChildren(...years.map(year=>new Option(year,year)));
-    select.value=years.includes(Number(old))?old:String(data.remote?.period||years[0]||'');
-    const year=selectedYear(),publicData=data.remote?.statistics?.[year],a=publicData?.anomalias;
-    q('mechanicalCategory').replaceChildren(...Object.entries(categories).filter(([k])=>k!=='otras').map(([id,name])=>new Option(name,id)));mechanicalComponents();
-    const summary=q('mechanicalSummary');summary.replaceChildren();
-    for(const [id,name] of Object.entries(categories)){
-      const c=a?.categorias.find(c=>c.id===id),b=node('button',null,'stat');b.type='button';b.dataset.mechanicalCategory=id;b.setAttribute('aria-pressed',String(id===selectedCategory));
-      b.append(node('span',name),node('strong',c?.cantidad??'—'));b.onclick=()=>{selectedCategory=id;renderAnomalies();if(id==='otras')q('mechanicalPending').open=true;};summary.append(b);
-    }
-    const detail=q('mechanicalComponents');detail.replaceChildren();
-    const cat=a?.categorias.find(c=>c.id===selectedCategory);
-    if(cat)for(const component of cat.componentes){const item=node('div',null,'repeat-item');item.append(node('strong',label(component.id)+' · '+(component.cantidad??'—')),node('p',distribution(component.estados,component.cantidad),'small'));detail.append(item);}
-    const review=data.reviews?.[year];
-    q('mechanicalRead').textContent='Estadística publicada: '+dateLabel(publicData?.lectura_planilla_utc)+'. Informe privado: '+dateLabel(review?.read)+'.';
-    const revision=publicData?.interpretacion?.revision;
-    const applied=publicData?.interpretacion?.sha256===data.remote?.expected_dictionary;
-    mechanicalMessage(!publicData?'Consultá GitHub para verificar los períodos y cantidades.':
-      (data.remote?.publication?.[year]?'Publicación web comprobada. ':'Versión guardada en GitHub; publicación web todavía no comprobada. ')+
-      'Diccionario del período: '+(revision??'original')+'. '+(applied?'Coincide con el diccionario guardado.':year===data.remote.period?'Las nuevas equivalencias se aplicarán en la próxima lectura automática válida.':'El año cerrado solo cambia mediante una revisión histórica confirmada.'));
-    q('mechanicalHistorical').hidden=!(year<data.remote?.period);
-    if(review?.sheetUrl)q('mechanicalHistoryUrl').value=review.sheetUrl;
-    renderPending();
-    const runs=q('mechanicalRuns');runs.replaceChildren();
-    for(const run of data.runs||[]){
-      const row=node('div',null,'repeat-item');row.append(node('p',run.title+' · '+(run.conclusion||run.status),'small'));
-      if(run.status==='completed'&&!run.title.includes('dictionary-save')){
-        const b=node('button','Abrir informe protegido','btn secondary');b.type='button';b.onclick=async()=>{try{const d=await api('report',{run_id:run.id});if(!d?.report)throw Error('La ejecución no tiene un informe disponible.');await load(false);mechanicalMessage('Informe protegido cargado. Elegí su período para revisar las expresiones.');}catch(e){mechanicalMessage(e.message,true);}};row.append(b);
-      }runs.append(row);
-    }
-    if(!runs.children.length)runs.append(node('p','Consultá GitHub para ver informes recientes.','small'));
-  }
-  function renderPending(){
-    const year=selectedYear(),review=data.reviews?.[year];
-    const all=review?.pending||(data.pending||[]).filter(x=>x.periodo===year);
-    const search=q('mechanicalSearch').value.trim().toLocaleLowerCase('es'),state=q('mechanicalState').value;
-    const items=all.filter(x=>x.expresion.toLocaleLowerCase('es').includes(search)&&(!state||(x.estados?.[state]||0)>0)).sort((a,b)=>b.frecuencia-a.frecuencia||a.expresion.localeCompare(b.expresion));
-    const count=all.reduce((n,x)=>n+x.frecuencia,0);
-    q('mechanicalPendingCount').textContent=all.length?count+' menciones · '+all.length+' expresiones agrupadas · '+items.length+' coinciden con el filtro. Pendientes de clasificación según el informe privado.':'No hay pendientes en el informe protegido cargado. Si la estadística pública muestra pendientes, abrí su informe; la ausencia del detalle no significa cero.';
-    const list=q('mechanicalExpressions');list.replaceChildren();
-    for(const item of items){
-      const row=node('details',null,'repeat-item');row.append(node('summary',item.expresion+' · '+item.frecuencia+' apariciones'));
-      row.append(node('p','PENDIENTE DE CLASIFICACIÓN · '+distribution(item.estados,item.frecuencia),'small'));
-      const records=node('div');let shown=0;const more=node('button','Ver registros originales','btn secondary');more.type='button';
-      more.onclick=()=>{const refs=item.referencias||[];for(const ref of refs.slice(shown,shown+20)){
-        const r=node('div',null,'repeat-item');r.append(node('strong',item.expresion),node('p','Año '+item.periodo+' · Línea '+ref.linea+' · Fecha '+(ref.fecha||'no conservada en este informe')+' · Dominio '+(ref.dominio||'no conservado')+' · Interno '+(ref.interno??'no conservado'),'small'),node('p','Pestaña '+ref.pestana_posicion+': '+ref.pestana+' · Fila '+ref.fila,'small'),node('p','NOVEDADES: '+(ref.novedades_original??'No disponible'),'small'),node('p','ESTADO formal: '+(ref.estado_formal===undefined?'No conservado en este informe':ref.estado_formal||'Vacío'),'small'));records.append(r);
-      }shown+=20;more.hidden=shown>=refs.length;more.textContent='Ver más registros ('+Math.max(0,refs.length-shown)+' restantes)';};
-      const classify=node('button','Clasificar expresión','btn secondary');classify.type='button';classify.onclick=()=>{
-        resetMechanical();q('mechanicalForm').hidden=false;q('mechanicalSelected').textContent=item.expresion+' · '+item.frecuencia+' menciones · '+year;
-        q('mechanicalExpression').value=item.expresion.length<=48?item.expresion:'';q('mechanicalForm').scrollIntoView({block:'center'});q('mechanicalExpression').focus();
-      };
-      row.append(more,records,classify);list.append(row);
-    }
-  }
-  function displayPreview(effect,confirm,title){
-    mechanicalMessage('Vista previa calculada. Confirmá la operación para guardarla o cancelá sin cambios.');
-    const box=q('mechanicalPreview');box.replaceChildren();box.hidden=false;
-    box.append(node('strong','VISTA PREVIA · '+effect.periodo),node('p','Calculada desde '+effect.registros+' controles completos. Los resultados formales, vehículos y fechas se conservan.','small'));
-    for(const [id,name] of Object.entries(categories)){
-      const before=effect.antes.categorias.find(x=>x.id===id)?.cantidad,after=effect.despues.categorias.find(x=>x.id===id)?.cantidad;
-      box.append(node('p',name+': '+before+' → '+after,'small'));
-    }
-    box.append(node('p','El motor aplica negaciones, contextos y deduplicación; la reducción de pendientes puede diferir de la frecuencia de la expresión.','small'));
-    const ok=node('button',title,'btn');ok.type='button';ok.onclick=confirm;
-    const cancel=node('button','CANCELAR','btn secondary');cancel.type='button';cancel.onclick=()=>{resetMechanical();mechanicalMessage('Cancelado. No se guardó ninguna regla ni se enviaron cambios.');};
-    const actions=node('div',null,'actions');actions.append(ok,cancel);box.append(actions);box.scrollIntoView({block:'center'});
-  }
-  q('mechanicalRefresh').onclick=()=>load(true);
-  q('mechanicalPeriod').onchange=()=>{q('mechanicalHistoryUrl').value='';resetMechanical();renderAnomalies();};
-  q('mechanicalSearch').oninput=renderPending;q('mechanicalState').onchange=renderPending;q('mechanicalCategory').onchange=mechanicalComponents;
-  q('mechanicalCancel').onclick=()=>{resetMechanical();mechanicalMessage('Cancelado. No se guardó ninguna regla.');};
-  q('mechanicalForm').addEventListener('input',()=>{previewGeneration++;q('mechanicalPreview').hidden=true;q('mechanicalPreview').replaceChildren();});
-  q('mechanicalForm').onsubmit=async e=>{
-    e.preventDefault();
-    try{
-      if(!data?.remote)throw Error('Consultá GitHub primero.');
-      const rule={expresion:q('mechanicalExpression').value.trim(),categoria:q('mechanicalCategory').value,componente:q('mechanicalComponent').value,habilitada:true};
-      const rows=[...data.remote.dictionary.reglas,rule],expected=data.remote.expected,expectedDictionary=data.remote.expected_dictionary;
-      const generation=++previewGeneration;
-      const effect=await api('statistics-preview',{period:selectedYear(),reglas:rows,expected_dictionary:expectedDictionary});
-      if(generation!==previewGeneration)return;
-      displayPreview(effect,()=>openDialog('Confirmar regla general',rule.expresion+' → '+categories[rule.categoria]+' → '+label(rule.componente)+'. Se guardará para próximas lecturas automáticas. El histórico requiere una revisión explícita.','CONFIRMAR CLASIFICACIÓN',async()=>{
-        try{await api('submit',{action:'dictionary-save',expected,statistical:{expected_dictionary:expectedDictionary,reglas:rows}});resetMechanical();mechanicalMessage('Orden de clasificación guardada. Todavía no cambió la web. Consultá GitHub para verificar la regla y su posterior aplicación.');}catch(err){mechanicalMessage(err.message,true);}
-      }), 'CONFIRMAR CLASIFICACIÓN');
-    }catch(err){mechanicalMessage(err.message,true);}
-  };
-  q('mechanicalPrepare').onclick=()=>{
-    const year=selectedYear(),remote=data?.remote,publicData=remote?.statistics?.[year];
-    if(!publicData||year>=remote.period){mechanicalMessage('Elegí un período histórico verificado.',true);return;}
-    const payload={period:year,sheetUrl:q('mechanicalHistoryUrl').value.trim(),allow_partial:publicData.calidad?.parcial||false,expected_archive:remote.hashes[year],expected_dictionary:remote.expected_dictionary};
-    openDialog('Preparar revisión histórica','Autorizás leer únicamente la planilla histórica indicada de '+year+' para generar un informe cifrado. No modifica estadísticas ni lee CNRT.','PREPARAR INFORME',async()=>{
-      try{await api('submit',{action:'history-review',expected:remote.expected,statistical:payload});mechanicalMessage('Preparación solicitada. Cuando termine, consultá GitHub y abrí el informe protegido.');}catch(e){mechanicalMessage(e.message,true);}
-    });
-  };
-  q('mechanicalRecalculate').onclick=async()=>{
-    try{
-      const generation=++previewGeneration;
-      const effect=await api('statistics-preview',{period:selectedYear(),mode:'saved'});
-      if(generation!==previewGeneration)return;
-      if(!effect.command)throw Error('Prepará y abrí el informe histórico antes de recalcular.');
-      const expected=data.remote.expected;
-      displayPreview(effect,()=>openDialog('Recalcular histórico '+effect.periodo,'Autorizás una lectura exclusiva de la planilla histórica. Solo publicará este cambio si los registros y el resultado coinciden con la vista previa. Se conservará la versión anterior.','CONFIRMAR RECÁLCULO',async()=>{
-        try{await api('submit',{action:'history-recalculate',expected,statistical:effect.command});resetMechanical();mechanicalMessage('Recálculo histórico solicitado. La publicación se confirmará al finalizar y verificar la web.');}catch(err){mechanicalMessage(err.message,true);}
-      }), 'CONFIRMAR RECÁLCULO HISTÓRICO');
-    }catch(err){mechanicalMessage(err.message,true);}
-  };
-
+  q('mechanicalRecalculate').onclick=async()=>{try{const period=Number(q('mechanicalPeriod').value),effect=await api('statistics-preview',{period,mode:'saved'});if(!effect.command)throw Error('Prepará y abrí el informe histórico antes de recalcular.');if(Number(q('mechanicalPeriod').value)!==period)return;const box=q('mechanicalPreview');impact(box,effect);box.append(button('CONFIRMAR RECÁLCULO HISTÓRICO',()=>openDialog('Recalcular histórico '+period,'Se conservará la versión anterior y se verificará que la lectura coincide con esta vista previa. Las interpretaciones particulares locales no se envían.','CONFIRMAR RECÁLCULO',async()=>{try{await api('submit',{action:'history-recalculate',expected:data.remote.expected,statistical:effect.command});box.hidden=true;q('mechanicalStatus').textContent='Recálculo solicitado. Publicación pendiente de verificación.';}catch(err){q('mechanicalStatus').textContent=err.message;}}),'btn'),button('CANCELAR',()=>{box.hidden=true;}));}catch(err){q('mechanicalStatus').textContent=err.message;}};
   load(false);
 })();

@@ -1,1 +1,1 @@
-{"version":1,"revision":3,"reglas":[]}
+{"reglas":[{"alcance":"general","expresion":"extremo","habilitada":true,"significado":"extremo","tipo":"descriptor","variantes":["extremos"]}],"revision":4,"version":1}

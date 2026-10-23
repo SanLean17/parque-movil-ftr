@@ -5,7 +5,7 @@
 <meta name="ftr-csrf" content="__FTR_CSRF__">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Administración FTR 06.3.5</title>
+<title>Administración FTR 06.3.6</title>
 <style>
 :root{color-scheme:light;
  --primary:#2256b4;--on-primary:#fff;--accent:#2a91c2;--bg:#f2f5fa;--surface:#fff;--surface-2:#edf3fb;--text:#172a44;--muted:#51657e;--line:#d5dfe9;--soft-primary:#e4edff;
@@ -164,6 +164,22 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 <p id="statisticsTableLegend" class="statistics-legend"></p>
 </div>
 <div class="panel" id="repeatedPanel" hidden><div class="panel-head"><div><h2>Historial de vehículos repetidos</h2><p>Abrí cada dominio para ver sus controles, fechas, internos y filas de la planilla.</p></div></div><div id="repeatedList"></div></div>
+<div class="panel" id="mechanicalReview"><div class="panel-head"><div><h2>ANOMALÍAS MECÁNICAS</h2><p>Consultá menciones y resultados por período. Los detalles originales permanecen protegidos en este equipo.</p></div><button type="button" class="btn secondary" id="mechanicalRefresh">Consultar GitHub</button></div>
+<div class="forms"><div class="field"><label for="mechanicalPeriod">Período de anomalías</label><select id="mechanicalPeriod"></select></div></div>
+<p id="mechanicalStatus" class="inline-note" aria-live="polite"></p><p id="mechanicalRead" class="small"></p>
+<div id="mechanicalSummary" class="stats"></div><div id="mechanicalComponents"></div>
+<details id="mechanicalPending"><summary><strong>OTRAS / SIN CLASIFICAR</strong></summary><p id="mechanicalPendingCount" class="small"></p>
+<div class="forms"><div class="field"><label for="mechanicalSearch">Buscar expresión</label><input type="search" id="mechanicalSearch"></div><div class="field"><label for="mechanicalState">Resultado asociado</label><select id="mechanicalState"><option value="">Todos</option><option value="fuera_de_servicio">Fuera de servicio</option><option value="observado">Observado</option><option value="sin_novedad">Sin novedad</option><option value="estado_vacio">Sin estado</option><option value="estado_otro">Otro estado</option></select></div></div>
+<div id="mechanicalExpressions"></div></details>
+<form id="mechanicalForm" hidden><h3 id="mechanicalSelected"></h3><p class="small">Regla general: se aplica al mismo término en contextos compatibles. La clasificación de una sola aparición no está habilitada; si el significado cambia según el registro, dejalo pendiente.</p>
+<div class="forms"><div class="field"><label for="mechanicalExpression">Expresión técnica confirmada</label><input id="mechanicalExpression" maxlength="48" required></div><div class="field"><label for="mechanicalCategory">Categoría</label><select id="mechanicalCategory" required></select></div><div class="field"><label for="mechanicalComponent">Componente</label><select id="mechanicalComponent" required></select></div></div>
+<p class="small"><label><input id="mechanicalMeaning" type="checkbox" required> Revisé los registros: esta equivalencia tiene un significado técnico consistente y puede compartirse, sin datos privados.</label></p>
+<div class="actions"><button type="submit" class="btn">ASIGNAR CLASIFICACIÓN</button><button type="button" class="btn secondary" id="mechanicalCancel">CANCELAR</button></div></form>
+<div id="mechanicalPreview" class="inline-note" hidden aria-live="polite"></div>
+<details id="mechanicalHistorical" hidden><summary><strong>REVISIÓN EXPLÍCITA DEL HISTÓRICO</strong></summary><p class="small">Preparar la revisión lee únicamente la planilla histórica indicada y genera un informe cifrado. Recalcular requiere una vista previa y otra confirmación; conserva la versión anterior. No consulta CNRT ni la planilla activa.</p>
+<div class="field"><label for="mechanicalHistoryUrl">Planilla del período histórico seleccionado</label><input id="mechanicalHistoryUrl" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."></div><div class="actions"><button type="button" class="btn secondary" id="mechanicalPrepare">PREPARAR INFORME HISTÓRICO</button><button type="button" class="btn secondary" id="mechanicalRecalculate">REVISAR RECÁLCULO HISTÓRICO</button></div></details>
+<details><summary><strong>INFORMES PROTEGIDOS DISPONIBLES</strong></summary><p class="small">Abrí el informe correspondiente a la lectura. Podés volver a consultar sin leer las fuentes.</p><div id="mechanicalRuns"></div></details>
+</div>
 </section>
 
   <section data-page="diagnostic" hidden>
@@ -194,7 +210,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
     <button class="btn secondary" type="button" id="technicalRefresh">Consultar GitHub</button><p id="technicalStatus" class="inline-note" aria-live="polite"></p>
     <h3>Expresiones pendientes</h3><div id="technicalPending"></div>
     <form id="technicalForm"><h3 id="technicalSelection">Nueva equivalencia</h3><div class="forms">
-    <div class="field"><label for="technicalExpression">Abreviatura o término técnico general</label><input id="technicalExpression" maxlength="24" required autocomplete="off"><p class="help">Una palabra o código breve. No pegues frases, dominios, nombres ni números de fila.</p></div>
+    <div class="field"><label for="technicalExpression">Abreviatura o término técnico general</label><input id="technicalExpression" maxlength="48" required autocomplete="off"><p class="help">Abreviatura o hasta cinco palabras técnicas confirmadas. No pegues observaciones, dominios, nombres ni números de fila.</p></div>
     <div class="field"><label for="technicalCategory">Categoría</label><select id="technicalCategory" required></select></div>
     <div class="field"><label for="technicalComponent">Componente</label><select id="technicalComponent" required></select></div></div>
     <p><label><input type="checkbox" id="technicalEnabled" checked> Regla habilitada</label></p>
@@ -236,7 +252,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 <div class="panel"><h2>Borrador local</h2><p>Restablecer conserva el tema visual y no borra datos de Google o GitHub.</p><button class="btn danger" id="resetDemo">Restablecer borrador local</button><button class="btn secondary" id="quitPanel">Salir del programa</button></div>
 </section>
   <div class="changed"><svg><use href="#i-info"/></svg><span id="savedState">Borrador de referencia. Sin publicar.</span><div class="actions"><button class="btn secondary" id="saveAll">Guardar borrador local</button></div></div>
-  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.5</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
+  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.6</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
  </main>
 </div>
 <dialog class="dialog" id="confirmDialog" aria-labelledby="dialogTitle"><h2 id="dialogTitle"></h2><p id="dialogText"></p><div class="actions"><button class="btn neutral" id="dialogCancel" autofocus>Cancelar</button><button class="btn" id="dialogConfirm">Confirmar</button></div></dialog>

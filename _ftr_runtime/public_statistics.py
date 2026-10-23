@@ -15,7 +15,7 @@ from .config import enabled
 
 FILE = 'estadisticas_ftr.json'
 INDEX = 'estadisticas/indice.json'
-ASSETS = ('estadisticas.html', 'ftr-estadisticas.css', 'ftr-estadisticas.js', FILE, INDEX)
+ASSETS = ('ftr-navegacion.css', 'estadisticas.html', 'ftr-estadisticas.css', 'ftr-estadisticas.js', FILE, INDEX)
 STATUS = ('fuera_de_servicio', 'observado', 'sin_novedad', 'estado_vacio', 'estado_otro')
 TOTALS = ('registros_validos', 'unidades_unicas_por_linea', 'unidades_repetidas',
           'registros_fuera_de_servicio', 'registros_observados', 'registros_sin_novedad',
@@ -80,10 +80,14 @@ def mechanics(events, pending=False, dictionary=None):
         components['sin_clasificar']['estados'][state] += len(unknown)
         ref = {k:e.get(k) for k in ('linea','pestana','pestana_posicion','fila')}
         ref.update(periodo=e['fecha'].year, novedades_original=e['novedades'])
+        ref.update(fecha=e['fecha'].isoformat(),dominio=e.get('dominio'),interno=e.get('interno'),estado_formal=e.get('estado_original',e.get('estado')),resultado=state)
+        import hashlib
+        ref['registro_id']=hashlib.sha256(json.dumps([ref.get(k) for k in ('periodo','linea','fecha','dominio','interno','pestana','fila','novedades_original')],ensure_ascii=False).encode()).hexdigest()
         for expression in unknown:
             item = private.setdefault((e['fecha'].year,fold(expression)), dict(periodo=e['fecha'].year, expresion=expression,
-                variantes=[], frecuencia=0, estado='pendiente', referencias=[]))
+                variantes=[], frecuencia=0, estado='pendiente', estados={k:0 for k in STATUS}, referencias=[]))
             item['frecuencia'] += 1; item['referencias'].append(ref)
+            item['estados'][state] += 1
             if expression not in item['variantes']:item['variantes'].append(expression)
         references.extend(ref | finding for finding in known if finding['referencia'])
     for category in categories:
@@ -124,6 +128,9 @@ def build(report, events, config, read_utc, *, pending_mechanics=False, dictiona
     data['interpretacion']={'revision':dictionary['revision'],'sha256':digest(dictionary)}
     data['calidad']={'parcial':False,'registros_excluidos':0}
     validate(data)
+    if not pending_mechanics:
+        from .mechanical_review import snapshot
+        private['revision_mecanica']=snapshot(events,data,dictionary)
     return data, private
 
 

@@ -13,17 +13,18 @@
   <script>try { document.documentElement.classList.toggle('dark', localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme: dark)').matches)); } catch (_) {}</script>
   <script src="ftr-datos.js" defer></script>
   <script src="ftr-estadisticas.js" defer></script>
+<link rel="stylesheet" href="ftr-navegacion.css">
 </head>
 <body>
   <header class="site-header">
-    <div class="header-inner">
-      <div class="brand"><i class="fa-solid fa-bus-simple" aria-hidden="true"></i><div><div class="brand-title">Parque Móvil FTR</div><p>Sistema de Fiscalización de Transporte</p></div></div>
-      <button id="themeButton" class="theme-button" type="button" aria-label="Cambiar a modo oscuro"><i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i><span id="themeText">Oscuro</span></button>
+    <div class="header-inner ftr-header-row">
+      <a href="index.html" class="brand ftr-brand" aria-label="Parque Móvil FTR — Inicio"><i class="fa-solid fa-bus-simple" aria-hidden="true"></i><div><div class="brand-title">Parque Móvil FTR</div><p>Sistema de Fiscalización de Transporte</p></div></a>
+      <div class="ftr-header-actions"><a href="estadisticas.html" class="ftr-statistics-link" aria-current="page">ESTADÍSTICAS</a><button id="themeButton" class="theme-button" type="button" aria-label="Cambiar a modo oscuro"><i id="themeIcon" class="fa-solid fa-moon" aria-hidden="true"></i><span id="themeText">Oscuro</span></button></div>
     </div>
   </header>
   <main id="statistics" data-status="loading">
     <div class="page-heading"><div><p class="eyebrow">FISCALIZACIÓN DE TRANSPORTE</p><h1>ESTADÍSTICAS</h1><p class="subtitle">Resultados de las fiscalizaciones realizadas durante el período.</p></div><div class="period-badge"><label for="periodSelect">PERÍODO</label><select id="periodSelect" aria-label="Período estadístico" disabled><option>—</option></select></div></div>
-    <div class="reading-meta"><p>Última lectura válida: <time id="lastRead">—</time></p><span id="availability" class="availability" role="status">Verificando datos…</span></div>
+    <div class="reading-meta"><p>Lectura del período seleccionado: <time id="lastRead">—</time></p><span id="availability" class="availability" role="status">Verificando datos…</span></div>
     <p id="loadError" class="notice" hidden></p>
     <p id="historicalNote" class="section-note historical-note" hidden></p>
     <noscript><p class="notice">Activá JavaScript para consultar las estadísticas y sus gráficos.</p></noscript>
@@ -60,6 +61,7 @@
       <p id="mechanicsCoverage" class="section-note"></p>
       <div class="mechanics-layout"><div><p class="subheading">TOCÁ UNA CATEGORÍA</p><div id="categories" class="category-list" role="group" aria-label="Categorías mecánicas"></div></div><div id="componentPanel" class="component-panel" role="region" aria-labelledby="componentTitle" aria-live="polite"><p class="subheading">DETALLE DE LA CATEGORÍA SELECCIONADA</p><h3 id="componentTitle">DIRECCIÓN</h3><div id="components" class="component-grid"></div><p id="componentNote" class="section-note"></p></div></div>
     </section>
+    <div class="source-dates" aria-label="Actualizaciones de las fuentes operativas actuales"><p>FUENTES OPERATIVAS ACTUALES · ARGENTINA</p><p id="fechaParque">PARQUE MÓVIL — Última actualización: no disponible.</p><p id="fechaControlados">VEHÍCULOS CONTROLADOS — Última actualización: no disponible.</p><p>Estas fechas corresponden a las fuentes actuales. La lectura del período seleccionado se indica al comienzo.</p></div>
   </main>
   <footer>Parque Móvil FTR <span id="footerPeriod"></span></footer>
 </body>

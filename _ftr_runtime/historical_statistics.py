@@ -47,6 +47,7 @@ def build(sheets, period, source_id, read_utc, dictionary, *, allow_partial=Fals
     data['origen']='importacion_historica'
     data['calidad']={'parcial':bool(excluded),'registros_excluidos':excluded}
     stats.validate(data)
+    unknown['revision_mecanica']['estadisticas']=json.loads(json.dumps(data))
     detail['novedades_sin_clasificar']=unknown
     detail['historico']=True
     return data,report,detail

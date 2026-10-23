@@ -1,0 +1,94 @@
+FTR ADMINISTRACIÓN 06.3.6 — NAVEGACIÓN Y REVISIÓN MECÁNICA
+
+Alcance
+Encabezado público, fechas operativas y revisión privada de menciones.
+No se ejecutan bots como parte de la instalación. No cambian horarios, fuentes,
+líneas habilitadas, controles, parques ni resultados formales.
+
+Tensores
+La documentación de ZF/LEMFÖRDER describe los torque rods como enlaces que guían
+el eje respecto del bastidor. Corresponden a suspensión. ZF/TRW distingue esas
+piezas de las barras que transmiten el movimiento de dirección.
+Fuentes oficiales consultadas el 22/10/2026 (Argentina):
+https://aftermarket.zf.com/en/aftermarket-portal/our-portfolio/trucks-trailers-buses/products/steering-chassis-parts/
+https://aftermarket.zf.com/en/aftermarket-portal/our-brands/trw/trw-cv-linkage-and-suspension/
+Conclusión: tensor delantero, trasero o de posicionamiento queda en Suspensión.
+Una denominación inequívoca de barra larga/corta se clasifica por ese componente.
+«Tensor de dirección», sin precisar una barra, permanece pendiente. No se deduce
+su función por forma, tamaño ni posición delantera. La convivencia de términos
+en una observación no demuestra que sean equivalentes. No se recalcúla un
+histórico automáticamente. El motor nuevo está versionado como 3; sigue leyendo
+archivos públicos de los motores 1 y 2.
+
+Uso
+1. En ESTADÍSTICAS, pulsar Consultar GitHub y elegir el período de anomalías.
+   Los bloques administrativos anteriores siguen disponibles.
+2. Pulsar OTRAS / SIN CLASIFICAR. Se agrupa por año y expresión normalizada
+   (mayúsculas y acentos equivalentes), conservando variantes originales.
+   Se ordena por frecuencia. Hay búsqueda y filtro por resultado formal.
+3. Abrir una expresión y Ver registros originales. Cada aparición conserva
+   fecha, línea, dominio, interno, pestaña, fila, NOVEDADES y ESTADO original.
+   Se muestran veinte registros por vez; Ver más permite consultar todos.
+4. Asignar clasificación propone una regla general del único diccionario.
+   Confirmar interpretación y consultar la vista previa antes de guardar.
+   El motor analiza todos los registros completos, aplica contexto, negaciones,
+   ubicaciones y deduplicación. Las apariciones no se restan aritméticamente.
+5. CANCELAR no escribe reglas ni envía órdenes. Confirmar guarda la orden
+   persistente del panel y requiere la versión esperada del diccionario.
+6. Para el año activo, la nueva regla se aplicará en la próxima lectura automática
+   válida de Drive. Guardar la regla no significa que la web ya cambió.
+   Consultar GitHub informa qué diccionario usó el período y verifica los bytes
+   servidos por Pages antes de confirmar su publicación.
+
+Informes anteriores
+Los informes 06.3.5 conservaban textos pendientes y referencias, pero no todos
+los campos ni todos los registros necesarios para una vista previa completa.
+Se muestran los datos existentes y se identifica lo que no fue conservado.
+Una vista previa incompleta se bloquea, sin simular cifras. Para el período
+activo, abrir el informe de la próxima lectura automática con esta versión.
+Para un año cerrado, Preparar informe histórico solicita expresamente una
+lectura exclusiva de la fuente indicada. No publica ni consulta CNRT.
+La descarga del informe usa la autorización y llave existentes; el detalle
+permanece cifrado en GitHub y protegido con DPAPI en Windows.
+
+Revisión de un año cerrado
+Preparar informe histórico, esperar su finalización y abrir el informe protegido.
+Después de guardar las equivalencias, consultar otra vez GitHub y pulsar Revisar
+recálculo histórico. La vista previa usa el diccionario guardado. Confirmar
+recálculo autoriza exclusivamente esa fuente histórica. El proceso exige que
+las huellas de registros y resultados coincidan con la vista previa y que
+controles, vehículos, fechas y resultados formales permanezcan iguales.
+Una fuente cambiada, un período distinto o un diccionario desactualizado detienen
+la operación. No se modifican las cifras manualmente.
+Publicación: un commit incluye anual, índice, hashes y evidencia de revisión.
+La copia exacta anterior y los metadatos de cambio quedan en
+estadisticas/revisiones/AÑO/. Esos archivos contienen solo agregados.
+La fecha de lectura original del archivo se conserva; la evidencia guarda la
+fecha de recálculo y revisión del diccionario. Git conserva el historial y
+permite revertir el conjunto coherente mediante una revisión del repositorio.
+Un fallo de publicación conserva la copia anterior y se informa como fallo;
+nunca se presenta la regla guardada como publicación exitosa.
+
+Límites deliberados
+Clasificación individual NO habilitada. Una regla general no se presenta como
+corrección de una sola aparición. Si hay significados contradictorios, conservar
+el pendiente hasta contar con un mecanismo de excepciones por registro auditado.
+Las frases nuevas admiten hasta cinco palabras de un vocabulario técnico
+restringido, sin regex, datos individuales, frases libres ni términos demasiado
+generales. Reglas superpuestas o ya cubiertas por el motor se rechazan.
+El mismo diccionario se administra también desde PLANILLA Y PERÍODO.
+
+Web
+ESTADÍSTICAS aparece junto al modo de color. Nombre/logo vuelve a index.html
+en las tres páginas. La página de línea conserva su título de línea.
+Las fechas operativas usan los TXT reales verificados por sus hashes, en horario
+argentino. Se distinguen de la lectura del período estadístico seleccionado.
+No se publican las observaciones ni herramientas administrativas.
+
+Pruebas
+Fuentes ficticias: contexto, tensores, duplicados, conflictos, estados, períodos,
+huellas, sesión, CSRF, cancelación, protección, copia anterior y archivo anual.
+Navegador: tres páginas, 320/390/430/768/1280/1440, ambos temas, teclado y fechas.
+Administrador: ocho pantallas existentes, explorador privado, vista previa,
+cancelación y cola real con servicios ficticios. Windows: paquete completo,
+ejecutable compilado y comprobación de arranque, sesión, cola y UI.

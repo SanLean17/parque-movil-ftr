@@ -67,6 +67,7 @@
         rel="stylesheet"
     >
 
+<link rel="stylesheet" href="ftr-navegacion.css">
 </head>
 
 
@@ -80,11 +81,11 @@
 >
 
     <div
-        class="max-w-7xl mx-auto flex items-center justify-between"
+        class="max-w-7xl mx-auto flex items-center justify-between ftr-header-row"
     >
 
-        <div
-            class="flex items-center space-x-2"
+        <a href="index.html" aria-label="Parque Móvil FTR — Inicio"
+            class="flex items-center space-x-2 ftr-brand"
         >
 
             <i
@@ -107,11 +108,11 @@
 
             </div>
 
-        </div>
+        </a>
 
 
-        <button
-            onclick="toggleDarkMode()"
+        <div class="ftr-header-actions"><a href="estadisticas.html" class="ftr-statistics-link">ESTADÍSTICAS</a><button
+            onclick="toggleDarkMode()" aria-label="Cambiar modo claro u oscuro"
             class="bg-blue-800 dark:bg-slate-800 text-yellow-300 dark:text-yellow-400 p-1.5 sm:px-2.5 rounded-lg border border-blue-700 dark:border-slate-700 hover:bg-blue-700 dark:hover:bg-slate-700 transition text-xs font-bold flex items-center space-x-1"
         >
 
@@ -127,7 +128,7 @@
                 Oscuro
             </span>
 
-        </button>
+        </button></div>
 
     </div>
 

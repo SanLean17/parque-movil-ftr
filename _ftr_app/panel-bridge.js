@@ -9,7 +9,7 @@
   let publishedOneoffs=null;
   const editingOneoff={drive:false,cnrt:false};
   const openStates = ['pending', 'authorization', 'sending', 'unknown', 'sent', 'conflict'];
-  const captions = {'dictionary-save':'Guardar diccionario técnico','history-import':'Importar estadísticas históricas',config:'Guardar y publicar configuración', diagnostic:'Probar lectura sin publicar',
+  const captions = {'dictionary-save':'Guardar diccionario técnico','history-import':'Importar estadísticas históricas','history-review':'Preparar informe histórico','history-recalculate':'Recalcular histórico autorizado',config:'Guardar y publicar configuración', diagnostic:'Probar lectura sin publicar',
     drive:'Actualizar planilla anual FTR', cnrt:'Actualizar parque móvil', all:'Actualizar ambos procesos',
     'oneoff-set':'Programar actualización única','oneoff-cancel':'Cancelar actualización programada'};
   async function api(path, body) {

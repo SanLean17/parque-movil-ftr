@@ -44,6 +44,10 @@ def analyze(value, custom=None):
         if NEGATION.search(clause) or UNCERTAIN.search(clause):
             unknown.append(raw)
             continue
+        # «Tensor de dirección» no identifica por sí solo una barra concreta.
+        if re.search(r'\btensores?\b|\btensor\b',clause) and 'direccion' in clause and not re.search(r'\bbarras?\s+(?:largas?|cortas?)\b',clause):
+            unknown.append(raw)
+            continue
         matches=list(PATTERN.finditer(clause))
         if custom_pattern:
             matches.extend(m for m in custom_pattern.finditer(clause) if not any(m.start()<b.end() and m.end()>b.start() for b in matches))
@@ -51,6 +55,10 @@ def analyze(value, custom=None):
         remainder=list(raw)
         for i, match in enumerate(matches):
             component=custom_rows[int(match.lastgroup[6:])]['componente'] if match.lastgroup.startswith('custom') else RULES[int(match.lastgroup[4:])][0]
+            if match.lastgroup.startswith('custom'):
+                category=OWNER[component]
+                explicit={k for k,p in (('direccion',r'\bdireccion\b'),('suspension',r'\bsuspension\b'),('transmision',r'\btransmision\b')) if re.search(p,clause)}
+                if len(explicit)>1 or explicit and category not in explicit:continue
             end=matches[i+1].start() if i+1<len(matches) else len(clause)
             prefix=clause[:match.start()] if i==0 else ''
             suffix=clause[match.end():end]

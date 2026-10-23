@@ -144,6 +144,7 @@ def source_rows(sheets, include_novedades=False):
                        'fecha': base.parse_date(values.get('fecha'), sheet.epoch1904),
                        'dominio': base.plate(values.get('dominio')), 'interno': internal(values.get('interno')),
                        'estado': base.norm(sheet.get(row, state_col)) if state_col else '',
+                       'estado_original': base.text(sheet.get(row, state_col)) if state_col else '',
                        'tiene_estado': state_col is not None,
                        'encabezado_fila': block['row'],
                        'conflicto_titulo': bool(by_row and expected and number not in expected)}

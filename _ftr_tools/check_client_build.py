@@ -49,7 +49,7 @@ def main():
                 config=load(ROOT)
                 def bootstrap(route):
                     response=route.fetch();value=response.json()
-                    assert value['version']=='06.3.5' and not value['connected']
+                    assert value['version']=='06.3.6' and not value['connected']
                     value['remote']={'config':config,'digest':digest(config),'state':{},'oneoffs':{'version':1,'pending':{},'history':[]}}
                     route.fulfill(response=response,json=value)
                 page.route('**/api/bootstrap',bootstrap)
@@ -62,7 +62,7 @@ def main():
                       const r=await fetch(path,{method:payload?'POST':'GET',headers:{'Content-Type':'application/json', 'X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content},body:payload?JSON.stringify(payload):undefined});
                       return {status:r.status,data:await r.json()};
                     }''',dict(path=path,payload=payload))
-                assert api('/api/bootstrap')['data']['version']=='06.3.5'
+                assert api('/api/bootstrap')['data']['version']=='06.3.6'
                 assert page.evaluate("fetch('/api/orders').then(r=>r.status)")==403
                 order=api('/api/submit',dict(action='drive',expected=digest(config)))
                 assert order['status']==200 and order['data']['queued']
@@ -81,8 +81,9 @@ def main():
                 check_oneoff_ui(page)
                 from recovery_browser_checks import check_recovery_ui
                 check_recovery_ui(page)
-                from statistics_browser_checks import check_statistics_admin
+                from statistics_browser_checks import check_statistics_admin,check_mechanical_review
                 check_statistics_admin(page)
+                check_mechanical_review(page)
                 assert all(host.startswith('127.0.0.1:') for host in requests)
                 page.evaluate("showView('connections')")
                 page.locator('#quitPanel').click();page.locator('#dialogConfirm').click()
@@ -90,7 +91,7 @@ def main():
                 context.close();browser.close()
             process.wait(timeout=10)
             assert process.returncode==0
-            print('Paquete completo 06.3.5 Windows: integridad, inicio, UI, sesión, cola, doble envío, cancelación visible y cierre OK. Sin fuentes reales.')
+            print('Paquete completo 06.3.6 Windows: integridad, inicio, UI, sesión, cola, doble envío, cancelación visible y cierre OK. Sin fuentes reales.')
         finally:
             if process and process.poll() is None:
                 process.terminate();process.wait(timeout=10)

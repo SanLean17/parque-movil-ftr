@@ -40,6 +40,9 @@ Los extremos de barra se agrupan en un componente; LADO PITMAN no agrega un
 hallazgo del brazo Pitman. TENSOR ISK y TENSOR DER MONIO DEL son tensores de
 suspensión. MOÑO/MONIO se absorben únicamente asociados a un tensor. TENSOR DE
 DIRECCIÓN sigue siendo ambiguo. Un descriptor aislado nunca se descarta.
+Las ubicaciones compuestas se normalizan sin depender del orden de escritura.
+La posición de MOÑO/MONIO describe el extremo y no se convierte en otra unidad
+ni permite deducir el eje del tensor: TENSOR DER MONIO DEL es un tensor derecho.
 
 Flexibles y pérdidas
 ZONA MEDIA pertenece al flexible identificado. Un flexible de combustible,

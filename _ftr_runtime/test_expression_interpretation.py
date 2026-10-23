@@ -2,6 +2,7 @@
 import copy
 import json
 import unittest
+from itertools import permutations
 from datetime import date
 from _ftr_runtime import anomalies as engine, dictionary_rules as rules, public_statistics as stats, mechanical_review
 from _ftr_runtime.test_public_statistics import StatisticsPipelineTests
@@ -73,6 +74,16 @@ class ExpressionTests(unittest.TestCase):
         self.assertEqual(result['hallazgos'][0]['ubicacion'],'sin_ubicacion')
 
     def test_bars_and_tensor_context(self):
+        for order in permutations(('SUP','DER','DEL')):
+            with self.subTest(order=order):self.check('TENSOR '+' '.join(order),['tensores'])
+        self.check('; '.join('TENSOR '+' '.join(order) for order in permutations(('SUP','DER','DEL'))),['tensores'])
+        self.check('TENSOR SUPERIORES; TENSOR SUP',['tensores'])
+        for text,position in (('TENSOR TRAS MONIO DEL','trasero'),('TENSOR DER MONIO DEL','derecho'),
+                              ('TENSOR SUP MOÑO TRASERO','superior'),('TENSOR DEL DER DEL','delantero derecho'),
+                              ('TENSOR DE POSICIONAMIENTO DEL EJE','sin_ubicacion')):
+            with self.subTest(text=text):
+                result=self.check(text,['tensores'])
+                self.assertEqual(result['hallazgos'][0]['ubicacion'],position)
         for text in ('Barra corta tras.','Barra corta delantero','Barra corta lado Pitman','Barra corta lado eje','Barra corta entera','Juego barra corta'):
             with self.subTest(text=text):self.check(text,['barra_corta'])
         for text in ('Barra larga derecha','Barra larga izquierda','Barra larga lado rueda'):

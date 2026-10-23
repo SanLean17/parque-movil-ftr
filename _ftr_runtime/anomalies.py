@@ -31,13 +31,14 @@ def fold(value):
 
 
 def canonical(location):
-    names={'der':'derecho','izq':'izquierdo','isk':'izquierdo','del':'delantero','tras':'trasero','sup':'superior'}
+    names={'der':'derecho','izq':'izquierdo','isk':'izquierdo','del':'delantero','tras':'trasero','sup':'superior','superiores':'superior','inferiores':'inferior'}
     words=[]
     for word in location.split():
         for stem in ('delanter','traser','derech','izquierd'):
             word=re.sub('^'+stem+r'[oa]s?$',stem+'o',word)
         words.append(names.get(word,word))
-    return ' '.join(words).replace('lado ','')
+    order={'delantero':0,'trasero':0,'derecho':1,'izquierdo':1,'superior':2,'inferior':2}
+    return ' '.join(sorted(dict.fromkeys(words),key=lambda w:order.get(w,3))).replace('lado ','')
 
 
 def clauses(original):
@@ -85,9 +86,10 @@ def locations(text):
             axis=word
             if result and not result[-1].startswith(('delantero','trasero')):
                 result[-1]=word+' '+result[-1]
+            elif result and result[-1].startswith(word):continue
             else:result.append(word)
         elif word in ('derecho','izquierdo') and axis:
-            if result and result[-1]==axis:result[-1]=axis+' '+word
+            if result and result[-1].startswith(axis) and not re.search(r'\b(?:derecho|izquierdo)\b',result[-1]):result[-1]+=' '+word
             else:result.append(axis+' '+word)
         elif word in ('superior','inferior') and result:result[-1]+=' '+word
         elif word in ('derecho','izquierdo') and result and result[-1] in ('superior','inferior'):result[-1]+=' '+word
@@ -95,9 +97,13 @@ def locations(text):
     return result or ['sin_ubicacion']
 
 
-def location_descriptors(text, tokens, prefix=False):
+def location_descriptors(text, tokens, prefix=False, component=None):
     result=[]
     for token in tokens:
+        # La ubicación del moño es la del extremo del tensor; no identifica
+        # otro tensor ni permite deducir el eje donde está montado.
+        if component=='tensores' and token.group() in ('mono','monio'):break
+        if not re.fullmatch(LOCATION,token.group()):continue
         # DEL también es una preposición. No convertir "del motor" en
         # delantero, ni "juego del amortiguador" en una ubicación.
         if token.group()=='del':
@@ -168,7 +174,7 @@ def analyze(value, custom=None):
             # DEL dentro de "pulmón del freno" es una preposición. Solo las
             # posiciones explícitas completas pueden venir dentro del nombre.
             internal=' '.join(p.group() for p in POSITION.finditer(match.group()) if len(p.group())>3)
-            selected_locations=locations(location_descriptors(prefix,before,True)+' '+internal+' '+location_descriptors(suffix,after))
+            selected_locations=locations(location_descriptors(prefix,before,True,component)+' '+internal+' '+location_descriptors(suffix,after,component=component))
             if component in ('direccion_sin_componente','suspension_sin_componente','transmision_sin_componente','electrico_sin_componente') and not DEFECT.search(attached):
                 # "dirección del domicilio" no usa DEL como ubicación técnica.
                 if suffix[(after[-1].end() if after else 0):].strip(' .:()'):continue

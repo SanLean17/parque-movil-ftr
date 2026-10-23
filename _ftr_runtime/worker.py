@@ -50,6 +50,9 @@ def plan():
     mode = os.environ.get('FTR_ACTION', 'scheduled')
     proposed = os.environ.get('FTR_CONFIG', '')
     config = clean_config(json.loads(proposed)) if proposed and mode in ('config', 'diagnostic') else old
+    if mode=='config':
+        from _ftr_runtime.config import validate_source_change
+        validate_source_change(old,config)
     expected = os.environ.get('FTR_EXPECTED', '')
     if (mode == 'config' or expected) and expected != digest(old):
         raise ValueError('La configuración cambió desde otra computadora. Recargá y revisá el borrador antes de publicar.')
@@ -78,6 +81,9 @@ def google_snapshot(root, config):
         raise ValueError(str(exc)) from None
     today = now().astimezone(statistics.ZoneInfo('America/Argentina/Buenos_Aires')).date()
     events = list(admin.source_rows(sheets, include_novedades=True))
+    dates=[e['fecha'] for e in events if e.get('fecha')]
+    if dates and not any(d.year==config['period'] for d in dates):
+        raise ValueError('La planilla contiene fechas de otro período; no se interpreta como un año vacío válido.')
     report, records = base.analyze(sheets, enabled(config), config['period'], today=today)
     base.add_comparison(report, records, root)
     detail = admin.extend_report(report, sheets, root, enabled(config), source_id, start, today=today, source_events=events)
@@ -85,10 +91,10 @@ def google_snapshot(root, config):
     report.update(inicio_lectura_utc=start, fin_prueba_utc=utc(), revision_repositorio=os.environ.get('GITHUB_SHA', 'local'))
     report['fecha_parque_comparado_utc'] = (root/'ultima_actualizacion_parque.txt').read_text().strip() if (root/'ultima_actualizacion_parque.txt').exists() else None
     detail.update(detectado_utc=start, revision_repositorio=report['revision_repositorio'])
-    from _ftr_runtime import public_statistics
+    from _ftr_runtime import public_statistics, dictionary_rules
     public_stats = None
     if report['listo_para_revision_de_integracion']:
-        public_stats, unidentified = public_statistics.build(report, events, config, start)
+        public_stats, unidentified = public_statistics.build(report, events, config, start, dictionary=dictionary_rules.load(ROOT))
         detail['novedades_sin_clasificar'] = unidentified
     if ROOT == REPORT_DIR or ROOT in REPORT_DIR.parents:
         raise ValueError('El informe privado no puede guardarse dentro del repositorio.')

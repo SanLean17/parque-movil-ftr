@@ -5,7 +5,7 @@
 <meta name="ftr-csrf" content="__FTR_CSRF__">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Administración FTR 06.3.4</title>
+<title>Administración FTR 06.3.5</title>
 <style>
 :root{color-scheme:light;
  --primary:#2256b4;--on-primary:#fff;--accent:#2a91c2;--bg:#f2f5fa;--surface:#fff;--surface-2:#edf3fb;--text:#172a44;--muted:#51657e;--line:#d5dfe9;--soft-primary:#e4edff;
@@ -188,7 +188,27 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 
   <section data-page="source" hidden>
    <div class="hero"><p class="kicker">Configuración de la fuente</p><h1>Planilla y período</h1><p class="lead">Pegá el enlace del archivo anual. Sus pestañas individuales y compartidas se leerán sin modificar tu hoja de trabajo.</p></div>
-   <form id="sourceForm" class="panel"><div class="panel-head"><div><h2>Fuente de fiscalizaciones</h2><p>Cambiar la fuente no modifica el parque oficial de CNRT.</p></div><span class="badge">BORRADOR LOCAL</span></div><div class="forms"><div class="field"><label for="period">Período de trabajo</label><input id="period" type="number" min="2000" max="2100" step="1" required value="2026"><p class="help">El historial anterior permanece en tus hojas de Google.</p></div><div class="field"><label for="sheetUrl">Enlace de Google Sheets</label><input id="sheetUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."><p class="help">El enlace identifica el archivo completo, no solamente la pestaña abierta.</p><p class="permission-help"><strong>Importante al cambiar de planilla:</strong> compartí el nuevo archivo como <strong>Lector</strong> con el correo del bot que figura abajo, salvo que ya tenga acceso heredado. Pegar el enlace no otorga permisos. No hace falta hacerlo público ni darle edición.</p><p class="mono" id="botEmail"></p><button class="text-btn" id="copyBotEmail" type="button">Copiar correo del bot</button><p class="error" id="urlError" hidden></p></div></div><div class="actions" style="margin-top:24px"><button class="btn secondary" type="button" id="checkUrl">Comprobar enlace</button><button class="btn secondary" type="button" id="testSheet">Probar lectura</button><span class="small" id="urlStatus">Solo comprueba que el enlace tenga formato de Google Sheets. No consulta permisos ni lee datos.</span></div><hr class="rule"><div class="inline-note"><strong>Cambiar enlace reemplaza los controles activos.</strong><p>Si la nueva hoja está correctamente estructurada y vacía, empezará en cero. Si no se puede leer o faltan columnas, se conservará lo publicado y se informará el error.</p></div><div class="actions end"><button class="btn" type="submit">Guardar y activar planilla</button></div></form>
+   <form id="sourceForm" class="panel"><div class="panel-head"><div><h2>Fuente de fiscalizaciones</h2><p>Cambiar la fuente no modifica el parque oficial de CNRT.</p></div><span class="badge">BORRADOR LOCAL</span></div><div class="forms"><div class="field"><label for="period">Período de trabajo</label><input id="period" type="number" min="2000" max="2100" step="1" required value="2026"><p class="help">Los años archivados permanecen disponibles en Estadísticas.</p></div><div class="field"><label for="sheetUrl">Enlace de Google Sheets</label><input id="sheetUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."><p class="help">El enlace identifica el archivo completo, no solamente la pestaña abierta.</p><p class="permission-help"><strong>Importante al cambiar de planilla:</strong> compartí el nuevo archivo como <strong>Lector</strong> con el correo del bot que figura abajo, salvo que ya tenga acceso heredado. Pegar el enlace no otorga permisos. No hace falta hacerlo público ni darle edición.</p><p class="mono" id="botEmail"></p><button class="text-btn" id="copyBotEmail" type="button">Copiar correo del bot</button><p class="error" id="urlError" hidden></p></div></div><div class="actions" style="margin-top:24px"><button class="btn secondary" type="button" id="checkUrl">Comprobar enlace</button><button class="btn secondary" type="button" id="testSheet">Probar lectura</button><span class="small" id="urlStatus">Solo comprueba que el enlace tenga formato de Google Sheets. No consulta permisos ni lee datos.</span></div><hr class="rule"><div class="inline-note"><strong>Cambiar enlace reemplaza los controles activos.</strong><p>Si la nueva hoja está correctamente estructurada y vacía, empezará en cero. Si no se puede leer o faltan columnas, se conservará lo publicado y se informará el error.</p></div><div class="actions end"><button class="btn" type="submit">Guardar y activar planilla</button></div></form>
+   <details class="panel" id="technicalDictionary"><summary><strong>DICCIONARIO TÉCNICO</strong></summary>
+    <p class="small">Equivalencias compartidas entre tus equipos. Las observaciones originales se consultan solo en este programa.</p>
+    <button class="btn secondary" type="button" id="technicalRefresh">Consultar GitHub</button><p id="technicalStatus" class="inline-note" aria-live="polite"></p>
+    <h3>Expresiones pendientes</h3><div id="technicalPending"></div>
+    <form id="technicalForm"><h3 id="technicalSelection">Nueva equivalencia</h3><div class="forms">
+    <div class="field"><label for="technicalExpression">Abreviatura o término técnico general</label><input id="technicalExpression" maxlength="24" required autocomplete="off"><p class="help">Una palabra o código breve. No pegues frases, dominios, nombres ni números de fila.</p></div>
+    <div class="field"><label for="technicalCategory">Categoría</label><select id="technicalCategory" required></select></div>
+    <div class="field"><label for="technicalComponent">Componente</label><select id="technicalComponent" required></select></div></div>
+    <p><label><input type="checkbox" id="technicalEnabled" checked> Regla habilitada</label></p>
+    <p class="small"><label><input type="checkbox" id="technicalPublic" required> Confirmo que la equivalencia es general y puede guardarse en el repositorio, sin información privada.</label></p>
+    <div class="actions"><button class="btn" id="technicalSave" type="submit">GUARDAR CLASIFICACIÓN</button><button class="btn secondary" id="technicalDiscard" type="button">DEJAR SIN CLASIFICAR</button></div></form>
+    <h3>Reglas confirmadas</h3><div id="technicalRules"></div>
+   </details>
+   <details class="panel" id="historicalImporter"><summary><strong>IMPORTAR ESTADÍSTICAS HISTÓRICAS</strong></summary>
+    <p class="small">Importa un año cerrado desde una fuente independiente. Conserva el período activo, los parques y las programaciones.</p><p id="historyAvailable" class="inline-note"></p>
+    <form id="historicalForm"><div class="forms"><div class="field"><label for="historicalPeriod">Año histórico</label><input id="historicalPeriod" type="number" min="2000" max="2100" value="2025" required></div><div class="field"><label for="historicalUrl">Planilla histórica de Google Sheets</label><input id="historicalUrl" type="url" required placeholder="https://docs.google.com/spreadsheets/d/..."></div></div>
+    <p class="help">La cuenta lectora del bot debe tener permiso de lectura sobre esta planilla.</p>
+    <p class="small"><label><input type="checkbox" id="historicalPartial">Autorizar excluir registros inválidos y mostrar el histórico como parcial.</label></p>
+    <button class="btn" type="submit">IMPORTAR AÑO HISTÓRICO</button></form><div id="historicalRuns"></div>
+   </details>
    <div class="panel"><div class="panel-head"><div><h2>Estructura esperada</h2><p>Formatos que el lector reconoce en las pestañas individuales y compartidas.</p></div></div><div class="steps"><div class="step"><span class="step-number">1</span><div><h3>Pestaña de una línea</h3><p>La línea viene del encabezado o nombre de la pestaña. Se buscan FECHA, DOMINIO e INTERNO por nombre, no por posición fija.</p></div></div><div class="step"><span class="step-number">2</span><div><h3>Pestaña compartida</h3><p>La columna LÍNEA de cada fila decide el destino. Un control de la 119 no se copia a todas las líneas del título.</p></div></div><div class="step"><span class="step-number">3</span><div><h3>Vista previa antes de activar</h3><p>Se mostrarán pestañas leídas, unidades únicas por línea y filas con problemas. “Tablero de Control” no se contará por segunda vez.</p></div></div></div></div>
   </section>
 
@@ -216,7 +236,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 <div class="panel"><h2>Borrador local</h2><p>Restablecer conserva el tema visual y no borra datos de Google o GitHub.</p><button class="btn danger" id="resetDemo">Restablecer borrador local</button><button class="btn secondary" id="quitPanel">Salir del programa</button></div>
 </section>
   <div class="changed"><svg><use href="#i-info"/></svg><span id="savedState">Borrador de referencia. Sin publicar.</span><div class="actions"><button class="btn secondary" id="saveAll">Guardar borrador local</button></div></div>
-  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.4</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
+  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.5</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
  </main>
 </div>
 <dialog class="dialog" id="confirmDialog" aria-labelledby="dialogTitle"><h2 id="dialogTitle"></h2><p id="dialogText"></p><div class="actions"><button class="btn neutral" id="dialogCancel" autofocus>Cancelar</button><button class="btn" id="dialogConfirm">Confirmar</button></div></dialog>
@@ -349,7 +369,7 @@ renderDiagnostic();showView('diagnostic');
 // Panel local. Datos recibidos de la última prueba: no modifica Drive ni GitHub.
 let adminDetails=JSON.parse(document.getElementById('ftrPrivateReport').textContent);
 let incidentCategory='error', incidentLimit=30, statisticsMode='cobertura';
-const CODE_LABELS={DOMINIO_INVALIDO:'Dominio para corregir',FECHA_INVALIDA:'Fecha para corregir',FECHA_FUTURA:'Fecha futura',LINEA_AUSENTE:'Falta la línea',INTERNO_AUSENTE:'Falta el interno',LINEA_DIFIERE_TITULO:'Línea distinta del título',NO_EN_PARQUE:'No encontrado en el parque',INTERNO_DIFIERE:'Interno diferente en el parque',LINEA_NO_HABILITADA:'Línea no habilitada',OTRO_PERIODO:'Registro de otro año'};
+const CODE_LABELS={CONTROL_SIN_ESTADO:'CONTROL SIN ESTADO',COLUMNA_ESTADO_AUSENTE:'Falta la columna ESTADO',DOMINIO_INVALIDO:'Dominio para corregir',FECHA_INVALIDA:'Fecha para corregir',FECHA_FUTURA:'Fecha futura',LINEA_AUSENTE:'Falta la línea',INTERNO_AUSENTE:'Falta el interno',LINEA_DIFIERE_TITULO:'Línea distinta del título',NO_EN_PARQUE:'No encontrado en el parque',INTERNO_DIFIERE:'Interno diferente en el parque',LINEA_NO_HABILITADA:'Línea no habilitada',OTRO_PERIODO:'Registro de otro año'};
 const CATEGORY_LABELS={error:'ERROR DE CARGA',advertencia:'REVISAR ASIGNACIÓN',informacion:'INFORMACIÓN'};
 const el=(tag,txt,cls)=>{const x=document.createElement(tag);if(txt!==undefined)x.textContent=txt;if(cls)x.className=cls;return x};
 const localTime=value=>{const d=new Date(value);return Number.isNaN(d.getTime())?'Sin fecha':new Intl.DateTimeFormat('es-AR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Argentina/Buenos_Aires'}).format(d)+' hs'};
@@ -446,4 +466,5 @@ renderDiagnostic();showView('incidents');
 <script src="/ftr-historial.js"></script>
 <script src="/panel-history.js"></script>
 <script src="/panel-bridge.js"></script>
+<script src="/panel-statistics-admin.js"></script>
 </body></html>

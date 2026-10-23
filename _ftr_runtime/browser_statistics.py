@@ -90,6 +90,13 @@ def main():
                     boxes=page.locator('.metric').evaluate_all('ns=>ns.map(n=>{let r=n.getBoundingClientRect();return {x:r.x,y:r.y}})')
                     if width<640:assert boxes[0]['y']==boxes[1]['y'] and boxes[2]['y']>boxes[0]['y']
                     assert page.locator('.metric-value').first.evaluate('(n)=>parseFloat(getComputedStyle(n).fontSize)')>=36
+                    accents=page.locator('.metric,.highlight').evaluate_all('ns=>ns.map(n=>{const s=getComputedStyle(n),p=getComputedStyle(n,"::before");return {height:parseFloat(s.borderTopWidth)+parseFloat(p.height),border:s.borderTopColor,accent:p.backgroundColor}})')
+                    assert all(a['height']==5 and a['border']==a['accent'] for a in accents),accents
+                    text=page.locator('body').inner_text()
+                    assert 'FUERA DE SERVICIO POR LÍNEA' in text
+                    assert 'Resultados históricos por línea.' in text
+                    assert 'Ranking principal:' not in text and 'controles sin estado' not in text
+                    assert 'lectura automática válida con NOVEDADES' not in text
                     categories=page.locator('#categories').bounding_box();detail=page.locator('#componentPanel').bounding_box()
                     assert detail['y']>=categories['y']+categories['height'], 'el detalle debe estar debajo'
                     values=page.locator('.metric-value').evaluate_all('ns=>ns.map(n=>n.getBoundingClientRect().top)')

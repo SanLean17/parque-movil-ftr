@@ -30,15 +30,16 @@
     if (!index || index.version!==1 || !Array.isArray(index.periodos) || !index.periodos.length) bad();
     let previous=Infinity;
     for (const r of index.periodos) {
-      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2].includes(r.version) || ![1,2].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
+      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3].includes(r.version) || ![1,2].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
       previous=r.periodo;
     }
     return index;
   }
   function validate(data, reference) {
     const bad = () => {throw Error('Las estadísticas no corresponden a una versión completa del período.');};
-    if (!data || ![1,2].includes(data.version) || data.version!==reference.version || data.periodo!==reference.periodo || !Array.isArray(data.lineas) || !Array.isArray(data.mensual) || !data.totales || !data.anomalias || !data.destacados || !Array.isArray(data.proporciones)) bad();
+    if (!data || ![1,2,3].includes(data.version) || data.version!==reference.version || data.periodo!==reference.periodo || !Array.isArray(data.lineas) || !Array.isArray(data.mensual) || !data.totales || !data.anomalias || !data.destacados || !Array.isArray(data.proporciones)) bad();
     if (JSON.stringify(data.lineas.map(r=>r.linea))!==JSON.stringify(reference.lineas) || data.lectura_planilla_utc!==reference.lectura_planilla_utc || !Number.isFinite(Date.parse(data.lectura_planilla_utc)) || !/^\d{4}-\d{2}-\d{2}$/.test(data.corte_fecha)) bad();
+    if(data.version===3 && (!data.interpretacion || !integer(data.interpretacion.revision) || !data.interpretacion.revision || !/^[a-f0-9]{64}$/.test(data.interpretacion.sha256) || !data.calidad || typeof data.calidad.parcial!=='boolean' || !integer(data.calidad.registros_excluidos) || data.calidad.parcial!==Boolean(data.calidad.registros_excluidos))) bad();
     const readDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(data.lectura_planilla_utc));
     if (readDate!==data.corte_fecha) bad();
     const totals = {registros_validos:'registros_periodo',unidades_unicas_por_linea:'dominios_unicos',unidades_repetidas:'unidades_repetidas',registros_fuera_de_servicio:'fuera_de_servicio',registros_observados:'observado',registros_sin_novedad:'sin_novedad',registros_sin_estado:'estado_vacio',registros_otro_estado:'estado_otro'};
@@ -52,7 +53,7 @@
       const relative=data.periodo*12+m.mes-(cy*12+cm);
       const state=relative>0?'futuro':relative===0?'en_curso':'completo';
       if (m.mes!==i+1 || !integer(m.controles) || m.estado!==state || state==='futuro'&&m.controles) bad();
-      if (data.version===2 && (!integer(m.dias_con_fiscalizaciones) || m.dias_con_fiscalizaciones>Math.min(m.controles,new Date(data.periodo,m.mes,0).getDate(),state==='en_curso'?cd:31) || Boolean(m.dias_con_fiscalizaciones)!==Boolean(m.controles))) bad();
+      if (data.version>=2 && (!integer(m.dias_con_fiscalizaciones) || m.dias_con_fiscalizaciones>Math.min(m.controles,new Date(data.periodo,m.mes,0).getDate(),state==='en_curso'?cd:31) || Boolean(m.dias_con_fiscalizaciones)!==Boolean(m.controles))) bad();
     }
     if (data.minimo_controles_proporcion!==20 || data.proporciones.length!==data.lineas.length || new Set(data.proporciones.map(r=>r.linea)).size!==data.lineas.length) bad();
     for (const r of data.proporciones) {
@@ -119,7 +120,6 @@
   }
   function proportions(data) {
     const principal=data.proporciones.filter(r=>r.muestra_suficiente),small=data.proporciones.filter(r=>!r.muestra_suficiente);let expanded=false;
-    $('minimum').textContent=data.minimo_controles_proporcion;
     function draw(){
       $('ratios').replaceChildren(...(expanded?principal:principal.slice(0,8)).map(ratioRow));
       if(!principal.length)$('ratios').append(el('p','empty','Todavía no hay líneas con la muestra mínima para este ranking.'));
@@ -135,7 +135,7 @@
     const amount=component?.cantidad;
     const value=el('div','component-total');value.append(el('strong','component-count',format(amount)),el('span','',category==='otras'?'MENCIONES PENDIENTES':'MENCIONES REGISTRADAS'));
     row.append(heading,value);
-    if (amount==null) {row.append(el('p','component-status','Sin análisis disponible en esta versión.'));return row;}
+    if (amount==null) {row.append(el('p','component-status','Sin análisis disponible.'));return row;}
     if (!amount) {row.append(el('p','component-status','Sin menciones registradas.'));return row;}
     const states=[
       ['red',component.estados.fuera_de_servicio,'Fuera de servicio'],
@@ -156,9 +156,9 @@
   }
   function mechanics(data) {
     const pending=data.estado==='pendiente';
-    $('mechanicsStatus').textContent=pending?'Pendiente de una lectura automática válida con NOVEDADES. Los indicadores del período ya están disponibles.':format(data.identificadas)+' menciones técnicas identificadas · '+format(data.sin_clasificar)+' menciones pendientes de interpretación.';
-    $('mechanicsCoverage').textContent=pending?'Esta versión no incluye el análisis de NOVEDADES. No se asignan cantidades hasta disponer de una lectura válida.':
-      'Cobertura: '+format(data.cobertura.con_columna)+' de '+format(data.cobertura.registros_validos)+' controles con columna reconocida · '+format(data.cobertura.con_texto)+' con texto · '+format(data.cobertura.vacios)+' celdas vacías.'+(data.cobertura.sin_columna?' Análisis parcial: '+format(data.cobertura.sin_columna)+' controles sin columna identificable.':'');
+    $('mechanicsStatus').textContent=pending?'Sin análisis disponible.':data.estado==='parcial'?'Análisis parcial.':'';
+    $('mechanicsStatus').hidden=data.estado==='disponible';
+    $('mechanicsCoverage').textContent='';
     const max=Math.max(1,...data.categorias.map(c=>c.cantidad||0));
     const buttons=Object.entries(CATEGORIES).map(([id,name])=>{
       const cat=data.categorias.find(c=>c.id===id),unavailable=pending||!cat;
@@ -171,8 +171,7 @@
         for(const other of buttons)other.setAttribute('aria-pressed',String(other===b));
         $('componentTitle').textContent=name;
         $('components').replaceChildren(...Object.keys(COMPONENTS[id]).map(key=>componentCard(key,cat?.componentes.find(c=>c.id===key),id)));
-        $('componentNote').textContent=(id==='otras'?'Estas menciones están pendientes de interpretación; no son anomalías confirmadas. Los textos originales no se publican.':'Las barras distribuyen menciones según el ESTADO original de cada fiscalización; no indican vehículos actualmente fuera de servicio.')+
-          (data.version_reglas===1?' Histórico calculado con reglas v1: los componentes que no incluía se muestran sin análisis.':'');
+        $('componentNote').textContent=id==='otras'?'Pendientes de clasificación.':data.version_reglas===1?'Catálogo histórico.':'';
       });
       return b;
     });
@@ -181,9 +180,9 @@
   function clearData() {
     metrics(null);
     for(const id of ['months','highlights','ratios','smallRatios','categories','components'])$(id).replaceChildren();
-    for(const id of ['unknownStates','monthSelection','mechanicsStatus','mechanicsCoverage','componentNote','footerPeriod'])$(id).textContent='';
+    for(const id of ['monthSelection','mechanicsStatus','mechanicsCoverage','componentNote','footerPeriod'])$(id).textContent='';
     $('lastRead').textContent='—';$('lastRead').removeAttribute('datetime');
-    $('componentTitle').textContent='SELECCIONÁ UNA CATEGORÍA';$('minimum').textContent='—';
+    $('componentTitle').textContent='SELECCIONÁ UNA CATEGORÍA';
     $('showLines').hidden=true;$('smallSamples').hidden=true;$('historicalNote').hidden=true;$('loadError').hidden=true;
     $('availability').classList.remove('error');
   }
@@ -199,10 +198,8 @@
       $('lastRead').textContent=new Intl.DateTimeFormat('es-AR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(data.lectura_planilla_utc))+' · Argentina';
       $('footerPeriod').textContent='Período '+data.periodo;
       metrics(data.totales);months(data.mensual);highlights(data.destacados);proportions(data);mechanics(data.anomalias);
-      const missing=data.totales.registros_sin_estado,other=data.totales.registros_otro_estado;
-      $('unknownStates').textContent=missing+other?format(missing)+' controles sin ESTADO y '+format(other)+' con otro valor: incluidos en el total, sin asignarlos a un resultado.':'Todos los controles tienen un resultado formal reconocido.';
-      $('availability').textContent=data.anomalias.estado==='pendiente'?'Indicadores verificados · NOVEDADES pendientes':data.anomalias.estado==='parcial'?'Indicadores verificados · análisis mecánico parcial':'Estadísticas verificadas';
-      $('historicalNote').hidden=data.periodo===manifest.period&&data.version===2;
+      $('availability').textContent=data.calidad?.parcial?'Histórico parcial · registros válidos':'Estadísticas verificadas';
+      $('historicalNote').hidden=data.periodo===manifest.period&&data.version>=2;
       $('historicalNote').textContent='Archivo del período '+data.periodo+', conservado con su fecha de lectura y reglas v'+data.anomalias.version_reglas+'. Los meses reflejan lo disponible hasta esa lectura.'+(data.version===1?' Esta versión histórica no guardó los días únicos con fiscalizaciones.':'');
       $('statistics').dataset.status='ready';
     } catch (_) {

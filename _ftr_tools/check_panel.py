@@ -1,4 +1,4 @@
-"""UI 06.3.4 real y cola real con GitHub ficticio, sin lecturas de producción."""
+"""UI 06.3.5 real y cola real con GitHub ficticio, sin lecturas de producción."""
 import copy
 import json
 import os
@@ -106,6 +106,8 @@ def main():
                 check_oneoff_ui(page)
                 from recovery_browser_checks import check_recovery_ui
                 check_recovery_ui(page)
+                from statistics_browser_checks import check_statistics_admin
+                check_statistics_admin(page)
                 screenshots=os.environ.get('FTR_SCREENSHOTS')
                 for width in (390,1280):
                     page.set_viewport_size({'width':width,'height':950})
@@ -120,7 +122,7 @@ def main():
                 assert not failures,failures
                 assert not external,external
                 context.close();browser.close()
-                print('Panel 06.3.4: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
+                print('Panel 06.3.5: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
         finally:
             srv.shutdown();srv.server_close();thread.join(timeout=3)
 

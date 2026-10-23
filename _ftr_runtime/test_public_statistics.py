@@ -166,7 +166,9 @@ class StatisticsPipelineTests(unittest.TestCase):
         self.assertEqual(stats.ranking(lines)['fuera_de_servicio']['lineas'],[2])
 
     def test_empty_period_valid_and_pending_is_never_zero(self):
-        self.config['period']=2027;self.google(self.visits());data=self.read()
+        self.config['period']=2027
+        with self.assertRaises(ValueError):self.google(self.visits())
+        self.google([self.sheet('LINEA 36/37',[['FECHA','LINEA','DOMINIO','INTERNO','ESTADO','NOVEDADES']])]);data=self.read()
         self.assertEqual(data['totales']['registros_validos'],0)
         self.assertTrue(all(m['estado']=='futuro' for m in data['mensual']))
         pending,_=stats.mechanics([],pending=True)

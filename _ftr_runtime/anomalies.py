@@ -23,7 +23,8 @@ def canonical(location):
     return location.replace('lado ','')
 
 
-def analyze(value):
+def analyze(value, custom=None):
+    custom_rows,custom_pattern=custom or ([],None)
     original=unicodedata.normalize('NFC',str(value or '').strip())
     if not original or NEUTRAL.fullmatch(fold(original)):
         return dict(hallazgos=[],pendientes=[])
@@ -44,9 +45,12 @@ def analyze(value):
             unknown.append(raw)
             continue
         matches=list(PATTERN.finditer(clause))
+        if custom_pattern:
+            matches.extend(m for m in custom_pattern.finditer(clause) if not any(m.start()<b.end() and m.end()>b.start() for b in matches))
+            matches.sort(key=lambda m:m.start())
         remainder=list(raw)
         for i, match in enumerate(matches):
-            component=RULES[int(match.lastgroup[4:])][0]
+            component=custom_rows[int(match.lastgroup[6:])]['componente'] if match.lastgroup.startswith('custom') else RULES[int(match.lastgroup[4:])][0]
             end=matches[i+1].start() if i+1<len(matches) else len(clause)
             prefix=clause[:match.start()] if i==0 else ''
             suffix=clause[match.end():end]

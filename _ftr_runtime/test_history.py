@@ -26,5 +26,7 @@ class PublishedHistoryTests(unittest.TestCase):
         invalid=self.sheets();invalid[0].cells[3,3]='AB12CÑ'
         with self.assertRaises(ValueError):self.google(invalid)
         self.assertEqual(file.read_bytes(),original)
-        self.config['period']=2027;self.google(self.sheets())
+        self.config['period']=2027
+        with self.assertRaises(ValueError):self.google(self.sheets())
+        self.google([self.sheet('LINEA 36/37',[['FECHA','LINEA','DOMINIO','INTERNO','ESTADO','NOVEDADES']])])
         data=json.loads(file.read_text(encoding='utf-8'));self.assertEqual(data['periodo'],2027);self.assertEqual(data['controles'],[])

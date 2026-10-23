@@ -31,7 +31,6 @@
     <section aria-labelledby="resultsTitle">
       <div class="section-heading"><span class="section-number" aria-hidden="true">01</span><h2 id="resultsTitle">RESULTADOS REGISTRADOS</h2></div>
       <div id="metrics" class="metric-grid" aria-busy="true"></div>
-      <p id="unknownStates" class="section-note"></p>
       <p class="section-note">Incluye controles de unidades que ya no figuran en el parque actual.</p>
     </section>
 
@@ -48,8 +47,7 @@
     </section>
 
     <section class="panel" aria-labelledby="proportionTitle">
-      <div class="section-heading"><span class="section-number" aria-hidden="true">04</span><div><h2 id="proportionTitle">PROPORCIÓN DE FUERA DE SERVICIO</h2><p class="section-note">Resultados históricos por línea, no vehículos actualmente fuera de servicio.</p></div></div>
-      <p class="ranking-note">Ranking principal: líneas con al menos <strong id="minimum">—</strong> controles. Es un criterio orientativo para evitar que una muestra muy pequeña encabece la comparación.</p>
+      <div class="section-heading"><span class="section-number" aria-hidden="true">04</span><div><h2 id="proportionTitle">FUERA DE SERVICIO POR LÍNEA</h2><p class="section-note">Resultados históricos por línea.</p></div></div>
       <div id="ratios" class="ratio-list"></div>
       <button id="showLines" type="button" class="secondary-button" aria-expanded="false" hidden>Ver todas las líneas</button>
       <div id="smallSamples" hidden><h3 class="subheading">MUESTRAS PEQUEÑAS O SIN CONTROLES</h3><p class="section-note">Se muestran aparte. Con pocos controles, un caso puede cambiar mucho el porcentaje.</p><div id="smallRatios" class="ratio-list"></div></div>
@@ -58,10 +56,9 @@
 
     <section class="panel" aria-labelledby="mechanicsTitle">
       <div class="section-heading"><span class="section-number" aria-hidden="true">05</span><div><h2 id="mechanicsTitle">ANOMALÍAS MECÁNICAS</h2><p class="section-note">Categorías y componentes mencionados en las fiscalizaciones.</p></div></div>
-      <p id="mechanicsStatus" class="notice">Pendiente de la próxima lectura válida con NOVEDADES.</p>
+      <p id="mechanicsStatus" class="notice">Sin análisis disponible.</p>
       <p id="mechanicsCoverage" class="section-note"></p>
       <div class="mechanics-layout"><div><p class="subheading">TOCÁ UNA CATEGORÍA</p><div id="categories" class="category-list" role="group" aria-label="Categorías mecánicas"></div></div><div id="componentPanel" class="component-panel" role="region" aria-labelledby="componentTitle" aria-live="polite"><p class="subheading">DETALLE DE LA CATEGORÍA SELECCIONADA</p><h3 id="componentTitle">DIRECCIÓN</h3><div id="components" class="component-grid"></div><p id="componentNote" class="section-note"></p></div></div>
-      <p class="section-note mechanics-note">Una fiscalización puede contener varias anomalías. Las expresiones ambiguas se mantienen sin clasificar; no se infiere el resultado ni la gravedad a partir de NOVEDADES.</p>
     </section>
   </main>
   <footer>Parque Móvil FTR <span id="footerPeriod"></span></footer>

@@ -22,6 +22,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "_ftr_pruebas"))
 import planilla_anual as base
 
 CODES = {
+    'CONTROL_SIN_ESTADO': ('advertencia', 'Se encontró una fiscalización válida sin resultado registrado en la columna ESTADO.'),
+    'COLUMNA_ESTADO_AUSENTE': ('advertencia', 'El bloque no tiene una columna ESTADO única y reconocible. No se asignó un resultado.'),
     'DOMINIO_INVALIDO': ('error', 'El dominio no cumple el formato admitido. Revisá el dato original; no se corrige automáticamente.'),
     'FECHA_INVALIDA': ('error', 'Falta la fecha o no se reconoce como fecha válida.'),
     'FECHA_FUTURA': ('error', 'La fecha de control es posterior a la fecha de lectura.'),
@@ -103,26 +105,33 @@ def source_rows(sheets, include_novedades=False):
                 continue
             end = min((b['row'] for b in found if b['row'] > block['row'] and b['left'] <= block['right'] and b['right'] >= block['left']), default=max((r for r, _ in sheet.cells), default=0) + 1)
             following = min((b['left'] for b in found if b['row'] == block['row'] and b['left'] > block['left']), default=2049)
-            states = [c for (r, c), v in sheet.cells.items() if r == block['row'] and block['left'] <= c < following and base.norm(v) == 'estado']
-            state_col = states[0] if len(states) == 1 else None
             # Encabezados contiguos del mismo bloque, limitados por separadores
             # vacíos y por las columnas de los bloques vecinos. No adivinar letras.
             note_col = None
-            if include_novedades:
-                left, right = min(cols.values()), max(cols.values())
-                while left > 1 and base.text(sheet.cells.get((block['row'], left - 1))):
-                    if any(b['row'] == block['row'] and b['right'] >= left - 1 and b['left'] < block['left'] for b in found):
-                        # Sin separador, la columna anterior a FECHA pertenece
-                        # al bloque previo según los límites del lector.
-                        left = min(cols.values())
-                        break
-                    left -= 1
-                while right + 1 < following and base.text(sheet.cells.get((block['row'], right + 1))):
+            left, right = min(cols.values()), max(cols.values())
+            while left > 1 and base.text(sheet.cells.get((block['row'], left - 1))):
+                if any(b['row'] == block['row'] and b['right'] >= left - 1 and b['left'] < block['left'] for b in found):
+                    # Sin separador, la columna anterior a FECHA pertenece
+                    # al bloque previo según los límites del lector.
+                    left = min(cols.values())
+                    break
+                left -= 1
+            while right + 1 < following:
+                if base.text(sheet.cells.get((block['row'], right + 1))):
                     right += 1
-                notes = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'novedades']
-                # Dos encabezados son ambiguos; se informa cobertura incompleta.
-                if len(notes) == 1:
-                    note_col = notes[0]
+                elif right + 4 < following and [base.norm(sheet.cells.get((block['row'], right + offset))) for offset in (2,3,4)] == ['km','novedades','estado']:
+                    # Formato anual con una columna sin título antes de KM.
+                    # Exigir la secuencia completa evita tomar un ESTADO auxiliar
+                    # aislado al otro lado de un separador o de otro bloque.
+                    right += 4
+                else:
+                    break
+            states = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'estado']
+            state_col = states[0] if len(states) == 1 else None
+            notes = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'novedades'] if include_novedades else []
+            # Dos encabezados son ambiguos; se informa cobertura incompleta.
+            if len(notes) == 1:
+                note_col = notes[0]
             for row in range(block['row'] + 1, end):
                 values = {k: sheet.get(row, c) for k, c in cols.items()}
                 if not any(base.text(values.get(k)) for k in ('fecha', 'dominio', 'interno')):
@@ -131,11 +140,12 @@ def source_rows(sheets, include_novedades=False):
                     break
                 number = base.line_number(values.get('linea')) if by_row else next(iter(expected))
                 event = {'pestana': sheet.name, 'pestana_posicion': pos, 'fila': row,
-                       'linea': number, 'cols': cols, 'values': values,
+                       'linea': number, 'cols': {**cols, **({'estado': state_col} if state_col else {})}, 'values': values,
                        'fecha': base.parse_date(values.get('fecha'), sheet.epoch1904),
                        'dominio': base.plate(values.get('dominio')), 'interno': internal(values.get('interno')),
                        'estado': base.norm(sheet.get(row, state_col)) if state_col else '',
                        'tiene_estado': state_col is not None,
+                       'encabezado_fila': block['row'],
                        'conflicto_titulo': bool(by_row and expected and number not in expected)}
                 if include_novedades:
                     event.update(novedades=base.text(sheet.get(row, note_col)) if note_col else '', tiene_novedades=note_col is not None)
@@ -151,13 +161,14 @@ def extend_report(report, sheets, root, configured, identifier, detected_at, tod
     def add(code, event, field='dominio'):
         category, message = CODES[code]
         values = event['values']
-        column = event['cols'].get(field, event['cols']['dominio'])
+        column = event['cols'].get(field) if field == 'estado' else event['cols'].get(field, event['cols']['dominio'])
         entry = {k: event[k] for k in ('linea', 'pestana', 'pestana_posicion', 'fila')}
         entry.update({'codigo': code, 'categoria': category, 'mensaje': message,
             'fecha_control': event['fecha'].isoformat() if event['fecha'] else '',
             'fecha_ingresada': base.text(values.get('fecha')),
             'dominio_ingresado': base.text(values.get('dominio')),
-            'interno': event['interno'], 'campo': field, 'celda': f'{colname(column)}{event["fila"]}',
+            'interno': event['interno'], 'campo': field, 'celda': f'{colname(column)}{event["fila"]}' if column else None,
+            'columna': colname(column) if column else None, 'encabezado_fila': event.get('encabezado_fila'),
             'detectado_utc': detected_at, 'candidatos_mismo_interno': candidates(fleets.get(event['linea']), event['interno']),
             'archivo_url': f'https://docs.google.com/spreadsheets/d/{identifier}/edit'})
         park = root / 'parques' / f"linea{event['linea']}.csv"
@@ -205,6 +216,10 @@ def extend_report(report, sheets, root, configured, identifier, detected_at, tod
             elif event['interno'] and all(x['interno'] != event['interno'] for x in matching):
                 add('INTERNO_DIFIERE', event, 'interno')
         status = event['estado']
+        if not event['tiene_estado']:
+            add('COLUMNA_ESTADO_AUSENTE', event, 'estado')
+        elif not status:
+            add('CONTROL_SIN_ESTADO', event, 'estado')
         stats[number]['registros_con_columna_estado'] += int(event['tiene_estado'])
         if status == 'fueradeservicio':
             stats[number]['fuera_de_servicio'] += 1

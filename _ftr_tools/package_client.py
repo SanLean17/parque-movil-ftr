@@ -18,17 +18,17 @@ def main():
     revision=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     target.mkdir(parents=True)
     shutil.copyfile(executable,target/'FTR_Administracion.exe')
-    for name in ('panel.html','panel-bridge.js','panel-history.js'):
+    for name in ('panel.html','panel-bridge.js','panel-history.js','panel-statistics-admin.js'):
         shutil.copyfile(ROOT/'_ftr_app'/name,target/name)
     shutil.copyfile(ROOT/'ftr-historial.js',target/'ftr-historial.js')
     shutil.copyfile(ROOT/'_ftr_app/LEEME_0631.txt',target/'LEEME_PRIMERO.txt')
-    info=dict(version='06.3.4',revision=revision,built_utc=datetime.now(timezone.utc).isoformat(),
+    info=dict(version='06.3.5',revision=revision,built_utc=datetime.now(timezone.utc).isoformat(),
               platform='Windows x64',interface='06.3 original; estilos conservados',signed=False,
               private_data_included=False)
     (target/'VERSION.json').write_text(json.dumps(info,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     hashes=[hashlib.sha256(p.read_bytes()).hexdigest()+'  '+p.name for p in sorted(target.iterdir())]
     (target/'SHA256_ARCHIVOS.txt').write_text('\n'.join(hashes)+'\n',encoding='utf-8')
-    print('Carpeta completa 06.3.4 preparada; siete archivos comprobables y listado de integridad.')
+    print('Carpeta completa 06.3.5 preparada; ocho archivos comprobables y listado de integridad.')
 
 
 if __name__=='__main__':main()

@@ -1,5 +1,5 @@
 FTR ADMINISTRACIÓN — DICCIONARIO TÉCNICO
-Preparación de fuentes; no constituye una nueva distribución Windows.
+Incluido en la distribución completa de Windows 06.3.8.
 
 Navegación
 Diccionario técnico se encuentra junto a Estadísticas. Sus cuatro bloques son:
@@ -109,7 +109,7 @@ anterior. La transición 2026 a 2027 se prueba con el lector y fuentes ficticias
 2025 y 2026 permanecen idénticos, no se reimporta 2026, el diccionario sigue
 global, CNRT no cambia y una fuente inválida no crea el archivo de 2027.
 
-Validación y entrega 06.3.7
+Validación y entrega 06.3.8
 La CI mantiene Python en Windows y Linux, pruebas de seguridad y navegadores.
 El marcador versionado _ftr_app/windows-release.json autoriza esta entrega
 completa. Compila el ejecutable, comprueba su versión Windows y abre el panel
@@ -120,6 +120,8 @@ LEEME_PRIMERO.txt y todos los recursos. Cambios posteriores de fuentes sin
 modificar el marcador no generan otra distribución Windows.
 Las capturas y casos de pruebas contienen exclusivamente información ficticia.
 No se ejecutan bots ni lecturas de fuentes reales durante estas pruebas.
-La ampliación de descriptores generales se entrega como cambios de fuentes y
-PR: no modifica el marcador de entrega ni genera un ZIP. El ejecutable 06.3.7
-ya distribuido no incorpora esta ampliación; requiere una futura entrega.
+La ampliación de descriptores generales de la PR #29 está integrada en esta
+entrega 06.3.8. Su ejecutable se compila nuevamente y se prueba con datos
+ficticios, incluidos los alcances, variantes, vista previa y casos ambiguos.
+La carpeta completa sustituye la instalación anterior sin borrar ni sobrescribir
+el perfil %LOCALAPPDATA%/FTR_Administracion del mismo usuario Windows.

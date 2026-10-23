@@ -59,7 +59,7 @@ def main():
                 config=load(ROOT)
                 def bootstrap(route):
                     response=route.fetch();value=response.json()
-                    assert value['version']=='06.3.7' and not value['connected']
+                    assert value['version']==VERSION and not value['connected']
                     value['remote']={'config':config,'digest':digest(config),'state':{},'oneoffs':{'version':1,'pending':{},'history':[]}}
                     route.fulfill(response=response,json=value)
                 page.route('**/api/bootstrap',bootstrap)
@@ -72,7 +72,7 @@ def main():
                       const r=await fetch(path,{method:payload?'POST':'GET',headers:{'Content-Type':'application/json', 'X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content},body:payload?JSON.stringify(payload):undefined});
                       return {status:r.status,data:await r.json()};
                     }''',dict(path=path,payload=payload))
-                assert api('/api/bootstrap')['data']['version']=='06.3.7'
+                assert api('/api/bootstrap')['data']['version']==VERSION
                 assert page.evaluate("fetch('/api/orders').then(r=>r.status)")==403
                 order=api('/api/submit',dict(action='drive',expected=digest(config)))
                 assert order['status']==200 and order['data']['queued']
@@ -136,7 +136,7 @@ def main():
                 page.wait_for_function("() => document.body.textContent.includes('Panel cerrado')")
                 context.close();browser.close()
             process.wait(timeout=10);assert process.returncode==0
-            print('Paquete completo 06.3.7 Windows: integridad, inicio, UI, sesión, cola, doble envío, cancelación visible y cierre OK. Sin fuentes reales.')
+            print('Paquete completo '+VERSION+' Windows: integridad, inicio, UI, sesión, diccionario general, cola, persistencia y cierre OK. Sin fuentes reales.')
         finally:
             if process and process.poll() is None:
                 process.terminate();process.wait(timeout=10)

@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.7 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.8 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -122,3 +122,17 @@ Se conservan autorización, borradores, órdenes, preferencias, informes e
 interpretaciones al abrir la nueva versión desde otra carpeta. No borrar
 %LOCALAPPDATA%/FTR_Administracion. No mezclar archivos de distintas versiones.
 Ver DICCIONARIO_TECNICO.txt para los alcances de revisión y privacidad.
+
+NUEVO EN 06.3.8
+Incluye los descriptores generales de la PR #29 y todas las secciones anteriores.
+En Diccionario técnico, clasificar una expresión y elegir:
+A — COMPLEMENTA UN COMPONENTE > CUALQUIER COMPONENTE RECONOCIDO.
+Por ejemplo: expresión EXTREMO, variante EXTREMOS, significado EXTREMO.
+El alcance específico sigue disponible y tiene prioridad para su componente.
+La vista previa calcula todo el período antes de guardar. Un descriptor solo,
+un contexto ambiguo o una referencia incompleta permanece pendiente.
+No se suman componentes ya reconocidos ni se modifica ESTADO o los controles.
+Guardar la regla no recalcula históricos cerrados. El diccionario sigue global
+para los años futuros. Los informes del motor 5 de 06.3.7 se admiten si se
+verifica su integridad y se reproducen exactamente sus estadísticas originales.
+Actualizar desde 06.3.7 no requiere borrar ni migrar manualmente el perfil.

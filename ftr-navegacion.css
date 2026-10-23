@@ -1,0 +1,13 @@
+/* La navegación comparte el encabezado existente, incluido en teléfonos. */
+.ftr-header-row{gap:10px;flex-wrap:wrap}
+.ftr-brand{display:flex;align-items:center;gap:8px;min-width:0;color:inherit;text-decoration:none;border-radius:6px;cursor:pointer}
+.ftr-brand:hover{opacity:.88}
+.ftr-brand:focus-visible,.ftr-header-actions a:focus-visible,.ftr-header-actions button:focus-visible{outline:3px solid #facc15;outline-offset:3px}
+.ftr-header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:auto}
+.ftr-header-actions button,.ftr-statistics-link{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;border:1px solid #1d4ed8;border-radius:8px;background:#1e40af;padding:7px 10px;font-size:10px;font-weight:800;line-height:1.2;text-decoration:none;color:#fff;white-space:nowrap}
+.ftr-header-actions button{color:#fde047}
+.dark .ftr-header-actions button,.dark .ftr-statistics-link{background:#1e293b;border-color:#334155}
+.ftr-statistics-link:hover{background:#1d4ed8}
+.ftr-statistics-link[aria-current=page]{box-shadow:inset 0 -3px #93c5fd;border-color:#93c5fd}
+.ftr-line-heading{flex:1;text-align:center;min-width:110px}
+@media(max-width:639px){.ftr-header-row .ftr-brand{flex:1;min-width:130px}.ftr-brand .brand-title,.ftr-brand h1{font-size:14px;letter-spacing:.025em}.ftr-brand p{font-size:9px}.ftr-header-row .ftr-line-heading{order:3;flex-basis:100%;margin:0}.ftr-header-actions{gap:5px}.ftr-statistics-link{padding:7px;font-size:9px}}

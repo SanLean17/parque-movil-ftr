@@ -9,17 +9,25 @@ from .mechanical_dictionary import CATEGORIES
 FILE = '_ftr_diccionario.json'
 EMPTY = {'version': 1, 'revision': 1, 'reglas': []}
 GENERAL = {'falla','fallas','juego','roto','rota','flojo','floja','sin','no','si','ok','mal','bien','estado','novedad','novedades','otro','otros','unidad','vehiculo','coche','interno','dominio','fecha','linea','izquierdo','derecho','delantero','trasero','perdida','aire','aceite'}
+TECHNICAL = set('jgo jg b bl bc larga largo corta corto bar barr direccion dir susp suspension tensor tensores amort amortig buje bujes fr freno frenos pulm pulmon valv valvula niv niveladora estabilizadora card cruc cruceta crucetas neum neumatico electr electrico corr corriente bat bateria sonora marcha atras alarma del de la tras delant trasero delantero izq der'.split())
+SPECIFIC = TECHNICAL - GENERAL - set('jgo jg b bar barr del de la tras delant izq der'.split())
+GENERAL.update('jgo jg bar barr izq der delant tras'.split())
 
 def normalized(value):
     return ''.join(c for c in unicodedata.normalize('NFD',value.lower().strip()) if not unicodedata.combining(c))
 
 def expression(value):
-    # Solo abreviaturas/términos técnicos cortos. Nunca frases de inspectores,
-    # patentes, fechas, identificadores, puntuación ni sintaxis ejecutable.
+    # Frases literales de vocabulario técnico acotado. Nunca texto libre,
+    # patentes, identificadores, regex ni instrucciones ejecutables.
     if not isinstance(value,str):raise ValueError('Ingresá una abreviatura técnica general.')
+    if any(c in value for c in '\n\r\t'):raise ValueError('La equivalencia debe ocupar una sola línea.')
     value=normalized(value)
-    if not re.fullmatch(r'(?:[a-z]{2,24}|[a-z]{1,4}[0-9]{1,2})',value) or value in GENERAL:
-        raise ValueError('Usá un término técnico breve o abreviatura, sin frases, datos individuales ni símbolos.')
+    value=re.sub(' +',' ',value)
+    words=value.split(' ')
+    single=bool(re.fullmatch(r'(?:[a-z]{2,24}|[a-z]{1,4}[0-9]{1,2})',value)) and value not in GENERAL
+    phrase=2<=len(words)<=5 and len(value)<=48 and all(w in TECHNICAL for w in words) and any(w in SPECIFIC for w in words)
+    if not (single or phrase):
+        raise ValueError('Usá una abreviatura o hasta cinco palabras del vocabulario técnico, sin datos individuales ni símbolos.')
     if re.fullmatch(r'[ra][0-9]+|pf',value):raise ValueError('Los códigos R, A y PF pertenecen al diccionario confirmado original.')
     return value
 
@@ -31,7 +39,7 @@ def validate(value):
     for row in value['reglas']:
         if not isinstance(row,dict) or set(row)!={'expresion','categoria','componente','habilitada'}:raise ValueError('Regla no válida.')
         word=expression(row['expresion'])
-        if word in seen:raise ValueError('Expresión duplicada o en conflicto; modificá la regla existente.')
+        if any(re.search(r'\b'+re.escape(other)+r'\b',word) or re.search(r'\b'+re.escape(word)+r'\b',other) for other in seen):raise ValueError('Expresión duplicada, superpuesta o en conflicto; modificá la regla existente.')
         if PATTERN.search(word) or NEUTRAL.fullmatch(word):raise ValueError('La expresión ya está definida por las reglas originales.')
         if row['categoria'] not in CATEGORIES or row['componente'] not in CATEGORIES[row['categoria']] or type(row['habilitada']) is not bool:
             raise ValueError('La categoría y el componente no coinciden.')

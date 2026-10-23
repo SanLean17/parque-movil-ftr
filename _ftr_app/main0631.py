@@ -61,7 +61,7 @@ def pending_runs(since):
                         agenda_bridge._cache[key] = agenda_bridge.classify_run(row, jobs)
                     result.update(agenda_bridge._cache[key])
                     if workflow=='ftr_estadisticas_admin.yml' and row.get('conclusion')=='success':
-                        result.update(effect='dictionary' if 'dictionary-save' in title else 'historical',detail='Operación estadística confirmada en GitHub.')
+                        result.update(effect='dictionary' if 'dictionary-save' in title else 'historical',detail='Regla guardada; aplicación pendiente de una lectura o revisión.' if 'dictionary-save' in title else 'Informe protegido preparado; no se publicó ningún cambio.' if 'history-review' in title else 'Estadísticas publicadas y verificadas.')
                 found[row['id']] = result
             if len(rows) < 100 or rows[-1]['created_at'] < since:
                 break
@@ -69,7 +69,7 @@ def pending_runs(since):
 
 
 def dispatch(row):
-    if row['action'] in ('dictionary-save','history-import'):
+    if row['action'] in ('dictionary-save','history-import','history-review','history-recalculate'):
         from _ftr_runtime.statistics_commands import clean, WORKFLOW
         payload=clean(row['action'],row['statistical'])
         server.api('POST','actions/workflows/'+WORKFLOW+'/dispatches',{'ref':'main','inputs':{'action':row['action'],'command_json':json.dumps(payload),'expected':row['expected'],'request_id':row['id']}})
@@ -111,7 +111,7 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.5'
+    server.VERSION = '06.3.6'
     from _ftr_app.statistics_admin import install as install_statistics
     install_statistics(server)
     server.app.view_functions['submit'] = submit

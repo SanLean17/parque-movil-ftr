@@ -3,7 +3,7 @@
 Las reglas son datos separados del motor. Una futura edición administrativa
 requerirá validación y una nueva versión; nunca reinterpreta archivos cerrados.
 """
-VERSION = 2
+VERSION = 3
 LEGACY_CATEGORIES = {
     'direccion': ('barra_larga', 'barra_corta', 'direccion_sin_componente'),
     'frenos': ('frenos_delanteros', 'frenos_traseros', 'flexibles_freno', 'freno_sin_ubicacion'),
@@ -20,7 +20,7 @@ CATEGORIES = {
     'electrico': ('corte_corriente', 'sonora_marcha_atras', 'electrico_sin_componente'),
     'otras': ('sin_clasificar',),
 }
-CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATEGORIES}
+CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATEGORIES, 3: CATEGORIES}
 POSITIONS = r'(?:delanter[oa]s?|traser[oa]s?)(?:\s+(?:derech[oa]s?|izquierd[oa]s?))?'
 # Un buje de amortiguador es un hallazgo de buje, salvo otra falla separada.
 RULES = (
@@ -29,8 +29,8 @@ RULES = (
     ('caja_direccion', r'cajas?\s+(?:de\s+)?direccion'),
     ('brazo_pitman', r'(?:brazos?\s+)?pit+t?man'),
     ('rotulas_direccion', r'rotulas?(?:\s+(?:de\s+)?direccion)?'),
-    ('barra_larga', r'barras?\s+largas?'),
-    ('barra_corta', r'barras?\s+cortas?'),
+    ('barra_larga', r'(?:tensor(?:es)?\s+(?:de\s+(?:la\s+)?)?)?barras?\s+largas?'),
+    ('barra_corta', r'(?:tensor(?:es)?\s+(?:de\s+(?:la\s+)?)?)?barras?\s+cortas?'),
     ('pulmon_freno', r'pulmon(?:es)?\s+(?:(?:de|del)\s+)?frenos?|pf'),
     ('flexibles_freno', r'flexibles?(?:\s+(?:(?:de|del)\s+)?frenos?)?'),
     ('tanque_aire', r'tanques?\s+(?:de\s+)?aire'),

@@ -37,6 +37,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
         rel="stylesheet"
     >
+<link rel="stylesheet" href="ftr-navegacion.css">
 </head>
 
 
@@ -47,23 +48,12 @@
 
     <header class="bg-blue-900 dark:bg-gray-800 text-white shadow-md py-3 px-4 border-b dark:border-gray-700 relative">
 
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="max-w-7xl mx-auto flex items-center justify-between ftr-header-row">
 
-            <a
-                href="index.html"
-                class="bg-blue-800 hover:bg-blue-700 dark:bg-gray-700 dark:hover:bg-gray-600 px-3 py-2 rounded-lg text-white transition text-sm font-bold flex items-center space-x-2 shadow-sm"
-            >
-
-                <i class="fa-solid fa-arrow-left text-base"></i>
-
-                <span class="hidden sm:inline">
-                    Volver
-                </span>
-
-            </a>
+<a href="index.html" class="ftr-brand" aria-label="Parque Móvil FTR — Inicio"><i class="fa-solid fa-bus-simple text-lg text-blue-300" aria-hidden="true"></i><div><div class="brand-title text-base sm:text-xl font-black uppercase tracking-wider leading-tight">Parque Móvil FTR</div><p class="text-blue-200 dark:text-gray-400 text-[9px] sm:text-xs">Sistema de Fiscalización de Transporte</p></div></a>
 
 
-            <div class="text-center flex-grow mx-2">
+            <div class="ftr-line-heading">
 
                 <h1
                     class="text-xl sm:text-2xl font-black uppercase tracking-wider text-white leading-tight"
@@ -79,8 +69,8 @@
             </div>
 
 
-            <button
-                onclick="toggleDarkMode()"
+            <div class="ftr-header-actions"><a href="estadisticas.html" class="ftr-statistics-link">ESTADÍSTICAS</a><button
+                onclick="toggleDarkMode()" aria-label="Cambiar modo claro u oscuro"
                 class="bg-blue-800 dark:bg-gray-700 text-yellow-300 dark:text-yellow-400 p-2 sm:px-3 rounded-lg border border-blue-700 dark:border-gray-600 hover:bg-blue-700 dark:hover:bg-gray-600 transition text-xs font-bold flex items-center space-x-1"
             >
 
@@ -96,7 +86,7 @@
                     Oscuro
                 </span>
 
-            </button>
+            </button></div>
 
         </div>
 

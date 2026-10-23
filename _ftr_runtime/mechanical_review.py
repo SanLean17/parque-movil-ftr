@@ -1,0 +1,43 @@
+"""Recálculo local verificable desde un informe cifrado, sin consultar fuentes."""
+import copy
+import hashlib
+import json
+from datetime import date
+from . import dictionary_rules as rules, public_statistics as stats
+
+FIELDS=('linea','pestana','pestana_posicion','fila','dominio','interno','estado','estado_original','tiene_novedades','novedades')
+
+def fingerprint(value):
+    return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
+def snapshot(events, data, dictionary):
+    rows=[{**{k:e.get(k) for k in FIELDS},'fecha':e['fecha'].isoformat()} for e in events]
+    return dict(version=1,periodo=data['periodo'],registros=rows,diccionario=dictionary,estadisticas=copy.deepcopy(data),huella_registros=fingerprint(rows))
+
+def unpack(value):
+    if not isinstance(value,dict) or value.get('version')!=1:raise ValueError('Este informe no conserva los registros necesarios. Abrí un informe nuevo del período.')
+    data=stats.validate(value['estadisticas']);dictionary=rules.validate(value['diccionario'])
+    rows=value['registros']
+    if value['periodo']!=data['periodo'] or not isinstance(rows,list) or len(rows)>100000 or fingerprint(rows)!=value['huella_registros']:
+        raise ValueError('El informe protegido no es íntegro.')
+    events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in rows]
+    if len(events)!=data['totales']['registros_validos'] or any(e['fecha'].year!=data['periodo'] for e in events):raise ValueError('El informe no corresponde al período completo.')
+    # Comprueba también estados, ubicación y deduplicación con el mismo motor.
+    baseline,private=stats.mechanics(events,dictionary=dictionary)
+    if baseline!=data['anomalias']:raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
+    return events,data,dictionary,private
+
+def preview(value, dictionary):
+    events,data,old,_=unpack(value)
+    after,private=stats.mechanics(events,dictionary=dictionary)
+    proposed=copy.deepcopy(data)
+    proposed['anomalias']=after
+    proposed['interpretacion']={'revision':dictionary['revision'],'sha256':rules.digest(dictionary)}
+    stats.validate(proposed)
+    return dict(periodo=data['periodo'],lectura=data['lectura_planilla_utc'],registros=len(events),
+                antes=data['anomalias'],despues=after,huella_registros=value['huella_registros'],
+                huella_resultado=fingerprint(after),pendientes=private['pendientes'])
+
+def unchanged_controls(before,after):
+    for key in ('periodo','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','calidad'):
+        if before.get(key)!=after.get(key):raise ValueError('La fuente cambió controles o resultados originales. La revisión mecánica se detuvo sin publicar.')

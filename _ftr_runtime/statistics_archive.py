@@ -26,7 +26,7 @@ def validate_index(index):
         if not isinstance(item,dict) or set(item)!= {'periodo','archivo','version','version_reglas','lectura_planilla_utc','lineas','sha256'}:
             raise ValueError('Metadatos de período inválidos.')
         year=item['periodo'];years.append(year)
-        if type(year) is not int or not 2000<=year<=2100 or item['archivo']!=f'estadisticas/{year}.json' or item['version'] not in (1,2,3) or item['version_reglas'] not in (1,2):
+        if type(year) is not int or not 2000<=year<=2100 or item['archivo']!=f'estadisticas/{year}.json' or item['version'] not in (1,2,3) or item['version_reglas'] not in (1,2,3):
             raise ValueError('Versión o ruta histórica no admitida.')
         if not re.fullmatch('[a-f0-9]{64}',item['sha256']) or datetime.fromisoformat(item['lectura_planilla_utc']).tzinfo is None:
             raise ValueError('Integridad histórica no verificable.')
@@ -49,7 +49,8 @@ def validate_collection(root, read=None):
 
 def data_paths(root):
     index=validate_collection(root)
-    return [FILE,INDEX,*[r['archivo'] for r in index['periodos']]]
+    revisions=sorted(p.relative_to(root).as_posix() for p in (Path(root)/'estadisticas/revisiones').rglob('*.json'))
+    return [FILE,INDEX,*[r['archivo'] for r in index['periodos']],*revisions]
 
 
 def publish(root, data):

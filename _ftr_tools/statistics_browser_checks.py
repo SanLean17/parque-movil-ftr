@@ -58,3 +58,78 @@ def check_statistics_admin(page):
     assert 'I7' in page.locator('#incidentList').inner_text()
     assert 'CONTROL SIN ESTADO' in page.locator('#incidentList').inner_text()
     page.unroute('**/api/statistics-admin?remote=1')
+
+def check_mechanical_review(page):
+    import json,os
+    from _ftr_runtime.test_mechanical_review import ReviewTests
+    from _ftr_runtime import mechanical_review as review
+    from _ftr_runtime.statistics_archive import encoded
+    import hashlib
+    test=ReviewTests();test.setUp()
+    try:
+        public,report,detail=test.build()
+        private=detail['novedades_sin_clasificar'];capsule=private['revision_mecanica']
+        current=copy.deepcopy(public);current['periodo']=2026
+        cfg=load(Path(__file__).resolve().parents[1])
+        value=dict(remote=dict(dictionary=copy.deepcopy(rules.EMPTY),expected_dictionary=rules.digest(rules.EMPTY),expected=digest(cfg),period=2026,periods=[2026,2025],
+                   statistics={'2025':public,'2026':current},hashes={'2025':hashlib.sha256(encoded(public)).hexdigest()},publication={'2025':True,'2026':True}),
+                   catalogue=CATEGORIES,runs=[],pending=private['pendientes'],
+                   reviews={'2025':dict(pending=private['pendientes'],preview_available=True,read=report['inicio_lectura_utc'],historical=True,archive=hashlib.sha256(encoded(public)).hexdigest())})
+        page.route('**/api/statistics-admin?remote=1',lambda route:route.fulfill(json=value))
+        def preview(route):
+            body=route.request.post_data_json
+            try:
+                candidate=rules.proposed(rules.EMPTY,body['reglas'],body['expected_dictionary'])
+                route.fulfill(json=review.preview(capsule,candidate))
+            except ValueError as error:route.fulfill(status=400,json={'error':str(error)})
+        page.route('**/api/statistics-preview',preview)
+        page.evaluate('showView("statistics")');page.locator('#mechanicalRefresh').click()
+        page.wait_for_function('()=>document.querySelector("#mechanicalPeriod").options.length===2')
+        page.locator('#mechanicalPeriod').select_option('2025')
+        page.locator('[data-mechanical-category="otras"]').click()
+        assert '4 menciones' in page.locator('#mechanicalPendingCount').inner_text()
+        page.locator('#mechanicalSearch').fill('JGO B LARGA')
+        page.locator('#mechanicalState').select_option('observado')
+        assert page.locator('#mechanicalExpressions>details').count()==1
+        item=page.locator('#mechanicalExpressions>details').first
+        item.locator('summary').click()
+        item.get_by_role('button',name='Ver registros originales',exact=True).click()
+        assert 'AA111AA' in item.inner_text() and 'FUERA DE SERVICIO' in item.inner_text() and '2025-02-01' in item.inner_text()
+        item.get_by_role('button',name='Clasificar expresión',exact=True).click()
+        page.locator('#mechanicalComponent').select_option('barra_larga');page.locator('#mechanicalMeaning').check()
+        page.locator('#mechanicalForm button[type=submit]').click()
+        page.wait_for_selector('#mechanicalPreview:not([hidden])')
+        assert 'Otras / sin clasificar: 4 → 2' in page.locator('#mechanicalPreview').inner_text()
+        assert 'Dirección: 1 → 2' in page.locator('#mechanicalPreview').inner_text()
+        def orders():
+            return page.evaluate('''async ()=>{const r=await fetch('/api/orders',{headers:{'X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content}});return (await r.json()).orders}''')
+        before=len(orders())
+        page.locator('#mechanicalPreview').get_by_role('button',name='CANCELAR',exact=True).click()
+        assert len(orders())==before
+        item.get_by_role('button',name='Clasificar expresión',exact=True).click()
+        page.locator('#mechanicalComponent').select_option('barra_larga');page.locator('#mechanicalMeaning').check()
+        page.locator('#mechanicalForm button[type=submit]').click()
+        page.wait_for_selector('#mechanicalPreview:not([hidden])')
+        output=os.environ.get('FTR_SCREENSHOTS')
+        if output:
+            folder=Path(output);folder.mkdir(parents=True,exist_ok=True)
+            for width in (390,1280):
+                page.set_viewport_size({'width':width,'height':950})
+                for theme in ('light','dark'):
+                    page.evaluate('(t)=>document.documentElement.dataset.theme=t',theme)
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(width,theme)
+                    page.screenshot(path=str(folder/f'anomalias-vista-previa-{width}-{theme}.png'),full_page=True)
+                    page.locator('#mechanicalPreview').scroll_into_view_if_needed()
+                    page.screenshot(path=str(folder/f'anomalias-detalle-{width}-{theme}.png'))
+        page.locator('#mechanicalPreview').get_by_role('button',name='CONFIRMAR CLASIFICACIÓN',exact=True).click()
+        page.locator('#dialogConfirm').click()
+        page.wait_for_function('()=>document.querySelector("#mechanicalStatus").textContent.includes("Orden de clasificación guardada")')
+        row=orders()[-1];assert row['action']=='dictionary-save'
+        assert row['statistical']['reglas'][0]['expresion']=='jgo b larga'
+        for private in ('AA111AA','referencias','novedades_original'):assert private not in json.dumps(row['statistical'])
+        page.evaluate('''async id=>{await fetch('/api/orders/cancel',{method:'POST',headers:{'Content-Type':'application/json','X-FTR-CSRF':document.querySelector('meta[name="ftr-csrf"]').content},body:JSON.stringify({request_id:id})})}''',row['id'])
+        page.locator('#mechanicalPeriod').select_option('2026')
+        assert page.locator('#mechanicalExpressions>details').count()==0
+        assert 'no significa cero' in page.locator('#mechanicalPendingCount').inner_text()
+        page.unroute('**/api/statistics-preview');page.unroute('**/api/statistics-admin?remote=1')
+    finally:test.tearDown()

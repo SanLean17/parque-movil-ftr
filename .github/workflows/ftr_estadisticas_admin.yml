@@ -5,7 +5,7 @@ on:
     inputs:
       action:
         type: choice
-        options: [dictionary-save, history-import]
+        options: [dictionary-save, history-import, history-review, history-recalculate]
         required: true
       command_json:
         description: Regla técnica general o fuente histórica; nunca observaciones individuales
@@ -45,11 +45,11 @@ jobs:
           FTR_STATS_COMMAND: ${{ inputs.command_json }}
           FTR_EXPECTED: ${{ inputs.expected }}
           FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-historico
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ inputs.action == 'history-import' && secrets.GOOGLE_SERVICE_ACCOUNT_JSON || '' }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ inputs.action != 'dictionary-save' && secrets.GOOGLE_SERVICE_ACCOUNT_JSON || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python _ftr_tools/statistics_admin.py
       - name: Conservar informe histórico cifrado
-        if: always() && inputs.action == 'history-import'
+        if: always() && inputs.action != 'dictionary-save'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ftr-informe-administrativo

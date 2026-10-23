@@ -69,7 +69,7 @@ class Outbox:
 
     def enqueue(self, data, published):
         action = data.get('action')
-        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic','oneoff-set','oneoff-cancel','dictionary-save','history-import'):
+        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic','oneoff-set','oneoff-cancel','dictionary-save','history-import','history-review','history-recalculate'):
             raise ValueError('Acción no permitida.')
         expected = data.get('expected') or (published or {}).get('digest')
         if not isinstance(expected, str) or not re.fullmatch('[a-f0-9]{64}', expected):
@@ -82,7 +82,7 @@ class Outbox:
         if candidate and len(encoded(candidate)) > 60000:
             raise ValueError('La configuración excede el límite de la solicitud.')
         from _ftr_runtime.statistics_commands import clean
-        statistical=clean(action,data.get('statistical')) if action in ('dictionary-save','history-import') else None
+        statistical=clean(action,data.get('statistical')) if action in ('dictionary-save','history-import','history-review','history-recalculate') else None
         dependency = data.get('depends_on')
         with self._lock, computer_lock(self.file('ordenes.lock')) as acquired:
             if not acquired:

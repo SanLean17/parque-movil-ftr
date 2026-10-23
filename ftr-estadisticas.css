@@ -102,3 +102,7 @@ select:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
 .metric.red::before,.highlight.red::before{background:var(--red)}
 .metric.orange::before,.highlight.orange::before{background:var(--orange)}
 .metric.green::before,.highlight.green::before{background:var(--green)}
+
+.source-dates{font:10px/1.7 "JetBrains Mono",monospace;color:var(--muted);padding:4px;margin-top:16px}.source-dates p+p{margin-top:4px}@media(min-width:640px){.source-dates{font-size:11px}}
+.page-heading>div:first-child{min-width:0}.source-dates{overflow-wrap:anywhere}
+@media(max-width:359px){.page-heading{gap:8px}.page-heading h1{font-size:22px}.period-badge{min-width:78px}.header-inner .brand-title{overflow-wrap:anywhere}}

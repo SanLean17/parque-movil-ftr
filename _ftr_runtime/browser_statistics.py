@@ -64,6 +64,7 @@ def main():
                         return
                     name=u.path.lstrip('/')
                     payloads={f'estadisticas/{year}.json':encoded(data) for year,data in current.items()}
+                    payloads.update({name:b'2026-10-22T20:01:00+00:00\n' for name in ('ultima_actualizacion_parque.txt','ultima_actualizacion_controlados.txt')})
                     items=[entry(current[y],payloads[f'estadisticas/{y}.json']) for y in sorted(current,reverse=True)]
                     if wrong_hash:
                         for item in items:item['sha256']='0'*64
@@ -106,6 +107,10 @@ def main():
                         assert max(t['x'] for t in tracks)-min(t['x'] for t in tracks)<1
                         assert max(t['w'] for t in tracks)-min(t['w'] for t in tracks)<1
                 open_page()
+                page.wait_for_function('document.querySelector("#fechaParque").textContent.includes("17:01")')
+                assert page.locator('.ftr-statistics-link').get_attribute('aria-current')=='page'
+                assert page.locator('.ftr-brand').get_attribute('href')=='index.html'
+                assert '2026' in page.locator('#fechaControlados').inner_text()
                 assert page.locator('#periodSelect').input_value()=='2027'
                 assert page.locator('[data-metric="registros_validos"] .metric-value').inner_text()=='1'
                 select(2026)

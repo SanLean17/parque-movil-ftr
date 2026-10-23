@@ -14,7 +14,8 @@ INCIDENCIAS
 CONTROL_SIN_ESTADO es una advertencia de una fiscalización válida: conserva fecha,
 dominio, interno, pestaña, posición, fila y celda real de ESTADO en el informe
 cifrado. COLUMNA_ESTADO_AUSENTE diferencia la falta del encabezado. No asigna
-resultados ni modifica Google. Los encabezados no atraviesan separadores vacíos.
+resultados ni modifica Google. Los encabezados no atraviesan separadores vacíos salvo el formato anual
+reconocido: columna sin título seguida de KM, NOVEDADES y ESTADO juntos.
 La interfaz muestra ambas advertencias en INCIDENCIAS > Advertencias.
 
 DICCIONARIO

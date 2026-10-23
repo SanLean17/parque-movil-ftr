@@ -118,4 +118,10 @@ class HistoricalTests(unittest.TestCase):
         event=next(fixtures.admin.source_rows([sheet],include_novedades=True))
         self.assertFalse(event['tiene_estado']);self.assertEqual(event['estado'],'')
 
+    def test_annual_layout_with_blank_before_km_keeps_state_and_notes(self):
+        sheet=self.sheet('Línea 36',[['FECHA','DOMINIO','INTERNO','KIT DE MONTAJE','','KM','NOVEDADES','ESTADO'],['01/01/2026','AA111AA',1,'','','','PF','FUERA DE SERVICIO']])
+        event=next(fixtures.admin.source_rows([sheet],include_novedades=True))
+        self.assertTrue(event['tiene_estado']);self.assertTrue(event['tiene_novedades'])
+        self.assertEqual(event['cols']['estado'],8);self.assertEqual(event['estado'],'fueradeservicio');self.assertEqual(event['novedades'],'PF')
+
 if __name__=='__main__':unittest.main()

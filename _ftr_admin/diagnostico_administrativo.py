@@ -116,8 +116,16 @@ def source_rows(sheets, include_novedades=False):
                     left = min(cols.values())
                     break
                 left -= 1
-            while right + 1 < following and base.text(sheet.cells.get((block['row'], right + 1))):
-                right += 1
+            while right + 1 < following:
+                if base.text(sheet.cells.get((block['row'], right + 1))):
+                    right += 1
+                elif right + 4 < following and [base.norm(sheet.cells.get((block['row'], right + offset))) for offset in (2,3,4)] == ['km','novedades','estado']:
+                    # Formato anual con una columna sin título antes de KM.
+                    # Exigir la secuencia completa evita tomar un ESTADO auxiliar
+                    # aislado al otro lado de un separador o de otro bloque.
+                    right += 4
+                else:
+                    break
             states = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'estado']
             state_col = states[0] if len(states) == 1 else None
             notes = [c for c in range(left, right + 1) if base.norm(sheet.cells.get((block['row'], c))) == 'novedades'] if include_novedades else []

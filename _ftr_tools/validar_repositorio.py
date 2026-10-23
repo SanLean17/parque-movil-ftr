@@ -56,8 +56,11 @@ def main():
     from _ftr_runtime.statistics_archive import validate_collection
     archive=validate_collection(ROOT,lambda name:subprocess.check_output(['git','show','HEAD:'+name],cwd=ROOT))
     assert {r['archivo'] for r in archive['periodos']} <= manifest['files_sha256'].keys()
-    for page in ('index.html','linea.html'):
-        assert not re.search(r'(?:href|onclick)=[^>]*estadisticas\.html', (ROOT/page).read_text(encoding='utf-8'), re.I)
+    for page in ('index.html','linea.html','estadisticas.html'):
+        html=(ROOT/page).read_text(encoding='utf-8')
+        assert len(re.findall(r'<a[^>]+href="estadisticas\.html"',html))==1
+        assert re.search(r'<a[^>]+href="index\.html"[^>]+ftr-brand',html)
+        assert 'ftr-navegacion.css' in html
     for name, expected in manifest.get('files_sha256', {}).items():
         data = subprocess.check_output(['git','show','HEAD:'+name], cwd=ROOT)
         assert hashlib.sha256(data).hexdigest() == expected, 'Manifiesto desactualizado: '+name

@@ -65,7 +65,8 @@ class RolloverTests(unittest.TestCase):
         self.google(self.sheets());data,_,_=self.build(self.historical())
         from _ftr_runtime import historical_statistics as history
         history.add_archive(self.root,data)
-        dictionary=rules.proposed(rules.EMPTY,[dict(expresion='X12',categoria='direccion',componente='barra_larga',habilitada=True)],rules.digest(rules.EMPTY))
+        dictionary=rules.proposed(rules.EMPTY,[dict(expresion='X12',categoria='direccion',componente='barra_larga',habilitada=True),
+            dict(expresion='extremo',variantes=['extremos'],tipo='descriptor',significado='extremo',alcance='general',habilitada=True)],rules.digest(rules.EMPTY))
         (self.root/rules.FILE).write_bytes(rules.encoded(dictionary))
         paths=['estadisticas/2025.json','estadisticas/2026.json',rules.FILE,'parques/linea36.csv','parques/linea37.csv']
         before={p:(self.root/p).read_bytes() for p in paths}
@@ -73,7 +74,7 @@ class RolloverTests(unittest.TestCase):
         self.clock=datetime(2027,2,3,20,tzinfo=timezone.utc)
         with self.assertRaises(ValueError):self.google(self.sheets())
         self.assertFalse((self.root/'estadisticas/2027.json').exists())
-        good=[self.sheet('LINEA 36/37',[['FECHA','LINEA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],['01/02/2027',36,'AA111AA',1,'OBSERVADO','X12']])]
+        good=[self.sheet('LINEA 36/37',[['FECHA','LINEA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],['01/02/2027',36,'AA111AA',1,'OBSERVADO','EXTREMOS X12']])]
         # ROOT del motor es el repositorio global; root es el staging anual.
         loader=rules.load
         with patch.object(rules,'load',side_effect=lambda _:loader(self.root)):
@@ -82,4 +83,5 @@ class RolloverTests(unittest.TestCase):
         self.assertEqual(active['totales']['registros_validos'],1)
         self.assertEqual(active['interpretacion']['sha256'],rules.digest(dictionary))
         self.assertEqual(active['anomalias']['identificadas'],1)
+        self.assertEqual(active['anomalias']['sin_clasificar'],0)
         for p,value in before.items():self.assertEqual((self.root/p).read_bytes(),value,p)

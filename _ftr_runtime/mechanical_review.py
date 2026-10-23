@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import re
 from datetime import date
 from . import dictionary_rules as rules, public_statistics as stats
 from .mechanical_dictionary import ENGINE_REVISION
@@ -17,7 +18,7 @@ def snapshot(events, data, dictionary):
 
 def unpack(value):
     if not isinstance(value,dict) or value.get('version')!=1:raise ValueError('Este informe no conserva los registros necesarios. Abrí un informe nuevo del período.')
-    if value.get('motor_revision',3)!=ENGINE_REVISION:raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
+    if value.get('motor_revision',3) not in (5,ENGINE_REVISION):raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
     data=stats.validate(value['estadisticas']);dictionary=rules.validate(value['diccionario'])
     rows=value['registros']
     if value['periodo']!=data['periodo'] or not isinstance(rows,list) or len(rows)>100000 or fingerprint(rows)!=value['huella_registros']:
@@ -40,10 +41,12 @@ def preview(value, dictionary, corrections=None):
     affected=[];ambiguous=[]
     from .anomalies import analyze,fold
     old_compiled=rules.compile_rules(old)
+    active_terms={term for r in dictionary['reglas'] if r['habilitada'] for term in rules.terms(r)}
     for event in events:
         before=analyze(event.get('novedades',''),old_compiled);result=apply(event,corrections or {},dictionary)
         if before!=result:affected.append(dict(reference(event),antes=before,despues=result))
-        elif result['pendientes'] and any(r['expresion'] in fold(event.get('novedades','')) for r in dictionary['reglas']):ambiguous.append(reference(event))
+        unresolved=[p for p in result['pendientes'] if any(re.search(r'\b'+re.escape(term)+r'\b',fold(p)) for term in active_terms)]
+        if unresolved:ambiguous.append(dict(reference(event),pendientes=unresolved,motivo='Sin componente asociado inequívocamente; revisar el contexto y los límites de la anomalía.'))
     return dict(periodo=data['periodo'],lectura=data['lectura_planilla_utc'],registros=len(events),afectados=affected,ambiguos=ambiguous,
                 antes=data['anomalias'],despues=after,huella_registros=value['huella_registros'],
                 huella_resultado=fingerprint(after),pendientes=private['pendientes'])

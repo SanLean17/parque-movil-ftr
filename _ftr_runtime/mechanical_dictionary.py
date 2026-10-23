@@ -6,7 +6,7 @@ requerirá validación y una nueva versión; nunca reinterpreta archivos cerrado
 VERSION = 3
 # Contrato público compatible con Administración 06.3.6. La revisión del
 # intérprete se registra por separado en los informes protegidos y en Git.
-ENGINE_REVISION = 5
+ENGINE_REVISION = 6
 LEGACY_CATEGORIES = {
     'direccion': ('barra_larga', 'barra_corta', 'direccion_sin_componente'),
     'frenos': ('frenos_delanteros', 'frenos_traseros', 'flexibles_freno', 'freno_sin_ubicacion'),

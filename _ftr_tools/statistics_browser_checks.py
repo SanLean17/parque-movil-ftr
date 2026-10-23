@@ -189,6 +189,8 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
         *[['01/02/2025','AA111AA',7,'OBSERVADO',text] for text in texts]])]
     test.source=lambda:sheets
     public,new_report,new_detail=test.build()
+    # Formato del informe de 06.3.7: el binario nuevo debe validar y reutilizarlo.
+    new_detail['novedades_sin_clasificar']['revision_mecanica']['motor_revision']=5
     report.clear();report.update(new_report);detail.clear();detail.update(new_detail)
     if binary_profile:(server.DATA/'informe.dpapi').write_bytes(server.protect(json.dumps({'report':report,'details':detail}).encode()))
     remote.update(dictionary=copy.deepcopy(rules.EMPTY),expected_dictionary=rules.digest(rules.EMPTY))
@@ -208,7 +210,20 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
     form.get_by_label('Expresión técnica',exact=True).fill('EXTREMO')
     form.get_by_label('Significado del descriptor',exact=True).select_option('extremo')
     preview=form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True)
-    preview.click();page.wait_for_selector('.dictionary-preview:not([hidden])')
+    with page.expect_response('**/api/statistics-preview') as response:
+        preview.click()
+    assert response.value.status==200
+    effect=response.value.json()
+    for original,components in CASES.items():
+        affected=next(r for r in effect['afectados'] if r['novedades_original']==original)
+        assert sorted(f['componente'] for f in affected['despues']['hallazgos'])==components
+        assert len(affected['antes']['hallazgos'])==len(affected['despues']['hallazgos'])
+        assert affected['estado_formal']=='OBSERVADO'
+    alone=next(r for r in effect['ambiguos'] if r['novedades_original']=='EXTREMO')
+    assert alone['pendientes']==['EXTREMO']
+    assert effect['registros']==9
+    assert [c for c in effect['antes']['categorias'] if c['id']!='otras']==[c for c in effect['despues']['categorias'] if c['id']!='otras']
+    page.wait_for_selector('.dictionary-preview:not([hidden])')
     assert '9 controles conservados' in form.inner_text()
     assert '7 registros potencialmente afectados' in form.inner_text()
     assert 'Menciones sin clasificar: 11 → 4' in form.inner_text()

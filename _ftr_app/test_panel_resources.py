@@ -31,5 +31,19 @@ class PanelResourcesTests(unittest.TestCase):
             with patch.object(server,'RESOURCE',root),patch.object(server,'VERSION','06.3.1'):
                 with self.assertRaisesRegex(ValueError,'panel-bridge.js'):server.check_resources()
 
+    def test_current_release_requires_every_runtime_resource(self):
+        from _ftr_app.version import VERSION
+        names=('panel-bridge.js','panel-statistics-admin.js','panel-history.js','ftr-historial.js')
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'panel.html').write_text('__FTR_CSRF__')
+            for name in names:(root/name).write_text('// recurso ficticio')
+            with patch.object(server,'RESOURCE',root),patch.object(server,'VERSION',VERSION),patch.object(sys,'frozen',True,create=True):
+                server.check_resources()
+                for name in names:
+                    with self.subTest(name=name):
+                        (root/name).unlink()
+                        with self.assertRaises(ValueError):server.check_resources()
+                        (root/name).write_text('// recurso ficticio')
+
 
 if __name__=='__main__':unittest.main()

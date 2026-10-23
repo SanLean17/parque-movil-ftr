@@ -379,11 +379,12 @@ def check_resources():
         raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
     if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
         raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
-    if VERSION in ('06.3.1','06.3.2','06.3.3','06.3.4','06.3.5','06.3.6','06.3.7') and not (RESOURCE/'panel-bridge.js').is_file():
+    version=tuple(map(int,VERSION.split('.')))
+    if version >= (6,3,1) and not (RESOURCE/'panel-bridge.js').is_file():
         raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete '+VERSION+' en una carpeta nueva.')
-    if VERSION in ('06.3.5','06.3.6','06.3.7') and not (RESOURCE/'panel-statistics-admin.js').is_file():
+    if version >= (6,3,5) and not (RESOURCE/'panel-statistics-admin.js').is_file():
         raise ValueError('Falta el diccionario técnico. Extraé el paquete completo en una carpeta nueva.')
-    if VERSION in ('06.3.2','06.3.3','06.3.4','06.3.5','06.3.6','06.3.7'):
+    if version >= (6,3,2):
         for name in ('panel-history.js','ftr-historial.js'):
             path=RESOURCE/name
             if name=='ftr-historial.js' and not getattr(sys,'frozen',False):path=Path(__file__).resolve().parents[1]/name

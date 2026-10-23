@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.6 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.7 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -85,7 +85,7 @@ no confirman reemplazos ni bajas. Si falta el detalle privado, recuperarlo
 desde el ZIP anterior o consultar el informe de una ejecución existente.
 
 DICCIONARIO E HISTÓRICOS
-En Planilla y período, abrir DICCIONARIO TÉCNICO y Consultar GitHub.
+En el menú lateral, abrir DICCIONARIO TÉCNICO y Consultar GitHub.
 Los pendientes provienen de informes protegidos cargados en este equipo.
 Elegir una abreviatura técnica general, categoría y componente. Confirmar
 guarda la orden en Actualizaciones; consultar GitHub después de que termine.
@@ -107,14 +107,18 @@ una columna ESTADO ausente. No corrige la planilla ni supone el resultado.
 Para iniciar otro período, cambiar año y enlace juntos. Una hoja reconocida
 vacía empieza en cero; una lectura fallida conserva la publicación anterior.
 
-NUEVO EN 06.3.6
-En Estadísticas, consultá Anomalías mecánicas y elegí el año. Otras / sin
-clasificar permite buscar expresiones, ver sus registros protegidos y proponer
-una clasificación general con vista previa. Guardar una regla no actualiza
-inmediatamente las cifras: el año activo la aplica en su próxima lectura
-automática. Un año cerrado requiere Preparar informe histórico y confirmar
-Revisar recálculo histórico. Los informes antiguos pueden carecer de campos;
-abrí un informe nuevo para calcular una vista previa completa.
-La clasificación individual de una sola aparición no está habilitada.
-Extraé toda esta carpeta antes de abrir FTR_Administracion.exe. Conserva tu
-configuración y credenciales existentes; este ZIP no incluye datos privados.
+NUEVO EN 06.3.7
+Diccionario técnico tiene su propia sección junto a Estadísticas. Permite
+buscar expresiones pendientes, leer NOVEDADES completas con resaltado,
+editar fragmentos y comprobar el efecto antes de confirmar. Las reglas
+generales se envían mediante la cola existente; no cambian cifras hasta
+que se aplica una lectura o recálculo autorizado.
+Las interpretaciones particulares quedan protegidas mediante DPAPI en este
+perfil Windows y se aplican al informe privado. No se envían a GitHub ni
+recalculan estadísticas públicas. Un informe de un motor antiguo puede
+requerir un informe actualizado para ofrecer una vista previa exacta.
+Importar otro año empieza vacío y conserva 2025, 2026 y los años archivados.
+Se conservan autorización, borradores, órdenes, preferencias, informes e
+interpretaciones al abrir la nueva versión desde otra carpeta. No borrar
+%LOCALAPPDATA%/FTR_Administracion. No mezclar archivos de distintas versiones.
+Ver DICCIONARIO_TECNICO.txt para los alcances de revisión y privacidad.

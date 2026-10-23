@@ -111,7 +111,8 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.6'
+    from _ftr_app.version import VERSION
+    server.VERSION = VERSION
     from _ftr_app.statistics_admin import install as install_statistics
     install_statistics(server)
     server.app.view_functions['submit'] = submit

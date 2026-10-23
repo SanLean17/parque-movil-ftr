@@ -11,3 +11,9 @@
 .ftr-statistics-link[aria-current=page]{box-shadow:inset 0 -3px #93c5fd;border-color:#93c5fd}
 .ftr-line-heading{flex:1;text-align:center;min-width:110px}
 @media(max-width:639px){.ftr-header-row .ftr-brand{flex:1;min-width:130px}.ftr-brand .brand-title,.ftr-brand h1{font-size:14px;letter-spacing:.025em}.ftr-brand p{font-size:9px}.ftr-header-row .ftr-line-heading{order:3;flex-basis:100%;margin:0}.ftr-header-actions{gap:5px}.ftr-statistics-link{padding:7px;font-size:9px}}
+
+/* Mismo bloque de actualizaciones en inicio y estadísticas. */
+.ftr-update-dates{margin-top:16px;padding:0 4px;color:#64748b;font:400 10px/1.5 "JetBrains Mono",monospace;overflow-wrap:anywhere}
+.dark .ftr-update-dates{color:#94a3b8}
+.ftr-update-dates>div+div{margin-top:4px}
+@media(min-width:640px){.ftr-update-dates{font-size:11px}}

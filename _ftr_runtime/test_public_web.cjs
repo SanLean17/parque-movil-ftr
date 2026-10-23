@@ -54,3 +54,15 @@ test('tabla válida sin controles sí es cero', () => {
   assert.equal(result['controladas-36'], '0');
   assert.equal(result['porcentaje-36'], '0%');
 });
+
+
+test('fechas de actualización argentinas: hora real, medianoche y errores', () => {
+  const context={window:{fetch:()=>{}},location:{href:'https://ftr.test/'},document:{baseURI:'https://ftr.test/'},URL,Map,Date,Intl};
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'..','ftr-datos.js'),'utf8'),context);
+  const format=context.window.FTRData.formatUpdate;
+  assert.equal(format('2026-10-23T01:31:10.527791+00:00'),'22/10/2026 a las 22:31 hs.');
+  assert.equal(format('2026-10-23T03:00:00Z'),'23/10/2026 a las 00:00 hs.');
+  assert.equal(format('2026-10-23T17:01:00-03:00'),'23/10/2026 a las 17:01 hs.');
+  for(const raw of ['',null,'no disponible','2026-10-23','2026-10-23T12:00:00','2026-99-23T00:00:00Z'])assert.equal(format(raw),'-');
+});

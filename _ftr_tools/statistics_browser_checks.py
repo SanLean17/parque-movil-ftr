@@ -2,6 +2,7 @@
 import copy
 import json
 import os
+from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
 from cryptography.fernet import Fernet
@@ -26,7 +27,7 @@ def check_statistics_admin(page):
     assert page.locator('#confirmedRules').is_visible()
 
 
-def check_mechanical_review(page):
+def check_mechanical_review(page, binary_profile=None):
     import server
     from _ftr_runtime.test_mechanical_review import ReviewTests
     test=ReviewTests();test.setUp()
@@ -38,12 +39,19 @@ def check_mechanical_review(page):
         public,report,detail=test.build();private=detail['novedades_sin_clasificar']
         cfg=load(Path(__file__).resolve().parents[1]);current=copy.deepcopy(public);current['periodo']=2026
         remote=dict(dictionary=copy.deepcopy(rules.EMPTY),expected_dictionary=rules.digest(rules.EMPTY),expected=digest(cfg),period=2026,periods=[2026,2025],statistics={'2025':public,'2026':current},hashes={},publication={'2025':True,'2026':True})
-        path=server.DATA/'diccionario_remoto.json';old=path.read_bytes() if path.exists() else None
-        server.write_json(path,remote)
         cipher=Fernet(Fernet.generate_key())
-        with patch.object(server,'diagnostic_cache',return_value={'report':report,'details':detail}),patch.object(server,'protect',side_effect=lambda data,decrypt=False:cipher.decrypt(data) if decrypt else cipher.encrypt(data)):
+        with ExitStack() as stack:
+            if binary_profile:
+                stack.enter_context(patch.object(server,'DATA',binary_profile))
+                (server.DATA/'informe.dpapi').write_bytes(server.protect(json.dumps({'report':report,'details':detail}).encode()))
+            else:
+                stack.enter_context(patch.object(server,'diagnostic_cache',return_value={'report':report,'details':detail}))
+                stack.enter_context(patch.object(server,'protect',side_effect=lambda data,decrypt=False:cipher.decrypt(data) if decrypt else cipher.encrypt(data)))
+            path=server.DATA/'diccionario_remoto.json';old=path.read_bytes() if path.exists() else None
+            server.write_json(path,remote)
             def remote_status(route):
-                result=page.request.get(server.ORIGIN+'/api/statistics-admin',headers={'X-FTR-CSRF':server.CSRF})
+                csrf=page.locator('meta[name="ftr-csrf"]').get_attribute('content')
+                result=page.request.get(page.url.split('/')[0]+'//'+page.url.split('/')[2]+'/api/statistics-admin',headers={'X-FTR-CSRF':csrf})
                 route.fulfill(response=result)
             page.route('**/api/statistics-admin?remote=1',remote_status)
             page.evaluate('showView("dictionary")');page.locator('#technicalRefresh').click()
@@ -166,7 +174,8 @@ def check_mechanical_review(page):
             page.evaluate('showView("statistics")');page.locator('#mechanicalPeriod').select_option('2025');page.locator('#openDictionary').click()
             assert page.locator('#dictionaryPeriod').input_value()=='2025'
             page.unroute('**/api/statistics-admin?remote=1')
-        (server.DATA/'interpretaciones.dpapi').unlink(missing_ok=True)
-        if old is None:path.unlink(missing_ok=True)
-        else:path.write_bytes(old)
+            if not binary_profile:
+                (server.DATA/'interpretaciones.dpapi').unlink(missing_ok=True)
+                if old is None:path.unlink(missing_ok=True)
+                else:path.write_bytes(old)
     finally:test.tearDown()

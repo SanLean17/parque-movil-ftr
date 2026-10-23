@@ -98,7 +98,8 @@ class SourcePipelineTests(unittest.TestCase):
 
     def test_valid_empty_table_and_period_change_do_not_mix_years(self):
         self.config['period'] = 2027
-        data = self.google(self.sheets())
+        with self.assertRaises(ValueError):self.google(self.sheets())
+        data = self.google([self.sheet('LINEA 36/37',[['FECHA','LINEA','DOMINIO','INTERNO','ESTADO','NOVEDADES']])])
         self.assertEqual(data['records'], 0)
         self.assertEqual(len((self.root/'controlados/linea36.csv').read_text().splitlines()), 1)
 

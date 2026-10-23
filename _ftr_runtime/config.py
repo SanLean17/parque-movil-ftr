@@ -134,3 +134,8 @@ def selected(config, old, state, mode, now):
             return ['cnrt', 'drive']
         return ['drive'] if sheet_identity(config) != sheet_identity(old) else []
     raise ValueError('Acción no reconocida.')
+
+
+def validate_source_change(previous, candidate):
+    if previous['period']!=candidate['period'] and previous['sheetUrl']==candidate['sheetUrl']:
+        raise ValueError('Al cambiar de período, indicá también la planilla anual correspondiente. El año y el enlace se publican juntos.')

@@ -132,7 +132,7 @@ class StatisticsV2PipelineTests(unittest.TestCase):
         self.assertEqual((self.root/'estadisticas/2026.json').read_bytes(),before)
 
     def test_migration_keeps_legacy_counts_and_no_fake_days_or_components(self):
-        self.google(self.visits());old=self.read();old['version']=1
+        self.google(self.visits());old=self.read();old['version']=1;old.pop('interpretacion');old.pop('calidad')
         for month in old['mensual']:month.pop('dias_con_fiscalizaciones')
         old['anomalias']['version_reglas']=1
         old['anomalias']['categorias']=[dict(id=k,cantidad=0,componentes=[dict(id=c,cantidad=0,estados={s:0 for s in stats.STATUS}) for c in components]) for k,components in LEGACY_CATEGORIES.items()]
@@ -161,7 +161,7 @@ class StatisticsV2PipelineTests(unittest.TestCase):
     def test_index_rejects_mixed_period_path_and_schema(self):
         self.google(self.visits());index=archive.validate_collection(self.root)
         self.assertEqual(len(index['periodos']),1)
-        for mutate in (lambda r:r.update(archivo='../../privado.json'),lambda r:r.update(version=3),lambda r:r.update(version_reglas=99)):
+        for mutate in (lambda r:r.update(archivo='../../privado.json'),lambda r:r.update(version=99),lambda r:r.update(version_reglas=99)):
             with self.subTest(mutate=mutate):
                 bad=copy.deepcopy(index);mutate(bad['periodos'][0])
                 with self.assertRaises(ValueError):archive.validate_index(bad)

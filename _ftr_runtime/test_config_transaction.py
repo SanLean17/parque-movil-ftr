@@ -116,10 +116,18 @@ class ConfigTransactionTests(unittest.TestCase):
 
     def test_valid_empty_new_period_is_published_as_empty(self):
         candidate=copy.deepcopy(self.config);candidate['period']=2027
+        candidate['sheetUrl']='https://docs.google.com/spreadsheets/d/'+'y'*30+'/edit'
         self.assertEqual(self.execute(candidate),0)
         self.assertEqual((self.root/'controlados/linea36.csv').read_text(encoding='utf-8-sig'),'linea,fecha,dominio,interno\n')
         self.assertEqual(json.loads((self.root/'_ftr_estado.json').read_text())['drive']['records'],0)
         self.assertEqual(json.loads((self.root/'historial/linea36.json').read_text())['controles'],[])
+
+    def test_new_period_requires_new_source_and_preserves_previous(self):
+        candidate=copy.deepcopy(self.config);candidate['period']=2027
+        before={p:p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
+        self.assertEqual(self.execute(candidate),1)
+        for p,body in before.items():self.assertEqual(p.read_bytes(),body,p)
+        self.commit.assert_not_called();self.pages.assert_not_called()
 
     def test_disable_reactivate_keeps_prior_line_files(self):
         candidate=copy.deepcopy(self.config)

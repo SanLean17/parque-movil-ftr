@@ -42,7 +42,7 @@ def snapshot():
 
 def pending_runs(since):
     found = {}
-    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml','ftr_recuperar_turnos.yml'):
+    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml','ftr_recuperar_turnos.yml','ftr_estadisticas_admin.yml'):
         # El rango limita consultas y permite recuperar más de seis ejecuciones.
         for page in range(1, 4):
             rows = server.api('GET', 'actions/workflows/' + workflow +
@@ -60,6 +60,8 @@ def pending_runs(since):
                             agenda_bridge._cache.clear()
                         agenda_bridge._cache[key] = agenda_bridge.classify_run(row, jobs)
                     result.update(agenda_bridge._cache[key])
+                    if workflow=='ftr_estadisticas_admin.yml' and row.get('conclusion')=='success':
+                        result.update(effect='dictionary' if 'dictionary-save' in title else 'historical',detail='Operación estadística confirmada en GitHub.')
                 found[row['id']] = result
             if len(rows) < 100 or rows[-1]['created_at'] < since:
                 break
@@ -67,6 +69,11 @@ def pending_runs(since):
 
 
 def dispatch(row):
+    if row['action'] in ('dictionary-save','history-import'):
+        from _ftr_runtime.statistics_commands import clean, WORKFLOW
+        payload=clean(row['action'],row['statistical'])
+        server.api('POST','actions/workflows/'+WORKFLOW+'/dispatches',{'ref':'main','inputs':{'action':row['action'],'command_json':json.dumps(payload),'expected':row['expected'],'request_id':row['id']}})
+        return
     payload=encoded(row['config']).decode() if row['config'] else ''
     if row['action'] in ('oneoff-set','oneoff-cancel'):payload=json.dumps(row['oneoff'])
     elif row['action'] in ('drive','cnrt','all'):payload=json.dumps(dict(requested_utc=row['created_at']))
@@ -104,7 +111,9 @@ def status():
 
 def install():
     agenda_bridge.install()
-    server.VERSION = '06.3.4'
+    server.VERSION = '06.3.5'
+    from _ftr_app.statistics_admin import install as install_statistics
+    install_statistics(server)
     server.app.view_functions['submit'] = submit
     server.app.view_functions['status'] = status
     original_connect = server.app.view_functions['connect']

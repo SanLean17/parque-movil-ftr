@@ -116,11 +116,11 @@ class AdminTests(unittest.TestCase):
         self.fleet()
         r,p=self.run_report([sheet([['01/01/2026',' ab 123-cd ','001','']])])
         self.assertEqual(r['totales_estadisticas']['registros_validos'],1)
-        self.assertEqual(p['incidencias'],[])
+        self.assertEqual([x['codigo'] for x in p['incidencias']],['CONTROL_SIN_ESTADO'])
     def test_missing_fleet_not_zero(self):
         r,p=self.run_report([sheet([['01/01/2026','AB123CD',1,'']])])
         self.assertIsNone(r['estadisticas'][0]['pendientes_actuales'])
-        self.assertEqual(p['incidencias'],[])
+        self.assertEqual([x['codigo'] for x in p['incidencias']],['CONTROL_SIN_ESTADO'])
     def test_zero_fleet_coverage_undefined(self):
         self.fleet(data='')
         r,_=self.run_report([sheet([])])

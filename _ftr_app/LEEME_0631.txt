@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.4 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.5 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -83,3 +83,26 @@ indicador Controlados fuera del parque. Usa el mismo informe privado y su
 parque comparado; no realiza una lectura nueva. Las referencias por interno
 no confirman reemplazos ni bajas. Si falta el detalle privado, recuperarlo
 desde el ZIP anterior o consultar el informe de una ejecución existente.
+
+DICCIONARIO E HISTÓRICOS
+En Planilla y período, abrir DICCIONARIO TÉCNICO y Consultar GitHub.
+Los pendientes provienen de informes protegidos cargados en este equipo.
+Elegir una abreviatura técnica general, categoría y componente. Confirmar
+guarda la orden en Actualizaciones; consultar GitHub después de que termine.
+Modificar permite corregir o deshabilitar una equivalencia. Dejar sin
+clasificar conserva la observación original en su informe protegido.
+Las reglas compartidas se aplican en próximas lecturas; no cambian ESTADO
+ni recalculan silenciosamente años cerrados. Nunca pegar datos personales.
+
+IMPORTAR ESTADÍSTICAS HISTÓRICAS requiere una planilla independiente y un año
+anterior al activo. Lee solamente esa fuente y agrega el año al selector.
+Se detiene ante registros inválidos o de otro año. Importar parcialmente
+requiere marcar la autorización expresa y se identifica como histórico parcial.
+Consultar GitHub permite abrir su informe protegido. Los años ya archivados
+no se sobrescriben. Esta operación no lee CNRT ni cambia controles, horarios
+o marcas de lectura del período activo.
+
+INCIDENCIAS > Advertencias muestra CONTROL SIN ESTADO con su celda y distingue
+una columna ESTADO ausente. No corrige la planilla ni supone el resultado.
+Para iniciar otro período, cambiar año y enlace juntos. Una hoja reconocida
+vacía empieza en cero; una lectura fallida conserva la publicación anterior.

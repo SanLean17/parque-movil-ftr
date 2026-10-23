@@ -1,5 +1,6 @@
 """Proyección agregada y verificable del mismo modelo validado por Administración."""
 import json
+import re
 from collections import Counter
 from calendar import monthrange
 from datetime import date, datetime
@@ -44,7 +45,9 @@ def monthly(events, period, cutoff):
                  'en_curso' if (period,m) == (cutoff.year,cutoff.month) else 'completo') for m in range(1,13)]
 
 
-def mechanics(events, pending=False):
+def mechanics(events, pending=False, dictionary=None):
+    from .dictionary_rules import compile_rules, EMPTY
+    custom=compile_rules(dictionary or EMPTY)
     categories = []
     for category, components in CATEGORIES.items():
         categories.append(dict(id=category, cantidad=None if pending else 0,
@@ -66,7 +69,7 @@ def mechanics(events, pending=False):
             coverage['vacios'] += 1
             continue
         coverage['con_texto'] += 1
-        analysis = analyze(e['novedades'])
+        analysis = analyze(e['novedades'],custom)
         known, unknown = analysis['hallazgos'], analysis['pendientes']
         state = clasificar_estado(e.get('estado'))
         for finding in known:
@@ -92,7 +95,7 @@ def mechanics(events, pending=False):
     return result, dict(version_reglas=VERSION, pendientes=list(private.values()), referencias_tecnicas=references)
 
 
-def build(report, events, config, read_utc, *, pending_mechanics=False):
+def build(report, events, config, read_utc, *, pending_mechanics=False, dictionary=None):
     if not report.get('listo_para_revision_de_integracion') or report.get('estadisticas_version') != 4 or report['periodo'] != config['period']:
         raise ValueError('Las estadísticas públicas requieren un informe válido del período configurado.')
     cutoff = datetime.fromisoformat(read_utc).astimezone(ZoneInfo('America/Argentina/Buenos_Aires')).date()
@@ -110,12 +113,16 @@ def build(report, events, config, read_utc, *, pending_mechanics=False):
             counts = Counter(clasificar_estado(e.get('estado')) for e in group)
             if any(counts[k] != row[k] for k in STATUS):
                 raise ValueError('Los resultados formales de las estadísticas no coinciden.')
-    anomalies, private = mechanics(events, pending_mechanics)
-    data = dict(version=2, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
+    from .dictionary_rules import validate as validate_dictionary, digest, EMPTY
+    dictionary=validate_dictionary(dictionary or EMPTY)
+    anomalies, private = mechanics(events, pending_mechanics, dictionary)
+    data = dict(version=3, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
         origen='informe_validado_historial' if pending_mechanics else 'lectura_validada',
         totales={k:report['totales_estadisticas'][k] for k in TOTALS}, lineas=lines,
         mensual=monthly(events,config['period'],cutoff), destacados=ranking(lines),
         minimo_controles_proporcion=MINIMUM, proporciones=proportions(lines), anomalias=anomalies)
+    data['interpretacion']={'revision':dictionary['revision'],'sha256':digest(dictionary)}
+    data['calidad']={'parcial':False,'registros_excluidos':0}
     validate(data)
     return data, private
 
@@ -128,9 +135,14 @@ def validate(data):
     def number(n):
         if type(n) is not int or n < 0:
             raise ValueError('Cantidad estadística inválida.')
-    exact(data, ('version','periodo','lectura_planilla_utc','corte_fecha','origen','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','anomalias'))
-    if type(data['version']) is not int or data['version'] not in (1,2) or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada'):
+    exact(data, ('version','periodo','lectura_planilla_utc','corte_fecha','origen','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','anomalias', *(('interpretacion','calidad') if data.get('version')==3 else ())))
+    if type(data['version']) is not int or data['version'] not in (1,2,3) or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada','importacion_historica'):
         raise ValueError('Versión estadística no admitida.')
+    if data['version']==3:
+        exact(data['interpretacion'],('revision','sha256'));number(data['interpretacion']['revision'])
+        if data['interpretacion']['revision']<1 or not re.fullmatch('[a-f0-9]{64}',data['interpretacion']['sha256']):raise ValueError('Versión de diccionario inválida.')
+        exact(data['calidad'],('parcial','registros_excluidos'));number(data['calidad']['registros_excluidos'])
+        if type(data['calidad']['parcial']) is not bool or data['calidad']['parcial']!=bool(data['calidad']['registros_excluidos']):raise ValueError('Cobertura histórica inválida.')
     stamp = datetime.fromisoformat(data['lectura_planilla_utc'])
     if stamp.tzinfo is None or date.fromisoformat(data['corte_fecha']) != stamp.astimezone(ZoneInfo('America/Argentina/Buenos_Aires')).date():
         raise ValueError('Fecha de lectura estadística inválida.')
@@ -155,7 +167,7 @@ def validate(data):
         expected='futuro' if (data['periodo'],m['mes'])>(cutoff.year,cutoff.month) else 'en_curso' if (data['periodo'],m['mes'])==(cutoff.year,cutoff.month) else 'completo'
         if m['estado']!=expected or m['estado']=='futuro' and m['controles']:
             raise ValueError('Mes futuro incompatible.')
-        if data['version']==2:
+        if data['version']>=2:
             days=m['dias_con_fiscalizaciones'];number(days)
             limit=min(monthrange(data['periodo'],m['mes'])[1],cutoff.day) if m['estado']=='en_curso' else monthrange(data['periodo'],m['mes'])[1]
             if days>min(limit,m['controles']) or bool(days)!=bool(m['controles']):raise ValueError('Días con fiscalizaciones incompatibles.')

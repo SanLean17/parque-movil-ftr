@@ -69,15 +69,20 @@ class Outbox:
 
     def enqueue(self, data, published):
         action = data.get('action')
-        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic','oneoff-set','oneoff-cancel'):
+        if action not in ('drive', 'cnrt', 'all', 'config', 'diagnostic','oneoff-set','oneoff-cancel','dictionary-save','history-import'):
             raise ValueError('Acción no permitida.')
         expected = data.get('expected') or (published or {}).get('digest')
         if not isinstance(expected, str) or not re.fullmatch('[a-f0-9]{64}', expected):
             raise ValueError('Primero consultá la configuración publicada. Se conserva el borrador local.')
         candidate = clean_config(data.get('config')) if action in ('config', 'diagnostic') else None
+        if action=='config' and candidate and (published or {}).get('config'):
+            from _ftr_runtime.config import validate_source_change
+            validate_source_change(published['config'],candidate)
         extra = oneoff.command(data.get('oneoff'),self.clock(),action=='oneoff-cancel') if action in ('oneoff-set','oneoff-cancel') else None
         if candidate and len(encoded(candidate)) > 60000:
             raise ValueError('La configuración excede el límite de la solicitud.')
+        from _ftr_runtime.statistics_commands import clean
+        statistical=clean(action,data.get('statistical')) if action in ('dictionary-save','history-import') else None
         dependency = data.get('depends_on')
         with self._lock, computer_lock(self.file('ordenes.lock')) as acquired:
             if not acquired:
@@ -88,7 +93,7 @@ class Outbox:
                 if not parent or parent['action'] != 'config' or parent['status'] in ('failed', 'cancelled', 'conflict'):
                     raise ValueError('La configuración de la que depende esta orden no está disponible.')
                 expected = digest(parent['config'])
-            fingerprint = hashlib.sha256(json.dumps([action, expected, candidate, dependency, extra], sort_keys=True).encode()).hexdigest()
+            fingerprint = hashlib.sha256(json.dumps([action, expected, candidate, dependency, extra, statistical], sort_keys=True).encode()).hexdigest()
             duplicate = next((r for r in value['orders'] if r['fingerprint'] == fingerprint and r['status'] in OPEN), None)
             if duplicate:
                 return self.public(duplicate)
@@ -100,6 +105,7 @@ class Outbox:
                        depends_on=dependency, fingerprint=fingerprint, status='pending',
                        created_at=self.clock().isoformat(), attempts=0, message=LABELS['pending'])
             if extra:row['oneoff']=extra
+            if statistical:row['statistical']=statistical
             value['orders'].append(row)
             self.save(value)  # Se conserva ANTES de cualquier acceso a Internet.
             return self.public(row)
@@ -160,7 +166,7 @@ class Outbox:
                         row['run_id'] = found['id']
                         row['url'] = found.get('url')
                         if found['status'] == 'completed':
-                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic','oneoff_saved','coalesced','publication') and found.get('conclusion') == 'success'
+                            ok = found.get('effect') in ('configuration', 'updated', 'diagnostic','oneoff_saved','coalesced','publication','dictionary','historical') and found.get('conclusion') == 'success'
                             row.update(status='completed' if ok else 'failed', message=found.get('detail') or LABELS['completed' if ok else 'failed'])
                         else:
                             row.update(status='sent', message=LABELS['sent'])

@@ -90,3 +90,15 @@ select:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
   .highlight .count { font-size:46px; }
   .highlight { grid-template-columns:minmax(0,1fr) auto; }
 }
+
+/* Acentos de 5 px dentro de las tarjetas: no desplazan contenido. */
+.metric,.highlight{position:relative;overflow:hidden}
+.metric::before,.highlight::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:var(--blue);pointer-events:none}
+.highlight::before{height:4px}
+.highlight{border-top-color:var(--blue)}
+.highlight.red{border-top-color:var(--red)}
+.highlight.orange{border-top-color:var(--orange)}
+.highlight.green{border-top-color:var(--green)}
+.metric.red::before,.highlight.red::before{background:var(--red)}
+.metric.orange::before,.highlight.orange::before{background:var(--orange)}
+.metric.green::before,.highlight.green::before{background:var(--green)}

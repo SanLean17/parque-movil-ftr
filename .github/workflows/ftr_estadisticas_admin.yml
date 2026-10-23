@@ -1,0 +1,60 @@
+name: FTR - Diccionario e históricos
+run-name: FTR · ${{ inputs.action }} · ${{ inputs.request_id }}
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        options: [dictionary-save, history-import]
+        required: true
+      command_json:
+        description: Regla técnica general o fuente histórica; nunca observaciones individuales
+        type: string
+        required: true
+      expected:
+        type: string
+        required: true
+      request_id:
+        type: string
+        required: true
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: ftr-publicacion-validada
+  cancel-in-progress: false
+  queue: max
+jobs:
+  estadisticas:
+    if: github.repository == 'SanLean17/parque-movil-ftr' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Preparar herramienta administrativa
+        run: python -m pip install requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt
+      - name: Guardar diccionario o importar histórico aislado
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+          FTR_STATS_ACTION: ${{ inputs.action }}
+          FTR_STATS_COMMAND: ${{ inputs.command_json }}
+          FTR_EXPECTED: ${{ inputs.expected }}
+          FTR_REPORTE_DIR: ${{ runner.temp }}/ftr-historico
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ inputs.action == 'history-import' && secrets.GOOGLE_SERVICE_ACCOUNT_JSON || '' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python _ftr_tools/statistics_admin.py
+      - name: Conservar informe histórico cifrado
+        if: always() && inputs.action == 'history-import'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: ftr-informe-administrativo
+          path: |
+            ${{ runner.temp }}/ftr-historico/resumen.json
+            ${{ runner.temp }}/ftr-historico/detalle_admin.enc.json
+          if-no-files-found: ignore
+          retention-days: 30

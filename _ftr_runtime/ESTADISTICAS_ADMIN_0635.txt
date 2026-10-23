@@ -1,0 +1,63 @@
+ESTADÍSTICAS Y ADMINISTRACIÓN 06.3.5
+
+Base: main, entrega Estadísticas V2 / aplicación completa 06.3.4.
+Se mantienen las ocho secciones originales, estilos y mecanismos de migración.
+
+PRESENTACIÓN
+Las tarjetas de resultados y destacados tienen acentos superiores de 5 px,
+sin cambiar sus dimensiones ni desplazar contenido. Se conservan colores y temas.
+Los textos públicos se simplifican y las advertencias de ESTADO quedan en el
+administrador. No cambian conteos, ranking, umbral de 20 ni porcentajes.
+El análisis pendiente muestra guiones; un análisis parcial se identifica brevemente.
+
+INCIDENCIAS
+CONTROL_SIN_ESTADO es una advertencia de una fiscalización válida: conserva fecha,
+dominio, interno, pestaña, posición, fila y celda real de ESTADO en el informe
+cifrado. COLUMNA_ESTADO_AUSENTE diferencia la falta del encabezado. No asigna
+resultados ni modifica Google. Los encabezados no atraviesan separadores vacíos.
+La interfaz muestra ambas advertencias en INCIDENCIAS > Advertencias.
+
+DICCIONARIO
+Planilla y período > DICCIONARIO TÉCNICO. Consultar GitHub carga una revisión
+coherente de configuración, reglas e índice. Los pendientes se leen solo desde
+informes protegidos cargados localmente, con frecuencia y referencias reales.
+Las observaciones originales jamás forman parte de una orden a GitHub.
+Guardar/modificar/deshabilitar usa la cola existente y una orden separada:
+ftr_estadisticas_admin.yml, action=dictionary-save. Confirma reglas generales
+literales en _ftr_diccionario.json, con revisión e integridad para detectar
+cambios concurrentes. Duplicados, categorías contradictorias, términos
+genéricos, códigos reservados, dominios y sintaxis arbitraria se rechazan.
+El motor escapa los literales: no evalúa código ni expresiones regulares del usuario.
+La próxima lectura automática usa el diccionario; los históricos no se recalculan.
+
+IMPORTACIÓN HISTÓRICA
+Planilla y período > IMPORTAR ESTADÍSTICAS HISTÓRICAS. La orden history-import
+descarga exclusivamente la planilla indicada, una vez, mediante el lector
+existente. Solo pestañas Linea/Línea, sin distinción de mayúsculas o acentos.
+Detecta las líneas de esa fuente y no consulta los parques actuales ni CNRT.
+Requiere año cerrado anterior al activo y fuente distinta de la activa.
+La importación se detiene ante exclusiones salvo autorización explícita de
+importación parcial. Los errores de estructura siempre bloquean. Un año
+existente no se descarga ni sobrescribe. Los informes quedan cifrados y se
+pueden consultar desde el administrador; no reemplazan la lectura local activa.
+La publicación modifica exclusivamente estadisticas/AÑO.json, su índice y
+las huellas correspondientes del manifiesto. Comprueba Pages y archivos servidos.
+No altera estado, configuración, agenda, fuentes, controlados, parques o historial
+individual de producción. Comparte el bloqueo de publicación para evitar carreras.
+
+VERSIONES Y TRANSICIÓN
+Los archivos nuevos usan esquema 3, con revisión/hash del diccionario y calidad
+de la importación. Se siguen validando históricos 1 y 2 sin reescribirlos.
+Cambiar de año requiere cambiar también la URL anual como una sola configuración.
+Una planilla con fechas exclusivamente de otro año no se interpreta como vacía.
+Una hoja nueva reconocida y sin filas sí produce controles cero; conserva el
+parque y los archivos estadísticos anuales anteriores. Se prueba solo aislado.
+
+VERIFICACIÓN
+Pruebas Python y navegador cubren conservación de archivos, descarga única,
+diccionario, conflictos, cola, sesión local, privacidad, advertencias, fuentes
+fallidas, años cerrados y 2027 vacío. CI compila y abre el ejecutable Windows
+real, comprueba sus recursos, migración, formularios y órdenes sin fuentes reales.
+La web se prueba en 360/390/430/768/1280/1440 px, ambos temas y distintos esquemas.
+No se modifican horarios, recuperaciones, reloj autónomo ni Secrets.
+Este trabajo no ejecuta manualmente las actualizaciones de Drive 2026 o CNRT.

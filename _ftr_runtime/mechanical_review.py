@@ -4,6 +4,7 @@ import hashlib
 import json
 from datetime import date
 from . import dictionary_rules as rules, public_statistics as stats
+from .mechanical_dictionary import ENGINE_REVISION
 
 FIELDS=('linea','pestana','pestana_posicion','fila','dominio','interno','estado','estado_original','tiene_novedades','novedades')
 
@@ -12,10 +13,11 @@ def fingerprint(value):
 
 def snapshot(events, data, dictionary):
     rows=[{**{k:e.get(k) for k in FIELDS},'fecha':e['fecha'].isoformat()} for e in events]
-    return dict(version=1,periodo=data['periodo'],registros=rows,diccionario=dictionary,estadisticas=copy.deepcopy(data),huella_registros=fingerprint(rows))
+    return dict(version=1,motor_revision=ENGINE_REVISION,periodo=data['periodo'],registros=rows,diccionario=dictionary,estadisticas=copy.deepcopy(data),huella_registros=fingerprint(rows))
 
 def unpack(value):
     if not isinstance(value,dict) or value.get('version')!=1:raise ValueError('Este informe no conserva los registros necesarios. Abrí un informe nuevo del período.')
+    if value.get('motor_revision',3)!=ENGINE_REVISION:raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
     data=stats.validate(value['estadisticas']);dictionary=rules.validate(value['diccionario'])
     rows=value['registros']
     if value['periodo']!=data['periodo'] or not isinstance(rows,list) or len(rows)>100000 or fingerprint(rows)!=value['huella_registros']:

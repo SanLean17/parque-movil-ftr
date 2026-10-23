@@ -1,0 +1,92 @@
+INTERPRETACIÓN DE NOVEDADES — REVISIÓN 4
+
+Alcance autorizado el 23/10/2026
+Motor, equivalencias generales, pruebas e integración existente. Sin rediseño
+web, sin cambios en FTR Administración, sin paquete Windows nuevo y sin cambios
+en horarios, fuentes, controles originales o archivos estadísticos publicados.
+
+Problema corregido
+El analizador anterior cortaba comas dentro de códigos y desconocía variantes
+como PF.3 y PS.1. Después de localizar un componente, quitaba ciertas palabras
+sueltas, dejando descriptores como ISK y SUELTO pendientes; también podía tomar
+una ubicación distante o un extremo Pitman como otro hallazgo independiente.
+
+Interpretación
+Se reconocen primero los códigos completos y se protegen sus separadores.
+Luego se delimitan expresiones por comas, puntos, punto y coma, guiones, saltos
+de línea y numeraciones. Dentro de cada expresión se ubican los componentes.
+Solo se absorben descriptores contiguos: una palabra desconocida interrumpe la
+asociación y permanece para revisión. Las negaciones e incertidumbres no se
+convierten en hallazgos confirmados. No se unen letras a través de otras palabras
+ni saltos de línea. Los códigos no confirmados quedan pendientes completos.
+
+PF y PS
+PF1–PF6: pulmón de freno. PS1–PS4: pulmón de suspensión. Se admiten puntos,
+espacios o coma antes del número y puntos/espacios entre P y F/S. PF y PS nunca
+se mezclan. El 1 es delantero izquierdo; el 2, delantero derecho. Las otras
+referencias confirmadas solo identifican la zona trasera, sin inventar interiores
+o exteriores. La referencia distingue los códigos sin deducir más posiciones.
+
+Amortiguadores
+A1 y A2 conservan las posiciones delanteras confirmadas; A3–A6, traseras.
+A7 y A8 son amortiguadores sin posición exacta inferida. A4 BUJE FLOJO es un
+hallazgo de buje. A4 ROTO Y BUJE DE A4 FLOJO contiene dos defectos diferenciados.
+SUELTO y FLOJO se conservan como defectos diferentes, sin derivarlos de ESTADO.
+
+Barras y tensores
+BARRA CORTA TRAS y CORTA ENTERA identifican barra corta. CORTA aislada y una
+descripción incompatible, como CORREA CORTA ENTERA, permanecen pendientes.
+Los extremos de barra se agrupan en un componente; LADO PITMAN no agrega un
+hallazgo del brazo Pitman. TENSOR ISK y TENSOR DER MONIO DEL son tensores de
+suspensión. MOÑO/MONIO se absorben únicamente asociados a un tensor. TENSOR DE
+DIRECCIÓN sigue siendo ambiguo. Un descriptor aislado nunca se descarta.
+Las ubicaciones compuestas se normalizan sin depender del orden de escritura.
+La posición de MOÑO/MONIO describe el extremo y no se convierte en otra unidad
+ni permite deducir el eje del tensor: TENSOR DER MONIO DEL es un tensor derecho.
+
+Flexibles y pérdidas
+ZONA MEDIA pertenece al flexible identificado. Un flexible de combustible,
+agua o suspensión no se convierte en freno. PÉRDIDA DE AIRE sin sistema queda
+completa pendiente; con sistema de frenos explícito puede identificar frenos
+sin componente precisado. No se inventa un origen ni un pulmón concreto.
+
+Controles, estado y privacidad
+Se deduplica cada componente y ubicación/referencia dentro de un control.
+Cuatro menciones siguen siendo una fiscalización. ESTADO se lee únicamente
+de su columna y solo vincula las menciones con el resultado del control completo;
+no representa gravedad individual de cada hallazgo. El texto original, fecha,
+dominio y referencias se conservan exclusivamente en informes protegidos.
+El público recibe solo agregados del mismo esquema validado existente.
+
+Versionado y períodos
+Se reutilizan mechanical_dictionary.py y el único _ftr_diccionario.json.
+La revisión general avanza a 2 por la ampliación confirmada de equivalencias.
+Las reglas administrativas conservan el formato y persistencia en GitHub.
+No hay diccionarios por año. El catálogo/contrato público sigue en versión 3,
+compatible con los lectores existentes; ENGINE_REVISION=4 identifica el cambio
+de interpretación y se guarda en la cápsula privada del informe.
+Una vista previa con un motor incompatible se bloquea: nunca se simula impacto.
+Administración 06.3.6 conserva consultas y cifras públicas; su motor local
+anterior puede rechazar vistas previas de informes interpretados con reglas
+nuevas. Se necesita una futura actualización autorizada del cliente para
+calcular allí con la revisión 4. No se entrega ni genera ese paquete ahora.
+
+Publicación
+La próxima lectura automática válida del período activo utiliza las nuevas
+reglas. No se despacha Drive/CNRT manualmente ni se editan cifras JSON a mano.
+Un año cerrado conserva sus bytes hasta una revisión histórica explícita.
+Las pruebas comprueban controles, estados, unidades, duplicados y archivos
+anteriores. El administrador no recibe nuevas pantallas, botones o formularios.
+
+Validación sin paquete
+CI mantiene las pruebas en Linux y Windows. La compilación/empaquetado Windows
+solo se ejecuta cuando cambia el cliente o sus herramientas de empaquetado.
+Una modificación del motor servidor no produce otra distribución 06.3.6.
+
+Pruebas ficticias
+Frases completas obligatorias, variantes PF/PS/A/R, fronteras de código,
+abreviaturas de ubicación, componentes y extremos, descriptores asociados,
+información desconocida, contextos incompatibles, negaciones, deduplicación,
+independencia de ESTADO, privacidad, cambio de período y reglas persistentes.
+La simulación con un informe real protegido se entrega como evidencia local
+agregada; no modifica datos de producción ni se incorpora al repositorio.

@@ -20,7 +20,7 @@ class MechanicalTests(unittest.TestCase):
         self.assertEqual([x[1] for x in known],['frenos_delanteros','frenos_delanteros'])
 
     def test_known_unknown_can_coexist_without_inventing_codes(self):
-        for value in ('Barra larga, R9','R9 A7 R10 y barra corta','Cardán; abreviatura desconocida'):
+        for value in ('Barra larga, R9','R9 A9 R10 y barra corta','Cardán; abreviatura desconocida'):
             with self.subTest(value=value):
                 known, unknown=anomalies.classify(value)
                 self.assertEqual(len(known),1)

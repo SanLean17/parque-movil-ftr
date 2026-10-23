@@ -9,7 +9,7 @@
   const label=x=>({sonora_marcha_atras:'Sonora de marcha atrás',corte_corriente:'Corte de batería / corriente',cardan:'Cardán',rotulas_direccion:'Rótulas de dirección',pulmon_freno:'Pulmón de freno',pulmon_suspension:'Pulmón de suspensión'}[x]||x.replaceAll('_',' ').replace(/^./,c=>c.toUpperCase()));
   function node(tag,text,cls){const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;}
   async function api(path,body){const r=await fetch('/api/'+path,{method:body?'POST':'GET',headers:{'X-FTR-CSRF':csrf,'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'No se pudo completar la operación.');return d;}
-  function message(text,error=false){q('technicalStatus').textContent=text;q('technicalStatus').className=error?'error':'inline-note';}
+  function message(text,error=false){for(const id of ['technicalStatus','historicalStatus']){q(id).textContent=text;q(id).className=error?'error':'inline-note';}}
   function components(){const old=q('technicalComponent').value;q('technicalComponent').replaceChildren(...(data?.catalogue[q('technicalCategory').value]||[]).map(c=>new Option(label(c),c)));if([...q('technicalComponent').options].some(o=>o.value===old))q('technicalComponent').value=old;}
   function reset(){editing=null;q('technicalExpression').value='';q('technicalEnabled').checked=true;q('technicalPublic').checked=false;q('technicalSave').textContent='GUARDAR CLASIFICACIÓN';q('technicalSelection').textContent='Nueva equivalencia';}
   function edit(rule){editing=rule.expresion;q('technicalExpression').value=rule.expresion;q('technicalCategory').value=rule.categoria;components();q('technicalComponent').value=rule.componente;q('technicalEnabled').checked=rule.habilitada;q('technicalPublic').checked=false;q('technicalSave').textContent='MODIFICAR CLASIFICACIÓN';q('technicalSelection').textContent='Regla seleccionada: '+rule.expresion;}
@@ -26,7 +26,7 @@
     q('historyAvailable').textContent=data.remote?'Años archivados: '+data.remote.periods.join(', ')+' · Activo: '+data.remote.period:'Consultá GitHub antes de confirmar una importación.';
   }
   async function load(remote){try{data=await api('statistics-admin'+(remote?'?remote=1':''));render();reset();message(data.remote?'Diccionario revisión '+data.remote.dictionary.revision+'. Las equivalencias se aplican en próximas lecturas; los años cerrados se conservan.':'Consultá GitHub para cargar el diccionario compartido.');}catch(e){message(e.message,true);}}
-  q('technicalRefresh').onclick=()=>load(true);q('technicalCategory').onchange=components;
+  q('technicalRefresh').onclick=()=>load(true);q('historicalRefresh').onclick=()=>load(true);q('technicalCategory').onchange=components;
   q('technicalDiscard').onclick=()=>{reset();message('Se dejó sin clasificar. La expresión original sigue protegida en el informe.');};
   q('technicalForm').onsubmit=e=>{e.preventDefault();if(!data?.remote){message('Consultá GitHub primero.',true);return;}if(!q('technicalPublic').checked){message('Confirmá que es un término técnico general, sin datos privados.',true);return;}
     const expression=q('technicalExpression').value.trim();const rows=data.remote.dictionary.reglas.filter(r=>r.expresion!==editing);rows.push({expresion:expression,categoria:q('technicalCategory').value,componente:q('technicalComponent').value,habilitada:q('technicalEnabled').checked});

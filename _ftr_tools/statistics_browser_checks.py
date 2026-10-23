@@ -106,6 +106,7 @@ def check_mechanical_review(page):
             form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click();page.wait_for_selector('.dictionary-preview:not([hidden])')
             assert '2 registros potencialmente afectados' in form.inner_text()
             # Hover, focus, ubicación inmediata y capturas en ambos temas.
+            page.locator('#toast').wait_for(state='hidden')
             output=os.environ.get('FTR_SCREENSHOTS')
             for width in (390,900,1280):
                 page.set_viewport_size({'width':width,'height':950})

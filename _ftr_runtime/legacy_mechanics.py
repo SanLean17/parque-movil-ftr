@@ -63,4 +63,3 @@ def mechanics(events, dictionary, revision):
     if result['cobertura']['sin_columna']:
         result['estado'] = 'parcial'
     return result, dict(version_reglas=VERSION, pendientes=list(private.values()), referencias_tecnicas=references)
-

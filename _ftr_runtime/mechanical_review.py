@@ -2,7 +2,6 @@
 import copy
 import hashlib
 import json
-import re
 from datetime import date
 from . import dictionary_rules as rules, public_statistics as stats
 from .mechanical_dictionary import ENGINE_REVISION
@@ -42,7 +41,7 @@ def preview(value, dictionary, corrections=None):
     stats.validate(proposed)
     from .record_interpretation import reference,apply
     affected=[];ambiguous=[]
-    from .anomalies import analyze,fold
+    from .anomalies import analyze
     old_compiled=rules.compile_rules(old)
     if value['motor_revision']<ENGINE_REVISION:
         from . import legacy_anomalies_v5,legacy_anomalies_v6

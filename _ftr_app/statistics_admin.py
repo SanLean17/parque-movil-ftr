@@ -1,5 +1,6 @@
 """Exploración local de informes protegidos y el único diccionario compartido."""
 import base64
+import copy
 import hashlib
 import json
 import os
@@ -186,6 +187,17 @@ def install(server):
                 raise ValueError('El informe no corresponde a la última publicación. Abrí su informe protegido antes de continuar.')
             current=rules.validate(cached['dictionary'])
             candidate=current if body.get('mode')=='saved' else rules.proposed(current,body.get('reglas'),body.get('expected_dictionary'))
+            # A published recalculation can retain the same source timestamp.
+            # Replay and prove that baseline; never label an older report delta
+            # as a change from the newer published statistics.
+            if public['anomalias']!=capsule['estadisticas']['anomalias']:
+                candidates=[current,capsule['diccionario']]
+                baseline=next((d for d in candidates if rules.digest(d)==public.get('interpretacion',{}).get('sha256')),None)
+                if baseline is None or public['anomalias'].get('motor_revision')!=ENGINE_REVISION:
+                    raise ValueError('La publicación usa otra interpretación. Abrí su informe protegido antes de calcular el impacto.')
+                capsule=copy.deepcopy(capsule)
+                capsule.update(motor_revision=ENGINE_REVISION,diccionario=baseline,estadisticas=copy.deepcopy(public))
+                review.unpack(capsule)  # Requires exact aggregates from the same complete records.
             effect=review.preview(capsule,candidate);review.unchanged_controls(public,capsule['estadisticas'])
             effect['antes']=public['anomalias'];effect['dictionary']=candidate
             if year<cached['period'] and capsule.get('sheetUrl'):

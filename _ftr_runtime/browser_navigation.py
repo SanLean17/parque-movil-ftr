@@ -33,7 +33,8 @@ def main():
                 page.goto('https://ftr.test/'+file);page.wait_for_load_state('networkidle')
                 for theme in ('light','dark'):
                     page.evaluate('(t)=>document.documentElement.classList.toggle("dark",t==="dark")',theme)
-                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(file,width,theme)
+                    overflow=page.evaluate('''()=>Array.from(document.querySelectorAll('body *')).filter(n=>{const r=n.getBoundingClientRect();return r.width&&r.right>innerWidth+1&&getComputedStyle(n).position!=="absolute"}).slice(0,12).map(n=>({tag:n.tagName,cls:n.className,right:n.getBoundingClientRect().right,text:n.textContent.slice(0,70)}))''')
+                    assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(file,width,theme,overflow)
                     for selector in ('.ftr-brand','.ftr-statistics-link','.ftr-header-actions button'):
                         node=page.locator(selector);assert node.is_visible()
                         box=node.bounding_box();assert box['x']>=0 and box['x']+box['width']<=width

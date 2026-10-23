@@ -12,3 +12,8 @@ class ClientBuildScopeTests(unittest.TestCase):
                      '_ftr_panel/style.css','_ftr_tools/package_client.py','_ftr_tools/check_client_build.py'):
             with self.subTest(path=path):self.assertFalse(needs_package([path]))
         self.assertTrue(needs_package(['_ftr_app/windows-release.json']))
+
+    def test_release_marker_matches_complete_client(self):
+        from _ftr_tools.package_client import release, VERSION, DIRECTORY
+        self.assertEqual(release()['version'],VERSION)
+        self.assertEqual(release()['distribution'],DIRECTORY)

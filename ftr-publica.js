@@ -39,23 +39,6 @@
       window.prompt('Copiá la lista de controlados:', text);
     }
   };
-  function dateTime(raw) {
-    const date = new Date(String(raw).trim());
-    if (Number.isNaN(date.getTime())) return 'sin fecha disponible';
-    const parts = Object.fromEntries(new Intl.DateTimeFormat('es-AR', {timeZone:'America/Argentina/Buenos_Aires', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hourCycle:'h23'}).formatToParts(date).map(p=>[p.type,p.value]));
-    return `${parts.day}/${parts.month}/${parts.year} a las ${parts.hour}:${parts.minute} hs`;
-  }
-  if (typeof window.formatarFechaActualizacion === 'function') window.formatarFechaActualizacion = dateTime;
-  for (const [id, file, text] of [
-    ['fechaParque','ultima_actualizacion_parque.txt','Última actualización de parque móvil realizada el '],
-    ['fechaControlados','ultima_actualizacion_controlados.txt','Última actualización de unidades controladas realizada el ']
-  ]) {
-    const element = document.getElementById(id);
-    if (!element) continue;
-    element.title = 'Inicio de la lectura del último resultado guardado correctamente. Las cargas posteriores pueden no estar incluidas.';
-    FTRData.fetch(file+'?v='+Date.now())
-      .then(r=>{if(!r.ok)throw Error();return r.text();})
-      .then(s=>{element.textContent=text+dateTime(s);})
-      .catch(()=>{element.textContent=text+'sin fecha disponible';});
-  }
+  if (typeof window.formatarFechaActualizacion === 'function') window.formatarFechaActualizacion = FTRData.formatUpdate;
+  if (document.getElementById('fechaParque')) FTRData.loadUpdates();
 })();

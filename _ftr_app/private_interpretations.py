@@ -3,7 +3,9 @@ import json
 from _ftr_runtime.mechanical_review import fingerprint
 
 class Store:
-    def __init__(self,server):self.server=server;self.path=server.DATA/'interpretaciones.dpapi'
+    def __init__(self,server):self.server=server
+    @property
+    def path(self):return self.server.DATA/'interpretaciones.dpapi'
     def read(self):
         if not self.path.exists():return dict(version=1,revision=0,registros={})
         try:

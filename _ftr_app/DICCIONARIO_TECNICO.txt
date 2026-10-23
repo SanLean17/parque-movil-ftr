@@ -73,11 +73,14 @@ anterior. La transición 2026 a 2027 se prueba con el lector y fuentes ficticias
 2025 y 2026 permanecen idénticos, no se reimporta 2026, el diccionario sigue
 global, CNRT no cambia y una fuente inválida no crea el archivo de 2027.
 
-Validación y entrega posterior
+Validación y entrega 06.3.7
 La CI mantiene Python en Windows y Linux, pruebas de seguridad y navegadores.
-Cambiar fuentes del cliente ya no produce paquetes automáticamente. Para una
-entrega futura explícitamente autorizada, cambiar el marcador versionado
-_ftr_app/windows-release.json junto con versión/recursos de empaquetado. Esa
-modificación habilita compilación, prueba del binario y artefacto de Windows.
-Esta etapa no crea dicho marcador, no genera ZIP ni ejecuta bots de fuentes.
+El marcador versionado _ftr_app/windows-release.json autoriza esta entrega
+completa. Compila el ejecutable, comprueba su versión Windows y abre el panel
+real con perfil ficticio aislado. Verifica reglas, fragmentos, vista previa,
+guardado DPAPI, cola y reapertura desde otra carpeta sin alterar el perfil.
+Solo después genera el ZIP completo con VERSION.json, SHA256_ARCHIVOS.txt,
+LEEME_PRIMERO.txt y todos los recursos. Cambios posteriores de fuentes sin
+modificar el marcador no generan otra distribución Windows.
 Las capturas y casos de pruebas contienen exclusivamente información ficticia.
+No se ejecutan bots ni lecturas de fuentes reales durante estas pruebas.

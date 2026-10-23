@@ -36,7 +36,25 @@
     })());
     return new Response(await files.get(name), {status:200});
   }
-  window.FTRData = {fetch:checkedFetch, manifest};
+  function formatUpdate(raw) {
+    raw=String(raw || '').trim();
+    if(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(raw) || !Number.isFinite(Date.parse(raw))) return '-';
+    const [year,month,day]=raw.slice(0,10).split('-').map(Number);
+    const calendar=new Date(Date.UTC(year,month-1,day));
+    if(calendar.getUTCFullYear()!==year || calendar.getUTCMonth()!==month-1 || calendar.getUTCDate()!==day || Number(raw.slice(11,13))>23) return '-';
+    const parts=new Intl.DateTimeFormat('es-AR',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(new Date(raw));
+    const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));
+    return `${p.day}/${p.month}/${p.year} a las ${p.hour}:${p.minute} hs.`;
+  }
+  async function loadUpdates() {
+    await Promise.all([['parque','fechaParque','parque móvil'],['controlados','fechaControlados','unidades controladas']].map(async([file,id,label])=>{
+      let date='-';
+      try { date=formatUpdate(await (await checkedFetch('ultima_actualizacion_'+file+'.txt')).text()); } catch (_) {}
+      const node=document.getElementById(id);
+      if(node) node.textContent='Última actualización de '+label+' realizada el '+date;
+    }));
+  }
+  window.FTRData = {fetch:checkedFetch, manifest, formatUpdate, loadUpdates};
   if (typeof Papa === 'undefined') return; // Las estadísticas solo consultan JSON.
   const parse = Papa.parse.bind(Papa);
   Papa.parse = function (input, options) {

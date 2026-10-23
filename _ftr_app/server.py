@@ -81,6 +81,8 @@ def token():
 
 
 def api(method,suffix,payload=None,auth=None):
+    if '--self-test' in sys.argv or '--browser-test' in sys.argv:
+        raise ValueError('Prueba aislada: conexión externa deshabilitada.')
     # No se acepta una URL del cliente. La autorización solo se envía a este repositorio.
     r=requests.request(method,BASE+suffix if suffix else BASE.rstrip('/'),headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
     if r.status_code==401:raise AuthorizationError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
@@ -377,11 +379,11 @@ def check_resources():
         raise ValueError('Falta panel.html junto al programa. Cerrá el ZIP, elegí Extraer todo y abrí FTR_Administracion.exe dentro de la carpeta extraída. Conservá todos los archivos juntos.')
     if '__FTR_CSRF__' not in path.read_text(encoding='utf-8-sig'):
         raise ValueError('La plantilla del panel no corresponde a este programa. Extraé el paquete completo en una carpeta nueva, sin mezclar versiones.')
-    if VERSION in ('06.3.1','06.3.2','06.3.3','06.3.4','06.3.5','06.3.6') and not (RESOURCE/'panel-bridge.js').is_file():
+    if VERSION in ('06.3.1','06.3.2','06.3.3','06.3.4','06.3.5','06.3.6','06.3.7') and not (RESOURCE/'panel-bridge.js').is_file():
         raise ValueError('Falta panel-bridge.js junto al programa. Extraé todo el paquete '+VERSION+' en una carpeta nueva.')
-    if VERSION in ('06.3.5','06.3.6') and not (RESOURCE/'panel-statistics-admin.js').is_file():
+    if VERSION in ('06.3.5','06.3.6','06.3.7') and not (RESOURCE/'panel-statistics-admin.js').is_file():
         raise ValueError('Falta el diccionario técnico. Extraé el paquete completo en una carpeta nueva.')
-    if VERSION in ('06.3.2','06.3.3','06.3.4','06.3.5','06.3.6'):
+    if VERSION in ('06.3.2','06.3.3','06.3.4','06.3.5','06.3.6','06.3.7'):
         for name in ('panel-history.js','ftr-historial.js'):
             path=RESOURCE/name
             if name=='ftr-historial.js' and not getattr(sys,'frozen',False):path=Path(__file__).resolve().parents[1]/name
@@ -425,6 +427,12 @@ def main():
     test_dir=tempfile.TemporaryDirectory(prefix='ftr-inicio-test-') if testing else None
     if test_dir:
         DATA=Path(test_dir.name);_token=None
+        if '--browser-test' in sys.argv:
+            # Perfil ficticio persistente, adyacente al intercambio de la prueba.
+            # Nunca utiliza LOCALAPPDATA ni inicia la cola de salida.
+            target=Path(sys.argv[sys.argv.index('--browser-test')+1]).resolve()
+            DATA=target.parent/'perfil-prueba'
+            DATA.mkdir(parents=True,exist_ok=True)
     srv=None;thread=None
     try:
         check_resources()
@@ -440,7 +448,7 @@ def main():
             # Intercambio local exclusivo de CI; nunca se sube ni imprime este archivo.
             target=Path(sys.argv[sys.argv.index('--browser-test')+1])
             target.write_text(json.dumps({'url':ORIGIN+'/iniciar/'+BOOT,'version':VERSION}),encoding='utf-8')
-            timeout=threading.Timer(90,srv.shutdown)
+            timeout=threading.Timer(300,srv.shutdown)
             timeout.daemon=True
             timeout.start()
         else:

@@ -268,7 +268,7 @@
          ====================================================== -->
 
     <div
-        class="mt-4 px-1 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 font-code"
+        class="ftr-update-dates"
     >
 
         <div
@@ -496,32 +496,8 @@
     // FORMATO FECHA ACTUALIZACIÓN
     // ========================================================
 
-    function formatarFechaActualizacion(
-        texto
-    ) {
-
-        if (!texto)
-            return '-';
-
-        const fecha =
-            new Date(
-                texto.trim()
-            );
-
-        if (
-            isNaN(
-                fecha.getTime()
-            )
-        ) {
-
-            return texto.trim();
-
-        }
-
-        return formatFecha(
-            fecha
-        );
-
+    function formatarFechaActualizacion(texto) {
+        return FTRData.formatUpdate(texto);
     }
 
 
@@ -1027,82 +1003,7 @@
     // ========================================================
 
     function cargarFechasActualizacion() {
-
-        FTRData.fetch(
-            `ultima_actualizacion_parque.txt?t=${new Date().getTime()}`
-        )
-        .then(
-            response => {
-
-                if (!response.ok)
-                    throw new Error();
-
-                return response.text();
-
-            }
-        )
-        .then(
-            texto => {
-
-                document.getElementById(
-                    "fechaParque"
-                ).textContent =
-                    "Última actualización de parque móvil realizada el " +
-                    formatarFechaActualizacion(
-                        texto
-                    );
-
-            }
-        )
-        .catch(
-            () => {
-
-                document.getElementById(
-                    "fechaParque"
-                ).textContent =
-                    "Última actualización de parque móvil realizada el -";
-
-            }
-        );
-
-
-        FTRData.fetch(
-            `ultima_actualizacion_controlados.txt?t=${new Date().getTime()}`
-        )
-        .then(
-            response => {
-
-                if (!response.ok)
-                    throw new Error();
-
-                return response.text();
-
-            }
-        )
-        .then(
-            texto => {
-
-                document.getElementById(
-                    "fechaControlados"
-                ).textContent =
-                    "Última actualización de unidades controladas realizada el " +
-                    formatarFechaActualizacion(
-                        texto
-                    );
-
-            }
-        )
-        .catch(
-            () => {
-
-                document.getElementById(
-                    "fechaControlados"
-                ).textContent =
-                    "Última actualización de unidades controladas realizada el -";
-
-            }
-        );
-
+        return FTRData.loadUpdates();
     }
 
 

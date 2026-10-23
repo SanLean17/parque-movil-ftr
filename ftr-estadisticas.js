@@ -209,14 +209,7 @@
     }
   }
   async function sourceDates() {
-    const formatter=new Intl.DateTimeFormat('es-AR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Argentina/Buenos_Aires'});
-    await Promise.all([['parque','fechaParque','PARQUE MÓVIL'],['controlados','fechaControlados','VEHÍCULOS CONTROLADOS']].map(async([file,id,label])=>{
-      try {
-        const raw=(await (await FTRData.fetch('ultima_actualizacion_'+file+'.txt')).text()).trim();
-        if(!/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(raw)||!Number.isFinite(Date.parse(raw)))throw Error('Fecha inválida');
-        $(id).textContent=label+' — Última actualización: '+formatter.format(new Date(raw))+' · Argentina';
-      }catch(_){$(id).textContent=label+' — Última actualización: no disponible.';}
-    }));
+    return FTRData.loadUpdates();
   }
   clearData();
   sourceDates();

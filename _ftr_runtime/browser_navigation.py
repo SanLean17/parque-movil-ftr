@@ -19,7 +19,7 @@ def main():
         if os.environ.get('FTR_TEST_BROWSER'):options['executable_path']=os.environ['FTR_TEST_BROWSER']
         browser=p.chromium.launch(**options)
         for width in (320,390,430,768,1280,1440):
-            context=browser.new_context(viewport=dict(width=width,height=900));page=context.new_page();errors=[]
+            context=browser.new_context(viewport=dict(width=width,height=900),timezone_id='Asia/Tokyo');page=context.new_page();errors=[]
             page.on('pageerror',lambda e:errors.append(str(e)))
             def route(r):
                 u=urlparse(r.request.url);name=u.path.lstrip('/')
@@ -29,6 +29,8 @@ def main():
                 elif name in ('index.html','linea.html','estadisticas.html','ftr-estadisticas.css','ftr-estadisticas.js','ftr-navegacion.css','ftr-datos.js','ftr-publica.js','ftr-historial.js','ftr-historial-publico.js'):r.fulfill(path=str(ROOT/name))
                 else:r.fulfill(status=404,body='Fuente ficticia ausente')
             context.route('**/*',route)
+            date_styles={}
+            expected=['Última actualización de parque móvil realizada el 22/10/2026 a las 17:01 hs.','Última actualización de unidades controladas realizada el 22/10/2026 a las 17:01 hs.']
             for file in ('index.html','linea.html?id=2','estadisticas.html'):
                 page.goto('https://ftr.test/'+file);page.wait_for_load_state('networkidle')
                 for theme in ('light','dark'):
@@ -38,6 +40,13 @@ def main():
                     for selector in ('.ftr-brand','.ftr-statistics-link','.ftr-header-actions button'):
                         node=page.locator(selector);assert node.is_visible()
                         box=node.bounding_box();assert box['x']>=0 and box['x']+box['width']<=width
+                    if file in ('index.html','estadisticas.html'):
+                        assert page.locator('.ftr-update-dates>div').all_inner_texts()==expected,(file,page.locator('.ftr-update-dates>div').all_inner_texts(),errors)
+                        assert page.locator('.ftr-update-dates').inner_text().count('Última actualización')==2
+                        assert 'FUENTES OPERATIVAS ACTUALES' not in page.locator('body').inner_text()
+                        styles=page.locator('.ftr-update-dates').evaluate('(n)=>{const s=getComputedStyle(n);return [s.fontFamily,s.fontSize,s.lineHeight,s.color,s.padding,s.marginTop]}')
+                        if file=='index.html':date_styles[theme]=styles
+                        else:assert styles==date_styles[theme],(styles,date_styles[theme])
                     link=page.locator('.ftr-statistics-link')
                     assert link.bounding_box()['height']>=44
                     assert page.locator('.ftr-header-actions button').bounding_box()['height']>=44
@@ -52,8 +61,12 @@ def main():
                 page.wait_for_function('document.querySelector("#footerPeriod").textContent.includes("2025")')
                 assert '2025' in page.locator('#lastRead').inner_text()
                 page.wait_for_function('document.querySelector("#fechaParque").textContent.includes("17:01")')
-                assert '2026' in page.locator('#fechaParque').inner_text()
+                assert page.locator('.ftr-update-dates>div').all_inner_texts()==expected,(file,page.locator('.ftr-update-dates>div').all_inner_texts(),errors)
                 page.locator('.ftr-brand').click();page.wait_for_url('**/index.html')
+            for file in ('index.html','estadisticas.html'):
+                context.route('**/ultima_actualizacion_*.txt*',lambda r:r.fulfill(status=404,body='Ausente'))
+                page.goto('https://ftr.test/'+file);page.wait_for_load_state('networkidle')
+                assert page.locator('.ftr-update-dates>div').all_inner_texts()==[t.split(' realizada el ')[0]+' realizada el -' for t in expected]
             assert not errors,errors
             context.close();print(f'Navegación pública {width}px: tres páginas, dos temas, teclado y fechas históricas separadas OK.')
         browser.close()

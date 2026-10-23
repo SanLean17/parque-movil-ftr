@@ -30,6 +30,11 @@ class ParticularTests(unittest.TestCase):
         self.headers={'X-FTR-CSRF':server.CSRF,'Origin':server.ORIGIN}
         event=self.events[1];self.body=dict(period=2025,registro_id=records.reference(event)['registro_id'],fragmentos=records.suggestions(event['novedades'],rules.EMPTY),regla=dict(expresion='JGO B LARGA',categoria='direccion',componente='barra_larga',habilitada=True))
     def post(self,path,body):return self.client.post('/api/'+path,base_url=server.ORIGIN,headers=self.headers,json=body)
+    def test_store_uses_final_profile_selected_at_startup(self):
+        store=Store(server)
+        with tempfile.TemporaryDirectory() as directory,patch.object(server,'DATA',Path(directory)):
+            self.assertEqual(store.path,Path(directory)/'interpretaciones.dpapi')
+            self.assertEqual(store.read()['registros'],{})
     def test_preview_cancel_save_reopen_and_no_public_queue_or_plaintext(self):
         before={p.name:p.read_bytes() for p in self.root.iterdir()}
         record=self.post('dictionary-record',dict(period=2025,registro_id=self.body['registro_id']))

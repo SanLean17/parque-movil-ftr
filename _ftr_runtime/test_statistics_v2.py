@@ -20,7 +20,7 @@ class DictionaryV2Tests(unittest.TestCase):
             'pulmón de freno delantero':'pulmon_freno','PF trasero derecho':'pulmon_freno',
             'amortiguador':'amortiguadores','buje de amortiguador':'bujes','bujes':'bujes','pulmón':'pulmon_suspension','pulmón de suspensión':'pulmon_suspension',
             'válvula niveladora':'valvula_niveladora','barra estabilizadora':'barra_estabilizadora','tensores delanteros':'tensores',
-            'cardán':'cardan','juego de cruceta':'crucetas','neumático cortado':'neumatico_sin_ubicacion','cubierta pinchada':'neumatico_sin_ubicacion',
+            'cardán':'cardan','juego de cruceta':'cruceta_direccion','neumático cortado':'neumatico_sin_ubicacion','cubierta pinchada':'neumatico_sin_ubicacion',
             'neumáticos delanteros':'neumaticos_delanteros','neumáticos traseros':'neumaticos_traseros','tuerca de rueda':'tuercas_rueda','bulones de rueda':'bulones_rueda',
             'corte de batería':'corte_corriente','cortacorriente':'corte_corriente','corte de corriente':'corte_corriente',
             'sonora marcha atrás':'sonora_marcha_atras','señal sonora de marcha atrás':'sonora_marcha_atras','alarma sonora de marcha atrás':'sonora_marcha_atras','chicharra no funciona':'sonora_marcha_atras','CHICHARRA':'sonora_marcha_atras'}

@@ -1,7 +1,7 @@
 {
-  "version": "06.3.9",
-  "distribution": "FTR_Administracion_06_3_9_Windows",
+  "version": "06.3.10",
+  "distribution": "FTR_Administracion_06_3_10_Windows",
   "entrypoint": "_ftr_app/main0631.py",
   "profile": "%LOCALAPPDATA%/FTR_Administracion",
-  "release": 3
+  "release": 4
 }

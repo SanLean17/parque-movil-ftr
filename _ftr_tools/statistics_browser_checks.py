@@ -233,16 +233,16 @@ def check_general_descriptors(page,server,test,path,remote,report,detail,binary_
     assert alone['pendientes']==['EXTREMO']
     assert effect['registros']==9
     for category in effect['antes']['categorias']:
-        if category['id']=='otras':continue
+        if category['id'] in ('otras','direccion','transmision'):continue
         after=next(c for c in effect['despues']['categorias'] if c['id']==category['id'])
         assert category['cantidad']==after['cantidad']
         for component in category['componentes']:assert component==next(c for c in after['componentes'] if c['id']==component['id'])
     page.wait_for_selector('.dictionary-preview:not([hidden])')
     assert '9 controles conservados' in form.inner_text()
     assert '7 registros potencialmente afectados' in form.inner_text()
-    assert 'Menciones sin clasificar: 11 → 4' in form.inner_text()
+    assert 'Menciones sin clasificar: 11 → 3' in form.inner_text()
     ambiguity=form.locator('.dictionary-preview details').nth(1)
-    assert '(4)' in ambiguity.locator('summary').inner_text()
+    assert '(3)' in ambiguity.locator('summary').inner_text()
     ambiguity.locator('summary').click();ambiguity.get_by_role('button',name='Ver registros',exact=True).click()
     assert 'EXTREMO BARRA LARGA; EXTREMOS' in ambiguity.inner_text()
     # Cambiar alcance o variantes invalida la autorización de guardar.

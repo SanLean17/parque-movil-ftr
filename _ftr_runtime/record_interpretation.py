@@ -45,7 +45,7 @@ def validated(original,fragments):
             position=finding['ubicacion']
             if position not in LOCATIONS and not re.fullmatch(r'trasero (?:[ar][3-8]|pf[3-6]|ps[34])',str(position)):raise ValueError('Ubicación no confirmada.')
             if finding['defecto'] not in DEFECTS:raise ValueError('Defecto no válido.')
-            if finding['referencia'] is not None and (finding['referencia'] not in anomalies.ALIASES or finding['referencia'] not in {anomalies.code_reference(m.group()) for m in anomalies.CODE.finditer(anomalies.fold(original[a:b]))}):raise ValueError('Referencia ajena al fragmento.')
+            if finding['referencia'] is not None and (finding['referencia'] not in anomalies.ALIASES or finding['referencia'] not in {r for m in anomalies.CODE.finditer(anomalies.fold(original[a:b])) for r in anomalies.code_references(m.group()) or []}):raise ValueError('Referencia ajena al fragmento.')
         result.append(copy.deepcopy(row))
     return result
 
@@ -60,7 +60,7 @@ def interpret(original,fragments,dictionary):
         analysis=anomalies.analyze(text,compiled) if row['modo']=='automatico' else dict(hallazgos=row['hallazgos'],pendientes=[text] if row['modo']=='pendiente' else [],descriptores=[])
         for f in analysis['hallazgos']:
             position='sin_ubicacion' if f['componente'] in ('barra_corta','barra_larga') else anomalies.canonical(f['ubicacion'])
-            distinct=f['referencia'] and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]',f['referencia'])
+            distinct=f['referencia'] and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]|cr[1-3]',f['referencia'])
             key=(f['categoria'],f['componente'],position,f['referencia'] if f['ubicacion']=='sin_ubicacion' or distinct else None)
             findings.setdefault(key,f)
         pending.extend(analysis['pendientes']);descriptors.extend(analysis['descriptores'])

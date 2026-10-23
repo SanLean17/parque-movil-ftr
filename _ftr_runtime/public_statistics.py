@@ -45,7 +45,7 @@ def monthly(events, period, cutoff):
                  'en_curso' if (period,m) == (cutoff.year,cutoff.month) else 'completo') for m in range(1,13)]
 
 
-def mechanics(events, pending=False, dictionary=None):
+def mechanics(events, pending=False, dictionary=None, corrections=None):
     from .dictionary_rules import compile_rules, EMPTY
     custom=compile_rules(dictionary or EMPTY)
     categories = []
@@ -69,7 +69,10 @@ def mechanics(events, pending=False, dictionary=None):
             coverage['vacios'] += 1
             continue
         coverage['con_texto'] += 1
-        analysis = analyze(e['novedades'],custom)
+        if corrections:
+            from .record_interpretation import apply as interpret_record
+            analysis = interpret_record(e,corrections,dictionary or EMPTY)
+        else:analysis = analyze(e['novedades'],custom)
         known, unknown = analysis['hallazgos'], analysis['pendientes']
         state = clasificar_estado(e.get('estado'))
         for finding in known:

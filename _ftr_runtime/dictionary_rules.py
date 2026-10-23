@@ -12,6 +12,8 @@ GENERAL = {'falla','fallas','juego','roto','rota','flojo','floja','sin','no','si
 TECHNICAL = set('jgo jg b bl bc larga largo corta corto bar barr direccion dir susp suspension tensor tensores amort amortig buje bujes fr freno frenos pulm pulmon valv valvula niv niveladora estabilizadora card cruc cruceta crucetas neum neumatico electr electrico corr corriente bat bateria sonora marcha atras alarma del de la tras delant trasero delantero izq der'.split())
 SPECIFIC = TECHNICAL - GENERAL - set('jgo jg b bar barr del de la tras delant izq der'.split())
 GENERAL.update('jgo jg bar barr izq der delant tras'.split())
+MEANINGS = ('delantero','trasero','derecho','izquierdo','superior','inferior','interno','externo','extremo','juego','flojo','suelto','rotura','desgaste')
+DESCRIPTORS = set('superior sup inferior inf tras trasero delantero delant del derecho der izquierdo izq interno int externo ext extremo punta juego jgo flojo suelto rotura desgaste'.split())
 
 def normalized(value):
     return ''.join(c for c in unicodedata.normalize('NFD',value.lower().strip()) if not unicodedata.combining(c))
@@ -24,7 +26,7 @@ def expression(value):
     value=normalized(value)
     value=re.sub(' +',' ',value)
     words=value.split(' ')
-    single=bool(re.fullmatch(r'(?:[a-z]{2,24}|[a-z]{1,4}[0-9]{1,2})',value)) and value not in GENERAL
+    single=bool(re.fullmatch(r'[a-z]{1,4}[0-9]{1,2}',value) or value in TECHNICAL) and value not in GENERAL
     phrase=2<=len(words)<=5 and len(value)<=48 and all(w in TECHNICAL for w in words) and any(w in SPECIFIC for w in words)
     if not (single or phrase):
         raise ValueError('Usá una abreviatura o hasta cinco palabras del vocabulario técnico, sin datos individuales ni símbolos.')
@@ -37,14 +39,19 @@ def validate(value):
     from .anomalies import PATTERN, NEUTRAL
     rows=[];seen=set()
     for row in value['reglas']:
-        if not isinstance(row,dict) or set(row)!={'expresion','categoria','componente','habilitada'}:raise ValueError('Regla no válida.')
-        word=expression(row['expresion'])
-        if any(re.search(r'\b'+re.escape(other)+r'\b',word) or re.search(r'\b'+re.escape(word)+r'\b',other) for other in seen):raise ValueError('Expresión duplicada, superpuesta o en conflicto; modificá la regla existente.')
-        if PATTERN.search(word) or NEUTRAL.fullmatch(word):raise ValueError('La expresión ya está definida por las reglas originales.')
+        contextual=isinstance(row,dict) and row.get('tipo')=='descriptor'
+        keys={'expresion','categoria','componente','habilitada'}|({'tipo','significado'} if contextual else set())
+        if not isinstance(row,dict) or set(row)!=keys:raise ValueError('Regla no válida.')
+        word=normalized(row['expresion']) if contextual and isinstance(row['expresion'],str) else expression(row['expresion'])
+        if contextual and (word not in DESCRIPTORS or row['significado'] not in MEANINGS):raise ValueError('Elegí un descriptor técnico y su significado, sin datos individuales.')
+        scope=row['componente'] if contextual else '*'
+        if any((scope==s or '*' in (scope,s)) and (re.search(r'\b'+re.escape(other)+r'\b',word) or re.search(r'\b'+re.escape(word)+r'\b',other)) for s,other in seen):raise ValueError('Expresión duplicada, superpuesta o en conflicto; modificá la regla existente.')
+        if not contextual and (PATTERN.search(word) or NEUTRAL.fullmatch(word)):raise ValueError('La expresión ya está definida por las reglas originales.')
         if row['categoria'] not in CATEGORIES or row['componente'] not in CATEGORIES[row['categoria']] or type(row['habilitada']) is not bool:
             raise ValueError('La categoría y el componente no coinciden.')
-        seen.add(word);rows.append(dict(row,expresion=word))
-    return dict(version=1,revision=value['revision'],reglas=sorted(rows,key=lambda r:r['expresion']))
+        if contextual and row['categoria']=='otras':raise ValueError('Un descriptor requiere un componente reconocido.')
+        seen.add((scope,word));rows.append(dict(row,expresion=word))
+    return dict(version=1,revision=value['revision'],reglas=sorted(rows,key=lambda r:(r['expresion'],r['componente'],r.get('tipo',''))))
 
 def encoded(value):return (json.dumps(validate(value),ensure_ascii=False,sort_keys=True,separators=(',',':'))+'\n').encode()
 def digest(value):return hashlib.sha256(encoded(value)).hexdigest()
@@ -57,5 +64,6 @@ def proposed(current, rules, expected):
     return validate(dict(version=1,revision=current['revision']+1,reglas=rules))
 
 def compile_rules(value):
-    rows=[r for r in validate(value)['reglas'] if r['habilitada'] and r['categoria']!='otras']
-    return rows, re.compile('|'.join(r'\b(?P<custom'+str(i)+'>'+re.escape(r['expresion'])+r')\b' for i,r in enumerate(rows))) if rows else None
+    enabled=[r for r in validate(value)['reglas'] if r['habilitada'] and r['categoria']!='otras']
+    rows=[r for r in enabled if r.get('tipo')!='descriptor']
+    return rows, re.compile('|'.join(r'\b(?P<custom'+str(i)+'>'+re.escape(r['expresion'])+r')\b' for i,r in enumerate(rows))) if rows else None, [r for r in enabled if r.get('tipo')=='descriptor']

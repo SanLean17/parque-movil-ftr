@@ -7,8 +7,9 @@ from pathlib import Path
 
 
 def needs_package(paths):
-    return any(p.startswith(('_ftr_app/','_ftr_panel/')) or p in (
-        '_ftr_tools/package_client.py','_ftr_tools/check_client_build.py') for p in paths)
+    # Cambiar fuentes valida el cliente, pero no constituye una nueva entrega.
+    # Una futura versión completa debe cambiar explícitamente este marcador.
+    return '_ftr_app/windows-release.json' in paths
 
 
 def main():
@@ -24,7 +25,7 @@ def main():
         paths=subprocess.check_output(['git','diff','--name-only',base,head],text=True).splitlines()
     with Path(os.environ['GITHUB_OUTPUT']).open('a',encoding='utf-8') as out:
         out.write('package='+str(needs_package(paths)).lower()+'\n')
-    print('Se compila el administrador.' if needs_package(paths) else 'Se valida sin generar paquete Windows: el cliente no cambió.')
+    print('Se compila la entrega solicitada.' if needs_package(paths) else 'Validación de fuentes sin generar un paquete Windows.')
 
 
 if __name__=='__main__':main()

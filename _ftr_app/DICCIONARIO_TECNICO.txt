@@ -1,0 +1,83 @@
+FTR ADMINISTRACIÓN — DICCIONARIO TÉCNICO
+Preparación de fuentes; no constituye una nueva distribución Windows.
+
+Navegación
+Diccionario técnico se encuentra junto a Estadísticas. Sus cuatro bloques son:
+Expresiones pendientes, Revisar novedades, Reglas confirmadas e Información.
+Estadísticas conserva los resultados publicados y la revisión explícita de
+históricos. Su acceso al diccionario conserva el período seleccionado.
+Planilla y período conserva la importación; muestra años verificados y abre
+Importar otro año con año y enlace vacíos. Un año existente no se reimporta.
+
+Revisión
+Las expresiones se agrupan por período y frecuencia. Hay búsqueda, filtro por
+ESTADO y orden ascendente/descendente. Los registros se abren de a veinte.
+Cada registro muestra NOVEDADES completa y sin reescribir, con resaltado
+subrayado y rojo del fragmento, más año, línea, pestaña, fila, fecha, dominio,
+interno y ESTADO. El editor aparece dentro de ese registro.
+Se puede indicar descriptor contextual, abreviatura de componente, múltiples
+anomalías o dejar pendiente. Los descriptores solo se consumen cuando están
+unidos al componente compatible; no crean otro hallazgo.
+
+Fragmentos
+El editor propone los fragmentos del mismo motor. Permite usar una selección
+del original, reemplazar un fragmento, agregar, dividir en el cursor, unir con
+el siguiente y eliminar una interpretación. El texto eliminado de la edición
+queda pendiente; no desaparece del original. Las posiciones son índices de
+caracteres Unicode originales, no de texto corregido. El servidor rechaza
+intervalos fuera del texto y superposiciones. Se deduplican hallazgos y jamás
+se multiplica el número de controles.
+
+Dos alcances de guardado
+1. Regla general: vocabulario técnico validado, sin texto libre ni referencias
+   de vehículos. Se guarda por la cola existente en _ftr_diccionario.json;
+   queda habilitada por defecto. Las reglas contextuales incluyen componente
+   y significado. Se pueden editar/deshabilitar desde Reglas confirmadas.
+   El archivo global se recupera al reinstalar y se utiliza en años futuros.
+2. Interpretación particular: decisión privada para el registro exacto. Se
+   guarda en %LOCALAPPDATA%/FTR_Administracion/interpretaciones.dpapi usando
+   DPAPI del usuario de Windows, escritura atómica y control de versión.
+   Persiste al cerrar el programa o reemplazar su carpeta de instalación.
+   Se aplica al informe privado y a las vistas previas locales. NO se envía
+   por GitHub Actions, NO genera una regla global y NO publica estadísticas.
+   No hay sincronización de decisiones particulares entre computadoras ni
+   recuperación si se pierde el perfil Windows. No se ofrece un respaldo
+   inseguro en texto plano. Cambiar fuente del registro, fila, fecha, estado o
+   NOVEDADES invalida la decisión previa en vez de aplicarla a otro control.
+   Las redacciones excepcionales se guardan desde el editor de fragmentos.
+
+Vista previa y estado
+Se recalcula con el mismo motor y el informe protegido completo y vigente.
+Se muestran conteos anteriores/posteriores, registros afectados y apariciones
+que necesitan revisión individual. Una vista previa particular parte de las
+interpretaciones privadas ya guardadas. Cancelar no escribe ni encola órdenes.
+Editar después de calcular invalida la confirmación. Los recibos particulares
+vencen a los cinco minutos y verifican informe, diccionario y versión local.
+Se distinguen orden pendiente, regla guardada, recálculo pendiente, estadísticas
+recalculadas y publicación verificada. Guardar no equivale a publicar.
+
+Compatibilidad y privacidad
+Se conserva el catálogo público versión 3; la revisión interna del motor es 5.
+Los informes de motores anteriores no habilitan una vista previa exacta:
+se requiere un informe nuevo de una lectura automática o revisión autorizada.
+PF-3 se reconoce como PF3, PF.3, PF 3 y P.F.3. R4 tiene ubicación trasera
+interna derecha por confirmación expresa; no se deducen las demás posiciones R.
+La normalización no cambia las posiciones ni el texto original del editor.
+El panel mantiene tokens y estilo original; los estados hover/focus y summary
+completo se comparten entre desplegables. El detalle secundario pasa a 14 px.
+
+Años y publicación
+Los históricos cerrados no cambian al guardar reglas. Su revisión autorizada
+verifica huellas de fuente/archivo/diccionario/resultado y conserva la versión
+anterior. La transición 2026 a 2027 se prueba con el lector y fuentes ficticias:
+2025 y 2026 permanecen idénticos, no se reimporta 2026, el diccionario sigue
+global, CNRT no cambia y una fuente inválida no crea el archivo de 2027.
+
+Validación y entrega posterior
+La CI mantiene Python en Windows y Linux, pruebas de seguridad y navegadores.
+Cambiar fuentes del cliente ya no produce paquetes automáticamente. Para una
+entrega futura explícitamente autorizada, cambiar el marcador versionado
+_ftr_app/windows-release.json junto con versión/recursos de empaquetado. Esa
+modificación habilita compilación, prueba del binario y artefacto de Windows.
+Esta etapa no crea dicho marcador, no genera ZIP ni ejecuta bots de fuentes.
+Las capturas y casos de pruebas contienen exclusivamente información ficticia.

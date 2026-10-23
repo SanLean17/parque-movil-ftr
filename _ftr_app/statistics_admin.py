@@ -3,13 +3,18 @@ import base64
 import hashlib
 import json
 import os
+import secrets
+import time
 from _ftr_runtime import dictionary_rules as rules, mechanical_review as review
 from _ftr_runtime import public_statistics as stats, statistics_archive as archive
 from _ftr_runtime.config import clean_config,digest
 from _ftr_runtime.statistics_commands import WORKFLOW
 from _ftr_runtime.mechanical_dictionary import CATEGORIES
+from _ftr_runtime import record_interpretation as records
+from _ftr_app.private_interpretations import Store
 
 def install(server):
+    store=Store(server);receipts={}
     def reports():
         found={};values=[server.diagnostic_cache()]
         for path in sorted(server.DATA.glob('historico-*.'+('dpapi' if os.name=='nt' else 'json'))):
@@ -54,14 +59,89 @@ def install(server):
             if str(run_id).isdigit():runs.insert(0,dict(id=int(run_id),title='Último informe de la lectura activa',status='completed',conclusion=(state.get('drive') or {}).get('status')))
             server.write_json(server.DATA/'revisiones_ejecuciones.json',runs)
         else:runs=server.cached('revisiones_ejecuciones.json',[])
-        views={};pending=[]
+        views={};pending=[];saved=store.read()
         for year,value in reports().items():
             private=private_part(value);items=sorted(private.get('pendientes',[]),key=lambda x:(-x['frecuencia'],x['expresion']))
             capsule=private.get('revision_mecanica');summary=value.get('report') or {}
+            local=None
+            if capsule and cached and saved['registros']:
+                try:
+                    events,_,_,_=review.unpack(capsule)
+                    local,adjusted=stats.mechanics(events,dictionary=capsule['diccionario'],corrections=saved['registros'])
+                    items=adjusted['pendientes']
+                except ValueError:pass  # Un informe anterior no se reinterpreta silenciosamente.
             views[str(year)]=dict(pending=items,preview_available=bool(capsule),read=summary.get('inicio_lectura_utc'),
-                                  historical=summary.get('historico',False),sheetUrl=(capsule or {}).get('sheetUrl'),archive=(capsule or {}).get('sha256_archivo'))
+                                  historical=summary.get('historico',False),sheetUrl=(capsule or {}).get('sheetUrl'),archive=(capsule or {}).get('sha256_archivo'),local=local)
             pending.extend(items)
-        return server.jsonify(remote=cached,pending=pending,reviews=views,catalogue=CATEGORIES,runs=runs)
+        saved=store.read()
+        return server.jsonify(remote=cached,pending=pending,reviews=views,catalogue=CATEGORIES,runs=runs,
+            particulares=dict(revision=saved['revision'],cantidad=len(saved['registros'])),descriptores=sorted(rules.DESCRIPTORS),significados=rules.MEANINGS,ubicaciones=records.LOCATIONS,defectos=records.DEFECTS)
+    def context(body):
+        year=body.get('period');cached=server.cached('diccionario_remoto.json',None)
+        if not cached or type(year) is not int:raise ValueError('Consultá GitHub y elegí el período.')
+        capsule=private_part(reports().get(year,{})).get('revision_mecanica')
+        if not capsule:raise ValueError('Abrí el informe protegido de la última lectura para revisar los registros completos.')
+        public=cached.get('statistics',{}).get(str(year))
+        if not public:raise ValueError('No se verificó el período publicado.')
+        if capsule.get('sha256_archivo'):
+            if capsule['sha256_archivo']!=cached['hashes'][str(year)]:raise ValueError('El histórico cambió. Prepará nuevamente la revisión.')
+        elif capsule['estadisticas']['lectura_planilla_utc']!=public['lectura_planilla_utc']:raise ValueError('Abrí el informe de la última publicación antes de continuar.')
+        events,_,_,_=review.unpack(capsule);review.unchanged_controls(public,capsule['estadisticas'])
+        return cached,capsule,events
+    def selected(events,identifier):
+        found=[e for e in events if records.reference(e)['registro_id']==identifier]
+        if len(found)!=1:raise ValueError('No se pudo identificar un único registro. Abrí su informe actualizado.')
+        return found[0]
+    def record():
+        try:
+            body=server.request.get_json() or {};cached,capsule,events=context(body)
+            event=selected(events,body.get('registro_id'));saved=store.read()['registros'].get(body['registro_id'])
+            valid=saved and saved['huella']==records.correction(event,saved['fragmentos'])['huella']
+            fragments=saved['fragmentos'] if valid else records.suggestions(event.get('novedades',''),cached['dictionary'])
+            analysis=records.apply(event,store.read()['registros'],cached['dictionary'])
+            return server.jsonify(registro=records.reference(event),fragmentos=fragments,analisis=analysis,
+                fragmentos_analisis=[records.interpret(event['novedades'][f['inicio']:f['fin']], [dict(f,inicio=0,fin=f['fin']-f['inicio'])],cached['dictionary']) for f in fragments],guardada=bool(valid))
+        except (ValueError,KeyError,TypeError):return server.jsonify(error='El registro necesita un informe completo y actualizado antes de interpretarlo.'),400
+    def record_list():
+        try:
+            body=server.request.get_json() or {};_,_,events=context(body)
+            term=str(body.get('search','')).casefold();offset=body.get('offset',0)
+            if type(offset) is not int or offset<0:raise ValueError('Página no válida.')
+            found=[records.reference(e) for e in events if term in e.get('novedades','').casefold() and e.get('novedades','').strip()]
+            return server.jsonify(registros=found[offset:offset+20],total=len(found))
+        except (ValueError,KeyError,TypeError) as error:return server.jsonify(error=str(error) if isinstance(error,ValueError) else 'Abrí un informe válido.'),400
+    def record_preview():
+        try:
+            body=server.request.get_json() or {};cached,capsule,events=context(body)
+            current=rules.validate(cached['dictionary']);saved=store.read()
+            event=selected(events,body.get('registro_id'))
+            correction=records.correction(event,body.get('fragmentos'),body.get('regla'),current)
+            overrides=dict(saved['registros']);overrides[correction['registro_id']]=correction
+            effect=review.preview(capsule,current,overrides)
+            # El delta particular parte de las decisiones privadas ya guardadas.
+            effect['antes']=stats.mechanics(events,dictionary=current,corrections=saved['registros'])[0]
+            effect['afectados']=[]
+            for item in events:
+                before=records.apply(item,saved['registros'],current);after=records.apply(item,overrides,current)
+                if before!=after:effect['afectados'].append(dict(records.reference(item),antes=before,despues=after))
+            effect['ambiguos']=[]
+            token=secrets.token_urlsafe(32)
+            for key,value in list(receipts.items()):
+                if value['expires']<time.monotonic():receipts.pop(key,None)
+            if len(receipts)>=50:raise ValueError('Hay demasiadas vistas previas abiertas. Cerrá las anteriores e intentá nuevamente.')
+            receipts[token]=dict(expires=time.monotonic()+300,period=body['period'],correction=correction,
+                expected=review.fingerprint(saved),report=review.fingerprint(capsule),dictionary=rules.digest(current))
+            return server.jsonify(dict(effect,confirmation=token,alcance='informe_privado'))
+        except (ValueError,KeyError,TypeError) as error:return server.jsonify(error=str(error) if isinstance(error,ValueError) else 'Revisá los fragmentos.'),400
+    def record_save():
+        try:
+            receipt=receipts.get((server.request.get_json() or {}).get('confirmation'))
+            if not receipt or receipt['expires']<time.monotonic():raise ValueError('La vista previa venció. Calculala nuevamente.')
+            cached,capsule,_=context(receipt)
+            if review.fingerprint(capsule)!=receipt['report'] or rules.digest(cached['dictionary'])!=receipt['dictionary']:raise ValueError('Cambió el informe o el diccionario. Revisá nuevamente el impacto.')
+            saved=store.save(receipt['correction'],receipt['expected'])
+            return server.jsonify(guardada=True,revision=saved['revision'],aplicacion='informe_privado',publicacion_verificada=False)
+        except (ValueError,KeyError,TypeError) as error:return server.jsonify(error=str(error) if isinstance(error,ValueError) else 'No se guardó la interpretación.'),400
     def preview():
         try:
             body=server.request.get_json() or {};year=body.get('period');cached=server.cached('diccionario_remoto.json',None)
@@ -87,6 +167,10 @@ def install(server):
             return server.jsonify(error=str(error) if isinstance(error,ValueError) else 'El informe no contiene datos completos para la vista previa.'),400
     server.app.add_url_rule('/api/statistics-admin','statistics_admin',status,methods=['GET'])
     server.app.add_url_rule('/api/statistics-preview','statistics_preview',preview,methods=['POST'])
+    server.app.add_url_rule('/api/dictionary-record','dictionary_record',record,methods=['POST'])
+    server.app.add_url_rule('/api/dictionary-records','dictionary_records',record_list,methods=['POST'])
+    server.app.add_url_rule('/api/dictionary-record-preview','dictionary_record_preview',record_preview,methods=['POST'])
+    server.app.add_url_rule('/api/dictionary-record-save','dictionary_record_save',record_save,methods=['POST'])
     def script():
         return server.app.response_class((server.RESOURCE/'panel-statistics-admin.js').read_text(encoding='utf-8'),mimetype='text/javascript')
     server.app.add_url_rule('/panel-statistics-admin.js','statistics_admin_script',script)

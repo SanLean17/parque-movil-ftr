@@ -114,7 +114,7 @@ def main():
                     page.set_viewport_size({'width':width,'height':950})
                     for theme in ('light','dark'):
                         page.evaluate('(theme)=>document.documentElement.dataset.theme=theme',theme)
-                        for name in ('schedules','source','lines','publish','connections','incidents','statistics','diagnostic'):
+                        for name in ('schedules','source','lines','publish','connections','incidents','statistics','dictionary','diagnostic'):
                             view(page,name)
                             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(width,theme,name)
                             if screenshots:
@@ -123,7 +123,7 @@ def main():
                 assert not failures,failures
                 assert not external,external
                 context.close();browser.close()
-                print('Panel 06.3.6: 8 pantallas, 2 tamaños, 2 temas; borrador, reapertura con puerto nuevo, cola offline, cancelación, dependencia y conflicto OK. Cero red externa y cero errores JS.')
+                print('Panel: 9 pantallas, 2 tamaños generales, diccionario también a 900 px, 2 temas; reglas, fragmentos, vista previa, guardado privado, importación, cola y seguridad OK. Cero red externa y cero errores JS. Sin paquete Windows.')
         finally:
             srv.shutdown();srv.server_close();thread.join(timeout=3)
 

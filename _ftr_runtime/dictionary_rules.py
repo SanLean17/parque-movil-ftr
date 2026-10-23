@@ -5,6 +5,7 @@ import re
 import unicodedata
 from pathlib import Path
 from .mechanical_dictionary import CATEGORIES
+from .technical_fields import INFORMATION, EXTRA_FIELDS, validate_extra
 
 FILE = '_ftr_diccionario.json'
 EMPTY = {'version': 1, 'revision': 1, 'reglas': []}
@@ -12,9 +13,14 @@ GENERAL = {'falla','fallas','juego','roto','rota','flojo','floja','sin','no','si
 TECHNICAL = set('jgo jg b bl bc larga largo corta corto bar barr direccion dir susp suspension tensor tensores amort amortig buje bujes fr freno frenos pulm pulmon valv valvula niv niveladora estabilizadora card cruc cruceta crucetas neum neumatico electr electrico corr corriente bat bateria sonora marcha atras alarma del de la tras delant trasero delantero izq der'.split())
 SPECIFIC = TECHNICAL - GENERAL - set('jgo jg b bar barr del de la tras delant izq der'.split())
 GENERAL.update('jgo jg bar barr izq der delant tras'.split())
-MEANINGS = ('delantero','trasero','derecho','izquierdo','superior','inferior','interno','externo','extremo','juego','flojo','suelto','rotura','desgaste')
+LEGACY_MEANINGS = ('delantero','trasero','derecho','izquierdo','superior','inferior','interno','externo','extremo','juego','flojo','suelto','rotura','desgaste')
+MEANINGS = tuple(dict.fromkeys((*LEGACY_MEANINGS,*(v for group in INFORMATION.values() for v in group))))
 DESCRIPTORS = set('superior sup inferior inf tras trasero delantero delant del derecho der izquierdo izq interno int externo ext extremo punta juego jgo flojo suelto rotura desgaste'.split())
 DESCRIPTORS.update('extremos puntas superiores inferiores derechos derechas derecho derecha izquierdos izquierdas izquierda delanteros delanteras delantera traseros traseras trasera internos internas interna externos externas externa flojos flojas floja sueltos sueltas suelta'.split())
+
+DESCRIPTORS.update(('lado eje','lado pitman','diafragma','zona media','cortado','cortada','cortados','cortadas','pinchado','pinchada','liso','lisa','lisos','lisas','faltante','ausente','carece de','falta','no funciona','suleto','ambos','ambas','dos'))
+TECHNICAL.update('pitman brazo lado eje extremo diafragma flexible flexibles estabilizadora chicharra senal neumaticos'.split())
+SPECIFIC.update({'pitman','diafragma','chicharra','flexible'})
 
 def general(row):
     return row.get('tipo')=='descriptor' and row.get('alcance')=='general'
@@ -59,11 +65,21 @@ def validate(value):
         keys={'expresion','habilitada'}|({'tipo','significado'} if contextual else set())
         if not isinstance(row,dict):raise ValueError('Regla no válida.')
         if not general(row):keys|={'categoria','componente'}
-        optional={'alcance','variantes'} if contextual else set()
+        correction=row.get('tipo')=='correccion'
+        optional={'alcance','variantes','informacion'} if contextual else ({'tipo','parte','subcomponente','ubicacion','defecto','cantidad_fisica'} if correction else set())
         if not keys<=set(row) or set(row)-keys-optional:raise ValueError('Regla no válida.')
         if contextual and row.get('alcance','componente') not in ('general','componente'):raise ValueError('Alcance de descriptor no válido.')
         word=normalized(row['expresion']) if contextual and isinstance(row['expresion'],str) else expression(row['expresion'])
         if contextual and (word not in DESCRIPTORS or row['significado'] not in MEANINGS):raise ValueError('Elegí un descriptor técnico y su significado, sin datos individuales.')
+        if contextual and 'informacion' in row:
+            kind=row['informacion']
+            if kind not in INFORMATION or row['significado'] not in INFORMATION[kind]:raise ValueError('El significado no corresponde al tipo de información elegido.')
+            if kind=='subcomponente' and (general(row) or row.get('componente')!='pulmon_freno'):raise ValueError('Confirmá el componente del subcomponente: diafragma pertenece al pulmón de freno.')
+        if correction:
+            if len(word.split())<2 or not PATTERN.search(word):raise ValueError('La corrección general requiere una frase técnica completa con componente identificable.')
+            validate_extra(row)
+            from .record_interpretation import LOCATIONS,DEFECTS
+            if row.get('ubicacion','sin_ubicacion') not in LOCATIONS or row.get('defecto','no_identificado') not in DEFECTS:raise ValueError('Revisá ubicación y defecto de la corrección.')
         clean=dict(row,expresion=word)
         if 'variantes' in row:
             variants=row['variantes']
@@ -73,7 +89,7 @@ def validate(value):
             clean['variantes']=sorted(v for v in variants if v!=word)
         scope=('general' if general(row) else row['componente']) if contextual else '*'
         if any((scope==s or '*' in (scope,s)) and overlap(clean,other) for s,other in seen):raise ValueError('Expresión duplicada, superpuesta o en conflicto; modificá la regla existente.')
-        if not contextual and (PATTERN.search(word) or NEUTRAL.fullmatch(word)):raise ValueError('La expresión ya está definida por las reglas originales.')
+        if not contextual and not correction and (PATTERN.search(word) or NEUTRAL.fullmatch(word)):raise ValueError('La expresión ya está definida por las reglas originales.')
         if type(row['habilitada']) is not bool or (not general(row) and (row['categoria'] not in CATEGORIES or row['componente'] not in CATEGORIES[row['categoria']])):
             raise ValueError('La categoría y el componente no coinciden.')
         if contextual and row.get('categoria')=='otras':raise ValueError('Un descriptor requiere un componente reconocido.')
@@ -92,5 +108,5 @@ def proposed(current, rules, expected):
 
 def compile_rules(value):
     enabled=[r for r in validate(value)['reglas'] if r['habilitada'] and r.get('categoria')!='otras']
-    rows=[r for r in enabled if r.get('tipo')!='descriptor']
+    rows=sorted((r for r in enabled if r.get('tipo')!='descriptor'),key=lambda r:-len(r['expresion']))
     return rows, re.compile('|'.join(r'\b(?P<custom'+str(i)+'>'+re.escape(r['expresion'])+r')\b' for i,r in enumerate(rows))) if rows else None, [dict(r,expresion=term) for r in enabled if r.get('tipo')=='descriptor' for term in terms(r)]

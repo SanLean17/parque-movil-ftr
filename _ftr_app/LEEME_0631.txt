@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.8 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.9 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -136,3 +136,31 @@ Guardar la regla no recalcula históricos cerrados. El diccionario sigue global
 para los años futuros. Los informes del motor 5 de 06.3.7 se admiten si se
 verifica su integridad y se reproducen exactamente sus estadísticas originales.
 Actualizar desde 06.3.7 no requiere borrar ni migrar manualmente el perfil.
+
+
+NUEVO EN 06.3.9
+Conserva la PR #29 y toda la distribución 06.3.8. El motor 7 distingue
+componentes, partes, subcomponentes, ubicaciones, referencias, defectos y
+cantidades físicas explícitas, sin cambiar NOVEDADES, ESTADO ni controles.
+Incluye Barra corta lado Pitman, diafragma del pulmón de freno, amortiguador
+de dirección, flexible asociado al pulmón, posiciones confirmadas R/A/PF/PS,
+SULETO como SUELTO, LISO y la ausencia explícita CARECE DE/FALTA.
+El formulario pregunta qué significa la expresión. Permite corregir un
+componente incorrecto o complementar uno reconocido, con vista previa del
+período completo. GUARDAR REGLA GENERAL queda junto al resumen y requiere
+CONFIRMAR GUARDADO. Rojo pide revisión; amarillo indica aplicación pendiente;
+verde requiere comprobar cálculo y publicación. VER QUÉ FALTA HACER explica
+el siguiente paso, sin ejecutar fuentes al abrir el diccionario.
+Los informes de motores 5 y 6 se verifican con sus reglas originales.
+La nueva interpretación se aplicará en la próxima lectura automática válida
+del período activo. Ningún histórico cerrado se recalcula por actualizar.
+La regla general EXTREMO/EXTREMOS existente y las decisiones privadas se
+conservan. Una cantidad no indicada se muestra como sin precisar.
+
+ACTUALIZAR DESDE 06.3.8
+1. Cerrá la aplicación anterior.
+2. Extraé TODO el ZIP en una carpeta nueva; no mezcles versiones.
+3. Abrí FTR_Administracion.exe de esa carpeta con el mismo usuario Windows.
+El programa reutiliza %LOCALAPPDATA%/FTR_Administracion sin borrar archivos.
+No borres ese perfil: contiene conexiones, preferencias, borradores, cola,
+informes y decisiones particulares. No se incluye ningún perfil en este ZIP.

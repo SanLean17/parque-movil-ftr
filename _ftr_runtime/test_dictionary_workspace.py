@@ -21,13 +21,13 @@ class InterpretationTests(unittest.TestCase):
         d['reglas'][0]['habilitada']=False
         # Mismo archivo global, no diccionario por año.
         self.assertEqual(rules.validate(json.loads(rules.encoded(d))),d)
-    def test_confirmed_code_punctuation_and_only_r4_position(self):
+    def test_confirmed_code_punctuation_and_version7_positions(self):
         for text in ('PF3','PF.3','PF 3','PF-3','P.F.3'):
             self.assertEqual(anomalies.analyze(text)['hallazgos'][0]['referencia'],'pf3')
         for text in ('PF-30','PF-3.5','PF\n3','PF palabra 3'):
             self.assertFalse(any(x['referencia']=='pf3' for x in anomalies.analyze(text)['hallazgos']))
         self.assertEqual(anomalies.analyze('R4')['hallazgos'][0]['ubicacion'],'trasero derecho interno')
-        self.assertEqual(anomalies.analyze('R3')['hallazgos'][0]['ubicacion'],'trasero r3')
+        self.assertEqual(anomalies.analyze('R3')['hallazgos'][0]['ubicacion'],'trasero izquierdo interno')
     def test_fragments_original_offsets_split_join_gaps_dedup_and_scope(self):
         text='BARRA CORTA TRAS, PF3, TENSOR SUPERIOR DERECHO, A2 SUELTO'
         parts=records.suggestions(text,rules.EMPTY);self.assertEqual(len(parts),4)

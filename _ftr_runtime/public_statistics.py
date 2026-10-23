@@ -10,7 +10,7 @@ from zoneinfo import ZoneInfo
 
 from _ftr_admin.estadisticas_periodo import clasificar_estado
 from .anomalies import CATEGORIES, VERSION, analyze, fold
-from .mechanical_dictionary import CATALOGUES
+from .mechanical_dictionary import CATALOGUES, ENGINE_REVISION
 from .config import enabled
 
 FILE = 'estadisticas_ftr.json'
@@ -45,7 +45,7 @@ def monthly(events, period, cutoff):
                  'en_curso' if (period,m) == (cutoff.year,cutoff.month) else 'completo') for m in range(1,13)]
 
 
-def mechanics(events, pending=False, dictionary=None, corrections=None):
+def mechanics(events, pending=False, dictionary=None, corrections=None, analyzer=None):
     from .dictionary_rules import compile_rules, EMPTY
     custom=compile_rules(dictionary or EMPTY)
     categories = []
@@ -55,6 +55,8 @@ def mechanics(events, pending=False, dictionary=None, corrections=None):
     result = dict(version_reglas=VERSION, estado='pendiente' if pending else 'disponible',
         identificadas=None if pending else 0, sin_clasificar=None if pending else 0,
         cobertura={k:None if pending else 0 for k in ('registros_validos','con_columna','con_texto','vacios','sin_columna')}, categorias=categories)
+    result['motor_revision']=ENGINE_REVISION
+    result['elementos_fisicos']={k:None if pending else 0 for k in ('cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad')}
     if pending:
         return result, []
     components = {c['id']:c for category in categories for c in category['componentes']}
@@ -69,7 +71,9 @@ def mechanics(events, pending=False, dictionary=None, corrections=None):
             coverage['vacios'] += 1
             continue
         coverage['con_texto'] += 1
-        if corrections:
+        if analyzer:
+            analysis=analyzer(e)
+        elif corrections:
             from .record_interpretation import apply as interpret_record
             analysis = interpret_record(e,corrections,dictionary or EMPTY)
         else:analysis = analyze(e['novedades'],custom)
@@ -78,6 +82,10 @@ def mechanics(events, pending=False, dictionary=None, corrections=None):
         for finding in known:
             component = finding['componente']
             components[component]['cantidad'] += 1
+            physical=result['elementos_fisicos'];quantity=finding.get('cantidad_fisica')
+            if quantity is None:physical['menciones_sin_cantidad']+=1
+            else:
+                physical['menciones_con_cantidad']+=1;physical['cantidad_confirmada']+=quantity
             components[component]['estados'][state] += 1
         components['sin_clasificar']['cantidad'] += len(unknown)
         components['sin_clasificar']['estados'][state] += len(unknown)
@@ -183,7 +191,7 @@ def validate(data):
             if days>min(limit,m['controles']) or bool(days)!=bool(m['controles']):raise ValueError('Días con fiscalizaciones incompatibles.')
     if sum(m['controles'] for m in months)!=totals['registros_validos'] or data['destacados']!=ranking(lines) or data['minimo_controles_proporcion']!=MINIMUM or data['proporciones']!=proportions(lines):
         raise ValueError('Gráficos estadísticos incompatibles.')
-    a=data['anomalias'];exact(a,('version_reglas','estado','identificadas','sin_clasificar','cobertura','categorias'))
+    a=data['anomalias'];exact(a,('version_reglas','estado','identificadas','sin_clasificar','cobertura','categorias',*(('elementos_fisicos','motor_revision') if a.get('version_reglas',0)>=4 else ())))
     if type(a['version_reglas']) is not int or a['version_reglas'] not in CATALOGUES or data['version']==1 and a['version_reglas']!=1 or a['estado'] not in ('pendiente','parcial','disponible'):
         raise ValueError('Análisis mecánico no válido.')
     catalogue=CATALOGUES[a['version_reglas']]
@@ -199,6 +207,11 @@ def validate(data):
             values += [c['cantidad'],*c['estados'].values()]
             if not pending and sum(c['estados'].values())!=c['cantidad']:raise ValueError('Estados de anomalías incompatibles.')
         if not pending and sum(c['cantidad'] for c in category['componentes'])!=category['cantidad']:raise ValueError('Categoría incompatible.')
+    if a['version_reglas']>=4:
+        if type(a['motor_revision']) is not int or a['motor_revision']!=7:raise ValueError('Revisión de motor no admitida para este catálogo.')
+        physical=a['elementos_fisicos'];exact(physical,('cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'))
+        values.extend(physical.values())
+        if not pending and (physical['menciones_con_cantidad']+physical['menciones_sin_cantidad']!=a['identificadas'] or physical['cantidad_confirmada']<physical['menciones_con_cantidad']):raise ValueError('Cantidades físicas incompatibles con las menciones.')
     if pending:
         if any(v is not None for v in values):raise ValueError('Análisis pendiente con cifras inventadas.')
     else:

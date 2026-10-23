@@ -6,21 +6,29 @@ usa ESTADO para decidir componente, defecto o ubicación.
 import re
 import unicodedata
 from collections import Counter
-from .mechanical_dictionary import VERSION, CATEGORIES, RULES, ALIASES, CODE_TOKEN
+from .mechanical_dictionary import VERSION, CATEGORIES, RULES, ALIASES, CODE_TOKEN, NAMED_CODE_TOKEN, NAMED_FAMILIES, NAMED_GAP
 from .dictionary_rules import general, effective
 
 PATTERN = re.compile('|'.join(r'\b(?P<rule'+str(i)+'>'+p+r')\b' for i, (_, p) in enumerate(RULES)))
 OWNER = {c:k for k, values in CATEGORIES.items() for c in values}
-CODE = re.compile(CODE_TOKEN)
+CODE = re.compile(CODE_TOKEN+'|'+NAMED_CODE_TOKEN)
+
+def code_reference(text):
+    compact=re.sub(r'[^a-z0-9]','',text)
+    if compact in ALIASES:return compact
+    for pattern,family,maximum in NAMED_FAMILIES:
+        match=re.fullmatch('(?:'+pattern+')'+NAMED_GAP+r'(\d+)',text)
+        if match and 1<=int(match[1])<=maximum:return family+match[1]
+    return None
 NEUTRAL = re.compile(r'^(?:sin\s+(?:novedad(?:es)?|anomalias?|fallas?|defectos?|observaciones?)|ok|s/?n|ningun[oa]?|[-.]+)$')
 NEGATION = re.compile(r'\b(?:sin\s+(?:fallas?|defectos?|anomalias?|problemas?|novedad(?:es)?|juego|perdidas?)|no\s+(?:presentan?|tienen?|hay|se\s+(?:detectan?|observan?))|en\s+buen\s+estado|funciona\s+(?:bien|correctamente)|ok)\b')
 UNCERTAIN = re.compile(r'\b(?:posible|posiblemente|quizas?|duda|revisar|verificar|descartar|podria)\b|\?')
-DEFECT = re.compile(r'\b(?:juego|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|fallas?|defectuos[oa]s?|desgaste|perdidas?|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|no\s+(?:funciona|anda))\b')
+DEFECT = re.compile(r'\b(?:juego|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|fallas?|defectuos[oa]s?|desgaste|perdidas?|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|lis[oa]s?|suleto|faltante|ausente|carece\s+de|falta|no\s+(?:funciona|anda))\b')
 LOCATION_WORD = r'(?:delanter[oa]s?|traser[oa]s?|derech[oa]s?|izquierd[oa]s?|intern[oa]s?|extern[oa]s?|superior(?:es)?|inferior(?:es)?|der|izq|isk|del|tras|sup)'
 POSITION = re.compile(r'\b'+LOCATION_WORD+r'\b')
 LOCATION = r'(?:(?:zona|lado)\s+)?(?:media|'+LOCATION_WORD+r')'
 GLUE = r'(?:sin|esta|estan|y|e|de|la|el|los|las|en|con|un|una|por|al|se|su|sus|tiene|presenta)'
-BASE_DESCRIPTION = (r'no\s+(?:funciona|anda)|mal\s+estado|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|'
+BASE_DESCRIPTION = (r'no_funciona|corte|pinchadura|carece\s+de|falta(?:n)?|faltantes?|ausentes?|amb[oa]s|dos|lis[oa]s?|suleto|no\s+(?:funciona|anda)|mal\s+estado|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|'
     r'juego|excesiv[oa]|fallas?|defectuos[oa]s?|desgaste|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|'
     r'desgastad[oa]s?|desinflad[oa]s?|reventad[oa]s?|perdidas?(?!\s+(?:de\s+)?aire\b)')
 PNEUMATIC = {'pulmon_freno','pulmon_suspension','tanque_aire','valvula_descarga','valvula_niveladora',
@@ -45,7 +53,8 @@ def canonical(location):
 
 def clause_spans(original):
     # Proteger también códigos no confirmados: nunca reconocer un prefijo suyo.
-    protected=[m.span() for m in re.finditer(CODE_TOKEN,original,re.I)]
+    accented=NAMED_CODE_TOKEN.replace('pulmon','pulm[oó]n').replace('neumatic','neum[aá]tic')
+    protected=[m.span() for m in re.finditer(CODE_TOKEN+'|'+accented,original,re.I)]
     protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|sup)\.',original,re.I)]
     masked=list(original)
     for left,right in protected:masked[left:right]='_'*(right-left)
@@ -69,6 +78,7 @@ def descriptor_pattern(component, contextual=()):
         specific=r'|lado\s+(?:pit+t?man|eje|rueda)|enter[oa]s?'
     elif component=='tensores':
         specific=r'|mono|monio|posicionamiento(?:\s+del\s+eje)?'
+    if component=='pulmon_freno':specific+=r'|diafragma'
     if component in PNEUMATIC:specific+=r'|perdidas?\s+(?:de\s+)?aire(?:\s+en\s+(?:el\s+)?sistema(?:\s+de)?)?'
     specific+=''.join('|'+re.escape(r['expresion']) for r in effective(contextual,component))
     return re.compile(r'\b(?:'+BASE_DESCRIPTION+'|'+LOCATION+specific+'|'+GLUE+r')\b')
@@ -102,6 +112,7 @@ def locations(text):
         elif word in ('superior','inferior','interno','externo') and result:result[-1]+=' '+word
         elif word in ('derecho','izquierdo') and result and result[-1] in ('superior','inferior'):result[-1]+=' '+word
         else:result.append(word)
+    if re.search(r'\bzona media\b',text):result.append('zona media')
     return result or ['sin_ubicacion']
 
 
@@ -185,9 +196,12 @@ def analyze(value, custom=None):
         if NEGATION.search(clause) or UNCERTAIN.search(clause):
             unknown.append(raw);continue
         codes=list(CODE.finditer(clause))
-        invalid=[m for m in codes if re.sub(r'[^a-z0-9]','',m.group()) not in ALIASES]
+        invalid=[m for m in codes if code_reference(m.group()) is None]
         matches=[m for m in PATTERN.finditer(clause) if not any(m.start()<b.end() and m.end()>b.start() for b in invalid)]
         if custom_pattern:
+            corrections=[m for m in custom_pattern.finditer(clause) if custom_rows[int(m.lastgroup[6:])].get('tipo')=='correccion' and not any(m.start()<b.end() and m.end()>b.start() for b in invalid)]
+            matches=[m for m in matches if not any(m.start()<b.end() and m.end()>b.start() for b in corrections)]
+            matches.extend(corrections)
             matches.extend(m for m in custom_pattern.finditer(clause) if not any(m.start()<b.end() and m.end()>b.start() for b in matches+invalid))
             matches.sort(key=lambda m:m.start())
         # Un sistema explícito incompatible no autoriza dos hallazgos:
@@ -217,6 +231,15 @@ def analyze(value, custom=None):
             prefix_start=matches[i-1].end() if i else 0
             prefix=clause[prefix_start:match.start()] if i==0 or any(owner==i and prefix_start<=a<b<=match.start() for a,b,owner,_ in owners) else ''
             suffix=clause[match.end():end]
+            # A conjunction separates the previous suffix from the next prefix.
+            # "tensor y no funciona chicharra" must not mark the tensor defective.
+            if i:
+                joins=list(re.finditer(r'\b(?:y|e)\b',clause[prefix_start:match.start()]))
+                if joins:
+                    prefix_start+=joins[-1].start();prefix=clause[prefix_start:match.start()]
+            if i+1<len(matches):
+                join=re.search(r'\b(?:y|e)\b',suffix)
+                if join:suffix=suffix[:join.start()]
             context=prefix+match.group()+suffix
             if component=='barra_corta' and match.group()=='corta' and prefix.strip():
                 tokens=descriptors(prefix,component,reverse=True)
@@ -245,27 +268,38 @@ def analyze(value, custom=None):
                 # "dirección del domicilio" no usa DEL como ubicación técnica.
                 if suffix[(after[-1].end() if after else 0):].strip(' .:()'):continue
             code=next((m for m in codes if m.start()>=match.start() and m.end()<=match.end()),None)
-            reference=re.sub(r'[^a-z0-9]','',code.group()) if code else None
+            reference=code_reference(code.group()) if code else None
             if reference:
                 target,location=ALIASES[reference]
                 if component!='bujes':component=target
                 if location!='sin_ubicacion' and any(('delanter' in p and 'trasero' in location) or ('traser' in p and 'delantero' in location) or ('derech' in p and 'izquierdo' in location) or ('izquierd' in p and 'derecho' in location) for p in selected_locations):continue
                 selected_locations=[location] if location!='sin_ubicacion' else selected_locations
             if component in ('direccion_sin_componente','suspension_sin_componente','transmision_sin_componente','electrico_sin_componente') and selected_locations==['sin_ubicacion'] and not DEFECT.search(attached):continue
-            # Las estadísticas de barras no separan extremos.
-            if component in ('barra_corta','barra_larga'):selected_locations=['sin_ubicacion']
+            # Positions of bar ends do not multiply the component mention.
+            if component in ('barra_corta','barra_larga') and len(selected_locations)>1:selected_locations=['sin_ubicacion']
             if component=='freno_sin_ubicacion' and re.search(r'perdidas?\s+(?:de\s+)?aire',attached):selected_locations=['sin_ubicacion']
             for location in selected_locations:
                 selected=component
-                if component in ('freno_sin_ubicacion','neumatico_sin_ubicacion'):
+                if component in ('freno_sin_ubicacion','neumatico_sin_ubicacion') and not match.group().startswith('sistema'):
                     if location.startswith('delanter'):selected='frenos_delanteros' if component.startswith('freno') else 'neumaticos_delanteros'
                     elif location.startswith('traser'):selected='frenos_traseros' if component.startswith('freno') else 'neumaticos_traseros'
                 # A7/A8 son referencias distintas, sin inventarles una posición.
-                key=(OWNER[selected],selected,canonical(location),reference if location=='sin_ubicacion' else None)
+                key_location='sin_ubicacion' if component in ('barra_corta','barra_larga') else canonical(location)
+                distinct=reference and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]',reference)
+                key=(OWNER[selected],selected,key_location,reference if location=='sin_ubicacion' or distinct else None)
                 defect='no_identificado'
-                for label,pattern in (('corte',r'\bcortad[oa]s?\b'),('pinchadura',r'\bpinchad[oa]s?\b'),('rotura',r'\brot[oa]s?\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\bsuelt[oa]s?\b'),('no_funciona',r'\bno\s+(?:funciona|anda)\b')):
+                for label,pattern in (('faltante',r'\b(?:carece\s+de|falta(?:n)?|faltantes?|ausentes?)\b'),('liso',r'\blis[oa]s?\b'),('juego',r'\bjuego\b'),('desgaste',r'\bdesgast(?:e|ad[oa]s?)\b'),('corte',r'\b(?:cortad[oa]s?|corte)\b'),('pinchadura',r'\b(?:pinchad[oa]s?|pinchadura)\b'),('rotura',r'\b(?:rot[oa]s?|rotura)\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\b(?:suelt[oa]s?|suleto)\b'),('no_funciona',r'\b(?:no_funciona|no\s+(?:funciona|anda))\b')):
                     if re.search(pattern,attached):defect=label;break
-                findings.setdefault(key,dict(categoria=key[0],componente=key[1],ubicacion=key[2],referencia=reference,defecto=defect))
+                part='lado pitman' if re.search(r'\bpit+t?man\b',attached) and component in ('barra_corta','barra_larga') else 'lado eje' if re.search(r'\b(?:lado|extremo)\s+eje\b',attached) or component=='barra_corta' and re.search(r'\bcorta\s+eje\b',attached) else 'extremo' if re.search(r'\bextremos?\b',attached) else None
+                subpart='diafragma' if component=='pulmon_freno' and re.search(r'\bdiafragma\b',attached) else None
+                # "Ambos extremos" counts ends, not two bars or tensors.
+                quantity=2 if not part and not subpart and len(selected_locations)==1 and re.search(r'\b(?:amb[oa]s|dos)\b',attached) else None
+                associated='pulmon_freno' if component=='flexibles_freno' and 'pulmon' in match.group() else None
+                finding=dict(categoria=key[0],componente=key[1],ubicacion=canonical(location),referencia=reference,defecto=defect,parte=part,subcomponente=subpart,cantidad_fisica=quantity,componente_asociado=associated)
+                if match.lastgroup.startswith('custom'):
+                    rule=custom_rows[int(match.lastgroup[6:])]
+                    if rule.get('tipo')=='correccion':finding.update({k:rule[k] for k in ('parte','subcomponente','ubicacion','defecto','cantidad_fisica') if k in rule})
+                findings.setdefault(key,finding)
             remainder[match.start():match.end()]=' '*(match.end()-match.start())
             for offset,tokens in ((prefix_start,before),(match.end(),after)):
                 for token in tokens:

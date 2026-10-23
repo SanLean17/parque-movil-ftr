@@ -1,127 +1,108 @@
-FTR ADMINISTRACIÓN — DICCIONARIO TÉCNICO
-Incluido en la distribución completa de Windows 06.3.8.
+FTR ADMINISTRACIÓN 06.3.9 — DICCIONARIO TÉCNICO
 
-Navegación
-Diccionario técnico se encuentra junto a Estadísticas. Sus cuatro bloques son:
-Expresiones pendientes, Revisar novedades, Reglas confirmadas e Información.
-Estadísticas conserva los resultados publicados y la revisión explícita de
-históricos. Su acceso al diccionario conserva el período seleccionado.
-Planilla y período conserva la importación; muestra años verificados y abre
-Importar otro año con año y enlace vacíos. Un año existente no se reimporta.
+El mismo diccionario global sirve para todos los años futuros. Los archivos
+de estadísticas de años cerrados y las interpretaciones privadas son
+independientes. Actualizar la aplicación no recalcula ni publica históricos.
+La PR #29 y sus descriptores generales están conservados.
 
-Revisión
-Las expresiones se agrupan por período y frecuencia. Hay búsqueda, filtro por
-ESTADO y orden ascendente/descendente. Los registros se abren de a veinte.
-Cada registro muestra NOVEDADES completa y sin reescribir, con resaltado
-subrayado y rojo del fragmento, más año, línea, pestaña, fila, fecha, dominio,
-interno y ESTADO. El editor aparece dentro de ese registro.
-Se puede indicar descriptor contextual, abreviatura de componente, múltiples
-anomalías o dejar pendiente. Los descriptores solo se consumen cuando están
-unidos al componente compatible; no crean otro hallazgo.
+INTERPRETACIÓN
+El motor 7 distingue sistema, componente, parte afectada, subcomponente,
+ubicación, código de posición, defecto y cantidad física explícita.
+Las frases completas tienen prioridad sobre sus palabras aisladas.
+- CORTA PITMAN / BARRA CORTA LADO PITMAN: una barra corta, lado Pitman.
+  BRAZO PITMAN sigue siendo una pieza independiente si así está escrito.
+- PULMÓN DE FRENO TRASERO IZQUIERDO DIAFRAGMA: un pulmón con subcomponente
+  diafragma. No se inventa rotura, perforación ni defecto alguno.
+- FLEXIBLE PULMÓN DE FRENO: un flexible con referencia al pulmón; no dos piezas.
+- AMORTIGUADOR DE DIRECCIÓN pertenece a Dirección; no a Suspensión.
+- CARECE DE / FALTA indica ausencia explícita. FLOJO y SUELTO son distintos.
+  SULETO se interpreta como SUELTO solo junto a un componente reconocido.
+  LISA/LISO se registra como LISO. NO FUNCIONA CHICHARRA conserva ese defecto.
+- SISTEMA DE FRENO sin pieza concreta conserva esa falta de precisión.
+  NO COINCIDE KIT, CORTA aislada y los contextos ambiguos quedan pendientes.
+NOVEDADES original y ESTADO nunca se reescriben ni se deducen entre sí.
 
-Alcance del descriptor (opción A — COMPLEMENTA UN COMPONENTE)
-El formulario conserva las reglas específicas y permite elegir:
-- SOLO EL COMPONENTE SELECCIONADO: exige el componente reconocido.
-- CUALQUIER COMPONENTE RECONOCIDO: no exige seleccionar uno.
-Las variantes se escriben separadas por /, por ejemplo EXTREMOS para EXTREMO.
-Solo se admiten términos del vocabulario técnico cerrado; una variante no
-autoriza a ocultar otros textos desconocidos. El significado continúa siendo
-obligatorio. Una regla específica habilitada prevalece sobre la general para
-el mismo término y componente; deshabilitarla permite aplicar la general.
+NÚMEROS Y POSICIONES CONFIRMADAS
+Un número después del nombre pertenece solo a esa familia: amortiguador 3,
+amortiguador.3 y amortiguador-3 equivalen a A3. Un número solo no es posición.
+PF admite 1–6; PS 1–4; A y R 1–8. No se acepta un prefijo de código inválido.
+1: delantero izquierdo; 2: delantero derecho; 3/5: trasero izquierdo;
+4/6: trasero derecho, dentro de los límites de cada familia.
+R3/R4: traseros internos izquierdo/derecho. R5/R6: externos izquierdo/derecho.
+R7/R8: referencia trasera sin precisión adicional. A7/A8: sin posición inferida.
+Referencias distintas que comparten una posición conservan su identidad.
 
-EXTREMO BARRA LARGA, EXTREMO BARRA CORTA y TENSOR EXTREMO DERECHO mantienen
-un componente por expresión. EXTREMOS BARRA LARGA - CRUCETA 2 conserva ambos
-componentes, resuelve EXTREMOS y deja el número 2 para su revisión anterior.
-EXTREMO DELANTERO DE BARRA CORTA también se asocia a la barra corta.
-BARRA LARGA, EXTREMO IZQUIERDO CON JUEGO admite la coma porque continúa la
-descripción completa de un único componente, sin otro candidato al lado.
-EXTREMO solo, entre dos componentes posibles o separado por un límite de
-anomalía queda pendiente. No se atraviesan palabras desconocidas, negaciones,
-incertidumbres, puntos, punto y coma, guiones ni saltos de línea.
-Si las posiciones nuevas cambian la cantidad de componentes reconocidos, se
-conservan los hallazgos anteriores y la interpretación queda pendiente.
-Las decisiones explícitas del editor de fragmentos conservan sus límites.
+CONTEOS
+Una fiscalización sigue siendo un control. Cada hallazgo deduplicado es una
+mención. La cantidad física se guarda por separado solo si es explícita.
+AMBOS NEUMÁTICOS TRASEROS INTERNOS CORTADOS: una mención, dos neumáticos.
+AMBOS EXTREMOS de una barra no significa dos barras. Una cantidad no indicada
+queda sin precisar; los archivos antiguos no reciben cantidades inventadas.
 
-Fragmentos
-El editor propone los fragmentos del mismo motor. Permite usar una selección
-del original, reemplazar un fragmento, agregar, dividir en el cursor, unir con
-el siguiente y eliminar una interpretación. El texto eliminado de la edición
-queda pendiente; no desaparece del original. Las posiciones son índices de
-caracteres Unicode originales, no de texto corregido. El servidor rechaza
-intervalos fuera del texto y superposiciones. Se deduplican hallazgos y jamás
-se multiplica el número de controles.
+FORMULARIO
+Al abrir una expresión: SELECCIONÁ QUÉ SIGNIFICA ESTA EXPRESIÓN.
+Una sugerencia se identifica como SUGERENCIA DEL SISTEMA — REQUIERE CONFIRMACIÓN.
+A — COMPLEMENTA UN COMPONENTE pregunta ¿QUÉ INFORMACIÓN AGREGA?: ubicación,
+parte, defecto o condición, cantidad. Solo muestra los significados de ese tipo.
+PARTE O SUBCOMPONENTE DE UNA PIEZA RECONOCIDA permite DIAFRAGMA en PULMÓN DE FRENO.
+EL COMPONENTE RECONOCIDO NO ES CORRECTO permite elegir cualquier componente
+del catálogo, su parte, ubicación y defecto; no limita la elección al automático.
+La frase debe delimitar la interpretación correcta, sin incluir otras anomalías.
+Para varias anomalías, el editor de fragmentos conserva texto y límites Unicode.
+Eliminar una interpretación deja su texto pendiente. No elimina la observación.
 
-Dos alcances de guardado
-1. Regla general: vocabulario técnico validado, sin texto libre ni referencias
-   de vehículos. Se guarda por la cola existente en _ftr_diccionario.json;
-   queda habilitada por defecto. El alcance del descriptor indica si incluye
-   un componente concreto o admite cualquiera ya reconocido. No confundir
-   este alcance con el guardado global frente al guardado particular.
-   Se pueden editar/deshabilitar desde Reglas confirmadas.
-   El archivo global se recupera al reinstalar y se utiliza en años futuros.
-2. Interpretación particular: decisión privada para el registro exacto. Se
-   guarda en %LOCALAPPDATA%/FTR_Administracion/interpretaciones.dpapi usando
-   DPAPI del usuario de Windows, escritura atómica y control de versión.
-   Persiste al cerrar el programa o reemplazar su carpeta de instalación.
-   Se aplica al informe privado y a las vistas previas locales. NO se envía
-   por GitHub Actions, NO genera una regla global y NO publica estadísticas.
-   No hay sincronización de decisiones particulares entre computadoras ni
-   recuperación si se pierde el perfil Windows. No se ofrece un respaldo
-   inseguro en texto plano. Cambiar fuente del registro, fila, fecha, estado o
-   NOVEDADES invalida la decisión previa en vez de aplicarla a otro control.
-   Las redacciones excepcionales se guardan desde el editor de fragmentos.
+ALCANCE Y PRECEDENCIA
+Los descriptores pueden aplicarse SOLO AL COMPONENTE SELECCIONADO o a
+CUALQUIER COMPONENTE RECONOCIDO. Una regla específica habilitada prevalece
+para su término y componente. Una corrección explícita de frase completa
+prevalece sobre los reconocimientos más pequeños dentro de esa frase.
+Las variantes se separan con /; EXTREMO / EXTREMOS conserva su regla existente.
+Un descriptor solo no crea un componente. Un contexto ambiguo o una palabra
+desconocida no se oculta. Puntuación y separadores limitan la asociación.
+Una coma admite una continuación completa e inequívoca de descriptor general.
 
-Vista previa y estado
-Se recalcula con el mismo motor y el informe protegido completo y vigente.
-Se muestran conteos anteriores/posteriores, registros afectados y apariciones
-que necesitan revisión individual, incluso cuando un registro se resuelve solo
-parcialmente. Los conteos incluyen menciones sin clasificar y cada categoría.
-Una vista previa particular parte de las
-interpretaciones privadas ya guardadas. Cancelar no escribe ni encola órdenes.
-Editar después de calcular invalida la confirmación. Los recibos particulares
-vencen a los cinco minutos y verifican informe, diccionario y versión local.
-Se distinguen orden pendiente, regla guardada, recálculo pendiente, estadísticas
-recalculadas y publicación verificada. Guardar no equivale a publicar.
+VISTA PREVIA Y GUARDADO
+El informe protegido completo aporta todos los registros del período.
+La vista previa muestra menciones antes/después, categorías, registros afectados,
+sus interpretaciones, cantidades físicas y ambigüedades. No cambia controles.
+GUARDAR REGLA GENERAL queda cerca del resumen y visible al recorrer el detalle.
+CONFIRMAR GUARDADO explica el alcance. Cambiar campos invalida la vista previa.
+Errores de expresión, tipo, significado, componente, subcomponente o conflictos
+impiden guardar y muestran la causa. Una vista previa vencida debe recalcularse.
+La cola conserva el flujo: guardada localmente, enviada, confirmada por GitHub,
+estadísticas pendientes y publicación verificada. Enviada no significa aplicada.
+Los recibos de guardado particular vencen a los cinco minutos y verifican
+informe, diccionario y decisiones privadas antes de aceptar la confirmación.
 
-Compatibilidad y privacidad
-Se conserva el catálogo público versión 3; la revisión interna del motor es 6.
-Un informe de revisión 5 se admite únicamente si reproduce exactamente sus
-estadísticas guardadas con las reglas originales y pasa las comprobaciones de
-integridad, período y cantidad de registros. Otros informes antiguos o que no
-coincidan requieren un informe nuevo de una lectura automática autorizada.
-El esquema de diccionario sigue en versión 1. Un descriptor general almacena
-tipo=descriptor, alcance=general, expresion, significado, habilitada y variantes
-opcionales; omite categoría y componente. Uno específico conserva categoría y
-componente, admite alcance=componente y variantes opcionales. Sin alcance se
-interpreta como específico y mantiene su representación y huella anteriores.
-No se permiten términos/variantes duplicados dentro del mismo alcance. La
-coexistencia general/específica tiene la precedencia indicada arriba.
-PF-3 se reconoce como PF3, PF.3, PF 3 y P.F.3. R4 tiene ubicación trasera
-interna derecha por confirmación expresa; no se deducen las demás posiciones R.
-La normalización no cambia las posiciones ni el texto original del editor.
-El panel mantiene tokens y estilo original; los estados hover/focus y summary
-completo se comparten entre desplegables. El detalle secundario pasa a 14 px.
+COLORES Y SIGUIENTE PASO
+ROJO: necesita interpretación inequívoca, corregir datos del formulario o error.
+AMARILLO: interpretación disponible/regla guardada pendiente de aplicación;
+pueden quedar apariciones ambiguas. No se presenta como jamás clasificada.
+VERDE: coinciden motor, diccionario, lectura, cálculo y publicación comprobada.
+Si quedan ambigüedades, la aplicación del período se muestra parcial.
+VER QUÉ FALTA HACER orienta para consultar GitHub, abrir el informe, revisar
+casos, esperar la lectura automática de Drive o preparar revisión histórica.
+Abrir el diccionario solo consulta el perfil local: no dispara fuentes.
 
-Años y publicación
-Los históricos cerrados no cambian al guardar reglas. Su revisión autorizada
-verifica huellas de fuente/archivo/diccionario/resultado y conserva la versión
-anterior. La transición 2026 a 2027 se prueba con el lector y fuentes ficticias:
-2025 y 2026 permanecen idénticos, no se reimporta 2026, el diccionario sigue
-global, CNRT no cambia y una fuente inválida no crea el archivo de 2027.
+PRIVACIDAD Y COMPATIBILIDAD
+Guardar solo este registro utiliza DPAPI del usuario Windows y huella del
+registro exacto. No envía NOVEDADES ni decisiones privadas a GitHub.
+Cambiar fecha, fila, fuente, estado o texto invalida la decisión anterior.
+El diccionario sigue en esquema 1, con extensiones opcionales tipadas;
+reglas específicas y generales anteriores mantienen su representación.
+El catálogo público 4 incorpora amortiguador de dirección, revisión de motor
+y cantidades físicas explícitas. Se leen catálogos 1–3 sin inventar atributos.
+Los informes de motores 5/6 se verifican con implementaciones conservadas;
+sus cifras originales no se reemplazan por las de motor 7 al abrirlos.
+Solo una vista previa solicitada calcula el impacto completo de las nuevas reglas.
+La próxima lectura automática válida del período activo usa motor 7.
+No se modifica 2025 ni se ejecutan bots, importaciones o revisiones reales
+durante las pruebas de esta entrega.
 
-Validación y entrega 06.3.8
-La CI mantiene Python en Windows y Linux, pruebas de seguridad y navegadores.
-El marcador versionado _ftr_app/windows-release.json autoriza esta entrega
-completa. Compila el ejecutable, comprueba su versión Windows y abre el panel
-real con perfil ficticio aislado. Verifica reglas, fragmentos, vista previa,
-guardado DPAPI, cola y reapertura desde otra carpeta sin alterar el perfil.
-Solo después genera el ZIP completo con VERSION.json, SHA256_ARCHIVOS.txt,
-LEEME_PRIMERO.txt y todos los recursos. Cambios posteriores de fuentes sin
-modificar el marcador no generan otra distribución Windows.
-Las capturas y casos de pruebas contienen exclusivamente información ficticia.
-No se ejecutan bots ni lecturas de fuentes reales durante estas pruebas.
-La ampliación de descriptores generales de la PR #29 está integrada en esta
-entrega 06.3.8. Su ejecutable se compila nuevamente y se prueba con datos
-ficticios, incluidos los alcances, variantes, vista previa y casos ambiguos.
-La carpeta completa sustituye la instalación anterior sin borrar ni sobrescribir
-el perfil %LOCALAPPDATA%/FTR_Administracion del mismo usuario Windows.
+ENTREGA WINDOWS
+El marcador _ftr_app/windows-release.json habilita una compilación nueva.
+La CI verifica Windows/Linux, navegador, ejecutable real, perfil ficticio,
+persistencia, temas, formularios, cola y paquete antes de generar el ZIP.
+El ZIP incluye EXE, todos los recursos, VERSION.json, SHA256_ARCHIVOS.txt y
+LEEME_PRIMERO.txt. No contiene tokens, claves privadas ni informes personales.
+Extraer en otra carpeta conserva el perfil %LOCALAPPDATA%/FTR_Administracion.

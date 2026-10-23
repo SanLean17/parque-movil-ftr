@@ -121,6 +121,8 @@ class ExpressionTests(unittest.TestCase):
         for text in ('PF.3 SIN FALLAS','POSIBLE PS.1','NO PRESENTA FALLA DE A2 Y PF.3','A2 SIN JUEGO','PS.1?','NO SE OBSERVAN FALLAS EN PF.3','NO HAY JUEGO EN A2'):
             with self.subTest(text=text):self.check(text,[],[text])
         self.check('A2 SIN JUEGO, PF.3',['pulmon_freno'],['A2 SIN JUEGO'])
+        for code in ('PF 3','P F 3','PF.3','PF,3'):
+            with self.subTest(code=code):self.check(code+'. A2 SIN JUEGO',['pulmon_freno'],['A2 SIN JUEGO'])
 
     def test_reserved_codes_all_years_and_old_reports(self):
         for text in ('PF','PF7','PS','PS5','A7','A9','R9'):

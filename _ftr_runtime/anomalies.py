@@ -46,9 +46,11 @@ def clauses(original):
     # Proteger también códigos no confirmados: nunca reconocer un prefijo suyo.
     protected=[m.span() for m in CODE.finditer(text)]
     protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|sup)\.',text)]
-    bounds=[]
-    for m in re.finditer(r'(?:^|(?<=\s))\d+[.)][ \t]*|[,;.\n\r!]+|[-–—]+',text):
-        if not any(m.start()<b and m.end()>a for a,b in protected):bounds.append(m.span())
+    masked=list(text)
+    for left,right in protected:masked[left:right]='_'*(right-left)
+    # No confundir el número de "PF 3. A2" con una numeración de lista:
+    # se protege PF 3, pero el punto posterior sigue separando expresiones.
+    bounds=[m.span() for m in re.finditer(r'(?:^|(?<=\s))\d+[.)][ \t]*|[,;.\n\r!]+|[-–—]+',''.join(masked))]
     start=0
     for left,right in bounds:
         if original[start:left].strip():yield original[start:left].strip()

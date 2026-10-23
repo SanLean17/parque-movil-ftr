@@ -27,7 +27,7 @@ import requests
 from flask import Flask, abort, jsonify, make_response, request
 from werkzeug.serving import make_server
 from _ftr_runtime.config import clean_config,digest,encoded
-from _ftr_app.outbox import AuthorizationError
+from _ftr_app.outbox import AuthorizationError, DispatchRejected
 from _ftr_app.local_clock import write_json
 
 REPO='SanLean17/parque-movil-ftr'
@@ -87,6 +87,7 @@ def api(method,suffix,payload=None,auth=None):
     r=requests.request(method,BASE+suffix if suffix else BASE.rstrip('/'),headers={'Authorization':'Bearer '+(auth or token()),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},json=payload,timeout=(8,50),allow_redirects=False)
     if r.status_code==401:raise AuthorizationError('GitHub rechazó la autorización. Puede haber vencido; reconectá este equipo.')
     if r.status_code==403:raise AuthorizationError('GitHub no permitió la operación. Revisá Actions con lectura y escritura y acceso a este repositorio.')
+    if method=='POST' and r.status_code in (400,404,405,409,422):raise DispatchRejected(r.status_code)
     if r.status_code==404:raise ValueError('GitHub no encontró el recurso autorizado. Revisá el repositorio y que la integración esté activada.')
     if not r.ok:raise ValueError('No se completó la operación con GitHub (HTTP '+str(r.status_code)+'). Revisá su estado antes de repetirla.')
     return r.json() if r.content else {}

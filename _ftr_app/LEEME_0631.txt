@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.10 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.11 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -172,3 +172,17 @@ acústica. Se conservan las reglas globales y las decisiones particulares.
 La revisión histórica autorizada conserva el archivo anterior y los controles.
 Las expresiones históricas en OTRAS son de revisión opcional.
 Ver DICCIONARIO_TECNICO.txt para ejemplos y pasos de confirmación.
+
+RECUPERAR LA COLA EN 06.3.11
+- No borrar ordenes.json ni el perfil de AppData. Cerrar la versión anterior antes de abrir la nueva.
+- En Actualizaciones, el aviso identifica la primera orden que requiere revisión.
+- COMPROBAR ENVÍO EN GITHUB consulta todas las páginas del intervalo y busca el identificador exacto. No reenvía la orden.
+- Si encuentra la ejecución, muestra su progreso o resultado. Una solicitud enviada no equivale a una publicación verificada.
+- Sin Internet, autorización, cobertura completa o evidencia suficiente, conserva la incertidumbre y bloquea la resolución.
+- Si transcurrieron cinco minutos desde el envío y la comprobación completa no lo confirma, RESOLVER ORDEN NO CONFIRMADA permite cerrar sin afirmar éxito ni rechazo.
+- Al confirmar, consulta GitHub nuevamente. Conserva la orden, identificador y comprobaciones. No reenvía esa orden.
+- Las órdenes siguientes quedan pausadas. REVISAR ÓRDENES PENDIENTES muestra también el historial conservado.
+- Cancelar las órdenes pendientes que ya no correspondan y después elegir CONTINUAR CON LAS ÓRDENES REVISADAS. Esta confirmación permite enviar las pendientes, incluidas las de actualización de fuentes.
+- Si cambió el diccionario o la configuración, la orden queda en conflicto: cancelarla y preparar una nueva vista previa sobre el estado actual. No se ajusta ni sobrescribe automáticamente su contenido.
+- Para actualizar Drive, revisar primero si ya existe una orden pendiente de planilla anual. Continuar esa orden o cancelar y confirmar una nueva; no crear pedidos repetidos.
+- Los controles automáticos de horarios y CNRT no cambian con esta versión.

@@ -35,37 +35,17 @@ def snapshot():
         raise ValueError('No se pudo verificar la programación extraordinaria publicada.')
     from _ftr_runtime.oneoff import recover_interrupted
     recover_interrupted(extra,agenda_bridge.datetime.now(agenda_bridge.timezone.utc))
-    result = dict(config=config, digest=digest(config), state=state, revision=revision,oneoffs=extra)
+    from _ftr_runtime import dictionary_rules as rules
+    dictionary=rules.validate(get('_ftr_diccionario.json'))
+    result = dict(config=config, digest=digest(config), state=state, revision=revision,oneoffs=extra,
+                  dictionary_digest=rules.digest(dictionary))
     write_json(server.DATA/'config_remota.json', result)
     return result
 
 
 def pending_runs(since):
-    found = {}
-    for workflow in (server.WORKFLOW, 'actualizar_parques.yml','ftr_extraordinarias.yml','ftr_recuperar_turnos.yml','ftr_estadisticas_admin.yml'):
-        # El rango limita consultas y permite recuperar más de seis ejecuciones.
-        for page in range(1, 4):
-            rows = server.api('GET', 'actions/workflows/' + workflow +
-                              '/runs?branch=main&per_page=100&page=' + str(page)).get('workflow_runs', [])
-            for row in rows:
-                title = row.get('display_title', '')
-                identifier = title.rsplit(' · ', 1)[-1]
-                result = dict(id=row['id'], status=row['status'], conclusion=row.get('conclusion'),
-                              request_id=identifier, url=row.get('html_url'))
-                if row['status'] == 'completed' and re.fullmatch('[0-9a-f]{32}', identifier):
-                    key = (row['id'], row.get('run_attempt', 1), row.get('updated_at'), row['status'], row.get('conclusion'))
-                    if key not in agenda_bridge._cache:
-                        jobs = server.api('GET', f"actions/runs/{row['id']}/jobs?per_page=100").get('jobs', [])
-                        if len(agenda_bridge._cache) >= 100:
-                            agenda_bridge._cache.clear()
-                        agenda_bridge._cache[key] = agenda_bridge.classify_run(row, jobs)
-                    result.update(agenda_bridge._cache[key])
-                    if workflow=='ftr_estadisticas_admin.yml' and row.get('conclusion')=='success':
-                        result.update(effect='dictionary' if 'dictionary-save' in title else 'historical',detail='Regla guardada; aplicación pendiente de una lectura o revisión.' if 'dictionary-save' in title else 'Informe protegido preparado; no se publicó ningún cambio.' if 'history-review' in title else 'Estadísticas publicadas y verificadas.')
-                found[row['id']] = result
-            if len(rows) < 100 or rows[-1]['created_at'] < since:
-                break
-    return list(found.values())
+    from _ftr_app.queue_runs import scan
+    return scan(server.api,since,agenda_bridge.classify_run)
 
 
 def dispatch(row):
@@ -127,6 +107,16 @@ def install():
     def cancel():
         return server.jsonify(outbox.cancel(server.request.get_json().get('request_id')))
     server.app.add_url_rule('/api/orders/cancel', 'cancel_order', cancel, methods=['POST'])
+    def check():
+        return server.jsonify(outbox.check(server.request.get_json().get('request_id')))
+    def resolve():
+        data=server.request.get_json()
+        return server.jsonify(outbox.resolve(data.get('request_id'),data.get('confirmation')))
+    def resume():
+        return server.jsonify(outbox.resume(server.request.get_json().get('confirmation')))
+    server.app.add_url_rule('/api/orders/check', 'check_order', check, methods=['POST'])
+    server.app.add_url_rule('/api/orders/resolve', 'resolve_order', resolve, methods=['POST'])
+    server.app.add_url_rule('/api/orders/resume', 'resume_orders', resume, methods=['POST'])
 
 
 def main():

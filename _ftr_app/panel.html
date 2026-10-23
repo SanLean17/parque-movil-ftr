@@ -5,7 +5,7 @@
 <meta name="ftr-csrf" content="__FTR_CSRF__">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Administración FTR 06.3.10</title>
+<title>Administración FTR 06.3.11</title>
 <style>
 :root{color-scheme:light;
  --primary:#2256b4;--on-primary:#fff;--accent:#2a91c2;--bg:#f2f5fa;--surface:#fff;--surface-2:#edf3fb;--text:#172a44;--muted:#51657e;--line:#d5dfe9;--soft-primary:#e4edff;
@@ -201,6 +201,13 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 
   <section data-page="schedules" hidden>
    <div class="hero"><p class="kicker">Configuración</p><h1>Actualizaciones</h1><p class="lead">Frecuencia y horario independientes. Actualizá la planilla FTR, el parque móvil o ambos, cuando lo necesites.</p></div>
+   <section id="queueReview" class="panel" role="alert" hidden style="border:2px solid var(--wait)">
+    <h2>LA COLA DE ACTUALIZACIONES NECESITA REVISIÓN</h2>
+    <p id="queueReason"></p><p id="queueEvidence" class="small" aria-live="polite"></p>
+    <div class="actions"><button class="btn secondary" type="button" id="queueCheck" style="max-width:100%;white-space:normal">COMPROBAR ENVÍO EN GITHUB</button><button class="text-btn" type="button" id="queueBlocked">VER ORDEN BLOQUEADA</button><button class="btn secondary" type="button" id="queueResolve" style="max-width:100%;white-space:normal" disabled>RESOLVER ORDEN NO CONFIRMADA</button><button class="text-btn" type="button" id="queuePending">REVISAR ÓRDENES PENDIENTES</button></div>
+    <p id="queuePaused" class="small" hidden>La cola está pausada. Revisá las órdenes y sus posibles conflictos antes de continuar. Una orden cerrada sin confirmar no se reenvía.</p>
+    <button class="btn secondary" type="button" id="queueResume" style="max-width:100%;white-space:normal" hidden>CONTINUAR CON LAS ÓRDENES REVISADAS</button>
+   </section>
    <form id="schedulesForm">
     <div class="grid2">
      <article class="card schedule-card"><div class="card-top"><div><p class="eyebrow">GOOGLE DRIVE</p><h2>Planilla anual FTR</h2></div><div class="symbol"><svg><use href="#i-sheet"/></svg></div></div><div class="toggle-row"><label class="switch"><input id="driveEnabled" type="checkbox" checked aria-label="Habilitar programación de Drive"><span></span></label><span>Actualización automática</span></div><div class="forms"><div class="field"><label for="driveDays">Repetir cada</label><input id="driveDays" type="number" min="1" max="60" step="1" value="1" required aria-describedby="driveDaysHelp"><p class="help" id="driveDaysHelp">Entre 1 y 60 días. Propuesta inicial: diaria.</p></div><div class="field"><label for="driveTime">Horario</label><input id="driveTime" type="time" value="17:00" required aria-describedby="driveTimeHelp"><p class="help" id="driveTimeHelp">Lectura después de la jornada.</p></div></div><p class="inline-note" id="drivePreview">Programación: todos los días a las 17:00.</p><div class="state-row"><div><strong>Última lectura</strong><p id="driveLast">Conectá GitHub para consultar.</p></div><span id="driveCloudState" class="badge">SIN CONEXIÓN</span></div><p class="small" id="driveAgendaNote" aria-live="polite">Conectá GitHub para comprobar la agenda publicada.</p><div class="actions end"><button type="button" class="btn secondary" data-run="drive">Actualizar ahora</button></div></article>
@@ -208,7 +215,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
     </div>
     <div class="panel"><div class="panel-head"><div><h2>Calendario de referencia</h2><p>El intervalo se contará en días de calendario, sin mover la hora por la duración de una ejecución.</p></div></div><div class="forms"><div class="field"><label for="anchorDate">Fecha de inicio de la programación</label><input id="anchorDate" type="date" value="2026-10-19" required><p class="help">Una ejecución manual no desplaza las próximas fechas del calendario.</p></div><div class="field"><label for="timezone">Zona horaria</label><input id="timezone" readonly value="Argentina · America/Argentina/Buenos_Aires"><p class="help">Las 00:00 corresponden al inicio del día seleccionado.</p></div></div><hr class="rule"><p class="small">GitHub utiliza los horarios publicados de Drive y CNRT y comprobaciones de recuperación cada 15 minutos. GitHub puede demorar ambos inicios. Guardar solamente el horario no actualiza los controles.</p><div class="actions end"><button class="btn secondary" type="button" data-view="publish">Revisar borrador</button><button class="btn" type="submit">Guardar y publicar horarios</button></div></div>
    </form>
-   <div class="panel"><div class="panel-head"><div><h2>Actualizar ambos procesos</h2><p>Usa la configuración guardada en GitHub. Las modificaciones sin publicar permanecen en el borrador.</p></div><button class="btn" type="button" data-run="all">Actualizar todo ahora</button></div><div id="cloudActivity" class="inline-note">Conectá GitHub para ver las ejecuciones.</div><div class="actions"><button class="text-btn" type="button" id="refreshCloud">Actualizar estado</button></div></div>
+   <div class="panel"><div class="panel-head"><div><h2>Actualizar ambos procesos</h2><p>Usa la configuración guardada en GitHub. Las modificaciones sin publicar permanecen en el borrador.</p></div><button class="btn" type="button" data-run="all">Actualizar todo ahora</button></div><div id="cloudActivity" class="inline-note">Conectá GitHub para ver las ejecuciones.</div><div class="actions"><button class="text-btn" type="button" id="refreshCloud">Actualizar estado</button><button class="text-btn" type="button" id="ordersHistory">Ver historial de órdenes</button></div></div>
   </section>
 
   <section data-page="source" hidden>
@@ -248,7 +255,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.FTRP
 <div class="panel"><h2>Borrador local</h2><p>Restablecer conserva el tema visual y no borra datos de Google o GitHub.</p><button class="btn danger" id="resetDemo">Restablecer borrador local</button><button class="btn secondary" id="quitPanel">Salir del programa</button></div>
 </section>
   <div class="changed"><svg><use href="#i-info"/></svg><span id="savedState">Borrador de referencia. Sin publicar.</span><div class="actions"><button class="btn secondary" id="saveAll">Guardar borrador local</button></div></div>
-  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.10</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
+  <footer class="footer"><span>Parque Móvil FTR · Administración 06.3.11</span><span>Panel local · Configuración y ejecución en GitHub</span></footer>
  </main>
 </div>
 <dialog class="dialog" id="confirmDialog" aria-labelledby="dialogTitle"><h2 id="dialogTitle"></h2><p id="dialogText"></p><div class="actions"><button class="btn neutral" id="dialogCancel" autofocus>Cancelar</button><button class="btn" id="dialogConfirm">Confirmar</button></div></dialog>

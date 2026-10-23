@@ -1,4 +1,4 @@
-FTR ADMINISTRACIÓN 06.3.10 — DICCIONARIO TÉCNICO
+FTR ADMINISTRACIÓN 06.3.11 — DICCIONARIO TÉCNICO
 
 El mismo diccionario global sirve para todos los años futuros. Los archivos
 de estadísticas de años cerrados y las interpretaciones privadas son

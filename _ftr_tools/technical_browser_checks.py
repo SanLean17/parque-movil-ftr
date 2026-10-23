@@ -6,12 +6,14 @@ from datetime import date
 from pathlib import Path
 from _ftr_runtime import dictionary_rules as rules, public_statistics as stats
 from _ftr_runtime.test_technical_v7 import CASES
+from _ftr_runtime.test_technical_v8 import CASES as NEW_CASES
+from _ftr_runtime.record_interpretation import reference
 from _ftr_runtime.legacy_mechanics import mechanics
 from statistics_browser_checks import api
 
 
 def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile):
-    texts=list(CASES)+['amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA']
+    texts=list(dict.fromkeys([*CASES,*NEW_CASES,'amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','amort']))
     test.source=lambda:[test.sheet('Línea 999',[['FECHA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],
         *[['01/02/2025','AA111AA',7,'SIN NOVEDAD',text] for text in texts]])]
     general=dict(expresion='extremo',variantes=['extremos'],tipo='descriptor',significado='extremo',alcance='general',habilitada=True)
@@ -30,7 +32,7 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("revisión 4.")')
     page.locator('#mechanicalSearch').fill('')
     assert page.locator('#mechanicalExpressions .dictionary-state.waiting').count()>0
-    assert page.locator('#mechanicalExpressions .dictionary-state.attention').count()>0
+    assert 'Revisión opcional' in page.locator('#mechanicalPendingCount').inner_text()
     page.locator('#dictionaryApplication summary').click()
     assert 'Actualizar Drive' in page.locator('#dictionaryApplication').inner_text()
     assert 'Preparar revisión histórica' in page.locator('#dictionaryApplication').inner_text()
@@ -44,6 +46,33 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
         page.wait_for_selector('#dictionaryMeaning');assert page.locator('#dictionaryMeaning').input_value()==''
         return page.locator('.dictionary-editor')
 
+    # These requests run inside the actual bundled EXE during Windows CI.
+    for text,expected in NEW_CASES.items():
+        event=next(e for e in events if e['novedades']==text)
+        response=api(page,'dictionary-record',dict(period=2025,registro_id=reference(event)['registro_id']))
+        assert response['status']==200,response
+        result=response['value']['analisis']
+        fields=('componente','referencia','ubicacion','defecto','parte','subcomponente','cantidad_fisica')
+        assert sorted([tuple(f[k] for k in fields) for f in result['hallazgos']],key=str)==sorted(expected,key=str),text
+        assert result['pendientes']==([] if expected else [text]),text
+        assert response['value']['registro']['novedades_original']==text
+        assert response['value']['registro']['estado_formal']=='SIN NOVEDAD'
+
+    form=open_record('amort')
+    options=page.locator('#dictionaryMeaning option').all_text_contents()
+    assert len(options)==7 and all(options[n].startswith(str(n)+' —') for n in range(1,7))
+    page.locator('#dictionaryMeaning').select_option('spelling')
+    assert form.get_by_label('Tipo de corrección ortográfica').input_value()==''
+    form.get_by_label('Tipo de corrección ortográfica').select_option('component')
+    form.get_by_label('Expresión técnica',exact=True).fill('amort')
+    form.get_by_label('Categoría',exact=True).select_option('suspension')
+    form.get_by_label('Componente',exact=True).select_option('amortiguadores')
+    with page.expect_response('**/api/statistics-preview') as response:
+        form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click()
+    assert response.value.status==200,response.value.json()
+    assert form.get_by_role('button',name='GUARDAR REGLA GENERAL',exact=True).is_visible()
+    form.get_by_role('button',name='CANCELAR',exact=True).first.click()
+
     form=open_record('No coincide Kit')
     assert form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).count()==0
     page.locator('#dictionaryMeaning').select_option('descriptor')
@@ -53,7 +82,7 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click()
     assert 'Seleccioná qué información agrega' in form.inner_text()
     assert form.get_by_role('button',name='GUARDAR REGLA GENERAL',exact=True).count()==0
-    form.get_by_role('button',name='CANCELAR',exact=True).click()
+    form.get_by_role('button',name='CANCELAR',exact=True).first.click()
 
     form=open_record('corta pitman')
     page.locator('#dictionaryMeaning').select_option('correction')
@@ -84,9 +113,10 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("particular guardada")')
     assert len(api(page,'orders')['value']['orders'])==count
     form=open_record('corta pitman');assert 'interpretación particular guardada' in form.inner_text()
-    page.locator('#dictionaryMeaning').select_option('pending');form.get_by_role('button',name='CANCELAR',exact=True).click()
+    page.locator('#dictionaryMeaning').select_option('pending');form.get_by_role('button',name='CANCELAR',exact=True).first.click()
 
-    form=open_record('diafragma');page.locator('#dictionaryMeaning').select_option('subcomponent')
+    form=open_record('diafragma');page.locator('#dictionaryMeaning').select_option('descriptor')
+    form.get_by_label('¿QUÉ INFORMACIÓN AGREGA?',exact=True).select_option('subcomponente')
     assert form.get_by_label('¿QUÉ INFORMACIÓN AGREGA?',exact=True).input_value()=='subcomponente'
     form.get_by_label('Expresión técnica',exact=True).fill('DIAFRAGMA')
     form.get_by_label('Significado del descriptor').select_option('diafragma')
@@ -116,5 +146,5 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     page.wait_for_selector('#mechanicalExpressions .dictionary-state.verified',state='attached')
     verified=page.locator('#mechanicalExpressions details').filter(has=page.locator('.dictionary-state.verified')).first
     verified.locator('summary').click();assert verified.locator('.dictionary-state.verified').is_visible()
-    assert page.locator('#mechanicalExpressions .dictionary-state.attention').count()>0
-    print('Motor 7 UI: corrección libre, subcomponente, campos sin defaults, vista previa completa, guardado cercano, cola ficticia, rojo/amarillo/verde con evidencia, 3 tamaños y 2 temas OK.')
+    assert 'Revisión opcional' in page.locator('#mechanicalPendingCount').inner_text()
+    print('Motor 8 UI: 30 casos exactos en el programa, seis tipos claros, ortografía, subcomponentes, vista previa, guardado, cola ficticia, estados y revisión histórica opcional, 3 tamaños y 2 temas OK.')

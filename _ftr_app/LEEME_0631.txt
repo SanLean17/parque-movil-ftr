@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.9 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.10 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -138,8 +138,8 @@ verifica su integridad y se reproducen exactamente sus estadísticas originales.
 Actualizar desde 06.3.7 no requiere borrar ni migrar manualmente el perfil.
 
 
-NUEVO EN 06.3.9
-Conserva la PR #29 y toda la distribución 06.3.8. El motor 7 distingue
+NUEVO EN 06.3.10
+Conserva las PR #29 y #31 y toda la distribución 06.3.9. El motor 8 distingue
 componentes, partes, subcomponentes, ubicaciones, referencias, defectos y
 cantidades físicas explícitas, sin cambiar NOVEDADES, ESTADO ni controles.
 Incluye Barra corta lado Pitman, diafragma del pulmón de freno, amortiguador
@@ -164,3 +164,11 @@ ACTUALIZAR DESDE 06.3.8
 El programa reutiliza %LOCALAPPDATA%/FTR_Administracion sin borrar archivos.
 No borres ese perfil: contiene conexiones, preferencias, borradores, cola,
 informes y decisiones particulares. No se incluye ningún perfil en este ZIP.
+
+NUEVO EN 06.3.10
+Motor 8: referencias agrupadas, crucetas de Dirección, bloqueo de frenos,
+pulmón pinchado, amortiguador gira, dos tensores con moño trasero y señal
+acústica. Se conservan las reglas globales y las decisiones particulares.
+La revisión histórica autorizada conserva el archivo anterior y los controles.
+Las expresiones históricas en OTRAS son de revisión opcional.
+Ver DICCIONARIO_TECNICO.txt para ejemplos y pasos de confirmación.

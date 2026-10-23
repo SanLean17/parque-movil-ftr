@@ -75,8 +75,8 @@ def install(server):
                         key=records.reference(event)['registro_id'];decision=saved['registros'].get(key)
                         if decision and decision['huella']==records.correction(event,decision['fragmentos'])['huella']:applicable[key]=decision
                     if applicable:
-                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6
-                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6}.get(capsule.get('motor_revision'),anomalies)
+                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7
+                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7}.get(capsule.get('motor_revision'),anomalies)
                         compiled=rules.compile_rules(capsule['diccionario'])
                         def local_analysis(event):
                             if records.reference(event)['registro_id'] in applicable:return records.apply(event,applicable,capsule['diccionario'])
@@ -88,7 +88,8 @@ def install(server):
             # Local display-only comparison. Never saves classifications or updates sources.
             if cached:
                 compiled=rules.compile_rules(cached['dictionary']);public=cached.get('statistics',{}).get(str(year),{})
-                verified=(public.get('interpretacion',{}).get('sha256')==cached['expected_dictionary'] and public.get('anomalias',{}).get('motor_revision')==ENGINE_REVISION and cached.get('publication',{}).get(str(year)) and public.get('lectura_planilla_utc')==summary.get('inicio_lectura_utc'))
+                same_source=(public.get('lectura_planilla_utc')==summary.get('inicio_lectura_utc') or year<cached['period'] and (capsule or {}).get('sha256_archivo')==cached.get('hashes',{}).get(str(year)) and bool((capsule or {}).get('sha256_archivo')))
+                verified=(public.get('interpretacion',{}).get('sha256')==cached['expected_dictionary'] and public.get('anomalias',{}).get('motor_revision')==ENGINE_REVISION and cached.get('publication',{}).get(str(year)) and same_source)
                 for item in items:
                     unresolved=0;refs=item.get('referencias',[])
                     for ref in refs:

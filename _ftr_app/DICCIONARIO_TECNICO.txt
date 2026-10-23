@@ -1,4 +1,4 @@
-FTR ADMINISTRACIÓN 06.3.9 — DICCIONARIO TÉCNICO
+FTR ADMINISTRACIÓN 06.3.10 — DICCIONARIO TÉCNICO
 
 El mismo diccionario global sirve para todos los años futuros. Los archivos
 de estadísticas de años cerrados y las interpretaciones privadas son
@@ -6,7 +6,7 @@ independientes. Actualizar la aplicación no recalcula ni publica históricos.
 La PR #29 y sus descriptores generales están conservados.
 
 INTERPRETACIÓN
-El motor 7 distingue sistema, componente, parte afectada, subcomponente,
+El motor 8 distingue sistema, componente, parte afectada, subcomponente,
 ubicación, código de posición, defecto y cantidad física explícita.
 Las frases completas tienen prioridad sobre sus palabras aisladas.
 - CORTA PITMAN / BARRA CORTA LADO PITMAN: una barra corta, lado Pitman.
@@ -93,9 +93,9 @@ reglas específicas y generales anteriores mantienen su representación.
 El catálogo público 4 incorpora amortiguador de dirección, revisión de motor
 y cantidades físicas explícitas. Se leen catálogos 1–3 sin inventar atributos.
 Los informes de motores 5/6 se verifican con implementaciones conservadas;
-sus cifras originales no se reemplazan por las de motor 7 al abrirlos.
+sus cifras originales no se reemplazan por las de motor 8 al abrirlos.
 Solo una vista previa solicitada calcula el impacto completo de las nuevas reglas.
-La próxima lectura automática válida del período activo usa motor 7.
+La próxima lectura automática válida del período activo usa motor 8.
 No se modifica 2025 ni se ejecutan bots, importaciones o revisiones reales
 durante las pruebas de esta entrega.
 
@@ -106,3 +106,48 @@ persistencia, temas, formularios, cola y paquete antes de generar el ZIP.
 El ZIP incluye EXE, todos los recursos, VERSION.json, SHA256_ARCHIVOS.txt y
 LEEME_PRIMERO.txt. No contiene tokens, claves privadas ni informes personales.
 Extraer en otra carpeta conserva el perfil %LOCALAPPDATA%/FTR_Administracion.
+
+
+NOVEDADES DE 06.3.10 — MOTOR 8
+- Pulmón de freno 1, pinchado: PF1 delantero izquierdo; condición pinchado.
+  La coma no crea otra falla. No se infiere diafragma ni una causa interna.
+- Bloqueo: Sistema de frenos / Bloqueo. NO FUNCIONA se conserva si está escrito.
+  No se supone ABS, freno de estacionamiento ni una válvula.
+- Amortiguador gira: condición flojo únicamente para amortiguadores.
+- Tensor sup e inf moño tras: dos tensores, superior e inferior, un elemento
+  físico por cada hallazgo; moño trasero como parte. Una sola fiscalización.
+- CR1–CR3, CR 2, CR.2, CR-3, cruceta 2 y cardán CR2: cruceta del cardán de
+  Dirección. Una mención explícita de transmisión conserva esa clasificación.
+  CARDÁN aislado conserva su interpretación anterior.
+- A 5y6, A5-A6, amortiguador 3,5y 4: referencias distintas de la misma familia.
+  Un componente nuevo, como PF4, termina la enumeración anterior.
+  Los códigos fuera de rango y los números aislados quedan pendientes.
+- Señal sonora, señal acústica y chicharra: señal sonora de marcha atrás.
+- BUGE equivale a BUJE y SULETO a SUELTO, sin reescribir NOVEDADES.
+- Barra corta completa indica ambos extremos. No son dos barras.
+- NO COINCIDE KIT y otras expresiones sin significado confirmado quedan en
+  OTRAS. No se ocultan ni bloquean el cálculo de agregados válidos.
+
+FORMULARIO
+Las opciones siguen un único orden: 1 corregir escritura; 2 identificar
+componente; 3 aclarar ubicación, pieza, defecto o cantidad; 4 corregir un
+componente equivocado; 5 separar anomalías; 6 dejar pendiente.
+En la opción 3, PARTE O SUBCOMPONENTE INTERNO conserva DIAFRAGMA como pieza.
+La corrección ortográfica exige confirmar si identifica un componente o
+agrega un descriptor. BUGE y SULETO ya están incorporadas al motor.
+La vista previa conserva los originales y muestra códigos, cantidades,
+condiciones, pendientes y todas las diferencias del período seleccionado.
+Guardar requiere una vista previa vigente y confirmación del alcance.
+
+REVISIÓN HISTÓRICA EXPLÍCITA
+2025 permanece separado de 2026. Las reglas globales no reescriben años
+cerrados automáticamente. En Estadísticas, elegir 2025 y su fuente histórica
+original; PREPARAR REVISIÓN lee exclusivamente esa fuente y genera un informe
+cifrado. Abrirlo, calcular la vista previa y CONFIRMAR RECÁLCULO HISTÓRICO.
+Se verifican archivo anterior, diccionario, registros completos y resultado
+previsto. Si cambian controles o resultados originales, se conserva el archivo
+anterior. La publicación guarda una copia previa y una revisión identificada.
+Las menciones desconocidas quedan en OTRAS y su revisión es OPCIONAL: no es
+necesario clasificarlas una por una para completar el histórico.
+Rojo, amarillo y verde corresponden a la interpretación administrativa.
+ESTADO y sus resultados se muestran separados y no cambian.

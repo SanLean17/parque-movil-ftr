@@ -9,7 +9,7 @@ CASES={
     'EXTREMO BARRA LARGA':['barra_larga'],
     'EXTREMO BARRA CORTA':['barra_corta'],
     'TENSOR EXTREMO DERECHO':['tensores'],
-    'EXTREMOS BARRA LARGA - CRUCETA 2':['barra_larga','crucetas'],
+    'EXTREMOS BARRA LARGA - CRUCETA 2':['barra_larga','cruceta_direccion'],
     'EXTREMO DELANTERO DE BARRA CORTA':['barra_corta'],
     'BARRA LARGA, EXTREMO IZQUIERDO CON JUEGO':['barra_larga'],
 }
@@ -27,8 +27,8 @@ class GeneralDescriptorTests(unittest.TestCase):
                 value=a.analyze(text,compiled)
                 self.assertEqual(sorted(f['componente'] for f in value['hallazgos']),components)
                 self.assertEqual(len(value['hallazgos']),len(a.analyze(text)['hallazgos']))
-                # El 2 de CRUCETA 2 conserva su revisión anterior: no se inventa un código.
-                self.assertEqual(value['pendientes'],['2'] if 'CRUCETA 2' in text else [])
+                self.assertEqual(value['pendientes'],[])
+                if 'CRUCETA 2' in text:self.assertEqual(value['hallazgos'][-1]['referencia'],'cr2')
                 self.assertTrue(any(d['texto'].startswith('EXTREMO') for d in value['descriptores']))
         self.assertEqual(a.analyze('EXTREMO',compiled),dict(hallazgos=[],pendientes=['EXTREMO'],descriptores=[]))
 
@@ -117,16 +117,20 @@ class GeneralPreviewTests(unittest.TestCase):
         snap['estadisticas']['anomalias']=mechanics(events,snap['diccionario'],5)[0]
         before=copy.deepcopy(snap);effect=review.preview(snap,dictionary())
         self.assertEqual(effect['registros'],9)
-        self.assertEqual(effect['antes']['sin_clasificar']-effect['despues']['sin_clasificar'],7)
+        self.assertEqual(effect['antes']['sin_clasificar']-effect['despues']['sin_clasificar'],8)
         self.assertEqual(effect['antes']['identificadas'],effect['despues']['identificadas'])
         self.assertEqual(len(effect['afectados']),7)
-        self.assertEqual(len(effect['ambiguos']),4)  # Includes the unclassified CRUCETA 2 reference.
+        self.assertEqual(len(effect['ambiguos']),3)  # CRUCETA 2 now has its confirmed reference.
         self.assertTrue(set(r['registro_id'] for r in effect['afectados'])&set(r['registro_id'] for r in effect['ambiguos']))
         for category in effect['antes']['categorias']:
-            if category['id']!='otras':
+            if category['id'] not in ('otras','direccion','transmision'):
                 after=next(c for c in effect['despues']['categorias'] if c['id']==category['id'])
                 self.assertEqual(category['cantidad'],after['cantidad'])
                 for component in category['componentes']:self.assertEqual(component,next(c for c in after['componentes'] if c['id']==component['id']))
+        before_counts={c['id']:c['cantidad'] for c in effect['antes']['categorias']}
+        after_counts={c['id']:c['cantidad'] for c in effect['despues']['categorias']}
+        self.assertEqual(after_counts['direccion'],before_counts['direccion']+1)
+        self.assertEqual(after_counts['transmision'],before_counts['transmision']-1)
         after=copy.deepcopy(data);after['anomalias']=effect['despues'];review.unchanged_controls(data,after)
         self.assertEqual(snap,before)
         snap['estadisticas']['anomalias']['sin_clasificar']+=1

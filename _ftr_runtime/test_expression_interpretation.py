@@ -48,9 +48,10 @@ class ExpressionTests(unittest.TestCase):
                         else:self.assertEqual(finding['ubicacion'],'delantero izquierdo' if number==1 else 'delantero derecho')
         self.check('A7 A8 A7',['amortiguadores','amortiguadores'])
         self.check('PF1 PS1',['pulmon_freno','pulmon_suspension'])
+        self.check('PS1,2',['pulmon_suspension','pulmon_suspension'])
         for text in ('PULMÓN DEL FRENO','BUJE DEL AMORTIGUADOR'):
             self.assertEqual(engine.analyze(text)['hallazgos'][0]['ubicacion'],'sin_ubicacion')
-        for text in ('PF7','PS5','A9','R9','PF.33','PS 10','A 12','PF3ABC','XR1','A2B','A2.1','PF3.4','PS1,2'):
+        for text in ('PF7','PS5','A9','R9','PF.33','PS 10','A 12','PF3ABC','XR1','A2B','A2.1','PF3.4'):
             with self.subTest(text=text):self.check(text,[],[text])
         # Ni una palabra intermedia ni un salto de línea fabrican un código.
         self.check('P texto F 3',[],['P texto F 3'])

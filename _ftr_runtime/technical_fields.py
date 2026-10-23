@@ -1,7 +1,7 @@
 """Version 7 technical attributes. None means not explicitly identified."""
 INFORMATION = {
     'ubicacion': ('delantero','trasero','derecho','izquierdo','superior','inferior','interno','externo','zona media'),
-    'parte': ('extremo','lado eje','lado pitman'),
+    'parte': ('extremo','ambos extremos','lado eje','lado pitman','moño','moño trasero'),
     'subcomponente': ('diafragma',),
     'defecto': ('flojo','suelto','juego','corte','pinchadura','liso','faltante','no_funciona','rotura','desgaste'),
     'cantidad': ('dos',),

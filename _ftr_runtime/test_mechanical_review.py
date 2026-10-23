@@ -94,7 +94,7 @@ class ReviewTests(unittest.TestCase):
                      allow_partial=False,expected_archive=hashlib.sha256(old_bytes).hexdigest(),expected_dictionary=rules.digest(self.candidate()))
         before={p.relative_to(self.root).as_posix():p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
         with tempfile.TemporaryDirectory() as temp:
-            with patch('test_mechanical_review.history.admin.base.decode_xlsx',return_value=self.source()),patch('test_mechanical_review.history.admin.seal',return_value={'encrypted':True}):
+            with patch('test_mechanical_review.history.admin.base.decode_xlsx',return_value=self.source()),patch('test_mechanical_review.history.admin.seal',return_value={'encrypted':True}) as sealed:
                 reportdir=Path(temp)/'report'
                 paths=apply(self.root,'history-review',payload,digest(self.config),export=lambda _:b'fake',report_dir=reportdir)
                 self.assertEqual(paths,[])
@@ -102,7 +102,11 @@ class ReviewTests(unittest.TestCase):
                 fresh,_,detail=self.build(self.candidate());capsule=detail['novedades_sin_clasificar']['revision_mecanica']
                 payload.update(expected_records=capsule['huella_registros'],expected_result=review.fingerprint(fresh['anomalias']))
                 with self.assertRaises(ValueError):apply(self.root,'history-recalculate',dict(payload,expected_result='0'*64),digest(self.config),export=lambda _:b'fake')
-                paths=apply(self.root,'history-recalculate',payload,digest(self.config),export=lambda _:b'fake')
+                paths=apply(self.root,'history-recalculate',payload,digest(self.config),export=lambda _:b'fake',report_dir=reportdir)
+                completed=sealed.call_args.args[0]['novedades_sin_clasificar']['revision_mecanica']
+                self.assertEqual(completed['sha256_archivo'],hashlib.sha256((self.root/'estadisticas/2025.json').read_bytes()).hexdigest())
+                self.assertEqual(completed['sha256_anterior'],payload['expected_archive'])
+                review.unpack(completed)
         self.assertEqual((self.root/'estadisticas_ftr.json').read_bytes(),active)
         revised=json.loads((self.root/'estadisticas/2025.json').read_bytes())
         review.unchanged_controls(old,revised)

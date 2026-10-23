@@ -1,21 +1,6 @@
 {
   "version": 1,
-  "pending": {
-    "drive": {
-      "id": "69c283c02ea37362688dd0c72ab2d213",
-      "source": "drive",
-      "at": "2026-10-22T22:30:00-03:00",
-      "created_utc": "2026-10-23T01:27:33.734150+00:00",
-      "status": "pending"
-    },
-    "cnrt": {
-      "id": "af5e9f2c9d21c6f7eecd514ea8c2c8d9",
-      "source": "cnrt",
-      "at": "2026-10-22T22:30:00-03:00",
-      "created_utc": "2026-10-23T01:28:36.233228+00:00",
-      "status": "pending"
-    }
-  },
+  "pending": {},
   "history": [
     {
       "id": "41b951380a4be53a215c05ff4f10c866",
@@ -45,32 +30,38 @@
       ],
       "finished_utc": "2026-10-22T00:07:42.520836+00:00",
       "error": null
+    },
+    {
+      "id": "69c283c02ea37362688dd0c72ab2d213",
+      "source": "drive",
+      "at": "2026-10-22T22:30:00-03:00",
+      "created_utc": "2026-10-23T01:27:33.734150+00:00",
+      "status": "running",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "run_id": "39884349203",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ]
+    },
+    {
+      "id": "af5e9f2c9d21c6f7eecd514ea8c2c8d9",
+      "source": "cnrt",
+      "at": "2026-10-22T22:30:00-03:00",
+      "created_utc": "2026-10-23T01:28:36.233228+00:00",
+      "status": "running",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "run_id": "39884349203",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ]
     }
   ],
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-10-22T20:01:23.824086+00:00",
-      "status": "success",
-      "run_id": "39845134286",
-      "reasons": [
-        "actualización solicitada o recurrente"
-      ],
-      "expected_utc": "2026-10-22T20:00:00+00:00",
-      "delay_seconds": 85,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-10-22T20:01:00Z",
-      "finished_utc": "2026-10-22T20:01:32.581983+00:00",
-      "error": null,
-      "read_utc": "2026-10-22T20:01:25.895773+00:00"
-    },
-    "cnrt": {
-      "source": "cnrt",
-      "started_utc": "2026-10-22T00:00:47.398297+00:00",
-      "status": "success",
-      "run_id": "39696960085",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "status": "running",
+      "run_id": "39884349203",
       "reasons": [
         "PROGRAMADA MANUALMENTE"
       ],
@@ -79,10 +70,22 @@
       "kind": "oneoff",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-10-22T00:00:03Z",
-      "finished_utc": "2026-10-22T00:07:42.520836+00:00",
-      "error": null,
-      "read_utc": "2026-10-22T00:00:53.690655+00:00"
+      "event_created_utc": "2026-10-23T01:30:12Z"
+    },
+    "cnrt": {
+      "source": "cnrt",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "status": "running",
+      "run_id": "39884349203",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "oneoff",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-23T01:30:12Z"
     }
   },
   "receipts": {
@@ -123,6 +126,11 @@
       "status": "success",
       "action": "oneoff-set",
       "at": "2026-10-23T01:28:36.233228+00:00"
+    },
+    "reloj-39884227768": {
+      "status": "running",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "run_id": "39884349203"
     }
   },
   "execution_history": [
@@ -233,6 +241,36 @@
       "finished_utc": "2026-10-22T20:01:32.581983+00:00",
       "error": null,
       "read_utc": "2026-10-22T20:01:25.895773+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "status": "running",
+      "run_id": "39884349203",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "oneoff",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-23T01:30:12Z"
+    },
+    {
+      "source": "cnrt",
+      "started_utc": "2026-10-23T01:31:04.336554+00:00",
+      "status": "running",
+      "run_id": "39884349203",
+      "reasons": [
+        "PROGRAMADA MANUALMENTE"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "oneoff",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-10-23T01:30:12Z"
     }
   ]
 }

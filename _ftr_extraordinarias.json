@@ -1,6 +1,14 @@
 {
   "version": 1,
-  "pending": {},
+  "pending": {
+    "drive": {
+      "id": "69c283c02ea37362688dd0c72ab2d213",
+      "source": "drive",
+      "at": "2026-10-22T22:30:00-03:00",
+      "created_utc": "2026-10-23T01:27:33.734150+00:00",
+      "status": "pending"
+    }
+  },
   "history": [
     {
       "id": "41b951380a4be53a215c05ff4f10c866",
@@ -98,6 +106,11 @@
       "started_utc": "2026-10-22T20:01:23.824086+00:00",
       "run_id": "39845134286",
       "finished_utc": "2026-10-22T20:01:32.581983+00:00"
+    },
+    "69c283c02ea37362688dd0c72ab2d213": {
+      "status": "success",
+      "action": "oneoff-set",
+      "at": "2026-10-23T01:27:33.734150+00:00"
     }
   },
   "execution_history": [

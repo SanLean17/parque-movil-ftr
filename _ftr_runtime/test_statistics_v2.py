@@ -60,16 +60,16 @@ class DictionaryV2Tests(unittest.TestCase):
         self.assertEqual(len(anomalies.classify('R1 cortado R1 cortado neumático delantero izquierdo cortado')[0]),1)
         self.assertEqual(len(anomalies.classify('R3 pinchado; R4 pinchado; R5 pinchado')[0]),3)
         known,_=anomalies.classify('barra larga derecha e izquierda; cardan y crucetas')
-        self.assertEqual(len(known),4)
+        self.assertEqual(len(known),3)  # Una barra, sin separar sus extremos.
         self.assertTrue(all(r[0]=='transmision' for r in known if r[1] in ('cardan','crucetas')))
         self.assertEqual([r[0] for r in anomalies.classify('PF y pulmón de suspensión')[0]],['frenos','suspension'])
 
     def test_undefined_ambiguous_negative_and_foreign_systems(self):
-        for text in ('R9','R10','A7','A8','XR1','A12','R1ABC','PF123','chicharral','flexible de combustible','flexible de agua','pulmón de freno de suspensión','R1 trasero','R2 izquierdo','posible PF','R1 sin fallas','chicharra funciona bien','cubierta del motor','rótula de suspensión'):
+        for text in ('R9','R10','A9','A10','XR1','A12','R1ABC','PF123','chicharral','flexible de combustible','flexible de agua','pulmón de freno de suspensión','R1 trasero','R2 izquierdo','posible PF','R1 sin fallas','chicharra funciona bien','cubierta del motor','rótula de suspensión'):
             with self.subTest(text=text):
                 known,unknown=anomalies.classify(text);self.assertFalse(known);self.assertTrue(unknown)
-        known,unknown=anomalies.classify('R1 cortado y A7 DESCONOCIDO; CHICHARRA')
-        self.assertEqual(len(known),2);self.assertEqual(unknown,['A7 DESCONOCIDO'])
+        known,unknown=anomalies.classify('R1 cortado y A9 DESCONOCIDO; CHICHARRA')
+        self.assertEqual(len(known),2);self.assertEqual(unknown,['A9 DESCONOCIDO'])
         for text in ('no presenta falla de cardán y frenos','Frenos sin fallas ni cardán','quizá A1 y A2','sin novedad R1'):
             with self.subTest(text=text):self.assertFalse(anomalies.classify(text)[0])
         known,unknown=anomalies.classify('no presenta falla de cardán y frenos, R1 cortado')

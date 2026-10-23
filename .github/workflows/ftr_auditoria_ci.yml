@@ -28,12 +28,17 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Determinar si cambió el cliente Windows
+        if: runner.os == 'Windows'
+        id: client_scope
+        run: python _ftr_tools/client_build_scope.py
       - name: Instalar dependencias sin credenciales de fuentes
         run: python -m pip install pytest pandas requests flask 'cryptography>=44,<49' tzdata pyyaml -r _ftr_pruebas/requirements.txt
       - name: Fuentes ficticias, agenda, publicación y contrato 06.3
@@ -65,7 +70,7 @@ jobs:
         if: runner.os == 'Linux'
         run: python _ftr_runtime/browser_history.py
       - name: Compilar y comprobar cliente Windows sin fuentes
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && steps.client_scope.outputs.package == 'true'
         run: |
           python -m pip install 'pyinstaller>=6,<7' playwright
           if ($LASTEXITCODE -ne 0) { throw 'Falló instalar compilador.' }
@@ -78,7 +83,7 @@ jobs:
           python _ftr_tools/check_client_build.py dist/FTR_Administracion_06_3_6_Windows/FTR_Administracion.exe
           if ($LASTEXITCODE -ne 0) { throw 'Falló probar binario.' }
       - name: Conservar paquete Windows completo comprobado
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && steps.client_scope.outputs.package == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ftr-cliente-0636-completo-comprobado

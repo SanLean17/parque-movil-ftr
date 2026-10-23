@@ -28,7 +28,7 @@ def expression(value):
     phrase=2<=len(words)<=5 and len(value)<=48 and all(w in TECHNICAL for w in words) and any(w in SPECIFIC for w in words)
     if not (single or phrase):
         raise ValueError('Usá una abreviatura o hasta cinco palabras del vocabulario técnico, sin datos individuales ni símbolos.')
-    if re.fullmatch(r'[ra][0-9]+|pf',value):raise ValueError('Los códigos R, A y PF pertenecen al diccionario confirmado original.')
+    if re.fullmatch(r'[ra][0-9]+|p[fs][0-9]*',value):raise ValueError('Los códigos R, A, PF y PS pertenecen al diccionario confirmado original.')
     return value
 
 def validate(value):

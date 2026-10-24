@@ -18,7 +18,8 @@ class OutboxTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
         self.config = load(Path(__file__).resolve().parents[1])
-        self.remote = dict(config=self.config, digest=digest(self.config))
+        from _ftr_runtime import dictionary_rules as rules
+        self.remote = dict(config=self.config, digest=digest(self.config),dictionary_digest=rules.digest(rules.EMPTY))
         self.now = datetime(2026, 10, 21, 18, tzinfo=timezone.utc)
         self.snapshot = Mock(return_value=self.remote)
         self.runs = Mock(return_value=[])
@@ -197,7 +198,7 @@ class OutboxTests(unittest.TestCase):
         self.queue.tick()
         self.found(row, effect='agenda_only')
         self.queue.tick()
-        self.assertEqual(self.row()['status'], 'failed')
+        self.assertEqual(self.row()['status'], 'unknown')
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
   const csrf = document.querySelector('meta[name="ftr-csrf"]').content;
   let remoteDigest = null, online = false, authorized = false, refreshLock = false;
   let submitting = false, localDraft = false, lastReportRun = null, remoteRuns = [], orders = [];
-  let lastRefresh = 0, queueError = null;
+  let lastRefresh = 0, queueError = null, queueInfo = {}, checkingQueue = false, allOrders = false;
   const checkedReports = new Set();
   let publishedOneoffs=null;
   const editingOneoff={drive:false,cnrt:false};
@@ -43,11 +43,15 @@
   }
   function showActivity() {
     const box=$('#cloudActivity'); box.replaceChildren();
-    const visible=[...orders.filter(r=>openStates.includes(r.status)), ...orders.filter(r=>!openStates.includes(r.status)).slice(-4).reverse()];
+    const visible=[...orders.filter(r=>openStates.includes(r.status)), ...orders.filter(r=>!openStates.includes(r.status)).slice(allOrders?0:-4).reverse()];
     for (const row of visible) {
-      const p=el('p'); p.dataset.orderId=row.id;
+      const p=el('p'); p.dataset.orderId=row.id;p.tabIndex=-1;p.style.overflowWrap='anywhere';p.onfocus=()=>p.style.outline='2px solid var(--primary)';p.onblur=()=>p.style.outline='';
       p.append(el('strong', (captions[row.action]||row.action)+(row.oneoff?' · '+row.oneoff.source.toUpperCase():'')+' · '+(row.label||row.message)));
       p.append(document.createElement('br'), el('span',localTime(row.created_at)+' · '+row.message,'small'));
+      p.append(document.createElement('br'),el('span','Identificador: '+row.id,'small'));
+      const phase=row.publication_verified?'PUBLICACIÓN VERIFICADA':row.status==='completed'?(row.effect==='dictionary'?'REGLA GUARDADA · APLICACIÓN PENDIENTE':'OPERACIÓN COMPLETADA'):row.run_status==='in_progress'?'EJECUCIÓN INICIADA':row.status==='sent'?'SOLICITUD ENVIADA':row.status==='resolved'?'CERRADA SIN CONFIRMAR':['pending','authorization','conflict'].includes(row.status)?'GUARDADA EN ESTE EQUIPO':'ENVÍO SIN CONFIRMAR';
+      const phaseBadge=el('span',phase,'badge '+(row.publication_verified?'good':'wait'));phaseBadge.style.whiteSpace='normal';p.append(document.createElement('br'),phaseBadge);
+      if(row.checks?.length){const evidence=el('details');evidence.append(el('summary','Ver comprobaciones conservadas'));for(const check of row.checks){const label=check.complete?'Búsqueda completa':'Búsqueda incompleta';evidence.append(el('p',localTime(check.checked_at)+' · '+label+' · '+(check.result==='not_found'?'Sin coincidencia exacta; esto no prueba rechazo.':check.result==='found'?'Ejecución localizada.':check.message||check.result),'small'));}p.append(evidence);}
       if (row.depends_on && openStates.includes(row.status)) p.append(document.createElement('br'),el('span','Depende de la configuración confirmada anterior.','small'));
       if (['pending','authorization','conflict'].includes(row.status)) {
         const cancel=el('button','Cancelar antes del envío','text-btn'); cancel.type='button';
@@ -71,14 +75,49 @@
         el('span',run.detail||'La fecha de última lectura indica qué datos están guardados.','small'));box.append(p);
     }
     if(!visible.length&&!remoteRuns.length&&!queueError)box.textContent='No hay órdenes locales. Conectá GitHub para consultar las ejecuciones.';
+    renderQueueReview();
     locks();
     renderOneoffs();
   }
   async function refreshOrders() {
-    try { const data=await api('orders'); orders=data.orders; queueError=data.error; }
+    try { const data=await api('orders'); orders=data.orders; queueError=data.error; queueInfo=data; }
     catch(e) { queueError=e.message; }
     showActivity();
   }
+  function renderQueueReview() {
+    const row=queueInfo.blocked,box=$('#queueReview');box.hidden=!row&&!queueInfo.paused;
+    $('#queueReason').textContent=row?(captions[row.action]||row.action)+' · '+localTime(row.created_at)+' · '+row.message:'La orden incierta quedó conservada sin confirmar. Las siguientes esperan tu revisión.';
+    const check=row?.checks?.at(-1);
+    $('#queueEvidence').textContent=check?(check.complete?'Comprobación completa':'Comprobación incompleta')+' · '+(check.result==='not_found'?'No se encontró el identificador exacto. Esto no demuestra que GitHub rechazó el envío.':check.result==='found'?'Se encontró una ejecución; revisá su resultado.':check.message||'Revisá la evidencia.')+(check.note?' '+check.note:''):'Comprobar solo consulta GitHub: no envía ni repite órdenes.';
+    $('#queueCheck').disabled=checkingQueue||!row||!['unknown','sent','sending'].includes(row.status);
+    $('#queueBlocked').disabled=!row;$('#queueResolve').disabled=checkingQueue||!row?.resolution?.confirmation;
+    $('#queuePaused').hidden=!queueInfo.paused;$('#queueResume').hidden=!queueInfo.paused;
+    $('#queueResume').disabled=checkingQueue||!!row;
+  }
+  function focusOrders(identifier) {
+    allOrders=true;showActivity();const target=identifier?document.querySelector('[data-order-id="'+identifier+'"]'):$('#cloudActivity');
+    if(target){target.tabIndex=-1;target.scrollIntoView({behavior:'smooth',block:'center'});target.focus({preventScroll:true});}
+  }
+  $('#queueBlocked').onclick=()=>focusOrders(queueInfo.blocked?.id);
+  $('#queuePending').onclick=()=>focusOrders();
+  $('#ordersHistory').onclick=()=>focusOrders();
+  $('#queueCheck').onclick=async()=>{
+    const identifier=queueInfo.blocked?.id;if(!identifier||checkingQueue)return;
+    checkingQueue=true;renderQueueReview();$('#queueEvidence').textContent='Consultando todas las páginas del intervalo de la orden…';
+    try {await api('orders/check',{request_id:identifier});}catch(e){notify(e.message);}finally{checkingQueue=false;await refreshOrders();}
+  };
+  $('#queueResolve').onclick=()=>{
+    const row=queueInfo.blocked;if(!row?.resolution?.confirmation)return;
+    openDialog('Resolver orden no confirmada','Se comprobará GitHub otra vez. Si sigue sin confirmarse, esta orden quedará cerrada sin afirmar éxito ni rechazo y sin reenviarse. Se conservarán su identificador e historial. Las órdenes siguientes quedarán PAUSADAS hasta que las revises.','Cerrar sin reenviar',async()=>{
+      checkingQueue=true;renderQueueReview();try{await api('orders/resolve',{request_id:row.id,confirmation:row.resolution.confirmation});notify('Orden conservada sin confirmar. Revisá las pendientes antes de continuar.');}catch(e){notify(e.message);}finally{checkingQueue=false;await refreshOrders();}
+    });
+  };
+  $('#queueResume').onclick=()=>{
+    const confirmation=queueInfo.confirmation;
+    openDialog('Continuar con las órdenes revisadas','Las órdenes pendientes podrán enviarse en su orden original. Cada una comprobará la configuración y el diccionario vigentes. Esto puede iniciar una actualización de Drive o CNRT si hay una orden pendiente para esas fuentes. Cancelá primero las que no quieras ejecutar.','Continuar envíos',async()=>{
+      try{await api('orders/resume',{confirmation});notify('Cola habilitada; las órdenes siguen sus comprobaciones antes de enviarse.');}catch(e){notify(e.message);}finally{await refreshOrders();}
+    });
+  };
   function applyReport(data) {
     if(!data?.report?.lineas)return;
     diagnosticReport=validateReport(data.report);adminDetails=data.details||null;
@@ -130,7 +169,7 @@
         remoteDigest=data.digest; if(reload||(!dirty&&!localDraft))fromRemote(data.config);
       }
       showReadState(data);remoteRuns=data.runs||[];
-      if(data.outbox) {orders=data.outbox.orders;queueError=data.outbox.error;}
+      if(data.outbox) {orders=data.outbox.orders;queueError=data.outbox.error;queueInfo=data.outbox;}
       showActivity();
       const latest=remoteRuns.find(r=>r.status==='completed');
       if(latest&&!['agenda_only','configuration','oneoff_saved','coalesced','publication'].includes(latest.effect))await loadReport(latest.id);

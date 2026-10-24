@@ -27,7 +27,8 @@ class SnapshotTests(unittest.TestCase):
         def get(method,path):
             paths.append(path)
             if path=='git/ref/heads/main':return {'object':{'sha':'a'*40}}
-            value=self.config if '_ftr_config' in path else {'version':1,'pending':{},'history':[]} if '_ftr_extraordinarias' in path else {'drive':{'read_utc':'REAL_SAVED_TIME'}}
+            from _ftr_runtime import dictionary_rules as rules
+            value=self.config if '_ftr_config' in path else rules.EMPTY if rules.FILE in path else {'version':1,'pending':{},'history':[]} if '_ftr_extraordinarias' in path else {'drive':{'read_utc':'REAL_SAVED_TIME'}}
             return {'content':base64.b64encode(json.dumps(value).encode()).decode()}
         with patch.object(server,'DATA',self.root),patch.object(server,'api',side_effect=get):
             value=main0631.snapshot()
@@ -37,11 +38,12 @@ class SnapshotTests(unittest.TestCase):
 
     def test_pending_query_recovers_request_beyond_panel_six(self):
         identifier='d'*32
-        rows=[dict(id=n,status='completed',conclusion='success',display_title='Other',created_at='2026-10-21T19:00:00Z') for n in range(9)]
-        rows.append(dict(id=99,status='completed',conclusion='success',display_title='FTR · drive · '+identifier,created_at='2026-10-21T18:00:00Z'))
+        rows=[dict(id=n,status='completed',conclusion='success',display_title='Other',created_at='2026-10-21T19:00:00Z',path='.github/workflows/ftr_sincronizar.yml') for n in range(9)]
+        rows.append(dict(id=99,status='completed',conclusion='success',display_title='FTR · drive · '+identifier,created_at='2026-10-21T18:00:00Z',path='.github/workflows/ftr_sincronizar.yml'))
         def get(method,path):
-            if '/jobs?' in path:return {'jobs':[{'steps':[{'name':'Procesar, validar, guardar y publicar','conclusion':'success'}]}]}
-            return {'workflow_runs':rows if 'ftr_sincronizar.yml' in path else []}
+            if '/jobs?' in path:return {'total_count':1,'jobs':[{'steps':[{'name':'Procesar, validar, guardar y publicar','conclusion':'success'}]}]}
+            if 'status=' in path:return {'total_count':0,'workflow_runs':[]}
+            return {'total_count':len(rows),'workflow_runs':rows}
         with patch.object(server,'api',side_effect=get):
             result=main0631.pending_runs('2026-10-21T17:00:00+00:00')
         self.assertEqual(next(r for r in result if r['request_id']==identifier)['effect'],'updated')

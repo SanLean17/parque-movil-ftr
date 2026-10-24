@@ -54,13 +54,13 @@ class TechnicalV8Tests(unittest.TestCase):
                     before=copy.deepcopy(e);result=a.analyze(text,rules.compile_rules(DICTIONARY))
                     fields=('componente','referencia','ubicacion','defecto','parte','subcomponente','cantidad_fisica')
                     self.assertCountEqual([tuple(f[k] for k in fields) for f in result['hallazgos']],expected)
-                    self.assertEqual(result['pendientes'],[] if expected else [text])
+                    self.assertEqual(result['pendientes'],[] if expected or text=='no coincide Kit' else [text])
                     total,private=stats.mechanics([e],dictionary=DICTIONARY)
                     self.assertEqual(e,before);self.assertEqual(total['cobertura']['registros_validos'],1)
                     self.assertEqual(total['identificadas'],len(expected))
                     self.assertEqual(total['elementos_fisicos']['cantidad_confirmada'],sum(f[-1] or 0 for f in expected))
                     actual_state={'OBSERVADO':'observado','FUERA DE SERVICIO':'fuera_de_servicio','SIN NOVEDAD':'sin_novedad'}[state]
-                    self.assertEqual(sum(c['estados'][actual_state] for cat in total['categorias'] for c in cat['componentes']),len(expected)+(not expected))
+                    self.assertEqual(sum(c['estados'][actual_state] for cat in total['categorias'] for c in cat['componentes']),len(expected)+(not expected and text!='no coincide Kit'))
                     for f in result['hallazgos']:self.assertIn(f['componente'],a.CATEGORIES[f['categoria']])
                     self.assertNotIn('AA111AA',json.dumps(total))
 
@@ -72,7 +72,7 @@ class TechnicalV8Tests(unittest.TestCase):
         for text in ('cruceta del cardán de transmisión','cruceta 2 de transmisión','cardan de transmisión CR2'):
             with self.subTest(text=text):
                 r=a.analyze(text);self.assertFalse(r['pendientes']);self.assertEqual([f['componente'] for f in r['hallazgos']],['crucetas'])
-        for text in ('CR4','amortiguador 9','PS5','A5 y 9','PF1.5','XR1','microcr2','3','5y6','larga derecha','sin juego en cruceta 2','no presenta fallas bloqueo'):
+        for text in ('CR4','amortiguador 9','PS5','A5 y 9','PF1.5','XR1','microcr2','3','5y6','sin juego en cruceta 2','no presenta fallas bloqueo'):
             with self.subTest(text=text):self.assertFalse(a.analyze(text)['hallazgos'])
         for text in ('tensor gira','PF1 desconocido pinchado','A1, pinchado, PF2'):
             with self.subTest(text=text):self.assertTrue(a.analyze(text)['pendientes'])
@@ -90,7 +90,7 @@ class TechnicalV8Tests(unittest.TestCase):
             events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in capsule['registros']]
             capsule['motor_revision']=7;capsule['estadisticas']['anomalias']=mechanics(events,DICTIONARY,7)[0]
             before=copy.deepcopy(capsule);effect=review.preview(capsule,DICTIONARY)
-            self.assertEqual(capsule,before);self.assertEqual((effect['motor_antes'],effect['motor_despues']),(7,8))
+            self.assertEqual(capsule,before);self.assertEqual((effect['motor_antes'],effect['motor_despues']),(7,9))
             review.unchanged_controls(capsule['estadisticas'],data)
         finally:fixture.tearDown()
 
@@ -101,7 +101,8 @@ class TechnicalV8Tests(unittest.TestCase):
                 sheets=[fixture.sheet('Línea 999',[['FECHA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],[f'01/02/{year}','AA111AA',1,'SIN NOVEDAD','no coincide Kit'],[f'02/02/{year}','BB222BB',2,'OBSERVADO','CR2']])]
                 data,_,detail=historical.build(sheets,year,'HISTORICAL_SOURCE_1234567','2026-10-23T20:00:00+00:00',DICTIONARY)
                 stats.validate(data);self.assertEqual(data['totales']['registros_validos'],2)
-                self.assertEqual((data['anomalias']['identificadas'],data['anomalias']['sin_clasificar']),(1,1))
+                self.assertEqual((data['anomalias']['identificadas'],data['anomalias']['sin_clasificar']),(1,0))
+                self.assertEqual(data['kit_sube']['controles_con_incidencia'],1)
                 self.assertEqual(detail['novedades_sin_clasificar']['revision_mecanica']['periodo'],year)
             e=dict(fecha=date(2026,2,1),linea=999,dominio='AA111AA',estado='OBSERVADO',tiene_novedades=False,novedades='CR2')
             data,_=stats.mechanics([e]);self.assertEqual(data['estado'],'parcial');self.assertEqual(data['identificadas'],0)

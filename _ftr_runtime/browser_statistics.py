@@ -25,7 +25,7 @@ def fixture():
             for i in range(n):
                 rows.append([f'{1+i//10:02}/{1+i%10:02}/2026',line,'AA111AA' if line==36 else 'CC333CC',1,
                     'FUERA DE SERVICIO' if i<13 else 'OBSERVADO' if i<19 else '' if i in (20,21) else 'SIN NOVEDAD',
-                    'R1 cortado, A2 flojo, PF trasero derecho y chicharra' if i<22 else 'sin novedad'])
+                    ('R1 cortado, A2 flojo, PF trasero derecho y chicharra' if i<22 else 'sin novedad')+(' - KIT NO COINCIDE' if i<3 else '')])
         test.google([test.sheet('LINEA 36/37',rows)])
         current=json.loads((test.root/FILE).read_text())
         test.config['period']=2027;test.config['lines']=[dict(line=99,company=9999,enabled=True)]
@@ -33,6 +33,7 @@ def fixture():
         test.google([test.sheet('LINEA 99',[rows[0],['05/02/2027',99,'ZZ999ZZ',1,'OBSERVADO','R5 pinchado y amortiguador de dirección']])])
         following=json.loads((test.root/FILE).read_text())
         legacy=copy.deepcopy(current);legacy.update(version=1,periodo=2025,lectura_planilla_utc='2025-10-21T20:01:00+00:00',corte_fecha='2025-10-21')
+        legacy.pop('kit_sube',None)
         for month in legacy['mensual']:month.pop('dias_con_fiscalizaciones')
         legacy['anomalias']['version_reglas']=1
         legacy['anomalias'].pop('elementos_fisicos');legacy['anomalias'].pop('motor_revision')
@@ -119,6 +120,10 @@ def main():
                 select(2026)
                 assert page.locator('[data-metric="registros_validos"] .metric-value').inner_text()=='120'
                 assert page.locator('[data-metric="unidades_repetidas"] .metric-value').inner_text()=='2'
+                assert page.locator('#kitTotal').inner_text()=='6'
+                assert page.locator('#kitLines button').count()==2
+                page.locator('#kitLines [data-kit-line="37"]').click()
+                assert '15 %' in page.locator('#kitDetail').inner_text()
                 for theme in ('light','dark'):
                     if (theme=='dark')!=page.evaluate('document.documentElement.classList.contains("dark")'):page.locator('#themeButton').click()
                     layout()
@@ -130,6 +135,8 @@ def main():
                     page.locator('[data-month="12"]').click();assert 'POSTERIOR' in page.locator('#monthSelection').inner_text()
                     for cat,label in (('direccion','Columna de dirección'),('frenos','Pulmón de freno'),('suspension','Amortiguadores'),('transmision','Cardán'),('neumaticos','Neumáticos delanteros'),('electrico','Señal sonora de marcha atrás'),('otras','Menciones pendientes')):
                         page.locator('[data-category="'+cat+'"]').click();assert label in page.locator('#components').inner_text()
+                        counts=[int(v) for v in page.locator('.component-count').all_inner_texts() if v!='—']
+                        assert counts==sorted(counts,reverse=True),(cat,counts)
                     page.locator('[data-category="frenos"]').focus();page.keyboard.press('Enter')
                     assert page.locator('#componentTitle').inner_text()=='SISTEMA DE FRENOS'
                     component=page.locator('.component').filter(has=page.get_by_role('heading',name='Pulmón de freno',exact=True))
@@ -143,6 +150,9 @@ def main():
                         page.screenshot(path=str(output/f'prueba-ficticia-componentes-{width}-{theme}.png'),animations='disabled')
                 # Año antiguo con catálogo anterior: no completar días ni componentes.
                 select(2025);page.locator('[data-month="3"]').click()
+                assert page.locator('#kitTotal').inner_text()=='—'
+                assert 'no calculado' in page.locator('#kitStatus').inner_text()
+                assert page.locator('#kitLines button').count()==0
                 assert 'DÍAS: NO DISPONIBLES' in page.locator('#monthSelection').inner_text()
                 page.locator('[data-category="neumaticos"]').click()
                 assert page.locator('#components .component-count').all_inner_texts()==['—']*5

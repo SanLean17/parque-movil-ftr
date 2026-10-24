@@ -131,11 +131,16 @@ def build(report, events, config, read_utc, *, pending_mechanics=False, dictiona
     from .dictionary_rules import validate as validate_dictionary, digest, EMPTY
     dictionary=validate_dictionary(dictionary or EMPTY)
     anomalies, private = mechanics(events, pending_mechanics, dictionary)
-    data = dict(version=3, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
+    data = dict(version=4, periodo=config['period'], lectura_planilla_utc=read_utc, corte_fecha=cutoff.isoformat(),
         origen='informe_validado_historial' if pending_mechanics else 'lectura_validada',
         totales={k:report['totales_estadisticas'][k] for k in TOTALS}, lineas=lines,
         mensual=monthly(events,config['period'],cutoff), destacados=ranking(lines),
         minimo_controles_proporcion=MINIMUM, proporciones=proportions(lines), anomalias=anomalies)
+    from .kit_sube import aggregate,detected
+    data['kit_sube']=aggregate(events,lines,pending_mechanics)
+    if not pending_mechanics:
+        from .record_interpretation import reference
+        private['incidencias_kit']=[reference(e) for e in events if detected(e)]
     data['interpretacion']={'revision':dictionary['revision'],'sha256':digest(dictionary)}
     data['calidad']={'parcial':False,'registros_excluidos':0}
     validate(data)
@@ -153,10 +158,10 @@ def validate(data):
     def number(n):
         if type(n) is not int or n < 0:
             raise ValueError('Cantidad estadística inválida.')
-    exact(data, ('version','periodo','lectura_planilla_utc','corte_fecha','origen','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','anomalias', *(('interpretacion','calidad') if data.get('version')==3 else ())))
-    if type(data['version']) is not int or data['version'] not in (1,2,3) or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada','importacion_historica'):
+    exact(data, ('version','periodo','lectura_planilla_utc','corte_fecha','origen','totales','lineas','mensual','destacados','minimo_controles_proporcion','proporciones','anomalias', *(('interpretacion','calidad') if data.get('version',0)>=3 else ()), *(('kit_sube',) if data.get('version')==4 else ())))
+    if type(data['version']) is not int or data['version'] not in (1,2,3,4) or type(data['periodo']) is not int or not 2000 <= data['periodo'] <= 2100 or data['origen'] not in ('informe_validado_historial','lectura_validada','importacion_historica'):
         raise ValueError('Versión estadística no admitida.')
-    if data['version']==3:
+    if data['version']>=3:
         exact(data['interpretacion'],('revision','sha256'));number(data['interpretacion']['revision'])
         if data['interpretacion']['revision']<1 or not re.fullmatch('[a-f0-9]{64}',data['interpretacion']['sha256']):raise ValueError('Versión de diccionario inválida.')
         exact(data['calidad'],('parcial','registros_excluidos'));number(data['calidad']['registros_excluidos'])
@@ -176,6 +181,9 @@ def validate(data):
             raise ValueError('Resultados estadísticos incompatibles.')
     if [r['linea'] for r in lines] != sorted({r['linea'] for r in lines}) or any(totals[k] != sum(r[v] for r in lines) for k,v in mapping.items()):
         raise ValueError('Totales estadísticos incompatibles.')
+    if data['version']==4:
+        from .kit_sube import validate as validate_kit
+        validate_kit(data['kit_sube'],lines)
     months=data['mensual']
     if len(months)!=12 or [m['mes'] for m in months] != list(range(1,13)):
         raise ValueError('Meses estadísticos inválidos.')
@@ -208,7 +216,7 @@ def validate(data):
             if not pending and sum(c['estados'].values())!=c['cantidad']:raise ValueError('Estados de anomalías incompatibles.')
         if not pending and sum(c['cantidad'] for c in category['componentes'])!=category['cantidad']:raise ValueError('Categoría incompatible.')
     if a['version_reglas']>=4:
-        if type(a['motor_revision']) is not int or a['motor_revision']!={4:7,5:8}.get(a['version_reglas']):raise ValueError('Revisión de motor no admitida para este catálogo.')
+        if type(a['motor_revision']) is not int or a['motor_revision']!={4:7,5:8,6:9}.get(a['version_reglas']):raise ValueError('Revisión de motor no admitida para este catálogo.')
         physical=a['elementos_fisicos'];exact(physical,('cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'))
         values.extend(physical.values())
         if not pending and (physical['menciones_con_cantidad']+physical['menciones_sin_cantidad']!=a['identificadas'] or physical['cantidad_confirmada']<physical['menciones_con_cantidad']):raise ValueError('Cantidades físicas incompatibles con las menciones.')

@@ -75,8 +75,8 @@ def install(server):
                         key=records.reference(event)['registro_id'];decision=saved['registros'].get(key)
                         if decision and decision['huella']==records.correction(event,decision['fragmentos'])['huella']:applicable[key]=decision
                     if applicable:
-                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7
-                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7}.get(capsule.get('motor_revision'),anomalies)
+                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7,legacy_anomalies_v8
+                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7,8:legacy_anomalies_v8}.get(capsule.get('motor_revision'),anomalies)
                         compiled=rules.compile_rules(capsule['diccionario'])
                         def local_analysis(event):
                             if records.reference(event)['registro_id'] in applicable:return records.apply(event,applicable,capsule['diccionario'])
@@ -101,8 +101,14 @@ def install(server):
                     color='verified' if refs and solved==len(refs) and verified else 'waiting' if solved else 'attention'
                     message='APLICADO Y VERIFICADO' if color=='verified' else ('INTERPRETACIÓN DISPONIBLE · '+str(solved)+' apariciones resueltas localmente; estadísticas pendientes'+(' · '+str(unresolved)+' ambiguas' if unresolved else '')) if solved else 'REQUIERE REVISIÓN · falta una interpretación inequívoca'
                     item['interpretacion']=dict(color=color,mensaje=message,resueltas=solved,ambiguas=unresolved)
+            kit_details=[]
+            if capsule:
+                try:
+                    from _ftr_runtime.kit_sube import detected
+                    kit_details=[records.reference(e) for e in review.unpack(capsule)[0] if detected(e)]
+                except ValueError:pass
             views[str(year)]=dict(pending=items,preview_available=bool(capsule),read=summary.get('inicio_lectura_utc'),
-                                  historical=summary.get('historico',False),sheetUrl=(capsule or {}).get('sheetUrl'),archive=(capsule or {}).get('sha256_archivo'),local=local)
+                                  historical=summary.get('historico',False),sheetUrl=(capsule or {}).get('sheetUrl'),archive=(capsule or {}).get('sha256_archivo'),local=local,kit=kit_details)
             pending.extend(items)
         saved=store.read()
         return server.jsonify(motor_revision=ENGINE_REVISION,informacion=INFORMATION,remote=cached,pending=pending,reviews=views,catalogue=CATEGORIES,runs=runs,

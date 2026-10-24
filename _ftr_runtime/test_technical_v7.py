@@ -35,7 +35,7 @@ class TechnicalV7Tests(unittest.TestCase):
             with self.subTest(text=text):
                 result=engine.analyze(text,GENERAL)
                 self.assertCountEqual([tuple(f[k] for k in fields) for f in result['hallazgos']],expected)
-                self.assertEqual(result['pendientes'],[text] if text=='No coincide Kit' else [])
+                self.assertEqual(result['pendientes'],[])
                 for finding in result['hallazgos']:
                     self.assertIn(finding['componente'],engine.CATEGORIES[finding['categoria']])
                 if text.startswith('flexible'):

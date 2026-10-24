@@ -56,6 +56,8 @@ class HistoricalTests(unittest.TestCase):
         empty['totales']={k:0 for k in stats.TOTALS};empty['lineas']=[{k:(999 if k=='linea' else 0) for k in stats.LINE_FIELDS}]
         from datetime import date
         empty['mensual']=stats.monthly([],2027,date(2027,1,1));empty['proporciones']=stats.proportions(empty['lineas']);empty['destacados']=stats.ranking(empty['lineas']);empty['anomalias']=stats.mechanics([])[0]
+        from _ftr_runtime.kit_sube import aggregate
+        empty['kit_sube']=aggregate([],empty['lineas'])
         archive.publish(self.root,empty)
         self.assertEqual((self.root/'estadisticas/2025.json').read_bytes(),old);self.assertEqual((self.root/'estadisticas/2026.json').read_bytes(),active)
         self.assertEqual([r['periodo'] for r in archive.validate_collection(self.root)['periodos']],[2027,2026,2025])

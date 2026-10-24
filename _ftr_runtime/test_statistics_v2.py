@@ -134,7 +134,7 @@ class StatisticsV2PipelineTests(unittest.TestCase):
         self.assertEqual((self.root/'estadisticas/2026.json').read_bytes(),before)
 
     def test_migration_keeps_legacy_counts_and_no_fake_days_or_components(self):
-        self.google(self.visits());old=self.read();old['version']=1;old.pop('interpretacion');old.pop('calidad')
+        self.google(self.visits());old=self.read();old['version']=1;old.pop('interpretacion');old.pop('calidad');old.pop('kit_sube')
         for month in old['mensual']:month.pop('dias_con_fiscalizaciones')
         old['anomalias']['version_reglas']=1
         old['anomalias'].pop('elementos_fisicos');old['anomalias'].pop('motor_revision')

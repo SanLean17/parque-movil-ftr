@@ -3,10 +3,10 @@
 Las reglas son datos separados del motor. Una futura edición administrativa
 requerirá validación y una nueva versión; nunca reinterpreta archivos cerrados.
 """
-VERSION = 5
+VERSION = 6
 # Contrato público compatible con Administración 06.3.6. La revisión del
 # intérprete se registra por separado en los informes protegidos y en Git.
-ENGINE_REVISION = 8
+ENGINE_REVISION = 9
 LEGACY_CATEGORIES = {
     'direccion': ('barra_larga', 'barra_corta', 'direccion_sin_componente'),
     'frenos': ('frenos_delanteros', 'frenos_traseros', 'flexibles_freno', 'freno_sin_ubicacion'),
@@ -29,7 +29,9 @@ CATALOGUE_V4 = CATEGORIES
 CATEGORIES = dict(CATALOGUE_V4,
     direccion=(*CATALOGUE_V4['direccion'][:-1], 'cruceta_direccion', 'direccion_sin_componente'),
     frenos=(*CATALOGUE_V4['frenos'][:-1], 'bloqueo_frenos', 'freno_sin_ubicacion'))
-CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATALOGUE_V3, 3: CATALOGUE_V3, 4: CATALOGUE_V4, 5: CATEGORIES}
+CATALOGUE_V5 = CATEGORIES
+CATEGORIES = dict(CATEGORIES,transmision=('cardan','crucetas','diferencial','transmision_sin_componente'))
+CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATALOGUE_V3, 3: CATALOGUE_V3, 4: CATALOGUE_V4, 5: CATALOGUE_V5, 6: CATEGORIES}
 POSITIONS = r'(?:delanter[oa]s?|traser[oa]s?)(?:\s+(?:derech[oa]s?|izquierd[oa]s?))?'
 # No cruzar líneas, guiones ni palabras para fabricar un código. Se protege
 # también el código no confirmado completo, para no reconocer un prefijo suyo.
@@ -57,7 +59,7 @@ RULES = (
     ('barra_corta', r'(?:barras?\s+)?cortas?\s+(?:(?:lado|extremo)\s+)?(?:pit+t?man|eje)\b'),
     ('brazo_pitman', r'(?:brazos?\s+)?pit+t?man'),
     ('rotulas_direccion', r'rotulas?(?:\s+(?:de\s+)?direccion)?'),
-    ('barra_larga', r'(?:tensor(?:es)?\s+(?:de\s+(?:la\s+)?)?)?barras?\s+largas?'),
+    ('barra_larga', r'(?:tensor(?:es)?\s+(?:de\s+(?:la\s+)?)?)?barras?\s+larg[oa]s?'),
     ('barra_larga', r'largas?\s+(?:derech[oa]|izquierd[oa]|der|izq)'),
     ('barra_corta', r'(?:tensor(?:es)?\s+(?:de\s+(?:la\s+)?)?)?barras?\s+cortas?|corta(?=\s+(?:entera|delanter[oa])\b)'),
     ('flexibles_freno', r'flexibles?\s+(?:(?:de|del)\s+)?pulmon(?:es)?\s+(?:de\s+)?frenos?|flexibles?(?:\s+(?:(?:de|del)\s+)?frenos?)?'),
@@ -77,11 +79,12 @@ RULES = (
     ('crucetas', r'(?:(?:'+CR_CODE+r'|crucetas?)\s+(?:(?:de|del)\s+)?(?:cardan\s+(?:de\s+)?)?transmision|cardan\s+(?:de\s+)?transmision\s+(?:'+CR_CODE+r'|crucetas?))'),
     ('cruceta_direccion', r'(?:cardan\s+(?:(?:de\s+)?direccion\s+)?)?(?:'+CR_CODE+r'|crucetas?)(?:\s+(?:(?:de|del)\s+)?cardan(?:\s+(?:de\s+)?direccion)?|\s+(?:de\s+)?direccion)?'),
     ('cardan', r'cardan(?:es)?'),
+    ('diferencial', r'diferencial(?:es)?'),
     ('tuercas_rueda', r'tuercas?\s+(?:de\s+)?ruedas?'),
     ('bulones_rueda', r'bulon(?:es)?\s+(?:de\s+)?ruedas?'),
     ('neumatico_sin_ubicacion', R_CODE+r'|neumaticos?|cubiertas?'),
     ('corte_corriente', r'corta\s*corrientes?|corte\s+(?:de\s+)?(?:bateria|corriente)'),
-    ('sonora_marcha_atras', r'(?:senal\s+(?:sonora|acustica)|(?:alarma\s+)?sonora\s+(?:de\s+)?marcha\s+atras|chicharra)(?:\s+(?:de\s+)?marcha\s+atras)?'),
+    ('sonora_marcha_atras', r'(?:senal\s+(?:sonora|acustica)|(?:alarma\s+)?(?:sonora|acustica)\s+(?:de\s+)?marcha\s+atras|chicharras?)(?:\s+(?:de\s+)?marcha\s+atras)?'),
     ('direccion_sin_componente', r'direccion'),
     ('freno_sin_ubicacion', r'sistema\s+(?:de\s+)?frenos?|frenos?'),
     ('suspension_sin_componente', r'suspension'),

@@ -9,7 +9,7 @@ LOCATIONS = ('sin_ubicacion','delantero','trasero','derecho','izquierdo','superi
              'delantero derecho','delantero izquierdo','trasero derecho','trasero izquierdo',
              'trasero derecho interno','trasero izquierdo interno','trasero derecho externo','trasero izquierdo externo',
              'trasero interno','trasero externo','interno','externo','zona media','superior derecho','superior izquierdo')
-DEFECTS = ('no_identificado','corte','pinchadura','rotura','flojo','suelto','no_funciona','juego','desgaste','liso','faltante')
+DEFECTS = ('no_identificado','corte','pinchadura','rotura','perdida_fluidos','flojo','suelto','no_funciona','juego','desgaste','liso','faltante')
 
 def reference(event):
     import hashlib,json

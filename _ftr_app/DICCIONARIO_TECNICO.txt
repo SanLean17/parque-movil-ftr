@@ -1,4 +1,4 @@
-FTR ADMINISTRACIÓN 06.3.11 — DICCIONARIO TÉCNICO
+FTR ADMINISTRACIÓN 06.3.12 — DICCIONARIO TÉCNICO
 
 El mismo diccionario global sirve para todos los años futuros. Los archivos
 de estadísticas de años cerrados y las interpretaciones privadas son
@@ -151,3 +151,31 @@ Las menciones desconocidas quedan en OTRAS y su revisión es OPCIONAL: no es
 necesario clasificarlas una por una para completar el histórico.
 Rojo, amarillo y verde corresponden a la interpretación administrativa.
 ESTADO y sus resultados se muestran separados y no cambian.
+
+MOTOR BASE 9 — EQUIVALENCIAS PERMANENTES
+BARTA/BARRA, BUGE/BUJE, SULETO/SUELTO, ISK/IZQUIERDO, MONIO/MOÑO,
+AMOR DIRECCIÓN y BUJE DE AMORTIGUAR, siempre dentro del contexto técnico.
+LARGA DERECHA/DERECHO, BARRA CORTA PITMAN/EJE/ENTERA/COMPLETA,
+EXTREMO/EXTREMOS, referencias A/PF/PS/R/CR y ubicaciones confirmadas.
+KIT SUBE se cuenta en una sección independiente, nunca como falla mecánica.
+El texto original y ESTADO se conservan. Lo ambiguo continúa en revisión.
+
+CORREGIR UNA PALABRA MAL ESCRITA
+Escribir la expresión original y la corregida. La original puede ser un error
+nuevo; la corregida debe ser vocabulario técnico reconocido. La vista previa
+conserva cada fragmento original. Guardar exige confirmación y permite elegir
+regla global o interpretación particular privada. Los duplicados y conflictos
+se rechazan antes del guardado. Una regla enviada no equivale a publicada.
+
+REVISIÓN DESDE INFORMES COMPLETOS CONSERVADOS
+La revisión integral 06.3.12 reutiliza informes protegidos compatibles de 2025
+y 2026. La vista previa confirma las huellas del archivo anterior, diccionario,
+registros y resultado completo. El procedimiento statistics_reinterpretation
+verifica esas cuatro huellas, conserva el respaldo agregado anterior y actualiza
+el índice y el manifiesto en una sola publicación Git. No consulta fuentes,
+no envía órdenes y no modifica el perfil local. Los informes privados nunca
+se incluyen en el repositorio público ni en el ZIP.
+Los próximos años usarán el motor base vigente. Los históricos cerrados
+continúan protegidos: no se recalculan por una actualización automática.
+KIT no calculado en archivos anteriores se muestra como dato no disponible.
+No se atribuyen empresas actuales a registros históricos sin evidencia.

@@ -61,6 +61,11 @@ def validate(value):
     from .anomalies import PATTERN, NEUTRAL
     rows=[];seen=[]
     for row in value['reglas']:
+        if isinstance(row,dict) and row.get('tipo')=='ortografia':
+            from .technical_spelling import validate as spelling
+            clean=spelling(row)
+            if any(overlap(clean,other) or other.get('corregida')==clean['expresion'] or clean['corregida']==other['expresion'] for _,other in seen):raise ValueError('Corrección duplicada, encadenada o en conflicto.')
+            seen.append(('*',clean));rows.append(clean);continue
         contextual=isinstance(row,dict) and row.get('tipo')=='descriptor'
         keys={'expresion','habilitada'}|({'tipo','significado'} if contextual else set())
         if not isinstance(row,dict):raise ValueError('Regla no válida.')
@@ -108,5 +113,5 @@ def proposed(current, rules, expected):
 
 def compile_rules(value):
     enabled=[r for r in validate(value)['reglas'] if r['habilitada'] and r.get('categoria')!='otras']
-    rows=sorted((r for r in enabled if r.get('tipo')!='descriptor'),key=lambda r:-len(r['expresion']))
-    return rows, re.compile('|'.join(r'\b(?P<custom'+str(i)+'>'+re.escape(r['expresion'])+r')\b' for i,r in enumerate(rows))) if rows else None, [dict(r,expresion=term) for r in enabled if r.get('tipo')=='descriptor' for term in terms(r)]
+    rows=sorted((r for r in enabled if r.get('tipo') not in ('descriptor','ortografia')),key=lambda r:-len(r['expresion']))
+    return rows, re.compile('|'.join(r'\b(?P<custom'+str(i)+'>'+re.escape(r['expresion'])+r')\b' for i,r in enumerate(rows))) if rows else None, [dict(r,expresion=term) for r in enabled if r.get('tipo')=='descriptor' for term in terms(r)], [r for r in enabled if r.get('tipo')=='ortografia']

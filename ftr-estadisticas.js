@@ -9,7 +9,7 @@
     direccion:{columna_direccion:'Columna de dirección',caja_direccion:'Caja de dirección',brazo_pitman:'Brazo Pitman',rotulas_direccion:'Rótulas de dirección',barra_larga:'Barra larga',barra_corta:'Barra corta',amortiguador_direccion:'Amortiguador de dirección',cruceta_direccion:'Cruceta de cardán de dirección',direccion_sin_componente:'Dirección — otro componente'},
     frenos:{frenos_delanteros:'Frenos delanteros',frenos_traseros:'Frenos traseros',flexibles_freno:'Flexibles de freno',pulmon_freno:'Pulmón de freno',tanque_aire:'Tanque de aire',valvula_descarga:'Válvula de descarga',freno_servicio:'Freno de servicio',freno_estacionamiento:'Freno de estacionamiento',freno_emergencia:'Freno de emergencia',bloqueo_frenos:'Sistema de frenos — bloqueo',freno_sin_ubicacion:'Frenos — sin componente precisado'},
     suspension:{amortiguadores:'Amortiguadores',bujes:'Bujes',pulmon_suspension:'Pulmón de suspensión',valvula_niveladora:'Válvula niveladora',barra_estabilizadora:'Barra estabilizadora',tensores:'Tensores',suspension_sin_componente:'Suspensión — sin componente precisado'},
-    transmision:{cardan:'Cardán',crucetas:'Crucetas',transmision_sin_componente:'Transmisión, sin componente precisado'},
+    transmision:{cardan:'Cardán',crucetas:'Crucetas',diferencial:'Diferencial',transmision_sin_componente:'Transmisión, sin componente precisado'},
     neumaticos:{neumaticos_delanteros:'Neumáticos delanteros',neumaticos_traseros:'Neumáticos traseros',tuercas_rueda:'Tuercas',bulones_rueda:'Bulones',neumatico_sin_ubicacion:'Neumáticos — sin ubicación precisada'},
     electrico:{corte_corriente:'Corte de batería / corte de corriente',sonora_marcha_atras:'Señal sonora de marcha atrás',electrico_sin_componente:'Eléctrico — sin componente precisado'},
     otras:{sin_clasificar:'Menciones pendientes de interpretación'}
@@ -30,16 +30,16 @@
     if (!index || index.version!==1 || !Array.isArray(index.periodos) || !index.periodos.length) bad();
     let previous=Infinity;
     for (const r of index.periodos) {
-      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3].includes(r.version) || ![1,2,3,4,5].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
+      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3,4].includes(r.version) || ![1,2,3,4,5,6].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
       previous=r.periodo;
     }
     return index;
   }
   function validate(data, reference) {
     const bad = () => {throw Error('Las estadísticas no corresponden a una versión completa del período.');};
-    if (!data || ![1,2,3].includes(data.version) || data.version!==reference.version || data.periodo!==reference.periodo || !Array.isArray(data.lineas) || !Array.isArray(data.mensual) || !data.totales || !data.anomalias || !data.destacados || !Array.isArray(data.proporciones)) bad();
+    if (!data || ![1,2,3,4].includes(data.version) || data.version!==reference.version || data.periodo!==reference.periodo || !Array.isArray(data.lineas) || !Array.isArray(data.mensual) || !data.totales || !data.anomalias || !data.destacados || !Array.isArray(data.proporciones)) bad();
     if (JSON.stringify(data.lineas.map(r=>r.linea))!==JSON.stringify(reference.lineas) || data.lectura_planilla_utc!==reference.lectura_planilla_utc || !Number.isFinite(Date.parse(data.lectura_planilla_utc)) || !/^\d{4}-\d{2}-\d{2}$/.test(data.corte_fecha)) bad();
-    if(data.version===3 && (!data.interpretacion || !integer(data.interpretacion.revision) || !data.interpretacion.revision || !/^[a-f0-9]{64}$/.test(data.interpretacion.sha256) || !data.calidad || typeof data.calidad.parcial!=='boolean' || !integer(data.calidad.registros_excluidos) || data.calidad.parcial!==Boolean(data.calidad.registros_excluidos))) bad();
+    if(data.version>=3 && (!data.interpretacion || !integer(data.interpretacion.revision) || !data.interpretacion.revision || !/^[a-f0-9]{64}$/.test(data.interpretacion.sha256) || !data.calidad || typeof data.calidad.parcial!=='boolean' || !integer(data.calidad.registros_excluidos) || data.calidad.parcial!==Boolean(data.calidad.registros_excluidos))) bad();
     const readDate=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(data.lectura_planilla_utc));
     if (readDate!==data.corte_fecha) bad();
     const totals = {registros_validos:'registros_periodo',unidades_unicas_por_linea:'dominios_unicos',unidades_repetidas:'unidades_repetidas',registros_fuera_de_servicio:'fuera_de_servicio',registros_observados:'observado',registros_sin_novedad:'sin_novedad',registros_sin_estado:'estado_vacio',registros_otro_estado:'estado_otro'};
@@ -64,10 +64,10 @@
       const count=Math.max(0,...data.lineas.map(r=>r[k])),item=data.destacados[k];
       if (!item || item.cantidad!==count || JSON.stringify(item.lineas)!==JSON.stringify(count?data.lineas.filter(r=>r[k]===count).map(r=>r.linea):[])) bad();
     }
-    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>(a.version_reglas>=4||id!=='amortiguador_direccion')&&(a.version_reglas>=5||!['cruceta_direccion','bloqueo_frenos'].includes(id)))]));
-    if (![1,2,3,4,5].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
+    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>(a.version_reglas>=4||id!=='amortiguador_direccion')&&(a.version_reglas>=5||!['cruceta_direccion','bloqueo_frenos'].includes(id))&&(a.version_reglas>=6||id!=='diferencial'))]));
+    if (![1,2,3,4,5,6].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
     const pending=a.estado==='pendiente',count=n=>pending?n===null:integer(n);
-    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
+    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8,6:9}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
     if (!count(a.identificadas) || !count(a.sin_clasificar) || !a.cobertura || !['registros_validos','con_columna','con_texto','vacios','sin_columna'].every(k=>count(a.cobertura[k]))) bad();
     for (const cat of a.categorias) {
       if (!count(cat.cantidad) || !Array.isArray(cat.componentes) || JSON.stringify(cat.componentes.map(c=>c.id))!==JSON.stringify(catalogue[cat.id])) bad();
@@ -75,12 +75,17 @@
       if (!pending&&cat.componentes.reduce((s,c)=>s+c.cantidad,0)!==cat.cantidad) bad();
     }
     if (!pending && (a.cobertura.registros_validos!==data.totales.registros_validos || a.cobertura.con_columna+a.cobertura.sin_columna!==a.cobertura.registros_validos || a.cobertura.con_texto+a.cobertura.vacios!==a.cobertura.con_columna || a.identificadas!==a.categorias.filter(c=>c.id!=='otras').reduce((s,c)=>s+c.cantidad,0) || a.sin_clasificar!==a.categorias.find(c=>c.id==='otras').cantidad || (a.estado==='parcial')!==Boolean(a.cobertura.sin_columna))) bad();
+    if(data.version===4){const k=data.kit_sube;if(!k||k.version!==1||!['pendiente','parcial','disponible'].includes(k.estado)||!Array.isArray(k.lineas)||k.lineas.length!==data.lineas.length)bad();const pending=k.estado==='pendiente';
+      for(const [i,r] of k.lineas.entries()){const l=data.lineas[i];if(r.linea!==l.linea||r.controles!==l.registros_periodo|| (pending?(r.incidencias!==null||r.con_novedades!==null):(!integer(r.incidencias)||!integer(r.con_novedades)||r.incidencias>r.con_novedades||r.con_novedades>r.controles)))bad();}
+      if(pending?k.controles_con_incidencia!==null:(!integer(k.controles_con_incidencia)||k.controles_con_incidencia!==k.lineas.reduce((n,r)=>n+r.incidencias,0)||(k.estado==='parcial')!==k.lineas.some(r=>r.con_novedades<r.controles)))bad();
+    }
     return data;
   }
+  function orderComponents(rows,names){return [...rows].sort((a,b)=>(b.cantidad??-1)-(a.cantidad??-1)||(names[a.id]||a.id).localeCompare(names[b.id]||b.id,'es',{sensitivity:'base'}));}
   function monthText(month) {
     return MONTHS[month.mes-1]+(month.estado==='futuro'?' — POSTERIOR A LA ÚLTIMA LECTURA':' — '+format(month.controles)+' CONTROLES — '+(month.dias_con_fiscalizaciones==null?'DÍAS: NO DISPONIBLES EN ESTA VERSIÓN':format(month.dias_con_fiscalizaciones)+' DÍAS CON FISCALIZACIONES')+(month.estado==='en_curso'?' · MES EN CURSO':''));
   }
-  if (typeof module!=='undefined'&&module.exports) module.exports={validate,validateIndex,monthText,COMPONENTS,LEGACY};
+  if (typeof module!=='undefined'&&module.exports) module.exports={validate,validateIndex,monthText,orderComponents,COMPONENTS,LEGACY};
 
   if (typeof document === 'undefined') return;
   const $ = id => document.getElementById(id);
@@ -172,14 +177,26 @@
       b.addEventListener('click',()=>{
         for(const other of buttons)other.setAttribute('aria-pressed',String(other===b));
         $('componentTitle').textContent=name;
-        $('components').replaceChildren(...Object.keys(COMPONENTS[id]).map(key=>componentCard(key,cat?.componentes.find(c=>c.id===key),id)));
+        $('components').replaceChildren(...orderComponents(Object.keys(COMPONENTS[id]).map(key=>cat?.componentes.find(c=>c.id===key)||{id:key,cantidad:null}),COMPONENTS[id]).map(c=>componentCard(c.id,c,id)));
         $('componentNote').textContent=id==='otras'?'Pendientes de clasificación.':data.version_reglas===1?'Catálogo histórico.':'';
       });
       return b;
     });
     $('categories').replaceChildren(...buttons);buttons[0].click();
   }
+  function kit(data){
+    const k=data?.kit_sube,ready=k&&k.estado!=='pendiente';$('kitTotal').textContent=ready?format(k.controles_con_incidencia):'—';
+    $('kitStatus').textContent=!ready?'Dato no calculado para este período.':k.estado==='parcial'?'Cobertura parcial: hay controles sin columna NOVEDADES.':'Controles con una incidencia o discrepancia registrada. Cada fiscalización cuenta una sola vez.';
+    $('kitLines').replaceChildren();$('kitDetail').textContent='Seleccioná una línea para consultar el detalle agregado.';if(!ready)return;
+    const rows=[...k.lineas].sort((a,b)=>b.incidencias-a.incidencias||a.linea-b.linea),max=Math.max(1,...rows.map(r=>r.incidencias));
+    for(const r of rows){const b=el('button','kit-line'),heading=el('span','category-label'),track=el('div','track'),fill=el('div','fill');b.type='button';b.dataset.kitLine=r.linea;b.setAttribute('aria-pressed','false');
+      const pct=r.controles&&r.con_novedades===r.controles?format(Math.round(1000*r.incidencias/r.controles)/10)+' %':'Proporción no disponible';
+      heading.append(el('span','','Línea '+r.linea),el('strong','',format(r.incidencias)));fill.style.setProperty('--width',100*r.incidencias/max+'%');track.append(fill);b.append(heading,track,el('span','section-note',pct));
+      b.onclick=()=>{for(const other of $('kitLines').children)other.setAttribute('aria-pressed',String(other===b));$('kitDetail').textContent='Línea '+r.linea+' · '+format(r.incidencias)+' controles con incidencia KIT de '+format(r.controles)+' controles válidos · '+pct+'. No determina avería física ni modifica ESTADO.';};$('kitLines').append(b);
+    }
+  }
   function clearData() {
+    kit(null);
     metrics(null);
     for(const id of ['months','highlights','ratios','smallRatios','categories','components'])$(id).replaceChildren();
     for(const id of ['monthSelection','mechanicsStatus','mechanicsCoverage','componentNote','footerPeriod'])$(id).textContent='';
@@ -199,7 +216,7 @@
       $('lastRead').dateTime=data.lectura_planilla_utc;
       $('lastRead').textContent=new Intl.DateTimeFormat('es-AR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23',timeZone:'America/Argentina/Buenos_Aires'}).format(new Date(data.lectura_planilla_utc))+' · Argentina';
       $('footerPeriod').textContent='Período '+data.periodo;
-      metrics(data.totales);months(data.mensual);highlights(data.destacados);proportions(data);mechanics(data.anomalias);
+      metrics(data.totales);months(data.mensual);highlights(data.destacados);proportions(data);mechanics(data.anomalias);kit(data);
       $('availability').textContent=data.calidad?.parcial?'Histórico parcial · registros válidos':'Estadísticas verificadas';
       $('historicalNote').hidden=data.periodo===manifest.period&&data.version>=2;
       $('historicalNote').textContent='Archivo del período '+data.periodo+', conservado con su fecha de lectura y reglas v'+data.anomalias.version_reglas+'. Los meses reflejan lo disponible hasta esa lectura.'+(data.version===1?' Esta versión histórica no guardó los días únicos con fiscalizaciones.':'');

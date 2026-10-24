@@ -7,13 +7,15 @@ from pathlib import Path
 from _ftr_runtime import dictionary_rules as rules, public_statistics as stats
 from _ftr_runtime.test_technical_v7 import CASES
 from _ftr_runtime.test_technical_v8 import CASES as NEW_CASES
+from _ftr_runtime.test_integral_v9 import CASES as INTEGRAL_CASES
+from collections import Counter
 from _ftr_runtime.record_interpretation import reference
 from _ftr_runtime.legacy_mechanics import mechanics
 from statistics_browser_checks import api
 
 
 def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile):
-    texts=list(dict.fromkeys([*CASES,*NEW_CASES,'amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','amort']))
+    texts=list(dict.fromkeys([*CASES,*NEW_CASES,*INTEGRAL_CASES,'amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','amort','amortiguadr']))
     test.source=lambda:[test.sheet('Línea 999',[['FECHA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],
         *[['01/02/2025','AA111AA',7,'SIN NOVEDAD',text] for text in texts]])]
     general=dict(expresion='extremo',variantes=['extremos'],tipo='descriptor',significado='extremo',alcance='general',habilitada=True)
@@ -54,19 +56,26 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
         result=response['value']['analisis']
         fields=('componente','referencia','ubicacion','defecto','parte','subcomponente','cantidad_fisica')
         assert sorted([tuple(f[k] for k in fields) for f in result['hallazgos']],key=str)==sorted(expected,key=str),text
-        assert result['pendientes']==([] if expected else [text]),text
+        assert result['pendientes']==([] if expected or text=='no coincide Kit' else [text]),text
         assert response['value']['registro']['novedades_original']==text
         assert response['value']['registro']['estado_formal']=='SIN NOVEDAD'
 
-    form=open_record('amort')
+    for text,expected in INTEGRAL_CASES.items():
+        event=next(e for e in events if e['novedades']==text)
+        response=api(page,'dictionary-record',dict(period=2025,registro_id=reference(event)['registro_id']))
+        assert response['status']==200,response
+        result=response['value']['analisis']
+        assert Counter(f['componente'] for f in result['hallazgos'])==expected,text
+        assert not result['pendientes'],text
+        assert response['value']['registro']['novedades_original']==text
+        assert response['value']['registro']['estado_formal']=='SIN NOVEDAD'
+
+    form=open_record('amortiguadr')
     options=page.locator('#dictionaryMeaning option').all_text_contents()
     assert len(options)==7 and all(options[n].startswith(str(n)+' —') for n in range(1,7))
     page.locator('#dictionaryMeaning').select_option('spelling')
-    assert form.get_by_label('Tipo de corrección ortográfica').input_value()==''
-    form.get_by_label('Tipo de corrección ortográfica').select_option('component')
-    form.get_by_label('Expresión técnica',exact=True).fill('amort')
-    form.get_by_label('Categoría',exact=True).select_option('suspension')
-    form.get_by_label('Componente',exact=True).select_option('amortiguadores')
+    form.get_by_label('Expresión original',exact=True).fill('amortiguadr')
+    form.get_by_label('Expresión corregida',exact=True).fill('amortiguador')
     with page.expect_response('**/api/statistics-preview') as response:
         form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click()
     assert response.value.status==200,response.value.json()
@@ -143,8 +152,25 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     remote['publication']['2025']=True;server.write_json(path,remote)
     page.locator('#technicalRefresh').click()
     page.wait_for_function('()=>document.querySelector("#technicalStatus").textContent.includes("revisión 4.")')
-    page.wait_for_selector('#mechanicalExpressions .dictionary-state.verified',state='attached')
-    verified=page.locator('#mechanicalExpressions details').filter(has=page.locator('.dictionary-state.verified')).first
-    verified.locator('summary').click();assert verified.locator('.dictionary-state.verified').is_visible()
+    page.wait_for_function('()=>document.querySelector("#mechanicalPendingCount").textContent.includes("ya resueltas")')
+    assert page.locator('#mechanicalExpressions .dictionary-state.verified').count()==0
+    assert 'APLICADO Y VERIFICADO' in page.locator('#dictionaryApplication').inner_text()
     assert 'Revisión opcional' in page.locator('#mechanicalPendingCount').inner_text()
-    print('Motor 8 UI: 30 casos exactos en el programa, seis tipos claros, ortografía, subcomponentes, vista previa, guardado, cola ficticia, estados y revisión histórica opcional, 3 tamaños y 2 temas OK.')
+    page.locator('.nav [data-view=statistics]').click()
+    page.locator('#mechanicalPeriod').select_option('2025')
+    assert '2 controles con incidencia KIT' in page.locator('#kitAdmin').inner_text()
+    page.locator('#kitAdmin [data-kit-line="999"]').click()
+    assert 'NOVEDADES ORIGINAL' in page.locator('#kitAdmin').inner_text()
+    assert 'No coincide Kit' in page.locator('#kitAdmin').inner_text()
+    for category in ('direccion','suspension','frenos','transmision','neumaticos','electrico'):
+        page.locator('[data-mechanical-category="'+category+'"]').click()
+        values=[int(x.split(' · ')[1]) for x in page.locator('#mechanicalComponents p').all_inner_texts()]
+        assert values==sorted(values,reverse=True)
+    for width in (390,1280):
+        page.set_viewport_size({'width':width,'height':950})
+        for theme in ('light','dark'):
+            page.evaluate('(t)=>document.documentElement.dataset.theme=t',theme)
+            assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
+            if os.environ.get('FTR_SCREENSHOTS'):page.locator('#kitAdmin').screenshot(path=str(Path(os.environ['FTR_SCREENSHOTS'])/f'kit-admin-{width}-{theme}.png'))
+    page.locator('.nav [data-view=dictionary]').click()
+    print(f'Motor 9 UI: {len(NEW_CASES)+len(INTEGRAL_CASES)} casos exactos en el programa, ortografía, subcomponentes, vista previa, guardado, cola ficticia, estados y revisión histórica opcional, 3 tamaños y 2 temas OK.')

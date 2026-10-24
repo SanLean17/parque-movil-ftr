@@ -3,6 +3,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
+test('Componentes: cantidades descendentes, empates alfabéticos y ausencia distinta de cero',()=>{
+  const {orderComponents}=require('../ftr-estadisticas.js');
+  const rows=[{id:'z',cantidad:0},{id:'b',cantidad:4},{id:'u',cantidad:null},{id:'a',cantidad:4},{id:'c',cantidad:1}];
+  const original=structuredClone(rows);
+  assert.deepEqual(orderComponents(rows,{z:'Cero',b:'Buje',a:'Amortiguador',c:'Cardán',u:'Desconocido'}).map(x=>x.id),['a','b','c','z','u']);
+  assert.deepEqual(rows,original);
+});
 const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
 // Ejecuta las funciones reales de la portada con respuestas CSV ficticias.
 function run(fleet, controls, fail) {

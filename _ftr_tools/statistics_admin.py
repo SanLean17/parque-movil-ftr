@@ -66,7 +66,7 @@ def apply(root,action,payload,expected,export=None,report_dir=None):
         shutil.copytree(root/'estadisticas',stage/'estadisticas')
         shutil.copyfile(root/'estadisticas_ftr.json',stage/'estadisticas_ftr.json')
         if action=='history-recalculate':
-            updated=dict(previous,anomalias=data['anomalias'],interpretacion=data['interpretacion'])
+            updated=dict(previous,version=data['version'],anomalias=data['anomalias'],interpretacion=data['interpretacion'],kit_sube=data['kit_sube'])
             stats.validate(updated)
             index=archive.validate_collection(stage)
             body=archive.encoded(updated)

@@ -1,4 +1,4 @@
-"""UI 06.3.11 real y cola real con GitHub ficticio, sin lecturas de producción."""
+"""UI 06.3.12 real y cola real con GitHub ficticio, sin lecturas de producción."""
 import copy
 import json
 import os

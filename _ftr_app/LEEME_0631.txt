@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.11 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.12 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -173,7 +173,7 @@ La revisión histórica autorizada conserva el archivo anterior y los controles.
 Las expresiones históricas en OTRAS son de revisión opcional.
 Ver DICCIONARIO_TECNICO.txt para ejemplos y pasos de confirmación.
 
-RECUPERAR LA COLA EN 06.3.11
+RECUPERAR LA COLA EN 06.3.12
 - No borrar ordenes.json ni el perfil de AppData. Cerrar la versión anterior antes de abrir la nueva.
 - En Actualizaciones, el aviso identifica la primera orden que requiere revisión.
 - COMPROBAR ENVÍO EN GITHUB consulta todas las páginas del intervalo y busca el identificador exacto. No reenvía la orden.
@@ -186,3 +186,21 @@ RECUPERAR LA COLA EN 06.3.11
 - Si cambió el diccionario o la configuración, la orden queda en conflicto: cancelarla y preparar una nueva vista previa sobre el estado actual. No se ajusta ni sobrescribe automáticamente su contenido.
 - Para actualizar Drive, revisar primero si ya existe una orden pendiente de planilla anual. Continuar esa orden o cancelar y confirmar una nueva; no crear pedidos repetidos.
 - Los controles automáticos de horarios y CNRT no cambian con esta versión.
+
+NUEVO EN 06.3.12
+Motor base FTR 9: equivalencias confirmadas permanentes, ortografía contextual,
+referencias y condiciones sin duplicar componentes ni modificar ESTADO.
+El diccionario editable se conserva como segunda capa, global para años futuros.
+CORREGIR UNA PALABRA MAL ESCRITA permite indicar original y corrección,
+ver el impacto y confirmar una regla general o solo el registro protegido.
+Anomalías ordenadas de mayor a menor, con ceros al final y empate alfabético.
+06 — INCIDENCIAS DE KIT SUBE: cuenta controles, una vez por fiscalización,
+solo desde NOVEDADES. No usa números de KIT DESMONTAJE, no modifica ESTADO.
+Los archivos anteriores sin cálculo KIT muestran dato no calculado, no cero.
+Los históricos se revisan expresamente con respaldo, huellas y confirmación.
+
+ACTUALIZAR DESDE 06.3.11
+Cerrar la versión anterior, extraer todo el ZIP en una carpeta nueva y abrir
+FTR_Administracion.exe con el mismo usuario Windows. No borrar ni reemplazar
+%LOCALAPPDATA%/FTR_Administracion ni ordenes.json. No mezclar carpetas de versiones.
+La actualización no reanuda una cola pausada ni elimina órdenes anteriores.

@@ -6,6 +6,9 @@ from .public_statistics import STATUS
 from _ftr_admin.estadisticas_periodo import clasificar_estado
 
 def mechanics(events, dictionary, revision):
+    if revision==8:
+        from .legacy_mechanics_v8 import mechanics as previous
+        return previous(events,dictionary=dictionary)
     if revision==7:
         from .legacy_mechanics_v7 import mechanics as previous
         return previous(events,dictionary=dictionary)

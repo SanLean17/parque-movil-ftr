@@ -76,7 +76,8 @@ def descriptor_pattern(component, contextual=()):
     elif component=='tensores':
         specific=r'|mono|monio|posicionamiento(?:\s+del\s+eje)?'
     if component=='pulmon_freno':specific+=r'|diafragma'
-    if component=='amortiguadores':specific+=r'|gira'
+    if component=='amortiguadores':specific+=r'|gira|ultimo'
+    if component=='diferencial':specific+=r'|fluidos'
     if component in PNEUMATIC:specific+=r'|perdidas?\s+(?:de\s+)?aire(?:\s+en\s+(?:el\s+)?sistema(?:\s+de)?)?'
     specific+=''.join('|'+re.escape(r['expresion']) for r in effective(contextual,component))
     return re.compile(r'\b(?:'+BASE_DESCRIPTION+'|'+LOCATION+specific+'|'+GLUE+r')\b')
@@ -149,7 +150,7 @@ def interpretation_spans(original,custom=None):
                 next_start,next_end=spans[index+1]
                 following=fold(original[next_start:next_end])
                 if re.fullmatch(r'\s*,\s*',original[end:next_start]) and (PATTERN.search(following) or specific[1] and specific[1].search(following)):result.append((start,end));continue
-            before=analyze(original[left:right],specific)
+            before=_analyze(original[left:right],specific)
             components={f['componente'] for f in before['hallazgos']}
             if len(before['hallazgos'])==1 and not before['pendientes'] and not (NEGATION.search(tail) or UNCERTAIN.search(tail) or re.search(r'\b(?:y|e)\b',tail)):
                 component=next(iter(components));tokens=descriptors(tail,component,contextual=contextual)
@@ -179,10 +180,12 @@ def general_owners(clause,matches,custom_rows,contextual):
     return assignments
 
 
-def analyze(value, custom=None):
+def _analyze(value, custom=None, source_text=None):
     custom_rows,custom_pattern=(custom or ([],None))[:2]
     contextual=custom[2] if custom and len(custom)>2 else ()
     original=unicodedata.normalize('NFC',str(value or '').strip())
+    trim=len(str(value or ''))-len(str(value or '').lstrip())
+    source=lambda a,b:source_text(a+trim,b+trim) if source_text else original[a:b]
     if not original or NEUTRAL.fullmatch(fold(original)):
         return dict(hallazgos=[],pendientes=[],descriptores=[])
     findings={};unknown=[];absorbed=[];last_bar_end=None
@@ -192,7 +195,7 @@ def analyze(value, custom=None):
         if NEUTRAL.fullmatch(clause):continue
         # No propagar una confirmación a una lista negada o incierta.
         if NEGATION.search(clause) or UNCERTAIN.search(clause):
-            unknown.append(raw);continue
+            unknown.append(source(start,stop));continue
         codes=list(CODE.finditer(clause))
         invalid=[m for m in codes if code_references(m.group()) is None]
         matches=[m for m in PATTERN.finditer(clause) if not any(m.start()<b.end() and m.end()>b.start() for b in invalid)]
@@ -220,12 +223,11 @@ def analyze(value, custom=None):
         owners=general_owners(clause,matches,custom_rows,contextual)
         recognized=None
         if any(general(r) for r in contextual):
-            baseline=analyze(raw,(custom_rows,custom_pattern,[r for r in contextual if not general(r)]))
+            baseline=_analyze(raw,(custom_rows,custom_pattern,[r for r in contextual if not general(r)]))
             recognized={f['componente'] for f in baseline['hallazgos']}
         remainder=list(raw)
         for i,match in enumerate(matches):
             component=component_of(match,custom_rows)
-            if component=='barra_larga' and re.match(r'^largas?\b',match.group()) and (last_bar_end is None or not re.fullmatch(r'\s*,\s*',original[last_bar_end:start])):continue
             end=matches[i+1].start() if i+1<len(matches) else len(clause)
             prefix_start=matches[i-1].end() if i else 0
             prefix=clause[prefix_start:match.start()] if i==0 or any(owner==i and prefix_start<=a<b<=match.start() for a,b,owner,_ in owners) else ''
@@ -290,11 +292,11 @@ def analyze(value, custom=None):
                 distinct=reference and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]|cr[1-3]',reference)
                 key=(OWNER[selected],selected,key_location,reference if location=='sin_ubicacion' or distinct else None)
                 defect='no_identificado'
-                for label,pattern in (('faltante',r'\b(?:carece\s+de|falta(?:n)?|faltantes?|ausentes?)\b'),('liso',r'\blis[oa]s?\b'),('juego',r'\bjuego\b'),('desgaste',r'\bdesgast(?:e|ad[oa]s?)\b'),('corte',r'\b(?:cortad[oa]s?|corte)\b'),('pinchadura',r'\b(?:pinchad[oa]s?|pinchadura)\b'),('rotura',r'\b(?:rot[oa]s?|rotura)\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\b(?:suelt[oa]s?|suleto)\b'),('no_funciona',r'\b(?:no_funciona|no\s+(?:funciona|anda))\b')):
+                for label,pattern in (('perdida_fluidos',r'\bperdidas?\s+(?:de\s+)?fluidos\b'),('faltante',r'\b(?:carece\s+de|falta(?:n)?|faltantes?|ausentes?)\b'),('liso',r'\blis[oa]s?\b'),('juego',r'\bjuego\b'),('desgaste',r'\bdesgast(?:e|ad[oa]s?)\b'),('corte',r'\b(?:cortad[oa]s?|corte)\b'),('pinchadura',r'\b(?:pinchad[oa]s?|pinchadura)\b'),('rotura',r'\b(?:rot[oa]s?|rotura)\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\b(?:suelt[oa]s?|suleto)\b'),('no_funciona',r'\b(?:no_funciona|no\s+(?:funciona|anda))\b')):
                     if re.search(pattern,attached):defect=label;break
                 part='lado pitman' if re.search(r'\bpit+t?man\b',attached) and component in ('barra_corta','barra_larga') else 'lado eje' if re.search(r'\b(?:lado|extremo)\s+eje\b',attached) or component=='barra_corta' and re.search(r'\bcorta\s+eje\b',attached) else 'extremo' if re.search(r'\bextremos?\b',attached) else None
                 if component in ('barra_corta','barra_larga') and re.search(r'\b(?:ambos\s+extremos?|complet[oa]s?|enter[oa]s?)\b',attached):part='ambos extremos'
-                if component=='tensores' and re.search(r'\b(?:mono|monio)\b',attached):part='moño trasero' if re.search(r'\b(?:mono|monio)\s+tras(?:er[oa])?\b',attached) else 'moño'
+                if component=='tensores' and re.search(r'\b(?:mono|monio)\b',attached):part='moño trasero' if re.search(r'\b(?:mono|monio)\s+tras(?:er[oa])?\b',attached) else 'moño delantero' if re.search(r'\b(?:mono|monio)\s+del(?:anter[oa])?\b',attached) else 'moño'
                 subpart='diafragma' if component=='pulmon_freno' and re.search(r'\bdiafragma\b',attached) else None
                 # "Ambos extremos" counts ends, not two bars or tensors.
                 quantity=2 if not part and not subpart and len(selected_locations)==1 and re.search(r'\b(?:amb[oa]s|dos)\b',attached) else None
@@ -311,14 +313,16 @@ def analyze(value, custom=None):
                 for token in tokens:
                     left=offset+token.start();right=offset+token.end()
                     remainder[left:right]=' '*(right-left)
-                    if not re.fullmatch(GLUE,token.group()):absorbed.append(dict(componente=component,texto=raw[left:right]))
-        rest=re.sub(r'^[\s,:./()\-]+|[\s,:./()\-]+$','', ''.join(remainder))
+                    if not re.fullmatch(GLUE,token.group()):absorbed.append(dict(componente=component,texto=source(start+left,start+right)))
+        residue=''.join(remainder)
+        if source_text:residue=' '.join(source(start+m.start(),start+m.end()) for m in re.finditer(r'\S+',residue))
+        rest=re.sub(r'^[\s,:./()\-]+|[\s,:./()\-]+$','',residue)
         rest=re.sub(r'\s+',' ',rest).strip()
         if rest and rest.lower() not in ('y','e'):unknown.append(rest)
     result=dict(hallazgos=[findings[k] for k in sorted(findings,key=lambda k:tuple(x or '' for x in k))],
         pendientes=list(dict.fromkeys(unknown)),descriptores=absorbed)
     if any(general(r) for r in contextual):
-        baseline=analyze(original,(custom_rows,custom_pattern,[r for r in contextual if not general(r)]))
+        baseline=_analyze(original,(custom_rows,custom_pattern,[r for r in contextual if not general(r)]),lambda a,b:source(a,b))
         # Un descriptor general no demuestra que dos posiciones sean dos piezas.
         # Si altera la cantidad de componentes ya reconocidos, conservarlos y
         # mantener la interpretación pendiente, sin inflar ni reducir el total.
@@ -327,6 +331,19 @@ def analyze(value, custom=None):
             baseline['pendientes']=list(dict.fromkeys(baseline['pendientes']+result['pendientes']))
             return baseline
     return result
+
+
+def analyze(value,custom=None):
+    from .technical_spelling import transform
+    from .kit_sube import mechanical_text
+    original=unicodedata.normalize('NFC',str(value or ''))
+    clean=mechanical_text(original)
+    rewritten,restore=transform(clean,custom[3] if custom and len(custom)>3 else ())
+    rows,pattern=(custom or ([],None))[:2]
+    contextual=list(custom[2]) if custom and len(custom)>2 else []
+    for term in ('extremo','extremos'):
+        if not any(general(r) and r['expresion']==term for r in contextual):contextual.append(dict(tipo='descriptor',alcance='general',expresion=term,significado='extremo'))
+    return _analyze(rewritten,(rows,pattern,contextual),restore)
 
 
 def classify(value):

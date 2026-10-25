@@ -51,6 +51,8 @@ def main():
                 assert page.locator('.kit-highlight h3').inner_text()=='CONTROLES CON INCIDENCIA DE KIT SUBE'
                 for theme in ('light','dark'):
                     page.evaluate('(dark)=>document.documentElement.classList.toggle("dark",dark)',theme=='dark')
+                    # Capture the completed theme transition, not its intermediate colors.
+                    page.wait_for_timeout(300)
                     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
                     if output and width in (390,1280):page.locator('section[aria-labelledby=kitTitle]').screenshot(path=str(output/f'kit-{year}-{width}-{theme}.png'))
                 toggle=page.locator('#showKitLines')

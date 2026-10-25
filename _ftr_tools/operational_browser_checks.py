@@ -26,8 +26,9 @@ def check_operational_forms(page):
             page.evaluate('showView("source")')
             page.locator('#period').fill(str(year))
             page.locator('#sheetUrl').fill(f'https://docs.google.com/spreadsheets/d/FICTITIOUS_WINDOWS_{year}_SOURCE/edit')
-            page.locator('#saveAll').click()
-            page.wait_for_function('(year)=>state.period===year',arg=year)
+            with page.expect_response('**/api/draft') as saved:
+                page.locator('#saveAll').click()
+            assert saved.value.status==200
             page.reload();page.wait_for_selector('html[data-ready="true"]')
             page.evaluate('showView("source")')
             assert page.locator('#period').input_value()==str(year)
@@ -35,5 +36,8 @@ def check_operational_forms(page):
         assert {r['id'] for r in api(page,'orders')['value']['orders']}==before
     finally:
         page.evaluate('(saved)=>{state=saved;dirty=true;populate();}',original)
-        page.locator('#saveAll').click();page.evaluate('showView("lines")');page.locator('#lineSearch').fill('')
+        with page.expect_response('**/api/draft') as saved:
+            page.locator('#saveAll').click()
+        assert saved.value.status==200
+        page.evaluate('showView("lines")');page.locator('#lineSearch').fill('')
     print('Windows forms: add line, edit company, disable, duplicate rejection and 2027–2029 draft persistence; no remote dispatch.')

@@ -128,7 +128,7 @@ def main():
                     if (theme=='dark')!=page.evaluate('document.documentElement.classList.contains("dark")'):page.locator('#themeButton').click()
                     layout()
                     colors=page.locator('.metric-value').evaluate_all('ns=>ns.slice(3).map(n=>getComputedStyle(n).color)')
-                    highlights=page.locator('.highlight .count').evaluate_all('ns=>ns.map(n=>getComputedStyle(n).color)')
+                    highlights=page.locator('#highlights .highlight .count').evaluate_all('ns=>ns.map(n=>getComputedStyle(n).color)')
                     assert highlights==colors
                     page.locator('[data-month="3"]').click()
                     assert 'MARZO — 12 CONTROLES — 10 DÍAS CON FISCALIZACIONES' in page.locator('#monthSelection').inner_text()

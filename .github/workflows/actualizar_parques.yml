@@ -1,7 +1,7 @@
 # FTR-NATIVE-SCHEDULE-V1 — generado por _ftr_runtime/native_schedule.py
 # Horarios del panel reflejados en cron UTC. La PC puede estar apagada.
 # El intervalo de días se calcula en _ftr_runtime/agenda.py, no con */N del mes.
-# 03:00 UTC conserva una recuperación nocturna de turnos pendientes.
+# 03:00 UTC conserva el turno nocturno; ejecutar.py también aplica lecturas adicionales Drive.
 # Planilla anual FTR: cada 1 día(s), 17:00 hs (America/Argentina/Buenos_Aires).
 # Parque móvil CNRT: cada 5 día(s), 22:00 hs (America/Argentina/Buenos_Aires).
 name: Actualizar Parque Móvil FTR

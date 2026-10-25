@@ -96,6 +96,8 @@ def main():
                 check_mechanical_review(page,root/'perfil-prueba')
                 from queue_browser_checks import check_queue_recovery
                 check_queue_recovery(page,root/'perfil-prueba')
+                from operational_browser_checks import check_operational_forms
+                check_operational_forms(page)
                 assert page.locator('.nav [data-view]').count()==9
                 for view in page.locator('.nav [data-view]').evaluate_all('ns=>ns.map(n=>n.dataset.view)'):
                     page.evaluate('(v)=>showView(v)',view)

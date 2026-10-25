@@ -1,4 +1,4 @@
-"""UI 06.3.12 real y cola real con GitHub ficticio, sin lecturas de producción."""
+"""UI 06.3.13 real y cola real con GitHub ficticio, sin lecturas de producción."""
 import copy
 import json
 import os
@@ -111,6 +111,8 @@ def main():
                 check_mechanical_review(page)
                 from queue_browser_checks import check_queue_recovery
                 check_queue_recovery(page,data)
+                from operational_browser_checks import check_operational_forms
+                check_operational_forms(page)
                 screenshots=os.environ.get('FTR_SCREENSHOTS')
                 for width in (390,1280):
                     page.set_viewport_size({'width':width,'height':950})

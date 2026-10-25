@@ -15,7 +15,8 @@ from statistics_browser_checks import api
 
 
 def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile):
-    texts=list(dict.fromkeys([*CASES,*NEW_CASES,*INTEGRAL_CASES,'amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','amort','amortiguadr']))
+    regressions={'TENSOR  SUB':{'tensores':1},'BUJE DE  AMORTIGUAR':{'bujes':1},'NO COINCIDE: KIT':{},'KIT: INCORRECTO':{}}
+    texts=list(dict.fromkeys([*CASES,*NEW_CASES,*INTEGRAL_CASES,*regressions,'amortiguador.3','amortiguador-3','EXTREMO','BARRA LARGA EXTREMO BARRA CORTA','amort','amortiguadr']))
     test.source=lambda:[test.sheet('Línea 999',[['FECHA','DOMINIO','INTERNO','ESTADO','NOVEDADES'],
         *[['01/02/2025','AA111AA',7,'SIN NOVEDAD',text] for text in texts]])]
     general=dict(expresion='extremo',variantes=['extremos'],tipo='descriptor',significado='extremo',alcance='general',habilitada=True)
@@ -60,7 +61,7 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
         assert response['value']['registro']['novedades_original']==text
         assert response['value']['registro']['estado_formal']=='SIN NOVEDAD'
 
-    for text,expected in INTEGRAL_CASES.items():
+    for text,expected in {**INTEGRAL_CASES,**regressions}.items():
         event=next(e for e in events if e['novedades']==text)
         response=api(page,'dictionary-record',dict(period=2025,registro_id=reference(event)['registro_id']))
         assert response['status']==200,response
@@ -158,7 +159,7 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
     assert 'Revisión opcional' in page.locator('#mechanicalPendingCount').inner_text()
     page.locator('.nav [data-view=statistics]').click()
     page.locator('#mechanicalPeriod').select_option('2025')
-    assert '2 controles con incidencia KIT' in page.locator('#kitAdmin').inner_text()
+    assert '4 controles con incidencia KIT' in page.locator('#kitAdmin').inner_text()
     page.locator('#kitAdmin [data-kit-line="999"]').click()
     assert 'NOVEDADES ORIGINAL' in page.locator('#kitAdmin').inner_text()
     assert 'No coincide Kit' in page.locator('#kitAdmin').inner_text()
@@ -173,4 +174,4 @@ def check_technical_v7(page,server,test,path,remote,report,detail,binary_profile
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
             if os.environ.get('FTR_SCREENSHOTS'):page.locator('#kitAdmin').screenshot(path=str(Path(os.environ['FTR_SCREENSHOTS'])/f'kit-admin-{width}-{theme}.png'))
     page.locator('.nav [data-view=dictionary]').click()
-    print(f'Motor 9 UI: {len(NEW_CASES)+len(INTEGRAL_CASES)} casos exactos en el programa, ortografía, subcomponentes, vista previa, guardado, cola ficticia, estados y revisión histórica opcional, 3 tamaños y 2 temas OK.')
+    print(f'Motor 10 UI: {len(NEW_CASES)+len(INTEGRAL_CASES)+len(regressions)} casos exactos en el programa, ortografía, subcomponentes, vista previa, guardado, cola ficticia, estados y revisión histórica opcional, 3 tamaños y 2 temas OK.')

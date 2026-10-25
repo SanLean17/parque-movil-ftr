@@ -84,7 +84,7 @@ jobs:
         run: echo 'No correspondía una actualización. No se leyó Drive, no se consultó CNRT y no se cambió la web.'
       - name: Instalar dependencias
         if: steps.plan.outputs.work == 'true'
-        run: python -m pip install --disable-pip-version-check pandas requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt
+        run: python -m pip install --disable-pip-version-check pandas requests -r _ftr_tools/requirements-security.txt -r _ftr_pruebas/requirements.txt
       - name: Preparar navegador solo si se consultará CNRT
         if: steps.plan.outputs.cnrt == 'true'
         run: |

@@ -96,6 +96,25 @@ class ConfigTransactionTests(unittest.TestCase):
         self.assertEqual(self.downloads,[9999])
         self.assertNotIn(',36,9999',(self.root/'parques/linea998.csv').read_text())
 
+    def test_company_change_and_schedule_only_preserve_control_history(self):
+        candidate=copy.deepcopy(self.config)
+        candidate['lines'].append(dict(line=998,company=9999,enabled=True))
+        self.assertEqual(self.execute(candidate),0)
+        history=(self.root/'historial/linea998.json').read_bytes()
+        candidate['lines'][1]['company']=8888
+        self.downloads.clear()
+        self.assertEqual(self.execute(candidate),0)
+        self.assertIn(8888,self.downloads)
+        self.assertIn(',998,8888',(self.root/'parques/linea998.csv').read_text())
+        self.assertEqual((self.root/'historial/linea998.json').read_bytes(),history)
+        candidate['drive']['time']='18:15';candidate['cnrt']['days']=7
+        candidate['cnrt']['time']='21:30';self.downloads.clear()
+        self.assertEqual(self.execute(candidate),0)
+        self.export.assert_not_called();self.assertEqual(self.downloads,[])
+        self.assertEqual(load(self.root)['drive'],candidate['drive'])
+        self.assertEqual(load(self.root)['cnrt'],candidate['cnrt'])
+        self.assertEqual((self.root/'historial/linea998.json').read_bytes(),history)
+
     def test_new_source_replaces_controls_same_year(self):
         candidate=copy.deepcopy(self.config)
         candidate['sheetUrl']='https://docs.google.com/spreadsheets/d/NEW_TEST_SOURCE_1234567890/edit'

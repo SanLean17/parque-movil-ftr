@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Preparar herramienta administrativa
-        run: python -m pip install requests 'cryptography>=44,<49' -r _ftr_pruebas/requirements.txt
+        run: python -m pip install requests -r _ftr_tools/requirements-security.txt -r _ftr_pruebas/requirements.txt
       - name: Guardar diccionario o importar histórico aislado
         env:
           PYTHONDONTWRITEBYTECODE: '1'

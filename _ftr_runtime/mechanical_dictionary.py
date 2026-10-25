@@ -3,10 +3,10 @@
 Las reglas son datos separados del motor. Una futura edición administrativa
 requerirá validación y una nueva versión; nunca reinterpreta archivos cerrados.
 """
-VERSION = 6
+VERSION = 7
 # Contrato público compatible con Administración 06.3.6. La revisión del
 # intérprete se registra por separado en los informes protegidos y en Git.
-ENGINE_REVISION = 9
+ENGINE_REVISION = 10
 LEGACY_CATEGORIES = {
     'direccion': ('barra_larga', 'barra_corta', 'direccion_sin_componente'),
     'frenos': ('frenos_delanteros', 'frenos_traseros', 'flexibles_freno', 'freno_sin_ubicacion'),
@@ -31,16 +31,10 @@ CATEGORIES = dict(CATALOGUE_V4,
     frenos=(*CATALOGUE_V4['frenos'][:-1], 'bloqueo_frenos', 'freno_sin_ubicacion'))
 CATALOGUE_V5 = CATEGORIES
 CATEGORIES = dict(CATEGORIES,transmision=('cardan','crucetas','diferencial','transmision_sin_componente'))
-CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATALOGUE_V3, 3: CATALOGUE_V3, 4: CATALOGUE_V4, 5: CATALOGUE_V5, 6: CATEGORIES}
+CATALOGUES = {1: LEGACY_CATEGORIES, 2: CATALOGUE_V3, 3: CATALOGUE_V3, 4: CATALOGUE_V4, 5: CATALOGUE_V5, 6: CATEGORIES, 7: CATEGORIES}
 POSITIONS = r'(?:delanter[oa]s?|traser[oa]s?)(?:\s+(?:derech[oa]s?|izquierd[oa]s?))?'
 # No cruzar líneas, guiones ni palabras para fabricar un código. Se protege
 # también el código no confirmado completo, para no reconocer un prefijo suyo.
-CODE_GAP = r'(?:[ \t]*[.,-][ \t]*|[ \t]*)'
-CODE_TOKEN = r'\b(?:p[ \t]*\.?[ \t]*[fs]|[ar])'+CODE_GAP+r'\d+(?:[.,]\d+)*\b'
-A_CODE = r'a'+CODE_GAP+r'[1-8](?!\w|[.,]\d)'
-PF_CODE = r'p[ \t]*\.?[ \t]*f'+CODE_GAP+r'[1-6](?!\w|[.,]\d)'
-PS_CODE = r'p[ \t]*\.?[ \t]*s'+CODE_GAP+r'[1-4](?!\w|[.,]\d)'
-R_CODE = r'r'+CODE_GAP+r'[1-8](?!\w|[.,]\d)'
 # A number is positional only beside its explicit component family.
 NAMED_FAMILIES = ((r'amortiguador(?:es)?','a',8),(r'pulmon(?:es)?\s+(?:de\s+)?frenos?','pf',6),
                   (r'pulmon(?:es)?\s+(?:de\s+)?suspension','ps',4),(r'neumaticos?','r',8))

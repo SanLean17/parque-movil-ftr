@@ -62,14 +62,14 @@ def render(config: dict) -> str:
             notes.append(f"# {label}: cada {s['days']} día(s), {s['time']} hs ({ZONE}).")
         else:
             notes.append(f'# {label}: programación desactivada; conserva actualización manual.')
-    # Recuperación nocturna original: procesa solo turnos ya vencidos, no fuerza fuentes.
+    # Conserva el turno nocturno: ejecutar.sources_for_execution aplica la política de lectura adicional Drive.
     if crons and '0 3 * * *' not in crons:
         crons.append('0 3 * * *')
     lines = [
         '# FTR-NATIVE-SCHEDULE-V1 — generado por _ftr_runtime/native_schedule.py',
         '# Horarios del panel reflejados en cron UTC. La PC puede estar apagada.',
         '# El intervalo de días se calcula en _ftr_runtime/agenda.py, no con */N del mes.',
-        '# 03:00 UTC conserva una recuperación nocturna de turnos pendientes.',
+        '# 03:00 UTC conserva el turno nocturno; ejecutar.py también aplica lecturas adicionales Drive.',
         *notes,
         'name: Actualizar Parque Móvil FTR',
         "run-name: FTR · ${{ github.event_name == 'schedule' && 'schedule' || 'all' }} · ${{ github.event_name == 'schedule' && 'automático' || 'manual' }}",

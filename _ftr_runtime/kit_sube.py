@@ -4,7 +4,8 @@ import re
 WORD=re.compile(r'(?<![^\W_])kit(?![^\W_])',re.I)
 # Se retiran únicamente la referencia y las fórmulas confirmadas. Cualquier
 # defecto desconocido que la acompañe permanece en el análisis mecánico.
-PHRASE=re.compile(r'(?<![^\W_])(?:(?:no\s+coincide(?:n)?|no\s+tiene|no|sin)\s+)?kit(?![^\W_])(?:[\s_]+sube\b)?(?:\s+(?:no\s+(?:coincide(?:n)?|funciona)|incorrect[oa]|mal|roto)\b)?(?:\s*(?:n[°º.]?\s*)?\d+\b)?',re.I)
+GAP=r'(?:[ \t]+|[ \t]*[:,-][ \t]*)'
+PHRASE=re.compile(r'(?<![^\W_])(?:(?:no'+GAP+r'coincide(?:n)?|no[ \t]+tiene)'+GAP+r'|(?:no|sin)[ \t]+)?kit(?![^\W_])(?:[ \t_]+sube\b)?(?:'+GAP+r'(?:no'+GAP+r'(?:coincide(?:n)?|funciona)|incorrect[oa]|mal|roto)\b(?=[ \t]*(?:$|[;,:./\-\r\n]|\d)))?(?:[ \t]*(?:n[°º.]?[ \t]*)?\d+\b)?',re.I)
 
 def detected(event):
     return bool(event.get('tiene_novedades') and WORD.search(event.get('novedades','')))

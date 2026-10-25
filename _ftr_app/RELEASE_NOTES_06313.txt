@@ -1,0 +1,13 @@
+FTR Administración 06.3.13 para Windows
+
+Sección KIT SUBE con total anual, ranking de hasta cinco líneas y expansión accesible.
+Motor técnico 10: puntuación KIT, dobles espacios y correcciones editables coherentes.
+Compatibilidad con informes anteriores y revisión histórica explícita con respaldo.
+Dependencia criptográfica actualizada y comprobación de seguridad en CI.
+Pruebas de incorporación de líneas, empresas, persistencia y cambios anuales 2027–2029.
+
+Descargar y extraer el ZIP completo en una carpeta nueva; cerrar la versión anterior
+y abrir FTR_Administracion.exe. Conservar todos los recursos juntos.
+No borrar %LOCALAPPDATA%\FTR_Administracion: contiene el perfil, las órdenes,
+los borradores y las credenciales protegidas. La distribución no contiene esos datos.
+Las actualizaciones programadas se ejecutan en GitHub con la configuración publicada.

@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Dependencias de pruebas sin autorización de fuentes
-        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests pandas 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7' playwright pyyaml -r _ftr_pruebas/requirements.txt
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests pandas -r _ftr_tools/requirements-security.txt tzdata 'pyinstaller>=6,<7' playwright pyyaml -r _ftr_pruebas/requirements.txt
       - name: Todas las pruebas de lector, estadísticas, agenda y programa local
         shell: pwsh
         run: |

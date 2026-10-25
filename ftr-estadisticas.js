@@ -30,7 +30,7 @@
     if (!index || index.version!==1 || !Array.isArray(index.periodos) || !index.periodos.length) bad();
     let previous=Infinity;
     for (const r of index.periodos) {
-      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3,4].includes(r.version) || ![1,2,3,4,5,6].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
+      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3,4].includes(r.version) || ![1,2,3,4,5,6,7].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
       previous=r.periodo;
     }
     return index;
@@ -65,9 +65,9 @@
       if (!item || item.cantidad!==count || JSON.stringify(item.lineas)!==JSON.stringify(count?data.lineas.filter(r=>r[k]===count).map(r=>r.linea):[])) bad();
     }
     const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>(a.version_reglas>=4||id!=='amortiguador_direccion')&&(a.version_reglas>=5||!['cruceta_direccion','bloqueo_frenos'].includes(id))&&(a.version_reglas>=6||id!=='diferencial'))]));
-    if (![1,2,3,4,5,6].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
+    if (![1,2,3,4,5,6,7].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
     const pending=a.estado==='pendiente',count=n=>pending?n===null:integer(n);
-    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8,6:9}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
+    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8,6:9,7:10}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
     if (!count(a.identificadas) || !count(a.sin_clasificar) || !a.cobertura || !['registros_validos','con_columna','con_texto','vacios','sin_columna'].every(k=>count(a.cobertura[k]))) bad();
     for (const cat of a.categorias) {
       if (!count(cat.cantidad) || !Array.isArray(cat.componentes) || JSON.stringify(cat.componentes.map(c=>c.id))!==JSON.stringify(catalogue[cat.id])) bad();
@@ -186,14 +186,22 @@
   }
   function kit(data){
     const k=data?.kit_sube,ready=k&&k.estado!=='pendiente';$('kitTotal').textContent=ready?format(k.controles_con_incidencia):'—';
-    $('kitStatus').textContent=!ready?'Dato no calculado para este período.':k.estado==='parcial'?'Cobertura parcial: hay controles sin columna NOVEDADES.':'Controles con una incidencia o discrepancia registrada. Cada fiscalización cuenta una sola vez.';
-    $('kitLines').replaceChildren();$('kitDetail').textContent='Seleccioná una línea para consultar el detalle agregado.';if(!ready)return;
+    $('kitStatus').textContent=!ready?'Dato no calculado para este período.':k.estado==='parcial'?'Cobertura parcial: hay controles sin columna NOVEDADES.':k.controles_con_incidencia===0?'Sin incidencias de KIT SUBE registradas en este período.':'Cada fiscalización con incidencia cuenta una sola vez.';
+    $('kitLines').replaceChildren();$('kitDetail').textContent='';
+    const toggle=$('showKitLines');toggle.hidden=true;toggle.onclick=null;toggle.setAttribute('aria-expanded','false');if(!ready)return;
     const rows=[...k.lineas].sort((a,b)=>b.incidencias-a.incidencias||a.linea-b.linea),max=Math.max(1,...rows.map(r=>r.incidencias));
-    for(const r of rows){const b=el('button','kit-line'),heading=el('span','category-label'),track=el('div','track'),fill=el('div','fill');b.type='button';b.dataset.kitLine=r.linea;b.setAttribute('aria-pressed','false');
+    const initial=rows.length<=5?rows:rows.filter(r=>r.incidencias>0).slice(0,5);let expanded=false,selected=null;
+    function draw(){
+      $('kitLines').replaceChildren();
+      for(const r of expanded?rows:initial){const b=el('button','ratio-row kit-line'),heading=el('span','ratio-label'),track=el('div','track'),fill=el('div','fill');b.type='button';b.dataset.kitLine=r.linea;b.setAttribute('aria-pressed',String(selected===r.linea));b.setAttribute('aria-controls','kitDetail');
       const pct=r.controles&&r.con_novedades===r.controles?format(Math.round(1000*r.incidencias/r.controles)/10)+' %':'Proporción no disponible';
-      heading.append(el('span','','Línea '+r.linea),el('strong','',format(r.incidencias)));fill.style.setProperty('--width',100*r.incidencias/max+'%');track.append(fill);b.append(heading,track,el('span','section-note',pct));
-      b.onclick=()=>{for(const other of $('kitLines').children)other.setAttribute('aria-pressed',String(other===b));$('kitDetail').textContent='Línea '+r.linea+' · '+format(r.incidencias)+' controles con incidencia KIT de '+format(r.controles)+' controles válidos · '+pct+'. No determina avería física ni modifica ESTADO.';};$('kitLines').append(b);
+      heading.append(el('span','','Línea '+r.linea),el('strong','ratio-value',format(r.incidencias)));fill.style.setProperty('--width',100*r.incidencias/max+'%');track.append(fill);
+      b.append(heading,track,el('span','ratio-detail',format(r.incidencias)+' con incidencia / '+format(r.controles)+' controles · '+pct));
+      b.onclick=()=>{selected=r.linea;for(const other of $('kitLines').children)other.setAttribute('aria-pressed',String(other===b));$('kitDetail').textContent='Línea '+r.linea+' · '+format(r.incidencias)+' controles con incidencia KIT de '+format(r.controles)+' controles válidos · '+pct+'.';};$('kitLines').append(b);
+      }
+      toggle.hidden=rows.length<=5;toggle.setAttribute('aria-expanded',String(expanded));toggle.textContent=expanded?'VER MENOS':'VER TODAS LAS LÍNEAS';
     }
+    toggle.onclick=()=>{expanded=!expanded;if(!expanded&&!initial.some(r=>r.linea===selected)){selected=null;$('kitDetail').textContent='';}draw();};draw();
   }
   function clearData() {
     kit(null);

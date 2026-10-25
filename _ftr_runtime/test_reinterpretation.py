@@ -30,7 +30,7 @@ def test_explicit_reinterpretation_preserves_controls_backups_and_active_year():
         backup=t.root/f'estadisticas/revisiones/2025/{revision.digest(before["estadisticas/2025.json"])}.json'
         assert backup.read_bytes()==before['estadisticas/2025.json']
         new=stats.validate(json.loads(archive_path.read_bytes()));review.unchanged_controls(old,new);archive.validate_collection(t.root)
-        assert new['anomalias']['motor_revision']==9
+        assert new['anomalias']['motor_revision']==10
         with pytest.raises(ValueError):revision.apply(t.root,capsule,proposal['confirmation'])
         forged=copy.deepcopy(capsule);forged['registros'][0]['estado']='SIN NOVEDAD'
         with pytest.raises(ValueError):revision.prepare(t.root,forged)

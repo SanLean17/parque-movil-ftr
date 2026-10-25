@@ -1,4 +1,4 @@
-FTR ADMINISTRACIÓN 06.3.12 — DICCIONARIO TÉCNICO
+FTR ADMINISTRACIÓN 06.3.13 — DICCIONARIO TÉCNICO
 
 El mismo diccionario global sirve para todos los años futuros. Los archivos
 de estadísticas de años cerrados y las interpretaciones privadas son
@@ -168,7 +168,7 @@ regla global o interpretación particular privada. Los duplicados y conflictos
 se rechazan antes del guardado. Una regla enviada no equivale a publicada.
 
 REVISIÓN DESDE INFORMES COMPLETOS CONSERVADOS
-La revisión integral 06.3.12 reutiliza informes protegidos compatibles de 2025
+La revisión integral 06.3.13 reutiliza informes protegidos compatibles de 2025
 y 2026. La vista previa confirma las huellas del archivo anterior, diccionario,
 registros y resultado completo. El procedimiento statistics_reinterpretation
 verifica esas cuatro huellas, conserva el respaldo agregado anterior y actualiza
@@ -179,3 +179,14 @@ Los próximos años usarán el motor base vigente. Los históricos cerrados
 continúan protegidos: no se recalculan por una actualización automática.
 KIT no calculado en archivos anteriores se muestra como dato no disponible.
 No se atribuyen empresas actuales a registros históricos sin evidencia.
+
+CIERRE OPERATIVO 06.3.13
+Motor 10: KIT con puntuación, espacios y correcciones coherentes con la vista previa.
+Los informes de motores anteriores continúan verificándose con su intérprete original.
+Los años cerrados requieren revisión explícita y respaldo antes de publicar.
+La sección KIT presenta total anual, hasta cinco líneas y VER TODAS LAS LÍNEAS / VER MENOS.
+Las lecturas adicionales nocturnas de Drive son una política de la automatización; no desplazan el turno principal.
+Los horarios publicados se ejecutan en GitHub, incluso con Windows apagado; pueden presentar demoras del servicio.
+Enviado, en ejecución y publicación verificada son estados distintos. Una cola pausada se reanuda sólo por decisión del administrador.
+Actualizar: cerrar la aplicación, extraer el ZIP completo en una carpeta nueva y abrir FTR_Administracion.exe.
+No borrar %LOCALAPPDATA%\FTR_Administracion: conserva credenciales protegidas, órdenes y borradores.

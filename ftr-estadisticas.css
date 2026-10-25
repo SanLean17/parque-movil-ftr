@@ -116,3 +116,5 @@ select:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
 .kit-line:focus-visible,#showKitLines:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 .kit-ranking{grid-template-columns:minmax(0,1fr)}
 #kitDetail:empty{display:none}
+#showKitLines{appearance:none;background:var(--soft);color:var(--blue)}
+#showKitLines:hover{background:var(--blue-soft)}

@@ -106,15 +106,12 @@ select:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
 .page-heading>div:first-child{min-width:0}
 @media(max-width:359px){.page-heading{gap:8px}.page-heading h1{font-size:22px}.period-badge{min-width:78px}.header-inner .brand-title{overflow-wrap:anywhere}}
 
-/* Sección independiente, con las mismas barras y controles del informe. */
-/* KIT shares the section 04 highlight, bars and expansion button. */
-.kit-highlight{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;margin:18px 0}
+/* Sections 04 and 06 share ratioRow and all row/bar/button styles. */
+.ratio-row .track,.ratio-row .fill,.ratio-detail{display:block}
+button.ratio-row{font:inherit;color:inherit;background:transparent;text-align:left;width:100%;border-top:0;border-left:0;border-right:0}
+button.ratio-row:hover,button.ratio-row[aria-pressed=true]{background:var(--soft)}
+.kit-highlights{margin:18px 0;grid-template-columns:minmax(0,1fr)}
+@media(min-width:960px){.kit-highlights{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.kit-highlight{display:grid;grid-template-columns:minmax(0,1fr) auto}
 .kit-highlight .count,.kit-highlight .unit{text-align:right}.kit-highlight .count{margin-top:0}
-.kit-ranking{display:grid;gap:14px}.kit-line{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:7px;padding:9px;text-align:left;width:100%;cursor:pointer}
-.kit-line:hover,.kit-line[aria-pressed=true]{background:var(--blue-soft);border-color:var(--blue)}
-.kit-line .fill{background:var(--blue)}.kit-line .ratio-value{color:var(--blue)}.kit-line .ratio-detail{display:block}
-.kit-line:focus-visible,#showKitLines:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
-.kit-ranking{grid-template-columns:minmax(0,1fr)}
 #kitDetail:empty{display:none}
-#showKitLines{appearance:none;background:var(--soft);color:var(--blue)}
-#showKitLines:hover{background:var(--blue-soft)}

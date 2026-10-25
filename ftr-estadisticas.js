@@ -119,17 +119,18 @@
       right.append(el('p','count',format(r.cantidad)),el('p','unit',key==='registros_periodo'?'TOTAL DE CONTROLES':r.lineas.length>1?'CONTROLES POR LÍNEA':'CONTROLES'));card.append(left,right);return card;
     }));
   }
-  function ratioRow(r) {
-    const row=el('div','ratio-row'),label=el('div','ratio-label'),track=el('div','track'),fill=el('div','fill');
+  function ratioRow(r, {interactive=false, detail}={}) {
+    const row=el(interactive?'button':'div','ratio-row'),label=el('span','ratio-label'),track=el('span','track'),fill=el('span','fill');
+    if(interactive)row.type='button';
     label.append(el('span','','Línea '+r.linea),el('span','ratio-value',r.porcentaje==null?'—':r.porcentaje.toLocaleString('es-AR',{minimumFractionDigits:1,maximumFractionDigits:1})+' %'));
-    fill.style.setProperty('--width',(r.porcentaje||0)+'%');track.append(fill);row.append(label,track,el('p','ratio-detail',r.controles?format(r.fuera_de_servicio)+' fuera de servicio / '+format(r.controles)+' controles':'Sin controles registrados · proporción no definida'));return row;
+    fill.style.setProperty('--width',(r.porcentaje||0)+'%');track.append(fill);row.append(label,track,el('span','ratio-detail',detail??(r.controles?format(r.fuera_de_servicio)+' fuera de servicio / '+format(r.controles)+' controles':'Sin controles registrados · proporción no definida')));return row;
   }
   function proportions(data) {
     const principal=data.proporciones.filter(r=>r.muestra_suficiente),small=data.proporciones.filter(r=>!r.muestra_suficiente);let expanded=false;
     function draw(){
-      $('ratios').replaceChildren(...(expanded?principal:principal.slice(0,8)).map(ratioRow));
+      $('ratios').replaceChildren(...(expanded?principal:principal.slice(0,8)).map(r=>ratioRow(r)));
       if(!principal.length)$('ratios').append(el('p','empty','Todavía no hay líneas con la muestra mínima para este ranking.'));
-      $('smallRatios').replaceChildren(...small.map(ratioRow));$('smallSamples').hidden=!expanded||!small.length;
+      $('smallRatios').replaceChildren(...small.map(r=>ratioRow(r)));$('smallSamples').hidden=!expanded||!small.length;
       $('showLines').hidden=principal.length<=8&&!small.length;$('showLines').setAttribute('aria-expanded',String(expanded));
       $('showLines').textContent=expanded?'Mostrar menos':'Ver todas las líneas ('+data.proporciones.length+')';
     }
@@ -164,8 +165,6 @@
     const pending=data.estado==='pendiente';
     $('mechanicsStatus').textContent=pending?'Sin análisis disponible.':data.estado==='parcial'?'Análisis parcial.':'';
     $('mechanicsStatus').hidden=data.estado==='disponible';
-    const physical=data.elementos_fisicos;
-    $('mechanicsCoverage').textContent=physical&&physical.cantidad_confirmada!=null?'Elementos físicos con cantidad explícita: '+format(physical.cantidad_confirmada)+' en '+format(physical.menciones_con_cantidad)+' menciones. '+format(physical.menciones_sin_cantidad)+' menciones sin cantidad precisada. Las menciones y los controles se cuentan por separado.':'Cantidad de elementos físicos: no disponible en esta versión.';
     const max=Math.max(1,...data.categorias.map(c=>c.cantidad||0));
     const buttons=Object.entries(CATEGORIES).map(([id,name])=>{
       const cat=data.categorias.find(c=>c.id===id),unavailable=pending||!cat;
@@ -186,20 +185,21 @@
   }
   function kit(data){
     const k=data?.kit_sube,ready=k&&k.estado!=='pendiente';$('kitTotal').textContent=ready?format(k.controles_con_incidencia):'—';
-    $('kitStatus').textContent=!ready?'Dato no calculado para este período.':k.estado==='parcial'?'Cobertura parcial: hay controles sin columna NOVEDADES.':k.controles_con_incidencia===0?'Sin incidencias de KIT SUBE registradas en este período.':'Cada fiscalización con incidencia cuenta una sola vez.';
+    $('kitStatus').textContent=!ready?'Dato no calculado para este período.':k.estado==='parcial'?'Cobertura parcial: faltan observaciones en algunos controles.':k.controles_con_incidencia===0?'Sin incidencias de KIT SUBE registradas en este período.':'';
+    $('kitStatus').hidden=!$('kitStatus').textContent;
     $('kitLines').replaceChildren();$('kitDetail').textContent='';
     const toggle=$('showKitLines');toggle.hidden=true;toggle.onclick=null;toggle.setAttribute('aria-expanded','false');if(!ready)return;
-    const rows=[...k.lineas].sort((a,b)=>b.incidencias-a.incidencias||a.linea-b.linea),max=Math.max(1,...rows.map(r=>r.incidencias));
+    const rows=[...k.lineas].sort((a,b)=>b.incidencias-a.incidencias||a.linea-b.linea);
     const initial=rows.length<=5?rows:rows.filter(r=>r.incidencias>0).slice(0,5);let expanded=false,selected=null;
     function draw(){
       $('kitLines').replaceChildren();
-      for(const r of expanded?rows:initial){const b=el('button','ratio-row kit-line'),heading=el('span','ratio-label'),track=el('div','track'),fill=el('div','fill');b.type='button';b.dataset.kitLine=r.linea;b.setAttribute('aria-pressed',String(selected===r.linea));b.setAttribute('aria-controls','kitDetail');
-      const pct=r.controles&&r.con_novedades===r.controles?format(Math.round(1000*r.incidencias/r.controles)/10)+' %':'Proporción no disponible';
-      heading.append(el('span','','Línea '+r.linea),el('strong','ratio-value',format(r.incidencias)));fill.style.setProperty('--width',100*r.incidencias/max+'%');track.append(fill);
-      b.append(heading,track,el('span','ratio-detail',format(r.incidencias)+' con incidencia / '+format(r.controles)+' controles · '+pct));
+      for(const r of expanded?rows:initial){
+      const b=ratioRow({...r,porcentaje:r.controles?100*r.incidencias/r.controles:null},{interactive:true,detail:format(r.incidencias)+' incidencias KIT / '+format(r.controles)+' controles'+(r.controles?'':' · proporción no definida')});
+      b.dataset.kitLine=r.linea;b.setAttribute('aria-pressed',String(selected===r.linea));b.setAttribute('aria-controls','kitDetail');
+      const pct=b.querySelector('.ratio-value').textContent;
       b.onclick=()=>{selected=r.linea;for(const other of $('kitLines').children)other.setAttribute('aria-pressed',String(other===b));$('kitDetail').textContent='Línea '+r.linea+' · '+format(r.incidencias)+' controles con incidencia KIT de '+format(r.controles)+' controles válidos · '+pct+'.';};$('kitLines').append(b);
       }
-      toggle.hidden=rows.length<=5;toggle.setAttribute('aria-expanded',String(expanded));toggle.textContent=expanded?'VER MENOS':'VER TODAS LAS LÍNEAS';
+      toggle.hidden=rows.length<=5;toggle.setAttribute('aria-expanded',String(expanded));toggle.textContent=expanded?'Mostrar menos':'Ver todas las líneas ('+rows.length+')';
     }
     toggle.onclick=()=>{expanded=!expanded;if(!expanded&&!initial.some(r=>r.linea===selected)){selected=null;$('kitDetail').textContent='';}draw();};draw();
   }
@@ -207,7 +207,7 @@
     kit(null);
     metrics(null);
     for(const id of ['months','highlights','ratios','smallRatios','categories','components'])$(id).replaceChildren();
-    for(const id of ['monthSelection','mechanicsStatus','mechanicsCoverage','componentNote','footerPeriod'])$(id).textContent='';
+    for(const id of ['monthSelection','mechanicsStatus','componentNote','footerPeriod'])$(id).textContent='';
     $('lastRead').textContent='—';$('lastRead').removeAttribute('datetime');
     $('componentTitle').textContent='SELECCIONÁ UNA CATEGORÍA';
     $('showLines').hidden=true;$('smallSamples').hidden=true;$('historicalNote').hidden=true;$('loadError').hidden=true;

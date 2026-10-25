@@ -123,7 +123,7 @@ def main():
                 assert page.locator('#kitTotal').inner_text()=='6'
                 assert page.locator('#kitLines button').count()==2
                 page.locator('#kitLines [data-kit-line="37"]').click()
-                assert '15 %' in page.locator('#kitDetail').inner_text()
+                assert '15,0 %' in page.locator('#kitDetail').inner_text()
                 for theme in ('light','dark'):
                     if (theme=='dark')!=page.evaluate('document.documentElement.classList.contains("dark")'):page.locator('#themeButton').click()
                     layout()

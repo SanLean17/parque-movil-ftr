@@ -188,7 +188,7 @@ def _analyze(value, custom=None, source_text=None):
     source=lambda a,b:source_text(a+trim,b+trim) if source_text else original[a:b]
     if not original or NEUTRAL.fullmatch(fold(original)):
         return dict(hallazgos=[],pendientes=[],descriptores=[])
-    findings={};unknown=[];absorbed=[];last_bar_end=None
+    findings={};unknown=[];absorbed=[]
     for start,stop in interpretation_spans(original,custom):
         raw=original[start:stop]
         clause=fold(raw)
@@ -307,7 +307,6 @@ def _analyze(value, custom=None, source_text=None):
                     rule=custom_rows[int(match.lastgroup[6:])]
                     if rule.get('tipo')=='correccion':finding.update({k:rule[k] for k in ('parte','subcomponente','ubicacion','defecto','cantidad_fisica') if k in rule})
                 findings.setdefault(key,finding)
-            if component in ('barra_corta','barra_larga'):last_bar_end=stop
             remainder[match.start():match.end()]=' '*(match.end()-match.start())
             for offset,tokens in ((prefix_start,before),(match.end(),after)):
                 for token in tokens:

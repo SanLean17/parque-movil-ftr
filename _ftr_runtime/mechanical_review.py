@@ -17,7 +17,7 @@ def snapshot(events, data, dictionary):
 
 def unpack(value):
     if not isinstance(value,dict) or value.get('version')!=1:raise ValueError('Este informe no conserva los registros necesarios. Abrí un informe nuevo del período.')
-    if value.get('motor_revision',3) not in (5,6,7,8,ENGINE_REVISION):raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
+    if value.get('motor_revision',3) not in (5,6,7,8,9,ENGINE_REVISION):raise ValueError('Este informe usa un motor anterior. Prepará un nuevo informe para calcular el impacto exacto.')
     data=stats.validate(value['estadisticas']);dictionary=rules.validate(value['diccionario'])
     rows=value['registros']
     if value['periodo']!=data['periodo'] or not isinstance(rows,list) or len(rows)>100000 or fingerprint(rows)!=value['huella_registros']:
@@ -46,8 +46,8 @@ def preview(value, dictionary, corrections=None):
     from .anomalies import analyze
     old_compiled=rules.compile_rules(old)
     if value['motor_revision']<ENGINE_REVISION:
-        from . import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7,legacy_anomalies_v8
-        before_analyze={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7,8:legacy_anomalies_v8}[value['motor_revision']].analyze
+        from . import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7,legacy_anomalies_v8,legacy_anomalies_v9
+        before_analyze={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7,8:legacy_anomalies_v8,9:legacy_anomalies_v9}[value['motor_revision']].analyze
     else:before_analyze=analyze
     def comparable(analysis):
         from .technical_fields import EXTRA_FIELDS

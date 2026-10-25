@@ -10,17 +10,24 @@ def normalize(text):
 def transform(text,extra=()):
     original=text
     positions=[(i,i+1) for i in range(len(text))]
-    def replace(pattern,target):
+    def replace(pattern,target,group=0):
         nonlocal text,positions
         for m in reversed(list(re.finditer(pattern,text,flags=re.I))):
-            span=(positions[m.start()][0],positions[m.end()-1][1])
-            text=text[:m.start()]+target+text[m.end():]
-            positions[m.start():m.end()]=[span]*len(target)
-    for source,target in BASE:replace(r'\b'+source+r'\b',target)
-    replace(r'\bamor(?=\s+(?:de\s+)?direcci[oó]n\b)','amortiguador')
-    replace(r'(?<=buje de )amortiguar\b','amortiguador')
-    replace(r'(?<=tensor )sub\b','superior')
-    for row in extra:replace(r'\b'+re.escape(row['expresion'])+r'\b',row['corregida'])
+            start,end=m.span(group)
+            span=(positions[start][0],positions[end-1][1])
+            text=text[:start]+target+text[end:]
+            positions[start:end]=[span]*len(target)
+    def confirmed():
+        for source,target in BASE:replace(r'\b'+source+r'\b',target)
+        replace(r'\bamor(?=[ \t]+(?:de[ \t]+)?direcci[oó]n\b)','amortiguador')
+        replace(r'\bbuje[ \t]+de[ \t]+(amortiguar)\b','amortiguador',1)
+        replace(r'\btensor[ \t]+(sub)\b','superior',1)
+    confirmed()
+    for row in extra:
+        replace(r'\b'+r'[ \t]+'.join(re.escape(w) for w in row['expresion'].split())+r'\b',row['corregida'])
+    # A validated target goes through the same base interpretation when applied.
+    # Only one custom pass: no recursive rules, no cross-anomaly whitespace.
+    confirmed()
     def original_pending(start,end):
         # Cada carácter conserva su intervalo fuente, incluso si la corrección
         # cambia la longitud o aparece junto a la misma palabra bien escrita.

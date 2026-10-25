@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Dependencias sin credenciales de fuentes
-        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests 'cryptography>=44,<49' tzdata 'pyinstaller>=6,<7' playwright pyyaml
+        run: python -m pip install --disable-pip-version-check 'Flask>=3.1,<4' requests -r _ftr_tools/requirements-security.txt tzdata 'pyinstaller>=6,<7' playwright pyyaml
       - name: Probar reloj, transporte simulado y seguridad de aplicación
         shell: pwsh
         run: |

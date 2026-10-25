@@ -107,4 +107,12 @@ select:focus-visible { outline:3px solid var(--blue); outline-offset:3px; }
 @media(max-width:359px){.page-heading{gap:8px}.page-heading h1{font-size:22px}.period-badge{min-width:78px}.header-inner .brand-title{overflow-wrap:anywhere}}
 
 /* Sección independiente, con las mismas barras y controles del informe. */
-.kit-indicator{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;font-weight:700}.kit-indicator strong{font:800 42px "JetBrains Mono",monospace}.kit-ranking{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.kit-line{font:inherit;color:inherit;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;cursor:pointer}.kit-line:hover,.kit-line[aria-pressed=true]{background:var(--blue-soft);border-color:var(--blue)}.kit-line .category-label{display:flex;justify-content:space-between;align-items:center;gap:12px}.kit-line .fill{background:var(--blue)}.kit-line .track{margin:8px 0}.kit-line:focus-visible{outline:3px solid var(--blue);outline-offset:3px}@media(max-width:640px){.kit-ranking{grid-template-columns:1fr}.kit-indicator{align-items:flex-start}}
+/* KIT shares the section 04 highlight, bars and expansion button. */
+.kit-highlight{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;margin:18px 0}
+.kit-highlight .count,.kit-highlight .unit{text-align:right}.kit-highlight .count{margin-top:0}
+.kit-ranking{display:grid;gap:14px}.kit-line{font:inherit;color:inherit;background:transparent;border:1px solid transparent;border-radius:7px;padding:9px;text-align:left;width:100%;cursor:pointer}
+.kit-line:hover,.kit-line[aria-pressed=true]{background:var(--blue-soft);border-color:var(--blue)}
+.kit-line .fill{background:var(--blue)}.kit-line .ratio-value{color:var(--blue)}.kit-line .ratio-detail{display:block}
+.kit-line:focus-visible,#showKitLines:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.kit-ranking{grid-template-columns:minmax(0,1fr)}
+#kitDetail:empty{display:none}

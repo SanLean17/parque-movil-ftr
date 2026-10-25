@@ -5,7 +5,7 @@ import re
 import unicodedata
 from pathlib import Path
 from .mechanical_dictionary import CATEGORIES
-from .technical_fields import INFORMATION, EXTRA_FIELDS, validate_extra
+from .technical_fields import INFORMATION, validate_extra
 
 FILE = '_ftr_diccionario.json'
 EMPTY = {'version': 1, 'revision': 1, 'reglas': []}

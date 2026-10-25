@@ -1,5 +1,4 @@
 """Importación explícita de años cerrados. Nunca escribe controlados/parques/configuración."""
-import hashlib
 import json
 import tempfile
 from datetime import datetime

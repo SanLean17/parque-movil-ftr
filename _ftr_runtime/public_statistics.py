@@ -5,7 +5,6 @@ from collections import Counter
 from calendar import monthrange
 from datetime import date, datetime
 from fractions import Fraction
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from _ftr_admin.estadisticas_periodo import clasificar_estado
@@ -216,7 +215,7 @@ def validate(data):
             if not pending and sum(c['estados'].values())!=c['cantidad']:raise ValueError('Estados de anomalías incompatibles.')
         if not pending and sum(c['cantidad'] for c in category['componentes'])!=category['cantidad']:raise ValueError('Categoría incompatible.')
     if a['version_reglas']>=4:
-        if type(a['motor_revision']) is not int or a['motor_revision']!={4:7,5:8,6:9}.get(a['version_reglas']):raise ValueError('Revisión de motor no admitida para este catálogo.')
+        if type(a['motor_revision']) is not int or a['motor_revision']!={4:7,5:8,6:9,7:10}.get(a['version_reglas']):raise ValueError('Revisión de motor no admitida para este catálogo.')
         physical=a['elementos_fisicos'];exact(physical,('cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'))
         values.extend(physical.values())
         if not pending and (physical['menciones_con_cantidad']+physical['menciones_sin_cantidad']!=a['identificadas'] or physical['cantidad_confirmada']<physical['menciones_con_cantidad']):raise ValueError('Cantidades físicas incompatibles con las menciones.')

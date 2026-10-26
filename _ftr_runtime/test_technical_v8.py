@@ -90,7 +90,7 @@ class TechnicalV8Tests(unittest.TestCase):
             events=[dict(r,fecha=date.fromisoformat(r['fecha'])) for r in capsule['registros']]
             capsule['motor_revision']=7;capsule['estadisticas']['anomalias']=mechanics(events,DICTIONARY,7)[0]
             before=copy.deepcopy(capsule);effect=review.preview(capsule,DICTIONARY)
-            self.assertEqual(capsule,before);self.assertEqual((effect['motor_antes'],effect['motor_despues']),(7,10))
+            self.assertEqual(capsule,before);self.assertEqual((effect['motor_antes'],effect['motor_despues']),(7,11))
             review.unchanged_controls(capsule['estadisticas'],data)
         finally:fixture.tearDown()
 

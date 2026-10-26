@@ -64,9 +64,36 @@ def check_queue_recovery(page,profile):
         assert len(saved['orders'][0]['checks'])>=2
         dispatch.assert_called_once()
         page.locator('#queuePending').click();assert 'Cerrada sin confirmar' in page.locator('#cloudActivity').inner_text()
-        page.locator('#queueResume').click();page.locator('#dialogConfirm').click()
+        page.locator('#queueResume').click()
+        dialog=page.locator('#confirmDialog').inner_text()
+        assert second['id'] in dialog and third['id'] in dialog and first['id'] not in dialog
+        page.locator('#dialogConfirm').click()
         page.wait_for_function('()=>document.querySelector("#queueReview").hidden')
         assert not queue.read()['paused'];dispatch.assert_called_once()  # no background sender in tests
+        # Realistic legacy profile: retained uncertain closure, cancellations
+        # and a separate, later completed request. None is an open blocker.
+        value=queue.read();value['paused']=True
+        value['orders'][1].update(status='cancelled',publication_verified=True,run_status='in_progress')
+        value['orders'][2].update(status='completed',publication_verified=True,run_id=999)
+        queue.save(value);refresh();page.locator('#ordersHistory').click()
+        page.wait_for_function('()=>document.querySelector("#queueTitle").textContent.includes("SIN ÓRDENES PENDIENTES")')
+        assert page.locator('#queueReview').get_attribute('role')=='status'
+        assert page.locator('#queueCheck').is_hidden() and page.locator('#queueResume').is_hidden()
+        assert page.locator('[data-order-id="'+first['id']+'"] .badge').inner_text()=='CERRADA SIN CONFIRMAR'
+        cancelled=page.locator('[data-order-id="'+second['id']+'"] .badge')
+        assert cancelled.inner_text()=='CANCELADA ANTES DEL ENVÍO' and 'good' not in cancelled.get_attribute('class')
+        assert page.locator('[data-order-id="'+third['id']+'"] .badge').inner_text()=='PUBLICACIÓN VERIFICADA'
+        assert queue.read()==value and queue.status()['blocked'] is None
+        # Explicit labels must override stale run/publication fields.
+        for status,label in [('pending','PENDIENTE DE ENVÍO'),('sending','ENVIANDO'),('unknown','ENVÍO INCIERTO'),('failed','ERROR'),('sent','EN EJECUCIÓN')]:
+            value['orders'][1]['status']=status;queue.save(value);refresh();page.locator('#ordersHistory').click()
+            badge=page.locator('[data-order-id="'+second['id']+'"] .badge')
+            page.wait_for_function('([id,label])=>document.querySelector(`[data-order-id="${id}"] .badge`).textContent===label',arg=[second['id'],label])
+            assert 'good' not in badge.get_attribute('class')
+            if status=='pending':
+                assert page.locator('#queuePendingList').inner_text().count(second['id'])==1
+                assert first['id'] not in page.locator('#queuePendingList').inner_text()
+        dispatch.assert_called_once()
         print('Cola UI: tres órdenes ficticias, comprobación incompleta bloqueada, evidencia completa, resolución confirmada, pausa y continuación; 3 tamaños y 2 temas OK. Sin órdenes reales.')
     finally:
         for path in ('check','resolve','resume'):page.unroute('**/api/orders/'+path,intercept)

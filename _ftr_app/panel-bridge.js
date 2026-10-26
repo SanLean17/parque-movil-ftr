@@ -49,8 +49,9 @@
       p.append(el('strong', (captions[row.action]||row.action)+(row.oneoff?' · '+row.oneoff.source.toUpperCase():'')+' · '+(row.label||row.message)));
       p.append(document.createElement('br'), el('span',localTime(row.created_at)+' · '+row.message,'small'));
       p.append(document.createElement('br'),el('span','Identificador: '+row.id,'small'));
-      const phase=row.publication_verified?'PUBLICACIÓN VERIFICADA':row.status==='completed'?(row.effect==='dictionary'?'REGLA GUARDADA · APLICACIÓN PENDIENTE':'OPERACIÓN COMPLETADA'):row.run_status==='in_progress'?'EJECUCIÓN INICIADA':row.status==='sent'?'SOLICITUD ENVIADA':row.status==='resolved'?'CERRADA SIN CONFIRMAR':['pending','authorization','conflict'].includes(row.status)?'GUARDADA EN ESTE EQUIPO':'ENVÍO SIN CONFIRMAR';
-      const phaseBadge=el('span',phase,'badge '+(row.publication_verified?'good':'wait'));phaseBadge.style.whiteSpace='normal';p.append(document.createElement('br'),phaseBadge);
+      const closed={cancelled:'CANCELADA ANTES DEL ENVÍO',resolved:'CERRADA SIN CONFIRMAR',failed:'ERROR'};
+      const phase=closed[row.status]||({pending:'PENDIENTE DE ENVÍO',authorization:'PENDIENTE DE AUTORIZACIÓN',conflict:'CONFLICTO · REVISAR ANTES DE ENVIAR',sending:'ENVIANDO',unknown:'ENVÍO INCIERTO'}[row.status])||(row.status==='completed'?(row.publication_verified?'PUBLICACIÓN VERIFICADA':row.effect==='dictionary'?'REGLA GUARDADA · CONSULTAR APLICACIÓN':'COMPLETADA'):row.status==='sent'?(row.run_status==='in_progress'?'EN EJECUCIÓN':row.run_id?'EJECUCIÓN EN ESPERA':'SOLICITUD ENVIADA'):'ESTADO NO RECONOCIDO · REVISAR');
+      const phaseBadge=el('span',phase,'badge '+(row.status==='completed'&&row.publication_verified?'good':row.status==='failed'?'error':'wait'));phaseBadge.style.whiteSpace='normal';p.append(document.createElement('br'),phaseBadge);
       if(row.checks?.length){const evidence=el('details');evidence.append(el('summary','Ver comprobaciones conservadas'));for(const check of row.checks){const label=check.complete?'Búsqueda completa':'Búsqueda incompleta';evidence.append(el('p',localTime(check.checked_at)+' · '+label+' · '+(check.result==='not_found'?'Sin coincidencia exacta; esto no prueba rechazo.':check.result==='found'?'Ejecución localizada.':check.message||check.result),'small'));}p.append(evidence);}
       if (row.depends_on && openStates.includes(row.status)) p.append(document.createElement('br'),el('span','Depende de la configuración confirmada anterior.','small'));
       if (['pending','authorization','conflict'].includes(row.status)) {
@@ -86,12 +87,18 @@
   }
   function renderQueueReview() {
     const row=queueInfo.blocked,box=$('#queueReview');box.hidden=!row&&!queueInfo.paused;
-    $('#queueReason').textContent=row?(captions[row.action]||row.action)+' · '+localTime(row.created_at)+' · '+row.message:'La orden incierta quedó conservada sin confirmar. Las siguientes esperan tu revisión.';
+    const pending=orders.filter(r=>openStates.includes(r.status)),empty=!row&&!pending.length;
+    box.setAttribute('role',row?'alert':'status');box.style.borderColor=row?'var(--wait)':'var(--border)';
+    $('#queueTitle').textContent=row?'LA COLA DE ACTUALIZACIONES NECESITA REVISIÓN':empty?'COLA PAUSADA · SIN ÓRDENES PENDIENTES':'COLA PAUSADA · ÓRDENES POR REVISAR';
+    $('#queueReason').textContent=row?(captions[row.action]||row.action)+' · '+localTime(row.created_at)+' · Identificador: '+row.id+' · '+row.message:empty?'No hay órdenes pendientes ni bloqueadas. Las canceladas, cerradas y completadas se conservan en el historial. La pausa local no cambia las programaciones de GitHub.':pending.length+' orden(es) abiertas. Antes de continuar, revisá las solicitudes y sus dependencias.';
+    $('#queuePendingList').replaceChildren();for(const order of pending){$('#queuePendingList').append(el('li',(captions[order.action]||order.action)+' · '+order.id+' · '+order.label+(order.depends_on?' · Depende de '+order.depends_on:''),'small'));}
+    $('#queuePendingList').hidden=empty;$('#queuePending').textContent=empty?'VER HISTORIAL DE ÓRDENES':'REVISAR ÓRDENES PENDIENTES';
     const check=row?.checks?.at(-1);
     $('#queueEvidence').textContent=check?(check.complete?'Comprobación completa':'Comprobación incompleta')+' · '+(check.result==='not_found'?'No se encontró el identificador exacto. Esto no demuestra que GitHub rechazó el envío.':check.result==='found'?'Se encontró una ejecución; revisá su resultado.':check.message||'Revisá la evidencia.')+(check.note?' '+check.note:''):'Comprobar solo consulta GitHub: no envía ni repite órdenes.';
     $('#queueCheck').disabled=checkingQueue||!row||!['unknown','sent','sending'].includes(row.status);
     $('#queueBlocked').disabled=!row;$('#queueResolve').disabled=checkingQueue||!row?.resolution?.confirmation;
-    $('#queuePaused').hidden=!queueInfo.paused;$('#queueResume').hidden=!queueInfo.paused;
+    for(const id of ['queueCheck','queueBlocked','queueResolve','queueEvidence'])$('#'+id).hidden=!row;
+    $('#queuePaused').hidden=!queueInfo.paused||empty;$('#queueResume').hidden=!queueInfo.paused||empty;
     $('#queueResume').disabled=checkingQueue||!!row;
   }
   function focusOrders(identifier) {
@@ -114,7 +121,9 @@
   };
   $('#queueResume').onclick=()=>{
     const confirmation=queueInfo.confirmation;
-    openDialog('Continuar con las órdenes revisadas','Las órdenes pendientes podrán enviarse en su orden original. Cada una comprobará la configuración y el diccionario vigentes. Esto puede iniciar una actualización de Drive o CNRT si hay una orden pendiente para esas fuentes. Cancelá primero las que no quieras ejecutar.','Continuar envíos',async()=>{
+    const pending=orders.filter(r=>openStates.includes(r.status));if(!pending.length)return;
+    const detail=pending.map((r,i)=>(i+1)+'. '+(captions[r.action]||r.action)+' · '+r.id+(r.depends_on?' · Depende de '+r.depends_on:'')).join('\n');
+    openDialog('Continuar con las órdenes revisadas',pending.length+' orden(es) abiertas:\n'+detail+'\nLas pendientes podrán enviarse en este orden. Cada una comprobará sus dependencias, la configuración y el diccionario vigentes. Cancelá primero las que no quieras ejecutar.','Continuar envíos',async()=>{
       try{await api('orders/resume',{confirmation});notify('Cola habilitada; las órdenes siguen sus comprobaciones antes de enviarse.');}catch(e){notify(e.message);}finally{await refreshOrders();}
     });
   };

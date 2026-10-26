@@ -18,16 +18,16 @@ def code_reference(text):
     refs=code_references(text)
     return refs[0] if refs and len(refs)==1 else None
 NEUTRAL = re.compile(r'^(?:sin\s+(?:novedad(?:es)?|anomalias?|fallas?|defectos?|observaciones?)|ok|s/?n|ningun[oa]?|[-.]+)$')
-NEGATION = re.compile(r'\b(?:sin\s+(?:fallas?|defectos?|anomalias?|problemas?|novedad(?:es)?|juego|perdidas?)|no\s+(?:presentan?|tienen?|hay|se\s+(?:detectan?|observan?))|en\s+buen\s+estado|funciona\s+(?:bien|correctamente)|ok)\b')
+NEGATION = re.compile(r'\b(?:sin\s+(?:fallas?|defectos?|anomalias?|problemas?|novedad(?:es)?|juego|perdidas?)|no\s+(?:presentan?|tienen?(?!\s+bu[gj]es?\b)|hay|se\s+(?:detectan?|observan?))|en\s+buen\s+estado|funciona\s+(?:bien|correctamente)|ok)\b')
 UNCERTAIN = re.compile(r'\b(?:posible|posiblemente|quizas?|duda|revisar|verificar|descartar|podria)\b|\?')
 DEFECT = re.compile(r'\b(?:juego|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|fallas?|defectuos[oa]s?|desgaste|perdidas?|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|lis[oa]s?|suleto|faltante|ausente|carece\s+de|falta|no\s+(?:funciona|anda))\b')
-LOCATION_WORD = r'(?:delanter[oa]s?|traser[oa]s?|derech[oa]s?|izquierd[oa]s?|intern[oa]s?|extern[oa]s?|superior(?:es)?|inferior(?:es)?|der|izq|isk|del|tras|sup|inf)'
+LOCATION_WORD = r'(?:delanter[oa]s?|traser[oa]s?|derech[oa]s?|izquierd[oa]s?|intern[oa]s?|extern[oa]s?|superior(?:es)?|inferior(?:es)?|der|izq|isk|del|tras|tra|sup|inf)'
 POSITION = re.compile(r'\b'+LOCATION_WORD+r'\b')
 LOCATION = r'(?:(?:zona|lado)\s+)?(?:media|'+LOCATION_WORD+r')'
 GLUE = r'(?:sin|esta|estan|y|e|de|la|el|los|las|en|con|un|una|por|al|se|su|sus|tiene|presenta)'
 BASE_DESCRIPTION = (r'no_funciona|corte|pinchadura|carece\s+de|falta(?:n)?|faltantes?|ausentes?|amb[oa]s|dos|lis[oa]s?|suleto|no\s+(?:funciona|anda)|mal\s+estado|rot[oa]s?|rotura|floj[oa]s?|suelt[oa]s?|'
-    r'juego|excesiv[oa]|fallas?|defectuos[oa]s?|desgaste|danad[oa]s?|cortad[oa]s?|pinchad[oa]s?|'
-    r'desgastad[oa]s?|desinflad[oa]s?|reventad[oa]s?|perdidas?(?!\s+(?:de\s+)?aire\b)')
+    r'juego|excesiv[oa]|fallas?|defectuos[oa]s?|desgaste|danad[oa]s?|cortad(?:[oa]s?)?|pinchad[oa]s?|'
+    r'desgastad[oa]s?|desinflad[oa]s?|reventad[oa]s?|perdidas?(?!\s+(?:leve\s+)?(?:de\s+)?aire\b)')
 PNEUMATIC = {'pulmon_freno','pulmon_suspension','tanque_aire','valvula_descarga','valvula_niveladora',
     'flexibles_freno','freno_sin_ubicacion','freno_servicio','freno_estacionamiento','freno_emergencia',
     'neumatico_sin_ubicacion'}
@@ -38,7 +38,7 @@ def fold(value):
 
 
 def canonical(location):
-    names={'der':'derecho','izq':'izquierdo','isk':'izquierdo','del':'delantero','tras':'trasero','sup':'superior','inf':'inferior','superiores':'superior','inferiores':'inferior'}
+    names={'der':'derecho','izq':'izquierdo','isk':'izquierdo','del':'delantero','tras':'trasero','tra':'trasero','sup':'superior','inf':'inferior','superiores':'superior','inferiores':'inferior'}
     words=[]
     for word in location.split():
         for stem in ('delanter','traser','derech','izquierd','intern','extern'):
@@ -52,7 +52,7 @@ def clause_spans(original):
     # Proteger también códigos no confirmados: nunca reconocer un prefijo suyo.
     accented=NAMED_CODE_TOKEN.replace('pulmon','pulm[oó]n').replace('neumatic','neum[aá]tic')
     protected=[m.span() for m in re.finditer(CODE_TOKEN+'|'+accented,original,re.I)]
-    protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|sup)\.',original,re.I)]
+    protected += [m.span() for m in re.finditer(r'\b(?:der|izq|isk|del|tras|tra|sup)\.|\*[-*]*',original,re.I)]
     masked=list(original)
     for left,right in protected:masked[left:right]='_'*(right-left)
     # No confundir el número de "PF 3. A2" con una numeración de lista:
@@ -74,11 +74,15 @@ def descriptor_pattern(component, contextual=()):
     if component in ('barra_corta','barra_larga'):
         specific=r'|lado\s+(?:pit+t?man|eje|rueda)|enter[oa]s?|complet[oa]s?'
     elif component=='tensores':
-        specific=r'|mono|monio|posicionamiento(?:\s+del\s+eje)?'
-    if component=='pulmon_freno':specific+=r'|diafragma'
+        specific=r'|monos?|monios?|no\s+tiene\s+bu[gj]es?|posicionamiento(?:\s+del\s+eje)?'
+    if component=='pulmon_freno':specific+=r'|diafragma|codo|conexion'
     if component=='amortiguadores':specific+=r'|gira|ultimo'
     if component=='diferencial':specific+=r'|fluidos'
-    if component in PNEUMATIC:specific+=r'|perdidas?\s+(?:de\s+)?aire(?:\s+en\s+(?:el\s+)?sistema(?:\s+de)?)?'
+    if component=='bujes':specific+=r'|parte|torcid[oa]s?|reparad[oa]s?'
+    if component in ('freno_emergencia','freno_servicio','freno_estacionamiento'):specific+=r'|regular'
+    if component=='perdida_aire_no_especificada':specific+=r'|zona\s+(?:central|media|delantera|trasera)|puerta|pedalera|gobernadora'
+    if component=='perdida_no_especificada':specific+=r'|vigia|zona\s+trasera'
+    if component in PNEUMATIC:specific+=r'|perdidas?\s+(?:leve\s+)?(?:de\s+)?aire(?:\s+en\s+(?:el\s+)?sistema(?:\s+de)?)?'
     specific+=''.join('|'+re.escape(r['expresion']) for r in effective(contextual,component))
     return re.compile(r'\b(?:'+BASE_DESCRIPTION+'|'+LOCATION+specific+'|'+GLUE+r')\b')
 
@@ -112,7 +116,13 @@ def locations(text):
         elif word in ('superior','inferior','interno','externo') and result:result[-1]+=' '+word
         elif word in ('derecho','izquierdo') and result and result[-1] in ('superior','inferior'):result[-1]+=' '+word
         else:result.append(word)
-    if re.search(r'\bzona media\b',text):result.append('zona media')
+    for zone in ('media','central'):
+        if re.search(r'\bzona '+zone+r'\b',text):result.append('zona '+zone)
+    # A shared plural height before the left/right enumeration applies to both.
+    shared=re.search(r'\b(superiores|inferiores)\b',text)
+    if shared and len(result)>1:
+        height=canonical(shared.group())
+        result=[p if height in p.split() else p+' '+height for p in result]
     return result or ['sin_ubicacion']
 
 
@@ -121,8 +131,9 @@ def location_descriptors(text, tokens, prefix=False, component=None, contextual=
     for token in tokens:
         # La ubicación del moño es la del extremo del tensor; no identifica
         # otro tensor ni permite deducir el eje donde está montado.
-        if component=='tensores' and token.group() in ('mono','monio'):break
+        if component=='tensores' and re.fullmatch(r'mon(?:o|io)s?',token.group()):break
         meaning=next((r['significado'] for r in effective(contextual,component) if r['expresion']==token.group()),token.group())
+        if component=='perdida_aire_no_especificada' and meaning=='zona central':result.append(meaning);continue
         if not re.fullmatch(LOCATION,meaning):continue
         # DEL también es una preposición. No convertir "del motor" en
         # delantero, ni "juego del amortiguador" en una ubicación.
@@ -144,14 +155,25 @@ def interpretation_spans(original,custom=None):
     specific=(*(custom or ([],None))[:2],[r for r in contextual if not general(r)])
     result=[]
     for index,(start,end) in enumerate(spans):
-        if result and re.fullmatch(r'\s*,\s*',original[result[-1][1]:start]):
+        if result and re.fullmatch(r'\s*[,\.]\s*',original[result[-1][1]:start]):
             left,right=result[-1];tail=fold(original[start:end])
+            separator=original[right:start].strip()
+            if separator==',' and fold(original[left:right])=='larga' and re.match(r'\s*a[ \t]*[._-]?[ \t]*[1-8]\b',tail):
+                result[-1]=(left,end);continue
+            condition_only=bool(re.fullmatch(r'(?:con\s+)?juego|floj[oa]s?|suelt[oa]s?',tail))
+            if separator=='.' and not condition_only:result.append((start,end));continue
             if index+1<len(spans):
                 next_start,next_end=spans[index+1]
                 following=fold(original[next_start:next_end])
                 if re.fullmatch(r'\s*,\s*',original[end:next_start]) and (PATTERN.search(following) or specific[1] and specific[1].search(following)):result.append((start,end));continue
             before=_analyze(original[left:right],specific)
             components={f['componente'] for f in before['hallazgos']}
+            if before['hallazgos'] and not before['pendientes'] and condition_only:
+                result[-1]=(left,end);continue
+            # A trailing quantity refers to the last explicit component, even
+            # after a multi-component clause; it never multiplies all of them.
+            if before['hallazgos'] and not before['pendientes'] and re.fullmatch(r'(?:amb[oa]s|los dos|las dos)',tail):
+                result[-1]=(left,end);continue
             if len(before['hallazgos'])==1 and not before['pendientes'] and not (NEGATION.search(tail) or UNCERTAIN.search(tail) or re.search(r'\b(?:y|e)\b',tail)):
                 component=next(iter(components));tokens=descriptors(tail,component,contextual=contextual)
                 if tokens and tokens[-1].end()==len(tail) and any(not re.fullmatch(GLUE,t.group()) for t in tokens):
@@ -216,6 +238,15 @@ def _analyze(value, custom=None, source_text=None):
             if a in ('tensores','pulmon_freno','pulmon_suspension','flexibles_freno','rotulas_direccion') and b in generic and OWNER[a]!=OWNER[b] and associated:
                 contradictory.update((left,right))
         matches=[m for m in matches if m not in contradictory]
+        nested=set()
+        for left,right in zip(matches,matches[1:]):
+            a,b=component_of(left,custom_rows),component_of(right,custom_rows)
+            gap=clause[left.end():right.start()]
+            if a=='tensores' and b=='bujes' and re.search(r'\bno\s+tiene\s*$',gap):nested.add(right)
+            if a=='tensores' and b in ('freno_emergencia','freno_sin_ubicacion') and re.search(r'\bmon(?:o|io)s?\s+del\.?\s*$',gap):nested.add(right)
+            if a=='perdida_aire_no_especificada' and b in PNEUMATIC and not re.search(r'\b(?:y|e)\b',gap) and not descriptor_pattern(b,contextual).sub('',gap).strip():nested.add(left)
+            if b=='perdida_aire_no_especificada' and a in PNEUMATIC and not re.search(r'\b(?:y|e)\b',gap) and not descriptor_pattern(a,contextual).sub('',gap).strip():nested.add(right)
+        matches=[m for m in matches if m not in nested]
         # Pitman como extremo de una barra no es otra anomalía del brazo.
         matches=[m for i,m in enumerate(matches) if not (i and component_of(m,custom_rows)=='brazo_pitman'
             and component_of(matches[i-1],custom_rows) in ('barra_corta','barra_larga')
@@ -274,14 +305,13 @@ def _analyze(value, custom=None, source_text=None):
             positions=[]
             for reference in references:
                 target,location=ALIASES[reference]
-                if component not in ('bujes','crucetas'):component=target
                 if location!='sin_ubicacion' and any(('delanter' in p and 'trasero' in location) or ('traser' in p and 'delantero' in location) or ('derech' in p and 'izquierdo' in location) or ('izquierd' in p and 'derecho' in location) for p in selected_locations):continue
                 positions.extend((reference,p) for p in ([location] if location!='sin_ubicacion' else selected_locations))
             if references and len({r for r,_ in positions})!=len(references):continue
             if component in ('direccion_sin_componente','suspension_sin_componente','transmision_sin_componente','electrico_sin_componente') and selected_locations==['sin_ubicacion'] and not DEFECT.search(attached):continue
             # Positions of bar ends do not multiply the component mention.
             if component in ('barra_corta','barra_larga') and len(selected_locations)>1:selected_locations=['sin_ubicacion']
-            if component=='freno_sin_ubicacion' and re.search(r'perdidas?\s+(?:de\s+)?aire',attached):selected_locations=['sin_ubicacion']
+            if component=='freno_sin_ubicacion' and re.search(r'perdidas?\s+(?:leve\s+)?(?:de\s+)?aire',attached):selected_locations=['sin_ubicacion']
             for reference,location in positions or [(None,p) for p in selected_locations]:
                 selected=component
                 if component in ('freno_sin_ubicacion','neumatico_sin_ubicacion') and not match.group().startswith('sistema'):
@@ -292,15 +322,18 @@ def _analyze(value, custom=None, source_text=None):
                 distinct=reference and re.fullmatch(r'a[3-8]|pf[3-6]|r[78]|cr[1-3]',reference)
                 key=(OWNER[selected],selected,key_location,reference if location=='sin_ubicacion' or distinct else None)
                 defect='no_identificado'
-                for label,pattern in (('perdida_fluidos',r'\bperdidas?\s+(?:de\s+)?fluidos\b'),('faltante',r'\b(?:carece\s+de|falta(?:n)?|faltantes?|ausentes?)\b'),('liso',r'\blis[oa]s?\b'),('juego',r'\bjuego\b'),('desgaste',r'\bdesgast(?:e|ad[oa]s?)\b'),('corte',r'\b(?:cortad[oa]s?|corte)\b'),('pinchadura',r'\b(?:pinchad[oa]s?|pinchadura)\b'),('rotura',r'\b(?:rot[oa]s?|rotura)\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\b(?:suelt[oa]s?|suleto)\b'),('no_funciona',r'\b(?:no_funciona|no\s+(?:funciona|anda))\b')):
+                for label,pattern in (('perdida_fluidos',r'\bperdidas?\s+(?:de\s+)?fluidos\b'),('faltante',r'\b(?:carece\s+de|falta(?:n)?|faltantes?|ausentes?|no\s+tiene\s+bu[gj]es?)\b'),('liso',r'\blis[oa]s?\b'),('juego',r'\bjuego\b'),('desgaste',r'\bdesgast(?:e|ad[oa]s?)\b'),('corte',r'\b(?:cortad(?:[oa]s?)?|corte)\b'),('pinchadura',r'\b(?:pinchad[oa]s?|pinchadura)\b'),('rotura',r'\b(?:rot[oa]s?|rotura)\b'),('flojo',r'\bfloj[oa]s?\b'),('suelto',r'\b(?:suelt[oa]s?|suleto)\b'),('no_funciona',r'\b(?:no_funciona|no\s+(?:funciona|anda))\b'),('perdida_aire',r'\bperdidas?\s+(?:leve\s+)?(?:de\s+)?aire\b'),('perdida',r'\b(?:perdidas?|fuga|leak)\b'),('ajuste',r'\bregular\b'),('torcido',r'\btorcid[oa]s?\b'),('reparado',r'\breparad[oa]s?\b')):
                     if re.search(pattern,attached):defect=label;break
                 part='lado pitman' if re.search(r'\bpit+t?man\b',attached) and component in ('barra_corta','barra_larga') else 'lado eje' if re.search(r'\b(?:lado|extremo)\s+eje\b',attached) or component=='barra_corta' and re.search(r'\bcorta\s+eje\b',attached) else 'extremo' if re.search(r'\bextremos?\b',attached) else None
                 if component in ('barra_corta','barra_larga') and re.search(r'\b(?:ambos\s+extremos?|complet[oa]s?|enter[oa]s?)\b',attached):part='ambos extremos'
-                if component=='tensores' and re.search(r'\b(?:mono|monio)\b',attached):part='moño trasero' if re.search(r'\b(?:mono|monio)\s+tras(?:er[oa])?\b',attached) else 'moño delantero' if re.search(r'\b(?:mono|monio)\s+del(?:anter[oa])?\b',attached) else 'moño'
-                subpart='diafragma' if component=='pulmon_freno' and re.search(r'\bdiafragma\b',attached) else None
+                if component=='tensores' and re.search(r'\bmon(?:o|io)s?\b',attached):
+                    part='ambos moños' if re.search(r'\b(?:ambos|los dos)\s+mon(?:o|io)s?\b',attached) else 'moño trasero' if re.search(r'\bmon(?:o|io)s?\s+(?:tras(?:er[oa])?|tra)\b',attached) else 'moño delantero' if re.search(r'\bmon(?:o|io)s?\s+delanter[oa]\b',attached) or re.search(r'\bmon(?:o|io)s?\s+del(?:\s+(?:izq|der|derech[oa]|izquierd[oa]))?\s*$',context) else 'moño'
+                subpart='diafragma' if component=='pulmon_freno' and re.search(r'\bdiafragma\b',attached) else 'codo' if component=='pulmon_freno' and re.search(r'\bcodo\b',attached) else 'buje' if component=='tensores' and re.search(r'\bno\s+tiene\s+bu[gj]es?\b',attached) else None
                 # "Ambos extremos" counts ends, not two bars or tensors.
                 quantity=2 if not part and not subpart and len(selected_locations)==1 and re.search(r'\b(?:amb[oa]s|dos)\b',attached) else None
                 if len(references)>1 or component=='tensores' and len(selected_locations)>1:quantity=1
+                if part in ('ambos extremos','ambos moños') and re.search(r'\btensor\b',match.group()):quantity=1
+                if component=='barra_estabilizadora' and defect=='faltante' and re.fullmatch(r'barra\s+estabilizadora',match.group()):quantity=1
                 associated='pulmon_freno' if component=='flexibles_freno' and 'pulmon' in match.group() else None
                 finding=dict(categoria=key[0],componente=key[1],ubicacion=canonical(location),referencia=reference,defecto=defect,parte=part,subcomponente=subpart,cantidad_fisica=quantity,componente_asociado=associated)
                 if match.lastgroup.startswith('custom'):
@@ -315,7 +348,7 @@ def _analyze(value, custom=None, source_text=None):
                     if not re.fullmatch(GLUE,token.group()):absorbed.append(dict(componente=component,texto=source(start+left,start+right)))
         residue=''.join(remainder)
         if source_text:residue=' '.join(source(start+m.start(),start+m.end()) for m in re.finditer(r'\S+',residue))
-        rest=re.sub(r'^[\s,:./()\-]+|[\s,:./()\-]+$','',residue)
+        rest=residue.strip() if '*' in residue and not re.search(r'\w',residue) else re.sub(r'^[\s,:./()\-]+|[\s,:./()\-]+$','',residue)
         rest=re.sub(r'\s+',' ',rest).strip()
         if rest and rest.lower() not in ('y','e'):unknown.append(rest)
     result=dict(hallazgos=[findings[k] for k in sorted(findings,key=lambda k:tuple(x or '' for x in k))],
@@ -336,11 +369,12 @@ def analyze(value,custom=None):
     from .technical_spelling import transform
     from .kit_sube import mechanical_text
     original=unicodedata.normalize('NFC',str(value or ''))
+    if re.fullmatch(r'\s*\*[-\s]*',original):return dict(hallazgos=[],pendientes=[original.strip()],descriptores=[])
     clean=mechanical_text(original)
     rewritten,restore=transform(clean,custom[3] if custom and len(custom)>3 else ())
     rows,pattern=(custom or ([],None))[:2]
     contextual=list(custom[2]) if custom and len(custom)>2 else []
-    for term in ('extremo','extremos'):
+    for term in ('extremo','extremos','ext'):
         if not any(general(r) and r['expresion']==term for r in contextual):contextual.append(dict(tipo='descriptor',alcance='general',expresion=term,significado='extremo'))
     return _analyze(rewritten,(rows,pattern,contextual),restore)
 

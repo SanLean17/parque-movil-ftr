@@ -75,8 +75,8 @@ def install(server):
                         key=records.reference(event)['registro_id'];decision=saved['registros'].get(key)
                         if decision and decision['huella']==records.correction(event,decision['fragmentos'])['huella']:applicable[key]=decision
                     if applicable:
-                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7,legacy_anomalies_v8,legacy_anomalies_v9
-                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7,8:legacy_anomalies_v8,9:legacy_anomalies_v9}.get(capsule.get('motor_revision'),anomalies)
+                        from _ftr_runtime import legacy_anomalies_v5,legacy_anomalies_v6,legacy_anomalies_v7,legacy_anomalies_v8,legacy_anomalies_v9,legacy_anomalies_v10
+                        previous={5:legacy_anomalies_v5,6:legacy_anomalies_v6,7:legacy_anomalies_v7,8:legacy_anomalies_v8,9:legacy_anomalies_v9,10:legacy_anomalies_v10}.get(capsule.get('motor_revision'),anomalies)
                         compiled=rules.compile_rules(capsule['diccionario'])
                         def local_analysis(event):
                             if records.reference(event)['registro_id'] in applicable:return records.apply(event,applicable,capsule['diccionario'])

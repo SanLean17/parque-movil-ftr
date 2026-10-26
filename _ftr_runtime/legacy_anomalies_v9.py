@@ -8,7 +8,7 @@ import unicodedata
 from collections import Counter
 from .legacy_catalogue_v6 import VERSION, CATEGORIES, RULES, ALIASES, CODE_TOKEN, NAMED_CODE_TOKEN, NAMED_FAMILIES, NAMED_GAP
 from .dictionary_rules import general, effective
-from .numbered_references import references as code_references
+from .legacy_numbered_v10 import references as code_references
 
 PATTERN = re.compile('|'.join(r'\b(?P<rule'+str(i)+'>'+p+r')\b' for i, (_, p) in enumerate(RULES)))
 OWNER = {c:k for k, values in CATEGORIES.items() for c in values}

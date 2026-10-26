@@ -96,7 +96,7 @@ class StatisticsRoutesTests(unittest.TestCase):
                 payload=dict(period=2025,reglas=fixture.candidate()['reglas'],expected_dictionary=rules.digest(rules.EMPTY))
                 response=client.post('/api/statistics-preview',base_url=server.ORIGIN,headers={'X-FTR-CSRF':server.CSRF,'Origin':server.ORIGIN},json=payload)
                 self.assertEqual(response.status_code,200,response.json)
-                self.assertEqual(response.json['motor_antes'],10)
+                self.assertEqual(response.json['motor_antes'],11)
                 self.assertEqual(response.json['antes'],public['anomalias'])
                 self.assertEqual(capsule,before)
         finally:fixture.tearDown()

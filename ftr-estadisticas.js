@@ -4,7 +4,7 @@
   const MONTHS = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
   const SHORT = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
   const STATES = ['fuera_de_servicio','observado','sin_novedad','estado_vacio','estado_otro'];
-  const CATEGORIES = {direccion:'DIRECCIÓN', frenos:'SISTEMA DE FRENOS', suspension:'SUSPENSIÓN', transmision:'TRANSMISIÓN', neumaticos:'NEUMÁTICOS', electrico:'SISTEMA ELÉCTRICO', otras:'OTRAS / SIN CLASIFICAR'};
+  const CATEGORIES = {direccion:'DIRECCIÓN', frenos:'SISTEMA DE FRENOS', suspension:'SUSPENSIÓN', transmision:'TRANSMISIÓN', neumaticos:'NEUMÁTICOS', electrico:'SISTEMA ELÉCTRICO', otras:'OTRAS'};
   const COMPONENTS = {
     direccion:{columna_direccion:'Columna de dirección',caja_direccion:'Caja de dirección',brazo_pitman:'Brazo Pitman',rotulas_direccion:'Rótulas de dirección',barra_larga:'Barra larga',barra_corta:'Barra corta',amortiguador_direccion:'Amortiguador de dirección',cruceta_direccion:'Cruceta de cardán de dirección',direccion_sin_componente:'Dirección — otro componente'},
     frenos:{frenos_delanteros:'Frenos delanteros',frenos_traseros:'Frenos traseros',flexibles_freno:'Flexibles de freno',pulmon_freno:'Pulmón de freno',tanque_aire:'Tanque de aire',valvula_descarga:'Válvula de descarga',freno_servicio:'Freno de servicio',freno_estacionamiento:'Freno de estacionamiento',freno_emergencia:'Freno de emergencia',bloqueo_frenos:'Sistema de frenos — bloqueo',freno_sin_ubicacion:'Frenos — sin componente precisado'},
@@ -12,7 +12,7 @@
     transmision:{cardan:'Cardán',crucetas:'Crucetas',diferencial:'Diferencial',transmision_sin_componente:'Transmisión, sin componente precisado'},
     neumaticos:{neumaticos_delanteros:'Neumáticos delanteros',neumaticos_traseros:'Neumáticos traseros',tuercas_rueda:'Tuercas',bulones_rueda:'Bulones',neumatico_sin_ubicacion:'Neumáticos — sin ubicación precisada'},
     electrico:{corte_corriente:'Corte de batería / corte de corriente',sonora_marcha_atras:'Señal sonora de marcha atrás',electrico_sin_componente:'Eléctrico — sin componente precisado'},
-    otras:{sin_clasificar:'Menciones pendientes de interpretación'}
+    otras:{perdida_aire_no_especificada:'Pérdida de aire sin componente indicado',perdida_no_especificada:'Pérdida sin sistema indicado',perdida_hidraulica:'Pérdida hidráulica sin componente indicado',observacion_administrativa:'Observación administrativa',sin_clasificar:'Menciones pendientes de interpretación'}
   };
   const LEGACY = {direccion:['barra_larga','barra_corta','direccion_sin_componente'],frenos:['frenos_delanteros','frenos_traseros','flexibles_freno','freno_sin_ubicacion'],suspension:['amortiguadores','bujes','suspension_sin_componente'],transmision:['cardan','crucetas','transmision_sin_componente'],otras:['sin_clasificar']};
   const METRICS = [
@@ -30,7 +30,7 @@
     if (!index || index.version!==1 || !Array.isArray(index.periodos) || !index.periodos.length) bad();
     let previous=Infinity;
     for (const r of index.periodos) {
-      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3,4].includes(r.version) || ![1,2,3,4,5,6,7].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
+      if (!integer(r.periodo) || r.periodo<2000 || r.periodo>2100 || r.periodo>=previous || r.archivo!=='estadisticas/'+r.periodo+'.json' || ![1,2,3,4].includes(r.version) || ![1,2,3,4,5,6,7,8].includes(r.version_reglas) || !Array.isArray(r.lineas) || r.lineas.some((n,i)=>!integer(n)||!n||i>0&&n<=r.lineas[i-1]) || !/^[a-f0-9]{64}$/.test(r.sha256) || manifest.files_sha256[r.archivo]!==r.sha256 || !Number.isFinite(Date.parse(r.lectura_planilla_utc))) bad();
       previous=r.periodo;
     }
     return index;
@@ -64,17 +64,17 @@
       const count=Math.max(0,...data.lineas.map(r=>r[k])),item=data.destacados[k];
       if (!item || item.cantidad!==count || JSON.stringify(item.lineas)!==JSON.stringify(count?data.lineas.filter(r=>r[k]===count).map(r=>r.linea):[])) bad();
     }
-    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>(a.version_reglas>=4||id!=='amortiguador_direccion')&&(a.version_reglas>=5||!['cruceta_direccion','bloqueo_frenos'].includes(id))&&(a.version_reglas>=6||id!=='diferencial'))]));
-    if (![1,2,3,4,5,6,7].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
+    const a=data.anomalias,catalogue=a.version_reglas===1?LEGACY:Object.fromEntries(Object.entries(COMPONENTS).map(([k,v])=>[k,Object.keys(v).filter(id=>(a.version_reglas>=4||id!=='amortiguador_direccion')&&(a.version_reglas>=5||!['cruceta_direccion','bloqueo_frenos'].includes(id))&&(a.version_reglas>=6||id!=='diferencial')&&(a.version_reglas>=8||k!=='otras'||id==='sin_clasificar'))]));
+    if (![1,2,3,4,5,6,7,8].includes(a.version_reglas) || a.version_reglas!==reference.version_reglas || data.version===1&&a.version_reglas!==1 || !['pendiente','parcial','disponible'].includes(a.estado) || !Array.isArray(a.categorias) || JSON.stringify(a.categorias.map(c=>c.id))!==JSON.stringify(Object.keys(catalogue))) bad();
     const pending=a.estado==='pendiente',count=n=>pending?n===null:integer(n);
-    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8,6:9,7:10}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
+    if(a.version_reglas>=4){if(a.motor_revision!==({4:7,5:8,6:9,7:10,8:11}[a.version_reglas]))bad();const p=a.elementos_fisicos;if(!p||!['cantidad_confirmada','menciones_con_cantidad','menciones_sin_cantidad'].every(k=>count(p[k]))||!pending&&(p.menciones_con_cantidad+p.menciones_sin_cantidad!==a.identificadas||p.cantidad_confirmada<p.menciones_con_cantidad))bad();}
     if (!count(a.identificadas) || !count(a.sin_clasificar) || !a.cobertura || !['registros_validos','con_columna','con_texto','vacios','sin_columna'].every(k=>count(a.cobertura[k]))) bad();
     for (const cat of a.categorias) {
       if (!count(cat.cantidad) || !Array.isArray(cat.componentes) || JSON.stringify(cat.componentes.map(c=>c.id))!==JSON.stringify(catalogue[cat.id])) bad();
       for (const c of cat.componentes) if (!count(c.cantidad) || !c.estados || !STATES.every(k=>count(c.estados[k])) || !pending&&STATES.reduce((s,k)=>s+c.estados[k],0)!==c.cantidad) bad();
       if (!pending&&cat.componentes.reduce((s,c)=>s+c.cantidad,0)!==cat.cantidad) bad();
     }
-    if (!pending && (a.cobertura.registros_validos!==data.totales.registros_validos || a.cobertura.con_columna+a.cobertura.sin_columna!==a.cobertura.registros_validos || a.cobertura.con_texto+a.cobertura.vacios!==a.cobertura.con_columna || a.identificadas!==a.categorias.filter(c=>c.id!=='otras').reduce((s,c)=>s+c.cantidad,0) || a.sin_clasificar!==a.categorias.find(c=>c.id==='otras').cantidad || (a.estado==='parcial')!==Boolean(a.cobertura.sin_columna))) bad();
+    if (!pending && (a.cobertura.registros_validos!==data.totales.registros_validos || a.cobertura.con_columna+a.cobertura.sin_columna!==a.cobertura.registros_validos || a.cobertura.con_texto+a.cobertura.vacios!==a.cobertura.con_columna || a.identificadas!==a.categorias.flatMap(c=>c.componentes).filter(c=>c.id!=='sin_clasificar').reduce((s,c)=>s+c.cantidad,0) || a.sin_clasificar!==a.categorias.find(c=>c.id==='otras').componentes.find(c=>c.id==='sin_clasificar').cantidad || (a.estado==='parcial')!==Boolean(a.cobertura.sin_columna))) bad();
     if(data.version===4){const k=data.kit_sube;if(!k||k.version!==1||!['pendiente','parcial','disponible'].includes(k.estado)||!Array.isArray(k.lineas)||k.lineas.length!==data.lineas.length)bad();const pending=k.estado==='pendiente';
       for(const [i,r] of k.lineas.entries()){const l=data.lineas[i];if(r.linea!==l.linea||r.controles!==l.registros_periodo|| (pending?(r.incidencias!==null||r.con_novedades!==null):(!integer(r.incidencias)||!integer(r.con_novedades)||r.incidencias>r.con_novedades||r.con_novedades>r.controles)))bad();}
       if(pending?k.controles_con_incidencia!==null:(!integer(k.controles_con_incidencia)||k.controles_con_incidencia!==k.lineas.reduce((n,r)=>n+r.incidencias,0)||(k.estado==='parcial')!==k.lineas.some(r=>r.con_novedades<r.controles)))bad();
@@ -140,7 +140,7 @@
     const row=el('article','component'+(!component?' unavailable':component.cantidad===0?' empty-component':''));
     const heading=el('h4','component-name',COMPONENTS[category][id]);
     const amount=component?.cantidad;
-    const value=el('div','component-total');value.append(el('strong','component-count',format(amount)),el('span','',category==='otras'?'MENCIONES PENDIENTES':'MENCIONES REGISTRADAS'));
+    const value=el('div','component-total');value.append(el('strong','component-count',format(amount)),el('span','',id==='sin_clasificar'?'MENCIONES PENDIENTES':'MENCIONES REGISTRADAS'));
     row.append(heading,value);
     if (amount==null) {row.append(el('p','component-status','Sin análisis disponible.'));return row;}
     if (!amount) {row.append(el('p','component-status','Sin menciones registradas.'));return row;}
@@ -172,12 +172,12 @@
       b.type='button';b.dataset.category=id;b.setAttribute('aria-pressed','false');b.setAttribute('aria-controls','componentPanel');
       label.append(el('span','',name),el('span','category-value',unavailable?'—':format(cat.cantidad)));
       fill.style.setProperty('--width',100*(cat?.cantidad||0)/max+'%');track.append(fill);
-      b.append(label,track,el('span','category-unit',unavailable?'Sin análisis disponible':id==='otras'?'Menciones pendientes':'Menciones identificadas'));
+      b.append(label,track,el('span','category-unit',unavailable?'Sin análisis disponible':id==='otras'?'Menciones registradas':'Menciones identificadas'));
       b.addEventListener('click',()=>{
         for(const other of buttons)other.setAttribute('aria-pressed',String(other===b));
         $('componentTitle').textContent=name;
         $('components').replaceChildren(...orderComponents(Object.keys(COMPONENTS[id]).map(key=>cat?.componentes.find(c=>c.id===key)||{id:key,cantidad:null}),COMPONENTS[id]).map(c=>componentCard(c.id,c,id)));
-        $('componentNote').textContent=id==='otras'?'Pendientes de clasificación.':data.version_reglas===1?'Catálogo histórico.':'';
+        $('componentNote').textContent=id==='otras'?'Incluye observaciones genéricas identificadas y, por separado, menciones pendientes de interpretación.':data.version_reglas===1?'Catálogo histórico.':'';
       });
       return b;
     });

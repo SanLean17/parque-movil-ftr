@@ -8,8 +8,8 @@ from .technical_fields import EXTRA_FIELDS, validate_extra
 LOCATIONS = ('sin_ubicacion','delantero','trasero','derecho','izquierdo','superior','inferior',
              'delantero derecho','delantero izquierdo','trasero derecho','trasero izquierdo',
              'trasero derecho interno','trasero izquierdo interno','trasero derecho externo','trasero izquierdo externo',
-             'trasero interno','trasero externo','interno','externo','zona media','superior derecho','superior izquierdo')
-DEFECTS = ('no_identificado','corte','pinchadura','rotura','perdida_fluidos','flojo','suelto','no_funciona','juego','desgaste','liso','faltante')
+             'trasero interno','trasero externo','interno','externo','zona media','zona central','superior derecho','superior izquierdo','trasero derecho ultimo')
+DEFECTS = ('no_identificado','corte','pinchadura','rotura','perdida_fluidos','flojo','suelto','no_funciona','juego','desgaste','liso','faltante','perdida_aire','perdida','ajuste','torcido','reparado')
 
 def reference(event):
     import hashlib,json
@@ -41,7 +41,7 @@ def validated(original,fragments):
             required={'categoria','componente','ubicacion','referencia','defecto'}
             if not isinstance(finding,dict) or not required<=set(finding) or set(finding)-required-EXTRA_FIELDS:raise ValueError('Hallazgo no válido.')
             validate_extra(finding)
-            if finding['categoria']=='otras' or finding['categoria'] not in rules.CATEGORIES or finding['componente'] not in rules.CATEGORIES[finding['categoria']]:raise ValueError('Componente no válido.')
+            if finding['componente']=='sin_clasificar' or finding['categoria'] not in rules.CATEGORIES or finding['componente'] not in rules.CATEGORIES[finding['categoria']]:raise ValueError('Componente no válido.')
             position=finding['ubicacion']
             if position not in LOCATIONS and not re.fullmatch(r'trasero (?:[ar][3-8]|pf[3-6]|ps[34])',str(position)):raise ValueError('Ubicación no confirmada.')
             if finding['defecto'] not in DEFECTS:raise ValueError('Defecto no válido.')

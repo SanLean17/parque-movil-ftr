@@ -45,7 +45,7 @@ NAMED_FAMILIES = ((r'amortiguador(?:es)?','a',8),(r'pulmon(?:es)?\s+(?:de\s+)?fr
 NAMED_GAP = r'(?:[ \t]*[.-][ \t]*|[ \t]+)'
 NAMED_CODE_TOKEN = r'\b(?:'+'|'.join(p for p,_,_ in NAMED_FAMILIES)+')'+NAMED_GAP+r'\d+(?:[.,]\d+)*\b'
 def numbered(name, maximum):return name+'(?:'+NAMED_GAP+'[1-'+str(maximum)+r'](?!\w|[.,]\d))?'
-from .numbered_references import pattern as reference_pattern, CODE_TOKEN
+from .legacy_numbered_v10 import pattern as reference_pattern, CODE_TOKEN
 NAMED_CODE_TOKEN = CODE_TOKEN
 A_CODE,PF_CODE,PS_CODE,R_CODE,CR_CODE = (reference_pattern(f) for f in ('a','pf','ps','r','cr'))
 # Un buje de amortiguador es un hallazgo de buje, salvo otra falla separada.

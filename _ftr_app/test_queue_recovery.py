@@ -113,3 +113,23 @@ class RecoveryTests(unittest.TestCase):
         self.now+=timedelta(minutes=5);self.queue.check(first['id'])
         with self.assertRaises(ValueError):self.queue.resolve(first['id'],'tampered')
         self.assertEqual(self.row()['status'],'unknown')
+
+    def test_closed_history_and_later_success_do_not_make_a_current_blocker(self):
+        first=self.add();second=self.add('cnrt');third=self.add('diagnostic',config=self.config)
+        value=self.queue.read();value['paused']=True
+        for row,status in zip(value['orders'],('resolved','cancelled','completed')):row['status']=status
+        self.queue.save(value);raw=(self.root/'ordenes.json').read_bytes()
+        self.queue=self.new_queue();status=self.queue.status();self.queue.tick()
+        self.assertIsNone(status['blocked']);self.assertTrue(status['paused'])
+        self.assertEqual([r['id'] for r in status['orders']],[first['id'],second['id'],third['id']])
+        self.assertEqual((self.root/'ordenes.json').read_bytes(),raw)
+        self.snapshot.assert_not_called();self.dispatch.assert_not_called()
+
+    def test_later_request_success_cannot_confirm_another_identifier(self):
+        first=self.uncertain();later=dict(first,id='f'*32);self.found(later)
+        self.runs.return_value=RunScan(self.runs.return_value,dict(complete=True))
+        self.queue.check(first['id'])
+        self.assertEqual(self.row()['status'],'unknown')
+        self.assertFalse(self.row().get('publication_verified',False))
+        self.assertEqual(self.row()['checks'][-1]['result'],'not_found')
+        self.dispatch.assert_called_once()

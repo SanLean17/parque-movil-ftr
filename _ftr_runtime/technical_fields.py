@@ -1,9 +1,9 @@
 """Version 7 technical attributes. None means not explicitly identified."""
 INFORMATION = {
     'ubicacion': ('delantero','trasero','derecho','izquierdo','superior','inferior','interno','externo','zona media'),
-    'parte': ('extremo','ambos extremos','lado eje','lado pitman','moño','moño trasero','moño delantero'),
-    'subcomponente': ('diafragma',),
-    'defecto': ('perdida_fluidos','flojo','suelto','juego','corte','pinchadura','liso','faltante','no_funciona','rotura','desgaste'),
+    'parte': ('extremo','ambos extremos','lado eje','lado pitman','moño','moño trasero','moño delantero','ambos moños'),
+    'subcomponente': ('diafragma','codo','buje'),
+    'defecto': ('perdida_fluidos','flojo','suelto','juego','corte','pinchadura','liso','faltante','no_funciona','rotura','desgaste','perdida_aire','perdida','ajuste','torcido','reparado'),
     'cantidad': ('dos',),
 }
 EXTRA_FIELDS = {'parte','subcomponente','cantidad_fisica','componente_asociado'}
@@ -16,3 +16,5 @@ def validate_extra(finding):
     if finding.get('componente_asociado') not in (None,'pulmon_freno'):raise ValueError('Referencia de componente no confirmada.')
     if finding.get('componente_asociado') and finding['componente']!='flexibles_freno':raise ValueError('La referencia al pulmón corresponde al flexible de freno.')
     if finding.get('subcomponente')=='diafragma' and finding['componente']!='pulmon_freno':raise ValueError('Diafragma requiere confirmar el pulmón de freno.')
+    if finding.get('subcomponente')=='codo' and finding['componente']!='pulmon_freno':raise ValueError('Codo requiere confirmar el pulmón de freno.')
+    if finding.get('subcomponente')=='buje' and finding['componente']!='tensores':raise ValueError('El buje asociado requiere confirmar el tensor.')

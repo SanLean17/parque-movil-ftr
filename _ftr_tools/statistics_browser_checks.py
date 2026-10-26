@@ -76,7 +76,7 @@ def check_mechanical_review(page, binary_profile=None):
             form=classify();form.get_by_role('button',name='VISTA PREVIA DE REGLA GENERAL',exact=True).click()
             page.wait_for_selector('.dictionary-preview:not([hidden])')
             assert '2 registros potencialmente afectados' in form.inner_text()
-            assert 'Otras / sin clasificar: 6 → 4' in form.inner_text()
+            assert 'Otras: 6 → 4' in form.inner_text()
             form.locator('.dictionary-preview summary').first.click();form.locator('.dictionary-preview').get_by_role('button',name='Ver registros',exact=True).first.click()
             assert 'AA111AA' in form.locator('.dictionary-preview').inner_text()
             before=len(api(page,'orders')['value']['orders']);form.locator('.dictionary-preview').get_by_role('button',name='CANCELAR',exact=True).click()

@@ -103,10 +103,10 @@ class ExpressionTests(unittest.TestCase):
 
     def test_losses_do_not_invent_a_brake_component(self):
         for text in ('PÉRDIDA DE AIRE ZONA DELANTERA','PERDIDA AIRE','PÉRDIDA DE AIRE ZONA MEDIA','PÉRDIDA DE AIRE ZONA TRASERA'):
-            with self.subTest(text=text):self.check(text,[],[text])
+            with self.subTest(text=text):self.check(text,['perdida_aire_no_especificada'])
         for text in ('FRENOS CON PERDIDA DE AIRE ZONA MEDIA','PERDIDA DE AIRE EN FRENOS','PERDIDA DE AIRE EN EL SISTEMA DE FRENOS'):
             with self.subTest(text=text):self.check(text,['freno_sin_ubicacion'])
-        self.check('BARRA CORTA, PÉRDIDA DE AIRE, CHICHARRA NO FUNCIONA',['barra_corta','sonora_marcha_atras'],['PÉRDIDA DE AIRE'])
+        self.check('BARRA CORTA, PÉRDIDA DE AIRE, CHICHARRA NO FUNCIONA',['barra_corta','sonora_marcha_atras','perdida_aire_no_especificada'])
         for text in ('FLEXIBLE DE COMBUSTIBLE','FLEXIBLE DE SUSPENSIÓN','FLEXIBLE DE AGUA'):
             with self.subTest(text=text):self.check(text,[],[text])
 

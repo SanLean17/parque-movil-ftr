@@ -17,6 +17,7 @@ LEGACY_MEANINGS = ('delantero','trasero','derecho','izquierdo','superior','infer
 MEANINGS = tuple(dict.fromkeys((*LEGACY_MEANINGS,*(v for group in INFORMATION.values() for v in group))))
 DESCRIPTORS = set('superior sup inferior inf tras trasero delantero delant del derecho der izquierdo izq interno int externo ext extremo punta juego jgo flojo suelto rotura desgaste'.split())
 DESCRIPTORS.update('extremos puntas superiores inferiores derechos derechas derecho derecha izquierdos izquierdas izquierda delanteros delanteras delantera traseros traseras trasera internos internas interna externos externas externa flojos flojas floja sueltos sueltas suelta'.split())
+DESCRIPTORS.update(('tra','isk','moño','moños','mono','monos','monio','monios','los dos','las dos','ambos extremos','ambos moños','cortad'))
 
 DESCRIPTORS.update(('lado eje','lado pitman','diafragma','zona media','cortado','cortada','cortados','cortadas','pinchado','pinchada','liso','lisa','lisos','lisas','faltante','ausente','carece de','falta','no funciona','suleto','ambos','ambas','dos'))
 TECHNICAL.update('pitman brazo lado eje extremo diafragma flexible flexibles estabilizadora chicharra senal neumaticos'.split())

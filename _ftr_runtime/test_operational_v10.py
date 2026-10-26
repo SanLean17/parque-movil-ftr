@@ -78,7 +78,7 @@ def test_engine9_capsule_remains_verifiable():
         assert review.unpack(capsule)[1]==data
         result=review.preview(capsule,rules.EMPTY)
         assert result['antes']['sin_clasificar']==2 and result['despues']['sin_clasificar']==0
-        assert result['afectados'] and result['motor_despues']==10
+        assert result['afectados'] and result['motor_despues']==11
     finally:test.tearDown()
 
 

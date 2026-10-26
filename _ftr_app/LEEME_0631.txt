@@ -1,4 +1,4 @@
-ADMINISTRACIÓN FTR 06.3.13 — WINDOWS
+ADMINISTRACIÓN FTR 06.3.14 — WINDOWS
 
 ACTUALIZAR
 1. En el programa anterior: Conexiones > Salir del programa.
@@ -215,3 +215,36 @@ Los horarios publicados se ejecutan en GitHub, incluso con Windows apagado; pued
 Enviado, en ejecución y publicación verificada son estados distintos. Una cola pausada se reanuda sólo por decisión del administrador.
 Actualizar: cerrar la aplicación, extraer el ZIP completo en una carpeta nueva y abrir FTR_Administracion.exe.
 No borrar %LOCALAPPDATA%\FTR_Administracion: conserva credenciales protegidas, órdenes y borradores.
+
+
+FTR Administración 06.3.14 para Windows
+Motor 11 · catálogo 8
+
+Equivalencias de base confirmadas: bujes de amortiguador, AMBOS contextual,
+mangueras de freno, EXT, TRA, ISK, moños del tensor, PS6 y sus separadores,
+bulón R6, neumáticos compuestos, CORTAD, chicharra y ajuste de emergencia.
+PS6: trasero derecho, último del fondo. PS5 no tiene posición confirmada.
+R5 conserva trasero externo izquierdo; R6, trasero externo derecho.
+Las condiciones se asocian a su componente y nunca cambian ESTADO.
+AMBOS puede indicar dos piezas o dos extremos de una pieza; las menciones
+estadísticas y cantidades físicas se mantienen separadas.
+
+OTRAS contiene pérdidas genéricas y observaciones administrativas conocidas.
+SIN CLASIFICAR conserva únicamente fragmentos sin interpretación segura.
+DEL ACERO, la manguera de válvula y los símbolos desconocidos requieren revisión.
+La vista previa conserva NOVEDADES y muestra el impacto sobre todo el período.
+Los informes de motores anteriores se comprueban con sus reglas originales.
+Los históricos solo se modifican mediante revisión protegida explícita.
+
+Actualizaciones: una cola pausada vacía es informativa; las canceladas y
+cerradas no son envíos inciertos. Las pendientes muestran sus identificadores
+y dependencias antes de continuar. Una ejecución distinta nunca acredita
+automáticamente otra orden. No se reanudan ni borran órdenes antiguas.
+
+Actualización: cerrar la versión anterior, extraer TODO el ZIP en una carpeta
+nueva y abrir FTR_Administracion.exe desde esa carpeta. No copiar solo el EXE.
+Se utiliza el perfil existente %LOCALAPPDATA%\FTR_Administracion, sin borrarlo
+ni sustituir ordenes.json, autorizaciones, preferencias o interpretaciones.
+No incluye credenciales ni informes privados. No cambia fuentes ni horarios.
+El ejecutable no tiene firma digital: una nueva versión no elimina por sí
+misma las advertencias de SmartScreen. No desactivar protecciones de Windows.

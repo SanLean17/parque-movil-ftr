@@ -29,9 +29,13 @@
     "error": null
   },
   "publication": {
-    "status": "pending",
+    "status": "success",
     "version": "2026-10-27T05:56:32.963920+00:00",
     "run_id": "40458134981",
-    "attempts": 0
+    "attempts": 1,
+    "revision": "4a9bbfe5532fdad54d3bf9c2964926632f79856b",
+    "attempt_utc": "2026-10-27T05:56:34.239170+00:00",
+    "verified_utc": "2026-10-27T05:57:41.900234+00:00",
+    "error": null
   }
 }

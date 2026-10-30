@@ -1,22 +1,22 @@
 {
   "drive": {
-    "attempt_utc": "2026-10-29T20:00:57.303720+00:00",
-    "read_utc": "2026-10-29T20:00:57.378146+00:00",
-    "completed_utc": "2026-10-29T20:01:03.126648+00:00",
+    "attempt_utc": "2026-10-30T06:44:45.544365+00:00",
+    "read_utc": "2026-10-30T06:44:45.622017+00:00",
+    "completed_utc": "2026-10-30T06:44:53.052120+00:00",
     "period": 2026,
     "source_id": "1rxhnmA9-fekE8QHPddoalPRK66sHxdKu9jk1R4-lAJk",
     "records": 1981,
     "unique": 1920,
     "status": "success",
-    "run_id": "40945143524",
+    "run_id": "41015837367",
     "served_slot": "a826b7f608ea:2026-10-29T17:00:00-03:00",
     "error": null,
     "schedule_effective_from_utc": "2026-10-21T04:18:44.468372+00:00"
   },
   "version": 2,
   "config_digest": "3819cb72da178af3d2548a42649e47c41d285087615d682817b1f35583a97d55",
-  "updated_utc": "2026-10-30T01:08:37.469549+00:00",
-  "run_id": "40983283240",
+  "updated_utc": "2026-10-30T06:44:53.077186+00:00",
+  "run_id": "41015837367",
   "cnrt": {
     "attempt_utc": "2026-10-30T01:01:50.369762+00:00",
     "read_utc": "2026-10-30T01:01:50.370149+00:00",
@@ -29,13 +29,9 @@
     "error": null
   },
   "publication": {
-    "status": "success",
-    "version": "2026-10-30T01:08:37.469549+00:00",
-    "run_id": "40983283240",
-    "attempts": 1,
-    "revision": "5bc0d28eac8b89f55bca65676c73071b5fada2e7",
-    "attempt_utc": "2026-10-30T01:08:38.711966+00:00",
-    "verified_utc": "2026-10-30T01:09:29.005190+00:00",
-    "error": null
+    "status": "pending",
+    "version": "2026-10-30T06:44:53.077186+00:00",
+    "run_id": "41015837367",
+    "attempts": 0
   }
 }

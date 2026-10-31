@@ -63,9 +63,9 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-10-31T06:34:58.376434+00:00",
-      "status": "success",
-      "run_id": "41177184713",
+      "started_utc": "2026-10-31T09:20:36.024641+00:00",
+      "status": "running",
+      "run_id": "41188286022",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
@@ -73,11 +73,8 @@
       "delay_seconds": null,
       "kind": "additional",
       "action": "scheduled",
-      "cron_utc": "0 1 * * *",
-      "event_created_utc": "2026-10-31T06:34:37Z",
-      "finished_utc": "2026-10-31T06:35:05.471809+00:00",
-      "error": null,
-      "read_utc": "2026-10-31T06:34:59.641274+00:00"
+      "cron_utc": "0 3 * * *",
+      "event_created_utc": "2026-10-31T09:20:19Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -858,6 +855,21 @@
       "finished_utc": "2026-10-31T06:35:05.471809+00:00",
       "error": null,
       "read_utc": "2026-10-31T06:34:59.641274+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-10-31T09:20:36.024641+00:00",
+      "status": "running",
+      "run_id": "41188286022",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "additional",
+      "action": "scheduled",
+      "cron_utc": "0 3 * * *",
+      "event_created_utc": "2026-10-31T09:20:19Z"
     }
   ]
 }

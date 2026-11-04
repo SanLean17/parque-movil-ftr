@@ -63,21 +63,18 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-04T10:32:57.927247+00:00",
-      "status": "success",
-      "run_id": "41814870610",
+      "started_utc": "2026-11-04T20:01:30.917879+00:00",
+      "status": "running",
+      "run_id": "41902526326",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
-      "expected_utc": null,
-      "delay_seconds": null,
-      "kind": "additional",
-      "action": "scheduled",
-      "cron_utc": "0 3 * * *",
-      "event_created_utc": "2026-11-04T10:32:39Z",
-      "finished_utc": "2026-11-04T10:33:05.919888+00:00",
-      "error": null,
-      "read_utc": "2026-11-04T10:33:00.937259+00:00"
+      "expected_utc": "2026-11-04T20:00:00+00:00",
+      "delay_seconds": 90,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-04T20:01:10Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -238,6 +235,11 @@
       "started_utc": "2026-11-04T01:02:10.415385+00:00",
       "run_id": "41751064423",
       "finished_utc": "2026-11-04T01:09:11.078233+00:00"
+    },
+    "reloj-41902305473": {
+      "status": "running",
+      "started_utc": "2026-11-04T20:01:30.917879+00:00",
+      "run_id": "41902526326"
     }
   },
   "execution_history": [
@@ -1140,6 +1142,21 @@
       "finished_utc": "2026-11-04T10:33:05.919888+00:00",
       "error": null,
       "read_utc": "2026-11-04T10:33:00.937259+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-04T20:01:30.917879+00:00",
+      "status": "running",
+      "run_id": "41902526326",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-11-04T20:00:00+00:00",
+      "delay_seconds": 90,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-04T20:01:10Z"
     }
   ]
 }

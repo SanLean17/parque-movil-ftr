@@ -29,9 +29,12 @@
     "error": null
   },
   "publication": {
-    "status": "pending",
+    "status": "error",
     "version": "2026-11-13T16:29:31.042209+00:00",
     "run_id": "43463139419",
-    "attempts": 0
+    "attempts": 1,
+    "revision": "3346150d741bed25390b0286b8bcfe2f66706f67",
+    "attempt_utc": "2026-11-13T16:29:32.136374+00:00",
+    "error": "La publicación no quedó verificada. Se reintentará publicar los datos guardados sin volver a leer las fuentes."
   }
 }

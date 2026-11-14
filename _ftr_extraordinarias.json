@@ -80,21 +80,18 @@
     },
     "cnrt": {
       "source": "cnrt",
-      "started_utc": "2026-11-09T01:02:24.490512+00:00",
-      "status": "success",
-      "run_id": "42543313159",
+      "started_utc": "2026-11-14T01:00:53.755940+00:00",
+      "status": "running",
+      "run_id": "43537800548",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
-      "expected_utc": "2026-11-09T01:00:00+00:00",
-      "delay_seconds": 145,
+      "expected_utc": "2026-11-14T01:00:00+00:00",
+      "delay_seconds": 53,
       "kind": "recovered",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-11-09T01:01:31Z",
-      "finished_utc": "2026-11-09T01:09:18.697840+00:00",
-      "error": null,
-      "read_utc": "2026-11-09T01:02:25.969208+00:00"
+      "event_created_utc": "2026-11-14T01:00:04Z"
     }
   },
   "receipts": {
@@ -465,6 +462,11 @@
       "started_utc": "2026-11-14T00:38:14.137507+00:00",
       "run_id": "43535467764",
       "finished_utc": "2026-11-14T00:38:20.953028+00:00"
+    },
+    "reloj-43537671872": {
+      "status": "running",
+      "started_utc": "2026-11-14T01:00:53.755940+00:00",
+      "run_id": "43537800548"
     }
   },
   "execution_history": [
@@ -2310,6 +2312,21 @@
       "event_created_utc": "2026-11-14T00:37:49Z",
       "finished_utc": "2026-11-14T00:38:20.953028+00:00",
       "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
+    },
+    {
+      "source": "cnrt",
+      "started_utc": "2026-11-14T01:00:53.755940+00:00",
+      "status": "running",
+      "run_id": "43537800548",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-11-14T01:00:00+00:00",
+      "delay_seconds": 53,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-14T01:00:04Z"
     }
   ]
 }

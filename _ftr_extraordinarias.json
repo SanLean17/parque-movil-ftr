@@ -63,20 +63,18 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-15T19:39:16.650072+00:00",
-      "status": "error",
-      "run_id": "43753590765",
+      "started_utc": "2026-11-15T20:40:34.312658+00:00",
+      "status": "running",
+      "run_id": "43759368343",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
-      "expected_utc": "2026-11-14T20:00:00+00:00",
-      "delay_seconds": 85156,
+      "expected_utc": "2026-11-15T20:00:00+00:00",
+      "delay_seconds": 2434,
       "kind": "recovered",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-11-15T19:38:55Z",
-      "finished_utc": "2026-11-15T19:39:23.344513+00:00",
-      "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
+      "event_created_utc": "2026-11-15T20:40:12Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -723,6 +721,11 @@
       "started_utc": "2026-11-15T19:39:16.650072+00:00",
       "run_id": "43753590765",
       "finished_utc": "2026-11-15T19:39:23.344513+00:00"
+    },
+    "reloj-43759247686": {
+      "status": "running",
+      "started_utc": "2026-11-15T20:40:34.312658+00:00",
+      "run_id": "43759368343"
     }
   },
   "execution_history": [
@@ -3300,6 +3303,21 @@
       "event_created_utc": "2026-11-15T19:38:55Z",
       "finished_utc": "2026-11-15T19:39:23.344513+00:00",
       "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-15T20:40:34.312658+00:00",
+      "status": "running",
+      "run_id": "43759368343",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-11-15T20:00:00+00:00",
+      "delay_seconds": 2434,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-15T20:40:12Z"
     }
   ]
 }

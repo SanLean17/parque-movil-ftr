@@ -1,6 +1,6 @@
 {
   "drive": {
-    "attempt_utc": "2026-11-18T09:21:08.650979+00:00",
+    "attempt_utc": "2026-11-18T10:21:36.043725+00:00",
     "read_utc": "2026-11-17T11:31:41.428591+00:00",
     "completed_utc": "2026-11-17T11:31:46.883003+00:00",
     "period": 2026,
@@ -10,13 +10,13 @@
     "status": "error",
     "run_id": "44074745951",
     "served_slot": "a826b7f608ea:2026-11-16T17:00:00-03:00",
-    "error": "La planilla cambió durante la lectura. Reintentá cuando no se esté editando.",
+    "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados.",
     "schedule_effective_from_utc": "2026-10-21T04:18:44.468372+00:00"
   },
   "version": 2,
   "config_digest": "3819cb72da178af3d2548a42649e47c41d285087615d682817b1f35583a97d55",
-  "updated_utc": "2026-11-18T09:21:11.294581+00:00",
-  "run_id": "44275029293",
+  "updated_utc": "2026-11-18T10:21:39.138669+00:00",
+  "run_id": "44284603921",
   "cnrt": {
     "attempt_utc": "2026-11-14T01:00:54.775276+00:00",
     "read_utc": "2026-11-14T01:00:54.775715+00:00",
@@ -29,13 +29,9 @@
     "error": null
   },
   "publication": {
-    "status": "success",
-    "version": "2026-11-18T09:21:11.294581+00:00",
-    "run_id": "44275029293",
-    "attempts": 1,
-    "revision": "ebaff3717aa876805a9d1a10769c64e483e125be",
-    "attempt_utc": "2026-11-18T09:21:12.372611+00:00",
-    "verified_utc": "2026-11-18T09:21:57.014285+00:00",
-    "error": null
+    "status": "pending",
+    "version": "2026-11-18T10:21:39.138669+00:00",
+    "run_id": "44284603921",
+    "attempts": 0
   }
 }

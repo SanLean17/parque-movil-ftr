@@ -64,7 +64,7 @@
     "drive": {
       "source": "drive",
       "started_utc": "2026-11-18T09:21:07.615287+00:00",
-      "status": "running",
+      "status": "error",
       "run_id": "44275029293",
       "reasons": [
         "actualización solicitada o recurrente"
@@ -74,7 +74,9 @@
       "kind": "recovered",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-11-18T09:20:41Z"
+      "event_created_utc": "2026-11-18T09:20:41Z",
+      "finished_utc": "2026-11-18T09:21:11.292736+00:00",
+      "error": "La planilla cambió durante la lectura. Reintentá cuando no se esté editando."
     },
     "cnrt": {
       "source": "cnrt",
@@ -921,9 +923,10 @@
       "finished_utc": "2026-11-18T08:19:15.383747+00:00"
     },
     "reloj-44274792839": {
-      "status": "running",
+      "status": "error",
       "started_utc": "2026-11-18T09:21:07.615287+00:00",
-      "run_id": "44275029293"
+      "run_id": "44275029293",
+      "finished_utc": "2026-11-18T09:21:11.292736+00:00"
     }
   },
   "execution_history": [
@@ -4104,7 +4107,7 @@
     {
       "source": "drive",
       "started_utc": "2026-11-18T09:21:07.615287+00:00",
-      "status": "running",
+      "status": "error",
       "run_id": "44275029293",
       "reasons": [
         "actualización solicitada o recurrente"
@@ -4114,7 +4117,9 @@
       "kind": "recovered",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-11-18T09:20:41Z"
+      "event_created_utc": "2026-11-18T09:20:41Z",
+      "finished_utc": "2026-11-18T09:21:11.292736+00:00",
+      "error": "La planilla cambió durante la lectura. Reintentá cuando no se esté editando."
     }
   ]
 }

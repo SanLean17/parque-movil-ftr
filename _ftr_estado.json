@@ -29,12 +29,13 @@
     "error": null
   },
   "publication": {
-    "status": "error",
+    "status": "success",
     "version": "2026-11-19T22:04:24.800306+00:00",
     "run_id": "44624957118",
-    "attempts": 1,
-    "revision": "3f45c2782e25d72a15213c87bc153b627d9ac88b",
-    "attempt_utc": "2026-11-19T22:04:26.158093+00:00",
-    "error": "La publicación no quedó verificada. Se reintentará publicar los datos guardados sin volver a leer las fuentes."
+    "attempts": 2,
+    "revision": "b72207a3f19cb18cace7432b02a21aca9655d0a2",
+    "attempt_utc": "2026-11-19T22:19:50.179149+00:00",
+    "error": null,
+    "verified_utc": "2026-11-19T22:20:38.145748+00:00"
   }
 }

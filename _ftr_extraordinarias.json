@@ -63,20 +63,18 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-21T13:59:16.608519+00:00",
-      "status": "error",
-      "run_id": "44911540518",
+      "started_utc": "2026-11-21T15:01:03.608737+00:00",
+      "status": "running",
+      "run_id": "44916865286",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
       "expected_utc": "2026-11-20T20:00:00+00:00",
-      "delay_seconds": 64756,
+      "delay_seconds": 68463,
       "kind": "recovered",
       "action": "recovery",
       "cron_utc": "",
-      "event_created_utc": "2026-11-21T13:58:56Z",
-      "finished_utc": "2026-11-21T13:59:24.332783+00:00",
-      "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
+      "event_created_utc": "2026-11-21T15:00:41Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -1341,27 +1339,14 @@
       "started_utc": "2026-11-21T13:59:16.608519+00:00",
       "run_id": "44911540518",
       "finished_utc": "2026-11-21T13:59:24.332783+00:00"
+    },
+    "reloj-44916743757": {
+      "status": "running",
+      "started_utc": "2026-11-21T15:01:03.608737+00:00",
+      "run_id": "44916865286"
     }
   },
   "execution_history": [
-    {
-      "source": "drive",
-      "started_utc": "2026-11-05T20:01:19.035232+00:00",
-      "status": "success",
-      "run_id": "42099341696",
-      "reasons": [
-        "actualización solicitada o recurrente"
-      ],
-      "expected_utc": "2026-11-05T20:00:00+00:00",
-      "delay_seconds": 80,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-11-05T20:00:54Z",
-      "finished_utc": "2026-11-05T20:01:27.693354+00:00",
-      "error": null,
-      "read_utc": "2026-11-05T20:01:20.358605+00:00"
-    },
     {
       "source": "drive",
       "started_utc": "2026-11-06T07:37:30.334954+00:00",
@@ -4771,6 +4756,21 @@
       "event_created_utc": "2026-11-21T13:58:56Z",
       "finished_utc": "2026-11-21T13:59:24.332783+00:00",
       "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-21T15:01:03.608737+00:00",
+      "status": "running",
+      "run_id": "44916865286",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-11-20T20:00:00+00:00",
+      "delay_seconds": 68463,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-21T15:00:41Z"
     }
   ]
 }

@@ -63,9 +63,9 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-23T08:32:46.666627+00:00",
-      "status": "success",
-      "run_id": "45139442203",
+      "started_utc": "2026-11-23T11:53:30.668475+00:00",
+      "status": "running",
+      "run_id": "45169175315",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
@@ -73,11 +73,8 @@
       "delay_seconds": null,
       "kind": "additional",
       "action": "scheduled",
-      "cron_utc": "0 1 * * *",
-      "event_created_utc": "2026-11-23T08:32:28Z",
-      "finished_utc": "2026-11-23T08:32:55.380310+00:00",
-      "error": null,
-      "read_utc": "2026-11-23T08:32:48.047002+00:00"
+      "cron_utc": "0 3 * * *",
+      "event_created_utc": "2026-11-23T11:53:15Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -1579,23 +1576,6 @@
     }
   },
   "execution_history": [
-    {
-      "source": "drive",
-      "started_utc": "2026-11-13T14:25:31.687591+00:00",
-      "status": "error",
-      "run_id": "43442506071",
-      "reasons": [
-        "actualización solicitada o recurrente"
-      ],
-      "expected_utc": "2026-11-12T20:00:00+00:00",
-      "delay_seconds": 66331,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-11-13T14:25:03Z",
-      "finished_utc": "2026-11-13T14:25:42.091921+00:00",
-      "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
-    },
     {
       "source": "drive",
       "started_utc": "2026-11-13T15:27:21.507776+00:00",
@@ -4986,6 +4966,21 @@
       "finished_utc": "2026-11-23T08:32:55.380310+00:00",
       "error": null,
       "read_utc": "2026-11-23T08:32:48.047002+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-23T11:53:30.668475+00:00",
+      "status": "running",
+      "run_id": "45169175315",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "additional",
+      "action": "scheduled",
+      "cron_utc": "0 3 * * *",
+      "event_created_utc": "2026-11-23T11:53:15Z"
     }
   ]
 }

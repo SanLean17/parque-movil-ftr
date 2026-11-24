@@ -63,21 +63,18 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-23T20:00:28.731112+00:00",
-      "status": "success",
-      "run_id": "45254740091",
+      "started_utc": "2026-11-24T10:38:54.467135+00:00",
+      "status": "running",
+      "run_id": "45376721608",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
-      "expected_utc": "2026-11-23T20:00:00+00:00",
-      "delay_seconds": 30,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-11-23T20:00:07Z",
-      "finished_utc": "2026-11-23T20:00:36.269573+00:00",
-      "error": null,
-      "read_utc": "2026-11-23T20:00:30.139675+00:00"
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "additional",
+      "action": "scheduled",
+      "cron_utc": "0 1 * * *",
+      "event_created_utc": "2026-11-24T10:38:37Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -1591,23 +1588,6 @@
     }
   },
   "execution_history": [
-    {
-      "source": "drive",
-      "started_utc": "2026-11-13T17:30:28.524539+00:00",
-      "status": "error",
-      "run_id": "43473388154",
-      "reasons": [
-        "actualización solicitada o recurrente"
-      ],
-      "expected_utc": "2026-11-12T20:00:00+00:00",
-      "delay_seconds": 77428,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-11-13T17:30:03Z",
-      "finished_utc": "2026-11-13T17:30:36.417989+00:00",
-      "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
-    },
     {
       "source": "drive",
       "started_utc": "2026-11-13T18:31:07.735523+00:00",
@@ -5001,6 +4981,21 @@
       "finished_utc": "2026-11-24T01:08:43.371886+00:00",
       "error": null,
       "read_utc": "2026-11-24T01:01:48.065248+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-24T10:38:54.467135+00:00",
+      "status": "running",
+      "run_id": "45376721608",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": null,
+      "delay_seconds": null,
+      "kind": "additional",
+      "action": "scheduled",
+      "cron_utc": "0 1 * * *",
+      "event_created_utc": "2026-11-24T10:38:37Z"
     }
   ]
 }

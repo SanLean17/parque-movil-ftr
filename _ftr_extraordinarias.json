@@ -64,7 +64,7 @@
     "drive": {
       "source": "drive",
       "started_utc": "2026-11-25T12:13:10.260772+00:00",
-      "status": "running",
+      "status": "success",
       "run_id": "45611607693",
       "reasons": [
         "actualización solicitada o recurrente"
@@ -74,7 +74,10 @@
       "kind": "additional",
       "action": "scheduled",
       "cron_utc": "0 3 * * *",
-      "event_created_utc": "2026-11-25T12:12:52Z"
+      "event_created_utc": "2026-11-25T12:12:52Z",
+      "finished_utc": "2026-11-25T12:13:17.224834+00:00",
+      "error": null,
+      "read_utc": "2026-11-25T12:13:11.571471+00:00"
     },
     "cnrt": {
       "source": "cnrt",
@@ -4994,7 +4997,7 @@
     {
       "source": "drive",
       "started_utc": "2026-11-25T12:13:10.260772+00:00",
-      "status": "running",
+      "status": "success",
       "run_id": "45611607693",
       "reasons": [
         "actualización solicitada o recurrente"
@@ -5004,7 +5007,10 @@
       "kind": "additional",
       "action": "scheduled",
       "cron_utc": "0 3 * * *",
-      "event_created_utc": "2026-11-25T12:12:52Z"
+      "event_created_utc": "2026-11-25T12:12:52Z",
+      "finished_utc": "2026-11-25T12:13:17.224834+00:00",
+      "error": null,
+      "read_utc": "2026-11-25T12:13:11.571471+00:00"
     }
   ]
 }

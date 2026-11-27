@@ -63,21 +63,18 @@
   "last_execution": {
     "drive": {
       "source": "drive",
-      "started_utc": "2026-11-27T11:49:42.776654+00:00",
-      "status": "success",
-      "run_id": "45993588936",
+      "started_utc": "2026-11-27T20:00:44.580857+00:00",
+      "status": "running",
+      "run_id": "46060588886",
       "reasons": [
         "actualización solicitada o recurrente"
       ],
-      "expected_utc": null,
-      "delay_seconds": null,
-      "kind": "additional",
-      "action": "scheduled",
-      "cron_utc": "0 3 * * *",
-      "event_created_utc": "2026-11-27T11:49:23Z",
-      "finished_utc": "2026-11-27T11:49:50.713280+00:00",
-      "error": null,
-      "read_utc": "2026-11-27T11:49:44.264259+00:00"
+      "expected_utc": "2026-11-27T20:00:00+00:00",
+      "delay_seconds": 44,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-27T20:00:18Z"
     },
     "cnrt": {
       "source": "cnrt",
@@ -1606,26 +1603,14 @@
       "started_utc": "2026-11-26T20:01:37.579928+00:00",
       "run_id": "45887928630",
       "finished_utc": "2026-11-26T20:01:44.530737+00:00"
+    },
+    "reloj-46060437796": {
+      "status": "running",
+      "started_utc": "2026-11-27T20:00:44.580857+00:00",
+      "run_id": "46060588886"
     }
   },
   "execution_history": [
-    {
-      "source": "drive",
-      "started_utc": "2026-11-14T03:42:41.876047+00:00",
-      "status": "error",
-      "run_id": "43552990921",
-      "reasons": [
-        "actualización solicitada o recurrente"
-      ],
-      "expected_utc": "2026-11-13T20:00:00+00:00",
-      "delay_seconds": 27761,
-      "kind": "recovered",
-      "action": "recovery",
-      "cron_utc": "",
-      "event_created_utc": "2026-11-14T03:42:20Z",
-      "finished_utc": "2026-11-14T03:42:49.138932+00:00",
-      "error": "La lectura tiene errores de carga o tablas sin identificar. Revisá Incidencias; se conservaron los controles publicados."
-    },
     {
       "source": "drive",
       "started_utc": "2026-11-14T04:44:15.154822+00:00",
@@ -5028,6 +5013,21 @@
       "finished_utc": "2026-11-27T11:49:50.713280+00:00",
       "error": null,
       "read_utc": "2026-11-27T11:49:44.264259+00:00"
+    },
+    {
+      "source": "drive",
+      "started_utc": "2026-11-27T20:00:44.580857+00:00",
+      "status": "running",
+      "run_id": "46060588886",
+      "reasons": [
+        "actualización solicitada o recurrente"
+      ],
+      "expected_utc": "2026-11-27T20:00:00+00:00",
+      "delay_seconds": 44,
+      "kind": "recovered",
+      "action": "recovery",
+      "cron_utc": "",
+      "event_created_utc": "2026-11-27T20:00:18Z"
     }
   ]
 }
